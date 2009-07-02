@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 
+from model_utils.fields import AutoCreatedField, AutoLastModifiedField
+
 class InheritanceCastModel(models.Model):
     """
     An abstract base class that provides a ``real_type`` FK to ContentType.
@@ -24,3 +26,17 @@ class InheritanceCastModel(models.Model):
         
     class Meta:
         abstract = True
+
+
+class TimeStampedModel (models.Model):
+    """
+    An abstract base class model that provides self-updating
+    ``created`` and ``modified`` fields.
+
+    """
+    created = AutoCreatedField()
+    modified = AutoLastModifiedField()
+
+    class Meta:
+        abstract = True
+

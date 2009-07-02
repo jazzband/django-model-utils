@@ -22,10 +22,29 @@ But when you iterate over ``nearby_places``, you'll get only ``Place``
 instances back, even for objects that are "really" ``Restaurant`` or
 ``Bar``.  If you have ``Place`` inherit from ``InheritanceCastModel``,
 you can just call the ``cast()`` method on each ``Place`` and it will
-return an instance of the proper subtype, ``Restaurant`` or ``Bar``.
+return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
+
+    from model_utils.models import InheritanceCastModel
+
+    class Place(InheritanceCastModel):
+        ...
+    
+    class Restaurant(Place):
+        ...
+
+    nearby_places = Place.objects.filter(location='here')
+    for place in nearby_places:
+        restaurant_or_bar = place.cast()
+        ...
 
 .. note:: 
     This is inefficient for large querysets, as it results in n
     queries to the subtype tables.  It would be possible to write a
     QuerySet subclass that could reduce this to k queries, where there
     are k subtypes in the inheritance tree.
+
+TimeStampedModel
+================
+
+This abstract base class just provides self-updating ``created`` and
+``modified`` fields on any model that inherits it.
