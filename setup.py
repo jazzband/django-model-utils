@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
  
 setup(
     name='django-model-utils',
-    version='0.2.1',
+    version='0.3.0',
     description='Django model mixins and utilities',
     long_description=open('README.txt').read(),
     author='Carl Meyer',

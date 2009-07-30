@@ -2,3 +2,8 @@
 django-model-utils changelog
 ============================
 
+v0.3.0
+------
+
+* Added ``QueryManager``
+

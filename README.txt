@@ -4,8 +4,8 @@ django-model-utils
 
 Django model mixins and utilities.
 
-InheritanceCastModel
-====================
+models.InheritanceCastModel
+===========================
 
 This abstract base class can be inherited by the root (parent) model
 in a model-inheritance tree.  It allows each model in the tree to
@@ -43,8 +43,34 @@ return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
     QuerySet subclass that could reduce this to k queries, where there
     are k subtypes in the inheritance tree.
 
-TimeStampedModel
-================
+models.TimeStampedModel
+=======================
 
 This abstract base class just provides self-updating ``created`` and
 ``modified`` fields on any model that inherits it.
+
+managers.QueryManager
+=====================
+
+Many custom model managers do nothing more than return a QuerySet that
+is filtered in some way. ``QueryManager`` allows you to express this
+pattern with a minimum of boilerplate::
+
+    from django.db import models
+    from model_utils.managers import QueryManager
+
+    class Post(models.Model):
+        ...
+        published = models.BooleanField()
+        pub_date = models.DateField()
+        ...
+
+        objects = models.Manager()
+        public = QueryManager(published=True).order_by('-pub_date')
+
+The kwargs passed to ``QueryManager`` will be passed as-is to the
+``QuerySet.filter()`` method. You can also pass a ``Q`` object to
+``QueryManager`` to express more complex conditions. Note that you can
+set the ordering of the ``QuerySet`` returned by the ``QueryManager``
+by chaining a call to ``.order_by()`` on the ``QueryManager`` (this is
+not required).
