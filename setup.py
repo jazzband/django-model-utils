@@ -2,15 +2,15 @@ from setuptools import setup, find_packages
  
 setup(
     name='django-model-utils',
-    version='0.3.0',
+    version='0.3.1',
     description='Django model mixins and utilities',
     long_description=open('README.txt').read(),
     author='Carl Meyer',
     author_email='carl@dirtcircle.com',
-    url='http://launchpad.net/django-model-utils',
+    url='http://bitbucket.org/carljm/django-model-utils/',
     packages=find_packages(),
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
@@ -18,7 +18,6 @@ setup(
         'Programming Language :: Python',
         'Framework :: Django',
     ],
-    include_package_data=True,
     zip_safe=False,
-    setup_requires=['setuptools_bzr'],
+    test_suite='model_utils.tests.runtests.runtests'
 )
