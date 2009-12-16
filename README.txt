@@ -4,6 +4,30 @@ django-model-utils
 
 Django model mixins and utilities.
 
+Installation
+============
+
+Install from PyPI with ``easy_install`` or ``pip``::
+
+    pip install django-model-utils
+
+or get the `in-development version`_::
+
+    pip install django-model-utils==tip
+
+.. _in-development version: http://bitbucket.org/carljm/django-model-utils/get/tip.gz#egg=django_model_utils-tip
+
+To use ``django-model-utils`` in your Django project, just import the
+utility classes described below; there is no need to modify your
+``INSTALLED_APPS`` setting.
+
+Dependencies
+------------
+
+``django-model-utils`` requires `Django`_ 1.0 or later.
+
+.. _Django: http://www.djangoproject.com/
+
 models.InheritanceCastModel
 ===========================
 
