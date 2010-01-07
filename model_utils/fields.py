@@ -27,3 +27,10 @@ class AutoLastModifiedField (AutoCreatedField):
         setattr(model_instance, self.attname, value)
         return value    
     
+# allow South to handle these fields smoothly
+try:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules(patterns=['model_utils\.fields\.'])
+except ImportError:
+    pass
+
