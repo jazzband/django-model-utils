@@ -98,3 +98,4 @@ The kwargs passed to ``QueryManager`` will be passed as-is to the
 set the ordering of the ``QuerySet`` returned by the ``QueryManager``
 by chaining a call to ``.order_by()`` on the ``QueryManager`` (this is
 not required).
+

@@ -1,0 +1,13 @@
+CHANGES
+=======
+
+tip (unreleased)
+----------------
+
+- added South support for custom model fields
+
+0.3.0
+-----
+
+* Added ``QueryManager``
+

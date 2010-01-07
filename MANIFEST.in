@@ -1,7 +1,8 @@
 include AUTHORS.txt
-include CHANGELOG.txt
+include CHANGES.txt
 include INSTALL.txt
 include LICENSE.txt
 include MANIFEST.in
 include README.txt
 include TODO.txt
+include HGREV
