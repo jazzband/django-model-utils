@@ -28,6 +28,35 @@ Dependencies
 
 .. _Django: http://www.djangoproject.com/
 
+ChoiceEnum
+==========
+
+``ChoiceEnum`` makes setting ``choices`` on a Django model field way
+too easy::
+
+    from model_utils import ChoiceEnum
+
+    class Article(models.Model):
+        STATUS = ChoiceEnum('draft', 'published')
+        # ...
+        status = models.PositiveIntegerField(choices=STATUS, default=STATUS.draft)
+
+        def status_desc(self):
+            return self.STATUS[self.status]
+
+A ``ChoiceEnum`` object is initialized with any number of choices,
+which should be strings. It assigns a sequential id to each
+choice. The numerical id for a choice is available through attribute
+access (``STATUS.draft``), and the text name for a choice can be
+obtained by indexing with the numerical id
+(``self.STATUS[self.status]``). If iterated over, a ``ChoiceEnum``
+object yields a tuple of two-tuples linking id to text names, the
+format expected by the ``choices`` attribute of Django models.
+
+Be careful not to add new choices in the middle of the list, as that
+will change the numerical ids for all subsequent choices, which could
+impact existing data.
+
 models.InheritanceCastModel
 ===========================
 

@@ -1,9 +1,23 @@
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
+from model_utils import ChoiceEnum
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
     Post
+    
+class ChoiceEnumTests(TestCase):
+    def setUp(self):
+        self.STATUS = ChoiceEnum('DRAFT', 'PUBLISHED')
 
+    def test_getattr(self):
+        self.assertEquals(self.STATUS.DRAFT, 0)
+
+    def test_getitem(self):
+        self.assertEquals(self.STATUS[1], 'PUBLISHED')
+
+    def test_iteration(self):
+        self.assertEquals(tuple(self.STATUS), ((0, 'DRAFT'), (1, 'PUBLISHED')))
+    
 class InheritanceCastModelTests(TestCase):
     def setUp(self):
         self.parent = InheritParent.objects.create()
