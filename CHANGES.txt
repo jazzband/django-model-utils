@@ -4,6 +4,7 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- added SplitField
 - added ChoiceEnum
 - added South support for custom model fields
 

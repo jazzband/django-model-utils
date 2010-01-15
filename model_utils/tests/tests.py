@@ -2,9 +2,68 @@ from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
 from model_utils import ChoiceEnum
+from model_utils.fields import get_excerpt
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post
+    Post, Article
+
+
+class GetExcerptTests(TestCase):
+    def test_split(self):
+        e = get_excerpt("some content\n\n<!-- split -->\n\nsome more")
+        self.assertEquals(e, 'some content\n')
+
+    def test_auto_split(self):
+        e = get_excerpt("para one\n\npara two\n\npara three")
+        self.assertEquals(e, 'para one\n\npara two')
+
+    def test_middle_of_para(self):
+        e = get_excerpt("some text\n<!-- split -->\nmore text")
+        self.assertEquals(e, 'some text')
+
+    def test_middle_of_line(self):
+        e = get_excerpt("some text <!-- split --> more text")
+        self.assertEquals(e, "some text <!-- split --> more text")
     
+class SplitFieldTests(TestCase):
+    full_text = u'summary\n\n<!-- split -->\n\nmore'
+    excerpt = u'summary\n'
+    
+    def setUp(self):
+        self.post = Article.objects.create(
+            title='example post', body=self.full_text)
+
+    def test_unicode_content(self):
+        self.assertEquals(unicode(self.post.body), self.full_text)
+
+    def test_excerpt(self):
+        self.assertEquals(self.post.body.excerpt, self.excerpt)
+
+    def test_content(self):
+        self.assertEquals(self.post.body.content, self.full_text)
+
+    def test_load_back(self):
+        post = Article.objects.get(pk=self.post.pk)
+        self.assertEquals(post.body.content, self.post.body.content)
+        self.assertEquals(post.body.excerpt, self.post.body.excerpt)
+
+    def test_assign_to_body(self):
+        new_text = u'different\n\n<!-- split -->\n\nother'
+        self.post.body = new_text
+        self.post.save()
+        self.assertEquals(unicode(self.post.body), new_text)
+
+    def test_assign_to_content(self):
+        new_text = u'different\n\n<!-- split -->\n\nother'
+        self.post.body.content = new_text
+        self.post.save()
+        self.assertEquals(unicode(self.post.body), new_text)
+
+    def test_assign_to_excerpt(self):
+        def _invalid_assignment():
+            self.post.body.excerpt = 'this should fail'
+        self.assertRaises(AttributeError, _invalid_assignment)
+
+
 class ChoiceEnumTests(TestCase):
     def setUp(self):
         self.STATUS = ChoiceEnum('DRAFT', 'PUBLISHED')
@@ -17,7 +76,8 @@ class ChoiceEnumTests(TestCase):
 
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), ((0, 'DRAFT'), (1, 'PUBLISHED')))
-    
+
+
 class InheritanceCastModelTests(TestCase):
     def setUp(self):
         self.parent = InheritParent.objects.create()

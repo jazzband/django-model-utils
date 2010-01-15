@@ -2,6 +2,7 @@ from django.db import models
 
 from model_utils.models import InheritanceCastModel, TimeStampedModel
 from model_utils.managers import QueryManager
+from model_utils.fields import SplitField
 
 
 class InheritParent(InheritanceCastModel):
@@ -26,3 +27,10 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('order',)
+
+class Article(models.Model):
+    title = models.CharField(max_length=50)
+    body = SplitField()
+
+    def __unicode__(self):
+        return self.title
