@@ -1,4 +1,4 @@
-.. comment: -*- restructuredtext -*-
+.. comment: -*-restructuredtext-*-
 
 ==================
 django-model-utils
