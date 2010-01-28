@@ -41,6 +41,14 @@ class SplitFieldTests(TestCase):
     def test_content(self):
         self.assertEquals(self.post.body.content, self.full_text)
 
+    def test_has_more(self):
+        self.failUnless(self.post.body.has_more)
+
+    def test_not_has_more(self):
+        post = Article.objects.create(title='example 2',
+                                      body='some text\n\nsome more\n')
+        self.failIf(post.body.has_more)
+        
     def test_load_back(self):
         post = Article.objects.get(pk=self.post.pk)
         self.assertEquals(post.body.content, self.post.body.content)

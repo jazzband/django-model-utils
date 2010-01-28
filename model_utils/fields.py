@@ -70,6 +70,11 @@ class SplitText(object):
         return getattr(self.instance, self.excerpt_field_name)
     excerpt = property(_get_excerpt)
 
+    # has_more is a boolean property
+    def _get_has_more(self):
+        return self.excerpt.strip() != self.content.strip()
+    has_more = property(_get_has_more)
+    
     # allows display via templates without .content necessary
     def __unicode__(self):
         return self.content
