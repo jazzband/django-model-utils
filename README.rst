@@ -1,5 +1,3 @@
-.. comment: -*-restructuredtext-*-
-
 ==================
 django-model-utils
 ==================
