@@ -83,12 +83,14 @@ Accessing a SplitField on a model
 
 When accessing an attribute of a model that was declared as a
 ``SplitField``, a ``SplitText`` object is returned.  The ``SplitText``
-object has two attributes:
+object has three attributes:
 
 ``content``:
     The full field contents.
 ``excerpt``:
     The excerpt of ``content`` (read-only).
+``has_more``:
+    True if the excerpt and content are the same, False otherwise.
 
 This object also has a ``__unicode__`` method that returns the full
 content, allowing ``SplitField`` attributes to appear in templates
