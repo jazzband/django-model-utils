@@ -9,3 +9,10 @@ INSTALLED_APPS = (
     )
 
 DATABASE_ENGINE = 'sqlite3'
+
+try:
+    import south
+    INSTALLED_APPS += ('south',)
+except ImportError:
+    pass
+

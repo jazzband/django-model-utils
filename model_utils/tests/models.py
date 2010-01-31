@@ -34,3 +34,11 @@ class Article(models.Model):
 
     def __unicode__(self):
         return self.title
+
+class NoRendered(models.Model):
+    """
+    Test that the no_excerpt_field keyword arg works. This arg should
+    never be used except by the South model-freezing.
+
+    """
+    body = SplitField(no_excerpt_field=True)

@@ -100,10 +100,19 @@ class SplitDescriptor(object):
             obj.__dict__[self.field.name] = value
 
 class SplitField(models.TextField):
+    def __init__(self, *args, **kwargs):
+        # for South FakeORM compatibility: the frozen version of a
+        # SplitField can't try to add an _excerpt field, because the
+        # _excerpt field itself is frozen as well. See introspection
+        # rules below.
+        self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
+        super(SplitField, self).__init__(*args, **kwargs)
+    
     def contribute_to_class(self, cls, name):
-        excerpt_field = models.TextField(editable=False)
-        excerpt_field.creation_counter = self.creation_counter+1
-        cls.add_to_class(_excerpt_field_name(name), excerpt_field)
+        if self.add_excerpt_field:
+            excerpt_field = models.TextField(editable=False)
+            excerpt_field.creation_counter = self.creation_counter+1
+            cls.add_to_class(_excerpt_field_name(name), excerpt_field)
         super(SplitField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, SplitDescriptor(self))
 
@@ -127,7 +136,14 @@ class SplitField(models.TextField):
 # allow South to handle these fields smoothly
 try:
     from south.modelsinspector import add_introspection_rules
-    add_introspection_rules(patterns=['model_utils\.fields\.'])
+    # For a normal MarkupField, the add_excerpt_field attribute is
+    # always True, which means no_excerpt_field arg will always be
+    # True in a frozen MarkupField, which is what we want.
+    add_introspection_rules(rules=[((SplitField,),
+                                    [],
+                                    {'no_excerpt_field': ('add_excerpt_field',
+                                                          {})})],
+                            patterns=['model_utils\.fields\.'])
 except ImportError:
     pass
 

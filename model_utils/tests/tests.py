@@ -1,5 +1,7 @@
 from django.test import TestCase
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.fields import FieldDoesNotExist
 
 from model_utils import ChoiceEnum
 from model_utils.fields import get_excerpt
@@ -138,3 +140,17 @@ class QueryManagerTests(TestCase):
     def testOrdering(self):
         qs = Post.public_reversed.all()
         self.assertEquals([p.order for p in qs], [5, 4, 1, 0])
+
+if 'south' in settings.INSTALLED_APPS:
+    class SouthFreezingTests(TestCase):
+        def test_introspector_adds_no_excerpt_field(self):
+            from south.modelsinspector import introspector
+            mf = Article._meta.get_field('body')
+            args, kwargs = introspector(mf)
+            self.assertEquals(kwargs['no_excerpt_field'], 'True')
+        
+        def test_no_excerpt_field_works(self):
+            from models import NoRendered
+            self.assertRaises(FieldDoesNotExist,
+                              NoRendered._meta.get_field,
+                              '_body_excerpt')
