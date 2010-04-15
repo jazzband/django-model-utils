@@ -8,7 +8,7 @@ from django.db.models.fields import FieldDoesNotExist
 
 from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
-    ConditionField, ConditionModifedField
+    StatusField, StatusModifedField
 
 class InheritanceCastModel(models.Model):
     """
@@ -63,59 +63,59 @@ class TimeFramedBaseModel(ModelBase):
         except FieldDoesNotExist:
             pass
         cls.add_to_class('timeframed', QueryManager(
-            (models.Q(starts__lte=datetime.now()) | models.Q(starts__isnull=True)) &
-            (models.Q(ends__gte=datetime.now()) | models.Q(ends__isnull=True))
+            (models.Q(start__lte=datetime.now()) | models.Q(start__isnull=True)) &
+            (models.Q(end__gte=datetime.now()) | models.Q(end__isnull=True))
         ))
 
 class TimeFramedModel(models.Model):
     """
-    An abstract base class model that provides ``starts``
-    and ``ends`` fields to record a timeframe.
+    An abstract base class model that provides ``start``
+    and ``end`` fields to record a timeframe.
 
     """
     __metaclass__ = TimeFramedBaseModel
 
-    starts = models.DateTimeField(_('starts'), null=True, blank=True)
-    ends = models.DateTimeField(_('ends'), null=True, blank=True)
+    start = models.DateTimeField(_('start'), null=True, blank=True)
+    end = models.DateTimeField(_('end'), null=True, blank=True)
 
     class Meta:
         abstract = True
 
 
-class ConditionalBaseModel(ModelBase):
+class StatusBaseModel(ModelBase):
     """
-    A model base class for the ``ConditionalModel`` to add
-    a series of model managers for each given condition.
+    A model base class for the ``StatusModel`` to add
+    a series of model managers for each given status.
 
     """
     def _prepare(cls):
-        super(ConditionalBaseModel, cls)._prepare()
-        conditions = getattr(cls, 'CONDITIONS', None)
-        if conditions is None:
+        super(StatusBaseModel, cls)._prepare()
+        status = getattr(cls, 'STATUS', ())
+        if status is None:
             return
-        for value, name in conditions._choices:
+        for value, name in status:
             try:
                 cls._meta.get_field(name)
                 raise ValueError("Model %s has a field named '%s' and "
-                                 "conflicts with a condition."
+                                 "conflicts with a status."
                                  % (cls.__name__, name))
             except FieldDoesNotExist:
                 pass
-            cls.add_to_class(name, QueryManager(**{'condition': value}))
+            cls.add_to_class(value, QueryManager(**{'status': value}))
 
-class ConditionalModel(models.Model):
+class StatusModel(models.Model):
     """
     An abstract base class model that provides self-updating
-    condition fields like ``deleted`` and ``restored``.
+    status fields like ``deleted`` and ``restored``.
 
     """
-    __metaclass__ = ConditionalBaseModel
+    __metaclass__ = StatusBaseModel
 
-    condition = ConditionField(_('condition'))
-    condition_date = ConditionModifedField(_('condition date'))
+    status = StatusField(_('status'))
+    status_date = StatusModifedField(_('status date'))
 
     def __unicode__(self):
-        return self.get_condition_display()
+        return self.get_status_display()
 
     class Meta:
         abstract = True

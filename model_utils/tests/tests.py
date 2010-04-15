@@ -5,10 +5,10 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import FieldDoesNotExist
 
-from model_utils import ChoiceEnum
+from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post, Article, Condition, TimeFrame
+    Post, Article, Status, TimeFrame
 
 
 class GetExcerptTests(TestCase):
@@ -106,6 +106,40 @@ class LabelChoiceEnumTests(ChoiceEnumTests):
     def test_display(self):
         self.assertEquals(self.STATUS.get_deleted_display(), 'DELETED')
 
+class ChoicesTests(TestCase):
+    def setUp(self):
+        self.STATUS = Choices('DRAFT', 'PUBLISHED')
+
+    def test_getattr(self):
+        self.assertEquals(self.STATUS.draft, 'DRAFT')
+
+    def test_getitem(self):
+        self.assertEquals(self.STATUS[1], 'PUBLISHED')
+
+    def test_iteration(self):
+        self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
+
+    def test_display(self):
+        self.assertEquals(self.STATUS.draft, 'DRAFT')
+
+class LabelChoicesTests(ChoicesTests):
+    def setUp(self):
+        self.STATUS = Choices(
+            ('DRAFT', 'draft'),
+            ('PUBLISHED', 'published'),
+            'DELETED',
+        )
+
+    def test_iteration(self):
+        self.assertEquals(tuple(self.STATUS), (
+            ('DRAFT', 'draft'),
+            ('PUBLISHED', 'published'),
+            ('DELETED', 'DELETED'))
+        )
+
+    def test_display(self):
+        self.assertEquals(self.STATUS.deleted, 'DELETED')
+
 class InheritanceCastModelTests(TestCase):
     def setUp(self):
         self.parent = InheritParent.objects.create()
@@ -142,44 +176,49 @@ class TimeFramedModelTests(TestCase):
     def testCreated(self):
         now = datetime.now()
         # objects are out of the timeframe
-        TimeFrame.objects.create(starts=now+timedelta(days=2))
-        TimeFrame.objects.create(ends=now-timedelta(days=1))
+        TimeFrame.objects.create(start=now+timedelta(days=2))
+        TimeFrame.objects.create(end=now-timedelta(days=1))
         self.assertEquals(TimeFrame.timeframed.count(), 0)
 
         # objects in the timeframe for various reasons
-        TimeFrame.objects.create(starts=now-timedelta(days=10))
-        TimeFrame.objects.create(ends=now+timedelta(days=2))
-        TimeFrame.objects.create(starts=now-timedelta(days=1), ends=now+timedelta(days=1))
+        TimeFrame.objects.create(start=now-timedelta(days=10))
+        TimeFrame.objects.create(end=now+timedelta(days=2))
+        TimeFrame.objects.create(start=now-timedelta(days=1), end=now+timedelta(days=1))
         self.assertEquals(TimeFrame.timeframed.count(), 3)
 
 
-class ConditionalModelTests(TestCase):
+class StatusModelTests(TestCase):
+
     def testCreated(self):
-        c1 = Condition.objects.create()
-        c2 = Condition.objects.create()
-        self.assert_(c2.condition_date > c1.condition_date)
-        self.assertEquals(Condition.active.count(), 2)
+        c1 = Status.objects.create()
+        c2 = Status.objects.create()
+        self.assert_(c2.status_date > c1.status_date)
+        self.assertEquals(Status.active.count(), 2)
+        self.assertEquals(Status.deleted.count(), 0)
 
     def testModification(self):
-        t1 = Condition.objects.create()
-        date_created = t1.condition_date
-        t1.condition = t1.CONDITIONS.on_hold
+        t1 = Status.objects.create()
+        date_created = t1.status_date
+        t1.status = t1.STATUS.on_hold
         t1.save()
-        self.assert_(t1.condition_date > date_created)
-        date_changed = t1.condition_date
+        self.assertEquals(Status.active.count(), 0)
+        self.assertEquals(Status.on_hold.count(), 1)
+        self.assert_(t1.status_date > date_created)
+        date_changed = t1.status_date
         t1.save()
-        self.assertEquals(t1.condition_date, date_changed)
-        date_active_again = t1.condition_date
-        t1.condition = t1.CONDITIONS.active
+        self.assertEquals(t1.status_date, date_changed)
+        date_active_again = t1.status_date
+        t1.status = t1.STATUS.active
         t1.save()
-        self.assert_(t1.condition_date > date_active_again)
+        self.assert_(t1.status_date > date_active_again)
 
     def testPreviousConditon(self):
-        c = Condition.objects.create()
-        self.assertEquals(c.previous_condition, None)
-        c.condition = c.CONDITIONS.on_hold
-        c.save()
-        self.assertEquals(c.previous_condition, c.CONDITIONS.get_active_display())
+        status = Status.objects.create()
+        self.assertEquals(status.previous_status, None)
+        status.status = status.STATUS.on_hold
+        status.save()
+        self.assertEquals(status.previous_status, status.STATUS.active)
+
 
 class QueryManagerTests(TestCase):
     def setUp(self):

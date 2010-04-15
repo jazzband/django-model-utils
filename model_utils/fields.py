@@ -3,6 +3,8 @@ from datetime import datetime
 from django.db import models
 from django.conf import settings
 
+from model_utils import Choices
+
 class AutoCreatedField(models.DateTimeField):
     """
     A DateTimeField that automatically populates itself at
@@ -30,7 +32,7 @@ class AutoLastModifiedField(AutoCreatedField):
         return value
 
 
-def _previous_condition(model_instance, attname, add):
+def _previous_status(model_instance, attname, add):
     if add:
         return None
     pk_value = getattr(model_instance, model_instance._meta.pk.attname)
@@ -40,49 +42,53 @@ def _previous_condition(model_instance, attname, add):
         return None
     return getattr(current, attname, None)
 
-class ConditionField(models.PositiveIntegerField):
+class StatusField(models.CharField):
     """
-    A PositiveIntegerField that has set conditional choices by default.
+    A CharField that has set status choices by default.
 
     """
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('max_length', 100)
+        super(StatusField, self).__init__(*args, **kwargs)
+
     def contribute_to_class(self, cls, name):
         if not cls._meta.abstract:
-            assert not not hasattr(cls, 'CONDITIONS'), "The model '%s' doesn't have conditions set." % cls.__name__
-            setattr(self, '_choices', cls.CONDITIONS)
-            setattr(self, 'default', tuple(cls.CONDITIONS)[0][0]) # sets first as default
-        super(ConditionField, self).contribute_to_class(cls, name)
+            assert hasattr(cls, 'STATUS'), "The model '%s' doesn't have status choices set." % cls.__name__
+            assert isinstance(cls.STATUS, Choices), "The status choices of model '%s' isn't a subclass of %s" % (cls.__name__, Choices)
+            setattr(self, '_choices', cls.STATUS)
+            setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
+        super(StatusField, self).contribute_to_class(cls, name)
 
     def pre_save(self, model_instance, add):
-        previous = _previous_condition(model_instance, 'get_%s_display' % self.attname, add)
+        previous = _previous_status(model_instance, 'get_%s_display' % self.attname, add)
         if previous:
             previous = previous()
-        setattr(model_instance, 'previous_condition', previous)
-        return super(ConditionField, self).pre_save(model_instance, add)
+        setattr(model_instance, 'previous_status', previous)
+        return super(StatusField, self).pre_save(model_instance, add)
 
-class ConditionModifedField(models.DateTimeField):
+class StatusModifedField(models.DateTimeField):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', datetime.now)
-        depends_on = kwargs.pop('depends_on', 'condition')
+        depends_on = kwargs.pop('depends_on', 'status')
         if not depends_on:
             raise TypeError(
                 '%s requires a depends_on parameter' % self.__class__.__name__)
         self.depends_on = depends_on
-        super(ConditionModifedField, self).__init__(*args, **kwargs)
+        super(StatusModifedField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
-        #print cls._meta, cls
-        assert not getattr(cls._meta, "has_condition_modified_field", False), "A model can't have more than one ConditionModifedField."
-        super(ConditionModifedField, self).contribute_to_class(cls, name)
-        setattr(cls._meta, "has_condition_modified_field", True)
+        assert not getattr(cls._meta, "has_status_modified_field", False), "A model can't have more than one StatusModifedField."
+        super(StatusModifedField, self).contribute_to_class(cls, name)
+        setattr(cls._meta, "has_status_modified_field", True)
 
     def pre_save(self, model_instance, add):
         value = datetime.now()
-        previous = _previous_condition(model_instance, self.depends_on, add)
+        previous = _previous_status(model_instance, self.depends_on, add)
         current = getattr(model_instance, self.depends_on, None)
         if (previous and (previous != current)) or (current and not previous):
             setattr(model_instance, self.attname, value)
-        return super(ConditionModifedField, self).pre_save(model_instance, add)
+        return super(StatusModifedField, self).pre_save(model_instance, add)
 
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
