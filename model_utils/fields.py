@@ -66,7 +66,7 @@ class StatusField(models.CharField):
         setattr(model_instance, 'previous_status', previous)
         return super(StatusField, self).pre_save(model_instance, add)
 
-class StatusModifedField(models.DateTimeField):
+class StatusModifiedField(models.DateTimeField):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', datetime.now)
@@ -75,11 +75,11 @@ class StatusModifedField(models.DateTimeField):
             raise TypeError(
                 '%s requires a depends_on parameter' % self.__class__.__name__)
         self.depends_on = depends_on
-        super(StatusModifedField, self).__init__(*args, **kwargs)
+        super(StatusModifiedField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
-        assert not getattr(cls._meta, "has_status_modified_field", False), "A model can't have more than one StatusModifedField."
-        super(StatusModifedField, self).contribute_to_class(cls, name)
+        assert not getattr(cls._meta, "has_status_modified_field", False), "A model can't have more than one StatusModifiedField."
+        super(StatusModifiedField, self).contribute_to_class(cls, name)
         setattr(cls._meta, "has_status_modified_field", True)
 
     def pre_save(self, model_instance, add):
@@ -88,7 +88,7 @@ class StatusModifedField(models.DateTimeField):
         current = getattr(model_instance, self.depends_on, None)
         if (previous and (previous != current)) or (current and not previous):
             setattr(model_instance, self.attname, value)
-        return super(StatusModifedField, self).pre_save(model_instance, add)
+        return super(StatusModifiedField, self).pre_save(model_instance, add)
 
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')

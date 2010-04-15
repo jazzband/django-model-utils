@@ -8,7 +8,7 @@ from django.db.models.fields import FieldDoesNotExist
 
 from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
-    StatusField, StatusModifedField
+    StatusField, StatusModifiedField
 
 class InheritanceCastModel(models.Model):
     """
@@ -110,9 +110,9 @@ class StatusModel(models.Model):
 
     """
     __metaclass__ = StatusBaseModel
+    status_date = StatusModifiedField(_('status date'))
 
     status = StatusField(_('status'))
-    status_date = StatusModifedField(_('status date'))
 
     def __unicode__(self):
         return self.get_status_display()
