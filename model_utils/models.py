@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.db import models
-from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields import FieldDoesNotExist
@@ -48,60 +47,30 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
-class TimeFramedBaseModel(ModelBase):
-    """
-    A model base class for the ``TimeFramedModel`` that adds
-    a special model manager ``timeframed`` for time frames.
-
-    """
-    def _prepare(cls):
-        super(TimeFramedBaseModel, cls)._prepare()
-        try:
-            cls._meta.get_field('timeframed')
-            raise ValueError("Model %s has a field named 'timeframed' and "
-                             "conflicts with a manager." % cls.__name__)
-        except FieldDoesNotExist:
-            pass
-        cls.add_to_class('timeframed', QueryManager(
-            (models.Q(start__lte=datetime.now()) | models.Q(start__isnull=True)) &
-            (models.Q(end__gte=datetime.now()) | models.Q(end__isnull=True))
-        ))
-
 class TimeFramedModel(models.Model):
     """
     An abstract base class model that provides ``start``
     and ``end`` fields to record a timeframe.
 
     """
-    __metaclass__ = TimeFramedBaseModel
-
     start = models.DateTimeField(_('start'), null=True, blank=True)
     end = models.DateTimeField(_('end'), null=True, blank=True)
 
+    def __init__(self, *args, **kwargs):
+        super(TimeFramedModel, self).__init__(*args, **kwargs)
+        try:
+            self._meta.get_field('timeframed')
+            raise ValueError("Model %s has a field named 'timeframed' and "
+                             "conflicts with a manager." % self.__name__)
+        except FieldDoesNotExist:
+            pass
+        self.__class__.add_to_class('timeframed', QueryManager(
+            (models.Q(start__lte=datetime.now()) | models.Q(start__isnull=True)) &
+            (models.Q(end__gte=datetime.now()) | models.Q(end__isnull=True))
+        ))
+
     class Meta:
         abstract = True
-
-
-class StatusBaseModel(ModelBase):
-    """
-    A model base class for the ``StatusModel`` to add
-    a series of model managers for each given status.
-
-    """
-    def _prepare(cls):
-        super(StatusBaseModel, cls)._prepare()
-        status = getattr(cls, 'STATUS', ())
-        if status is None:
-            return
-        for value, name in status:
-            try:
-                cls._meta.get_field(name)
-                raise ValueError("Model %s has a field named '%s' and "
-                                 "conflicts with a status."
-                                 % (cls.__name__, name))
-            except FieldDoesNotExist:
-                pass
-            cls.add_to_class(value, QueryManager(**{'status': value}))
 
 class StatusModel(models.Model):
     """
@@ -109,10 +78,20 @@ class StatusModel(models.Model):
     status fields like ``deleted`` and ``restored``.
 
     """
-    __metaclass__ = StatusBaseModel
+    status = StatusField(_('status'))
     status_date = StatusModifiedField(_('status date'))
 
-    status = StatusField(_('status'))
+    def __init__(self, *args, **kwargs):
+        super(StatusModel, self).__init__(*args, **kwargs)
+        for value, name in getattr(self, 'STATUS', ()):
+            try:
+                self._meta.get_field(name)
+                raise ValueError("Model %s has a field named '%s' and "
+                                 "conflicts with a status."
+                                 % (self.__name__, name))
+            except FieldDoesNotExist:
+                pass
+            self.__class__.add_to_class(value, QueryManager(status=value))
 
     def __unicode__(self):
         return self.get_status_display()
