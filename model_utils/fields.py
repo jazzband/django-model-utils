@@ -53,8 +53,8 @@ class StatusField(models.CharField):
 
     def contribute_to_class(self, cls, name):
         if not cls._meta.abstract:
-            assert hasattr(cls, 'STATUS'), "The model '%s' doesn't have status choices set." % cls.__name__
-            assert isinstance(cls.STATUS, Choices), "The status choices of model '%s' isn't a subclass of %s" % (cls.__name__, Choices)
+            assert hasattr(cls, 'STATUS'), \
+                "The model '%s' doesn't have status choices." % cls.__name__
             setattr(self, '_choices', cls.STATUS)
             setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
         super(StatusField, self).contribute_to_class(cls, name)

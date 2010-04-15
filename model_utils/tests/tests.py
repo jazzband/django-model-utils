@@ -8,7 +8,7 @@ from django.db.models.fields import FieldDoesNotExist
 from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post, Article, Status, TimeFrame
+    Post, Article, Status, Status2, TimeFrame
 
 
 class GetExcerptTests(TestCase):
@@ -188,21 +188,23 @@ class TimeFramedModelTests(TestCase):
 
 
 class StatusModelTests(TestCase):
+    def setUp(self):
+        self.model = Status
 
     def testCreated(self):
-        c1 = Status.objects.create()
-        c2 = Status.objects.create()
+        c1 = self.model.objects.create()
+        c2 = self.model.objects.create()
         self.assert_(c2.status_date > c1.status_date)
-        self.assertEquals(Status.active.count(), 2)
-        self.assertEquals(Status.deleted.count(), 0)
+        self.assertEquals(self.model.active.count(), 2)
+        self.assertEquals(self.model.deleted.count(), 0)
 
     def testModification(self):
-        t1 = Status.objects.create()
+        t1 = self.model.objects.create()
         date_created = t1.status_date
         t1.status = t1.STATUS.on_hold
         t1.save()
-        self.assertEquals(Status.active.count(), 0)
-        self.assertEquals(Status.on_hold.count(), 1)
+        self.assertEquals(self.model.active.count(), 0)
+        self.assertEquals(self.model.on_hold.count(), 1)
         self.assert_(t1.status_date > date_created)
         date_changed = t1.status_date
         t1.save()
@@ -213,12 +215,38 @@ class StatusModelTests(TestCase):
         self.assert_(t1.status_date > date_active_again)
 
     def testPreviousConditon(self):
-        status = Status.objects.create()
+        status = self.model.objects.create()
         self.assertEquals(status.previous_status, None)
         status.status = status.STATUS.on_hold
         status.save()
         self.assertEquals(status.previous_status, status.STATUS.active)
 
+class Status2ModelTests(StatusModelTests):
+    def setUp(self):
+        self.model = Status2
+
+    def testModification(self):
+        t1 = self.model.objects.create()
+        date_created = t1.status_date
+        t1.status = t1.STATUS[2][0] # boring on_hold status
+        t1.save()
+        self.assertEquals(self.model.active.count(), 0)
+        self.assertEquals(self.model.on_hold.count(), 1)
+        self.assert_(t1.status_date > date_created)
+        date_changed = t1.status_date
+        t1.save()
+        self.assertEquals(t1.status_date, date_changed)
+        date_active_again = t1.status_date
+        t1.status = t1.STATUS[0][0] # boring active status
+        t1.save()
+        self.assert_(t1.status_date > date_active_again)
+
+    def testPreviousConditon(self):
+        status = self.model.objects.create()
+        self.assertEquals(status.previous_status, None)
+        status.status = status.STATUS[2][0]
+        status.save()
+        self.assertEquals(status.previous_status, status.STATUS[0][0])
 
 class QueryManagerTests(TestCase):
     def setUp(self):

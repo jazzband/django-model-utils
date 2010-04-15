@@ -25,6 +25,12 @@ class Status(StatusModel):
         ('on_hold', _('on hold')),
     )
 
+class Status2(StatusModel):
+    STATUS = (
+        ('active', _('active')),
+        ('deleted', _('deleted')),
+        ('on_hold', _('on hold')),
+    )
 
 class Post(models.Model):
     published = models.BooleanField()
