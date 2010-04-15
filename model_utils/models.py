@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 
@@ -34,8 +35,8 @@ class TimeStampedModel(models.Model):
     ``created`` and ``modified`` fields.
 
     """
-    created = AutoCreatedField()
-    modified = AutoLastModifiedField()
+    created = AutoCreatedField(_('created'))
+    modified = AutoLastModifiedField(_('modified'))
 
     class Meta:
         abstract = True
