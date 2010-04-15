@@ -1,8 +1,14 @@
+from datetime import datetime
+
 from django.db import models
+from django.db.models.base import ModelBase
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.fields import FieldDoesNotExist
 
-from model_utils.fields import AutoCreatedField, AutoLastModifiedField
+from model_utils.managers import QueryManager
+from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
+    ConditionField, ConditionModifedField
 
 class InheritanceCastModel(models.Model):
     """
@@ -37,6 +43,79 @@ class TimeStampedModel(models.Model):
     """
     created = AutoCreatedField(_('created'))
     modified = AutoLastModifiedField(_('modified'))
+
+    class Meta:
+        abstract = True
+
+
+class TimeFramedBaseModel(ModelBase):
+    """
+    A model base class for the ``TimeFramedModel`` that adds
+    a special model manager ``timeframed`` for time frames.
+
+    """
+    def _prepare(cls):
+        super(TimeFramedBaseModel, cls)._prepare()
+        try:
+            cls._meta.get_field('timeframed')
+            raise ValueError("Model %s has a field named 'timeframed' and "
+                             "conflicts with a manager." % cls.__name__)
+        except FieldDoesNotExist:
+            pass
+        cls.add_to_class('timeframed', QueryManager(
+            (models.Q(starts__lte=datetime.now()) | models.Q(starts__isnull=True)) &
+            (models.Q(ends__gte=datetime.now()) | models.Q(ends__isnull=True))
+        ))
+
+class TimeFramedModel(models.Model):
+    """
+    An abstract base class model that provides ``starts``
+    and ``ends`` fields to record a timeframe.
+
+    """
+    __metaclass__ = TimeFramedBaseModel
+
+    starts = models.DateTimeField(_('starts'), null=True, blank=True)
+    ends = models.DateTimeField(_('ends'), null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class ConditionalBaseModel(ModelBase):
+    """
+    A model base class for the ``ConditionalModel`` to add
+    a series of model managers for each given condition.
+
+    """
+    def _prepare(cls):
+        super(ConditionalBaseModel, cls)._prepare()
+        conditions = getattr(cls, 'CONDITIONS', None)
+        if conditions is None:
+            return
+        for value, name in conditions._choices:
+            try:
+                cls._meta.get_field(name)
+                raise ValueError("Model %s has a field named '%s' and "
+                                 "conflicts with a condition."
+                                 % (cls.__name__, name))
+            except FieldDoesNotExist:
+                pass
+            cls.add_to_class(name, QueryManager(**{'condition': value}))
+
+class ConditionalModel(models.Model):
+    """
+    An abstract base class model that provides self-updating
+    condition fields like ``deleted`` and ``restored``.
+
+    """
+    __metaclass__ = ConditionalBaseModel
+
+    condition = ConditionField(_('condition'))
+    condition_date = ConditionModifedField(_('condition date'))
+
+    def __unicode__(self):
+        return self.get_condition_display()
 
     class Meta:
         abstract = True

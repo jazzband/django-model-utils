@@ -16,6 +16,7 @@ class AutoCreatedField(models.DateTimeField):
         kwargs.setdefault('default', datetime.now)
         super(AutoCreatedField, self).__init__(*args, **kwargs)
 
+
 class AutoLastModifiedField(AutoCreatedField):
     """
     A DateTimeField that updates itself on each save() of the model.
@@ -27,6 +28,62 @@ class AutoLastModifiedField(AutoCreatedField):
         value = datetime.now()
         setattr(model_instance, self.attname, value)
         return value
+
+
+def _previous_condition(model_instance, attname, add):
+    if add:
+        return None
+    pk_value = getattr(model_instance, model_instance._meta.pk.attname)
+    try:
+        current = model_instance.__class__._default_manager.get(pk=pk_value)
+    except model_instance.__class__.DoesNotExist:
+        return None
+    return getattr(current, attname, None)
+
+class ConditionField(models.PositiveIntegerField):
+    """
+    A PositiveIntegerField that has set conditional choices by default.
+
+    """
+    def contribute_to_class(self, cls, name):
+        if not cls._meta.abstract:
+            assert not not hasattr(cls, 'CONDITIONS'), "The model '%s' doesn't have conditions set." % cls.__name__
+            setattr(self, '_choices', cls.CONDITIONS)
+            setattr(self, 'default', tuple(cls.CONDITIONS)[0][0]) # sets first as default
+        super(ConditionField, self).contribute_to_class(cls, name)
+
+    def pre_save(self, model_instance, add):
+        previous = _previous_condition(model_instance, 'get_%s_display' % self.attname, add)
+        if previous:
+            previous = previous()
+        setattr(model_instance, 'previous_condition', previous)
+        return super(ConditionField, self).pre_save(model_instance, add)
+
+class ConditionModifedField(models.DateTimeField):
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('default', datetime.now)
+        depends_on = kwargs.pop('depends_on', 'condition')
+        if not depends_on:
+            raise TypeError(
+                '%s requires a depends_on parameter' % self.__class__.__name__)
+        self.depends_on = depends_on
+        super(ConditionModifedField, self).__init__(*args, **kwargs)
+
+    def contribute_to_class(self, cls, name):
+        #print cls._meta, cls
+        assert not getattr(cls._meta, "has_condition_modified_field", False), "A model can't have more than one ConditionModifedField."
+        super(ConditionModifedField, self).contribute_to_class(cls, name)
+        setattr(cls._meta, "has_condition_modified_field", True)
+
+    def pre_save(self, model_instance, add):
+        value = datetime.now()
+        previous = _previous_condition(model_instance, self.depends_on, add)
+        current = getattr(model_instance, self.depends_on, None)
+        if (previous and (previous != current)) or (current and not previous):
+            setattr(model_instance, self.attname, value)
+        return super(ConditionModifedField, self).pre_save(model_instance, add)
+
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 

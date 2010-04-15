@@ -1,9 +1,10 @@
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
-from model_utils.models import InheritanceCastModel, TimeStampedModel
+from model_utils.models import InheritanceCastModel, TimeStampedModel, ConditionalModel, TimeFramedModel
 from model_utils.managers import QueryManager
 from model_utils.fields import SplitField
-
+from model_utils import ChoiceEnum
 
 class InheritParent(InheritanceCastModel):
     pass
@@ -13,6 +14,16 @@ class InheritChild(InheritParent):
 
 class TimeStamp(TimeStampedModel):
     pass
+
+class TimeFrame(TimeFramedModel):
+    pass
+
+class Condition(ConditionalModel):
+    CONDITIONS = ChoiceEnum(
+        ('active', _('active')),
+        ('deleted', _('deleted')),
+        ('on_hold', _('on hold')),
+    )
 
 class Post(models.Model):
     published = models.BooleanField()

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -6,7 +8,7 @@ from django.db.models.fields import FieldDoesNotExist
 from model_utils import ChoiceEnum
 from model_utils.fields import get_excerpt
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post, Article
+    Post, Article, Condition, TimeFrame
 
 
 class GetExcerptTests(TestCase):
@@ -133,6 +135,51 @@ class TimeStampedModelTests(TestCase):
         t2 = TimeStamp.objects.create()
         t1.save()
         self.assert_(t2.modified < t1.modified)
+
+
+class TimeFramedModelTests(TestCase):
+
+    def testCreated(self):
+        now = datetime.now()
+        # objects are out of the timeframe
+        TimeFrame.objects.create(starts=now+timedelta(days=2))
+        TimeFrame.objects.create(ends=now-timedelta(days=1))
+        self.assertEquals(TimeFrame.timeframed.count(), 0)
+
+        # objects in the timeframe for various reasons
+        TimeFrame.objects.create(starts=now-timedelta(days=10))
+        TimeFrame.objects.create(ends=now+timedelta(days=2))
+        TimeFrame.objects.create(starts=now-timedelta(days=1), ends=now+timedelta(days=1))
+        self.assertEquals(TimeFrame.timeframed.count(), 3)
+
+
+class ConditionalModelTests(TestCase):
+    def testCreated(self):
+        c1 = Condition.objects.create()
+        c2 = Condition.objects.create()
+        self.assert_(c2.condition_date > c1.condition_date)
+        self.assertEquals(Condition.active.count(), 2)
+
+    def testModification(self):
+        t1 = Condition.objects.create()
+        date_created = t1.condition_date
+        t1.condition = t1.CONDITIONS.on_hold
+        t1.save()
+        self.assert_(t1.condition_date > date_created)
+        date_changed = t1.condition_date
+        t1.save()
+        self.assertEquals(t1.condition_date, date_changed)
+        date_active_again = t1.condition_date
+        t1.condition = t1.CONDITIONS.active
+        t1.save()
+        self.assert_(t1.condition_date > date_active_again)
+
+    def testPreviousConditon(self):
+        c = Condition.objects.create()
+        self.assertEquals(c.previous_condition, None)
+        c.condition = c.CONDITIONS.on_hold
+        c.save()
+        self.assertEquals(c.previous_condition, c.CONDITIONS.get_active_display())
 
 class QueryManagerTests(TestCase):
     def setUp(self):
