@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db import models
 from django.conf import settings
 
-class AutoCreatedField (models.DateTimeField):
+class AutoCreatedField(models.DateTimeField):
     """
     A DateTimeField that automatically populates itself at
     object creation.
@@ -11,22 +11,22 @@ class AutoCreatedField (models.DateTimeField):
     By default, sets editable=False, default=datetime.now.
 
     """
-    def __init__ (self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         kwargs.setdefault('editable', False)
         kwargs.setdefault('default', datetime.now)
         super(AutoCreatedField, self).__init__(*args, **kwargs)
 
-class AutoLastModifiedField (AutoCreatedField):
+class AutoLastModifiedField(AutoCreatedField):
     """
     A DateTimeField that updates itself on each save() of the model.
 
     By default, sets editable=False and default=datetime.now.
     
     """
-    def pre_save (self, model_instance, add):
+    def pre_save(self, model_instance, add):
         value = datetime.now()
         setattr(model_instance, self.attname, value)
-        return value    
+        return value
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 

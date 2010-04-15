@@ -12,23 +12,23 @@ class InheritanceCastModel(models.Model):
 
     """
     real_type = models.ForeignKey(ContentType, editable=False, null=True)
-    
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.real_type = self._get_real_type()
         super(InheritanceCastModel, self).save(*args, **kwargs)
-        
+
     def _get_real_type(self):
         return ContentType.objects.get_for_model(type(self))
-                
+
     def cast(self):
         return self.real_type.get_object_for_this_type(pk=self.pk)
-        
+
     class Meta:
         abstract = True
 
 
-class TimeStampedModel (models.Model):
+class TimeStampedModel(models.Model):
     """
     An abstract base class model that provides self-updating
     ``created`` and ``modified`` fields.
