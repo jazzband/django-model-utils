@@ -42,6 +42,7 @@ def _previous_status(model_instance, attname, add):
         return None
     return getattr(current, attname, None)
 
+
 class StatusField(models.CharField):
     """
     A CharField that has set status choices by default.
@@ -54,17 +55,12 @@ class StatusField(models.CharField):
     def contribute_to_class(self, cls, name):
         if not cls._meta.abstract:
             assert hasattr(cls, 'STATUS'), \
-                "The model '%s' doesn't have status choices." % cls.__name__
+                "To use StatusField, the model '%s' must have a STATUS choices attribute." \
+                % cls.__name__
             setattr(self, '_choices', cls.STATUS)
             setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
         super(StatusField, self).contribute_to_class(cls, name)
 
-    def pre_save(self, model_instance, add):
-        previous = _previous_status(model_instance, 'get_%s_display' % self.attname, add)
-        if previous:
-            previous = previous()
-        setattr(model_instance, 'previous_status', previous)
-        return super(StatusField, self).pre_save(model_instance, add)
 
 class StatusModifiedField(models.DateTimeField):
 

@@ -179,13 +179,7 @@ class StatusModelTests(TestCase):
         t1.save()
         self.assert_(t1.status_date > date_active_again)
 
-    def testPreviousConditon(self):
-        status = self.model.objects.create()
-        self.assertEquals(status.previous_status, None)
-        status.status = status.STATUS.on_hold
-        status.save()
-        self.assertEquals(status.previous_status, status.STATUS.active)
-
+        
 class Status2ModelTests(StatusModelTests):
     def setUp(self):
         self.model = Status2
@@ -206,12 +200,6 @@ class Status2ModelTests(StatusModelTests):
         t1.save()
         self.assert_(t1.status_date > date_active_again)
 
-    def testPreviousConditon(self):
-        status = self.model.objects.create()
-        self.assertEquals(status.previous_status, None)
-        status.status = status.STATUS[2][0]
-        status.save()
-        self.assertEquals(status.previous_status, status.STATUS[0][0])
 
 class QueryManagerTests(TestCase):
     def setUp(self):
