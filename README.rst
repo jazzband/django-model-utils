@@ -7,7 +7,7 @@ Django model mixins and utilities.
 Installation
 ============
 
-Install from PyPI with ``easy_install`` or ``pip``::
+Install from PyPI with ``pip``::
 
     pip install django-model-utils
 
@@ -28,34 +28,30 @@ Dependencies
 
 .. _Django: http://www.djangoproject.com/
 
-ChoiceEnum
-==========
+Choices
+=======
 
-``ChoiceEnum`` makes setting ``choices`` on a Django model field way
+``Choices`` makes setting ``choices`` on a Django model field way
 too easy::
 
-    from model_utils import ChoiceEnum
+    from model_utils import Choices
 
     class Article(models.Model):
-        STATUS = ChoiceEnum('draft', 'published')
+        STATUS = Choices('draft', 'published')
         # ...
-        status = models.PositiveIntegerField(choices=STATUS, default=STATUS.draft)
+        status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
 
-        def status_desc(self):
-            return self.STATUS[self.status]
+A ``Choices`` object is initialized with any number of choices, which
+can either be a string ID or a tuple of (string ID, human-readable
+version). If a string ID is given alone, the ID itself is used as the
+human-readable version.  Accessing the string ID as an attribute on
+the ``Choices`` object returns the human-readable version. If iterated
+over, a ``ChoiceEnum`` object yields a tuple of two-tuples linking id
+to text names, the format expected by the ``choices`` attribute of
+Django models.
 
-A ``ChoiceEnum`` object is initialized with any number of choices,
-which should be strings. It assigns a sequential id to each
-choice. The numerical id for a choice is available through attribute
-access (``STATUS.draft``), and the text name for a choice can be
-obtained by indexing with the numerical id
-(``self.STATUS[self.status]``). If iterated over, a ``ChoiceEnum``
-object yields a tuple of two-tuples linking id to text names, the
-format expected by the ``choices`` attribute of Django models.
-
-Be careful not to add new choices in the middle of the list, as that
-will change the numerical ids for all subsequent choices, which could
-impact existing data.
+.. note::
+    Whither ``ChoiceEnum``? It's been deprecated in favor of ``Choices``.
 
 fields.SplitField
 =================

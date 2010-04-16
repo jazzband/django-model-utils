@@ -1,5 +1,11 @@
 class ChoiceEnum(object):
     """
+    DEPRECATED: Use ``Choices`` (below) instead. This class has less
+    flexibility for human-readable display, and greater potential for
+    surprising data corruption if new choices are inserted in the
+    middle of the list. Automatic assignment of numeric IDs is not
+    such a great idea after all.
+    
     A class to encapsulate handy functionality for lists of choices
     for a Django model field.
 
@@ -22,6 +28,9 @@ class ChoiceEnum(object):
     
     """
     def __init__(self, *choices):
+        import warnings
+        warnings.warn("ChoiceEnum is deprecated, use Choices instead.",
+                      PendingDeprecationWarning)
         self._choices = tuple(enumerate(choices))
         self._choice_dict = dict(self._choices)
         self._reverse_dict = dict(((i[1], i[0]) for i in self._choices))
@@ -48,10 +57,10 @@ class Choices(object):
     A class to encapsulate handy functionality for lists of choices
     for a Django model field.
 
-    Accepts as arguments either tuples mapping choice IDs (numeric or
-    text) to human-readable names, or simply choice IDs (in which case
-    the ID is also used as the human-readable name). When iterated
-    over, behaves as the standard Django choices tuple of two-tuples.
+    Accepts as arguments either tuples mapping choice IDs (strings) to
+    human-readable names, or simply choice IDs (in which case the ID
+    is also used as the human-readable name). When iterated over,
+    behaves as the standard Django choices tuple of two-tuples.
 
     Attribute access allows conversion of choice ID to human-readable
     name.

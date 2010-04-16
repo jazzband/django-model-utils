@@ -76,20 +76,6 @@ class SplitFieldTests(TestCase):
         self.assertRaises(AttributeError, _invalid_assignment)
 
 
-class ChoiceEnumTests(TestCase):
-    def setUp(self):
-        self.STATUS = ChoiceEnum('DRAFT', 'PUBLISHED')
-
-    def test_getattr(self):
-        self.assertEquals(self.STATUS.DRAFT, 0)
-
-    def test_getitem(self):
-        self.assertEquals(self.STATUS[1], 'PUBLISHED')
-
-    def test_iteration(self):
-        self.assertEquals(tuple(self.STATUS), ((0, 'DRAFT'), (1, 'PUBLISHED')))
-
-
 class ChoicesTests(TestCase):
     def setUp(self):
         self.STATUS = Choices('DRAFT', 'PUBLISHED')
@@ -103,15 +89,15 @@ class ChoicesTests(TestCase):
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
         self.STATUS = Choices(
-            ('DRAFT', 'draft'),
-            ('PUBLISHED', 'published'),
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
             'DELETED',
         )
 
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), (
-            ('DRAFT', 'draft'),
-            ('PUBLISHED', 'published'),
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
             ('DELETED', 'DELETED'))
         )
 
