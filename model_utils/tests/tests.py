@@ -90,18 +90,6 @@ class ChoiceEnumTests(TestCase):
         self.assertEquals(tuple(self.STATUS), ((0, 'DRAFT'), (1, 'PUBLISHED')))
 
 
-class LabelChoiceEnumTests(ChoiceEnumTests):
-    def setUp(self):
-        self.STATUS = ChoiceEnum(
-            ('DRAFT', 'draft'),
-            ('PUBLISHED', 'published'),
-            'DELETED',
-        )
-
-    def test_iteration(self):
-        self.assertEquals(tuple(self.STATUS), ((0, 'draft'), (1, 'published'), (2, 'DELETED')))
-
-
 class ChoicesTests(TestCase):
     def setUp(self):
         self.STATUS = Choices('DRAFT', 'PUBLISHED')
@@ -135,6 +123,7 @@ class LabelChoicesTests(ChoicesTests):
 
     def test_display(self):
         self.assertEquals(self.STATUS.deleted, 'DELETED')
+
 
 class InheritanceCastModelTests(TestCase):
     def setUp(self):
