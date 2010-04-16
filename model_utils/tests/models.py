@@ -29,7 +29,7 @@ class Status(StatusModel):
         ('on_hold', _('on hold')),
     )
 
-class Status2(StatusModel):
+class StatusPlainTuple(StatusModel):
     STATUS = (
         ('active', _('active')),
         ('deleted', _('deleted')),

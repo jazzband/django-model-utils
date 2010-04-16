@@ -8,7 +8,7 @@ from django.db.models.fields import FieldDoesNotExist
 from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post, Article, Status, Status2, TimeFrame, Monitored
+    Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored
 
 
 class GetExcerptTests(TestCase):
@@ -189,6 +189,8 @@ class TimeFramedModelTests(TestCase):
 class StatusModelTests(TestCase):
     def setUp(self):
         self.model = Status
+        self.on_hold = Status.STATUS.on_hold
+        self.active = Status.STATUS.active
 
     def test_created(self):
         c1 = self.model.objects.create()
@@ -200,7 +202,7 @@ class StatusModelTests(TestCase):
     def test_modification(self):
         t1 = self.model.objects.create()
         date_created = t1.status_changed
-        t1.status = t1.STATUS.on_hold
+        t1.status = self.on_hold
         t1.save()
         self.assertEquals(self.model.active.count(), 0)
         self.assertEquals(self.model.on_hold.count(), 1)
@@ -209,30 +211,16 @@ class StatusModelTests(TestCase):
         t1.save()
         self.assertEquals(t1.status_changed, date_changed)
         date_active_again = t1.status_changed
-        t1.status = t1.STATUS.active
+        t1.status = self.active
         t1.save()
         self.assert_(t1.status_changed > date_active_again)
 
         
-class Status2ModelTests(StatusModelTests):
+class StatusModelPlainTupleTests(StatusModelTests):
     def setUp(self):
-        self.model = Status2
-
-    def test_modification(self):
-        t1 = self.model.objects.create()
-        date_created = t1.status_changed
-        t1.status = t1.STATUS[2][0] # boring on_hold status
-        t1.save()
-        self.assertEquals(self.model.active.count(), 0)
-        self.assertEquals(self.model.on_hold.count(), 1)
-        self.assert_(t1.status_changed > date_created)
-        date_changed = t1.status_changed
-        t1.save()
-        self.assertEquals(t1.status_changed, date_changed)
-        date_active_again = t1.status_changed
-        t1.status = t1.STATUS[0][0] # boring active status
-        t1.save()
-        self.assert_(t1.status_changed > date_active_again)
+        self.model = StatusPlainTuple
+        self.on_hold = StatusPlainTuple.STATUS[2][0]
+        self.active = StatusPlainTuple.STATUS[0][0]
 
 
 class QueryManagerTests(TestCase):
