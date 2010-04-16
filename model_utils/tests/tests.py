@@ -89,8 +89,6 @@ class ChoiceEnumTests(TestCase):
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), ((0, 'DRAFT'), (1, 'PUBLISHED')))
 
-    def test_display(self):
-        self.assertEquals(self.STATUS.get_draft_display(), 'DRAFT')
 
 class LabelChoiceEnumTests(ChoiceEnumTests):
     def setUp(self):
@@ -103,8 +101,6 @@ class LabelChoiceEnumTests(ChoiceEnumTests):
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), ((0, 'draft'), (1, 'published'), (2, 'DELETED')))
 
-    def test_display(self):
-        self.assertEquals(self.STATUS.get_deleted_display(), 'DELETED')
 
 class ChoicesTests(TestCase):
     def setUp(self):

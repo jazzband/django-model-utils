@@ -34,7 +34,6 @@ class ChoiceEnum(object):
         for i, choice in enumerate(self.equalize(choices)):
             self._choices += ((i, choice[0]),)
             self._iter_choices += ((i, choice[1]),)
-            self.set_display(choice[0], choice[1])
         self._choice_dict = dict(self._choices)
         self._reverse_dict = dict(((i[1], i[0]) for i in self._choices))
 
@@ -44,9 +43,6 @@ class ChoiceEnum(object):
                 yield choice
             else:
                 yield (choice, choice)
-
-    def set_display(self, name, value):
-        setattr(self, 'get_%s_display' % name.lower(), lambda: value)
 
     def __iter__(self):
         return iter(self._iter_choices)
