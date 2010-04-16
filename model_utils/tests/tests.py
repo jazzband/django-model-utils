@@ -133,26 +133,26 @@ class InheritanceCastModelTests(TestCase):
         self.parent = InheritParent.objects.create()
         self.child = InheritChild.objects.create()
     
-    def testParentRealType(self):
+    def test_parent_real_type(self):
         self.assertEquals(self.parent.real_type,
                           ContentType.objects.get_for_model(InheritParent))
 
-    def testChildRealType(self):
+    def test_child_real_type(self):
         self.assertEquals(self.child.real_type,
                           ContentType.objects.get_for_model(InheritChild))
 
-    def testCast(self):
+    def test_cast(self):
         obj = InheritParent.objects.get(pk=self.child.pk).cast()
         self.assertEquals(obj.__class__, InheritChild)
 
 
 class TimeStampedModelTests(TestCase):
-    def testCreated(self):
+    def test_created(self):
         t1 = TimeStamp.objects.create()
         t2 = TimeStamp.objects.create()
         self.assert_(t2.created > t1.created)
 
-    def testModified(self):
+    def test_modified(self):
         t1 = TimeStamp.objects.create()
         t2 = TimeStamp.objects.create()
         t1.save()
@@ -161,7 +161,7 @@ class TimeStampedModelTests(TestCase):
 
 class TimeFramedModelTests(TestCase):
 
-    def testCreated(self):
+    def test_created(self):
         now = datetime.now()
         # objects are out of the timeframe
         TimeFrame.objects.create(start=now+timedelta(days=2))
@@ -179,14 +179,14 @@ class StatusModelTests(TestCase):
     def setUp(self):
         self.model = Status
 
-    def testCreated(self):
+    def test_created(self):
         c1 = self.model.objects.create()
         c2 = self.model.objects.create()
         self.assert_(c2.status_changed > c1.status_changed)
         self.assertEquals(self.model.active.count(), 2)
         self.assertEquals(self.model.deleted.count(), 0)
 
-    def testModification(self):
+    def test_modification(self):
         t1 = self.model.objects.create()
         date_created = t1.status_changed
         t1.status = t1.STATUS.on_hold
@@ -207,7 +207,7 @@ class Status2ModelTests(StatusModelTests):
     def setUp(self):
         self.model = Status2
 
-    def testModification(self):
+    def test_modification(self):
         t1 = self.model.objects.create()
         date_created = t1.status_changed
         t1.status = t1.STATUS[2][0] # boring on_hold status
@@ -235,15 +235,15 @@ class QueryManagerTests(TestCase):
         for p, c, o in data:
             Post.objects.create(published=p, confirmed=c, order=o)
 
-    def testPassingKwargs(self):
+    def test_passing_kwargs(self):
         qs = Post.public.all()
         self.assertEquals([p.order for p in qs], [0, 1, 4, 5])
 
-    def testPassingQ(self):
+    def test_passing_Q(self):
         qs = Post.public_confirmed.all()
         self.assertEquals([p.order for p in qs], [0, 1])
 
-    def testOrdering(self):
+    def test_ordering(self):
         qs = Post.public_reversed.all()
         self.assertEquals([p.order for p in qs], [5, 4, 1, 0])
 
