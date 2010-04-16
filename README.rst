@@ -17,9 +17,9 @@ or get the `in-development version`_::
 
 .. _in-development version: http://bitbucket.org/carljm/django-model-utils/get/tip.gz#egg=django_model_utils-tip
 
-To use ``django-model-utils`` in your Django project, just import the
-utility classes described below; there is no need to modify your
-``INSTALLED_APPS`` setting.
+To use ``django-model-utils`` in your Django project, just import and
+use the utility classes described below; there is no need to modify
+your ``INSTALLED_APPS`` setting.
 
 Dependencies
 ------------
@@ -44,17 +44,58 @@ too easy::
 A ``Choices`` object is initialized with any number of choices, which
 can either be a string ID or a tuple of (string ID, human-readable
 version). If a string ID is given alone, the ID itself is used as the
-human-readable version.  Accessing the string ID as an attribute on
-the ``Choices`` object returns the human-readable version. If iterated
-over, a ``ChoiceEnum`` object yields a tuple of two-tuples linking id
+human-readable version.
+
+Accessing the string ID as an attribute on the ``Choices`` object
+returns the string ID; this is a convenience for readable code in
+assigning and testing values. 
+
+When iterated over, a ``Choices`` object yields two-tuples linking id
 to text names, the format expected by the ``choices`` attribute of
-Django models.
+Django models. A ``Choices`` object can also be indexed into as if it
+were a list of two-tuples.
 
 .. note::
     Whither ``ChoiceEnum``? It's been deprecated in favor of ``Choices``.
 
-fields.SplitField
-=================
+StatusField
+===========
+
+A simple convenience for giving a model a set of "states."
+``StatusField`` is a ``CharField`` subclass that expects to find a
+``STATUS`` class attribute on its model, and uses that as its
+``choices``. Also sets a default ``max_length`` of 100, and sets its
+default value to the first item in the ``STATUS`` choices::
+
+    from model_utils.fields import StatusField
+    from model_utils import Choices
+    
+    class Article(models.Model):
+        STATUS = Choices('draft', 'published')
+        # ...
+        status = StatusField()
+
+(The ``STATUS`` class attribute does not have to be a `Choices`_
+instance, it can be an ordinary list of two-tuples).
+
+MonitorField
+============
+
+A ``DateTimeField`` subclass that monitors another field on the model,
+and updates itself to the current date-time whenever the monitored
+field changes::
+
+    from model_utils.fields import MonitorField, StatusField
+    
+    class Article(models.Model):
+        STATUS = Choices('draft', 'published')
+        
+        status = StatusField()
+        status_changed = models.MonitorField(monitor='status')
+        
+
+SplitField
+==========
 
 A ``TextField`` subclass that automatically pulls an excerpt out of
 its content (based on a "split here" marker or a default number of
@@ -122,8 +163,45 @@ paragraphs are blocks of text separated by a blank line) are taken to
 be the excerpt. This number can be customized by setting the
 ``SPLIT_DEFAULT_PARAGRAPHS`` setting.
 
-models.InheritanceCastModel
-===========================
+TimeFramedModel
+===============
+
+An abstract base class for any model that expresses a time-range. Adds
+``start`` and ``end`` nullable DateTimeFields, and a ``timeframed``
+manager that returns only objects for whom the current date-time lies
+within their time range.
+
+StatusModel
+===========
+
+Pulls together `StatusField`_, `MonitorField`_ and `QueryManager`_
+into an abstract base class for any model with a "status."
+
+Just provide a ``STATUS`` class-attribute (a `Choices`_ object or a
+list of two-tuples), and your model will have a ``status`` field with
+those choices, a ``status_changed`` field containing the date-time the
+``status`` was last changed, and a manager for each status that
+returns objects with that status only::
+
+    from model_utils.models import StatusModel
+    from model_utils import Choices
+    
+    class Article(StatusModel):
+        STATUS = Choices('draft', 'published')
+    
+    # ...
+    
+    a = Article()
+    a.status = Article.STATUS.published
+
+    # this save will update a.status_changed
+    a.save()
+    
+    # this query will only return published articles:
+    Article.published.all()
+
+InheritanceCastModel
+====================
 
 This abstract base class can be inherited by the root (parent) model
 in a model-inheritance tree.  It allows each model in the tree to
@@ -145,15 +223,15 @@ return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
     from model_utils.models import InheritanceCastModel
 
     class Place(InheritanceCastModel):
-        ...
+        # ...
     
     class Restaurant(Place):
-        ...
+        # ...
 
     nearby_places = Place.objects.filter(location='here')
     for place in nearby_places:
         restaurant_or_bar = place.cast()
-        ...
+        # ...
 
 .. note:: 
     This is inefficient for large querysets, as it results in n
@@ -161,14 +239,15 @@ return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
     QuerySet subclass that could reduce this to k queries, where there
     are k subtypes in the inheritance tree.
 
-models.TimeStampedModel
-=======================
+TimeStampedModel
+================
 
 This abstract base class just provides self-updating ``created`` and
-``modified`` fields on any model that inherits it.
+``modified`` fields on any model that inherits from it.        
+  
 
-managers.QueryManager
-=====================
+QueryManager
+============
 
 Many custom model managers do nothing more than return a QuerySet that
 is filtered in some way. ``QueryManager`` allows you to express this

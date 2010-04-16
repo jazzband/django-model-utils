@@ -11,7 +11,7 @@ class ChoiceEnum(object):
 
     Accepts verbose choice names as arguments, and automatically
     assigns numeric keys to them. When iterated over, behaves as the
-    standard Django choices tuple of two-tuples.
+    standard Django choices list of two-tuples.
 
     Attribute access allows conversion of verbose choice name to
     choice key, dictionary access the reverse.
@@ -60,29 +60,14 @@ class Choices(object):
     Accepts as arguments either tuples mapping choice IDs (strings) to
     human-readable names, or simply choice IDs (in which case the ID
     is also used as the human-readable name). When iterated over,
-    behaves as the standard Django choices tuple of two-tuples.
+    behaves as the standard Django choices list of two-tuples.
 
-    Attribute access allows conversion of choice ID to human-readable
-    name.
-
-    Example:
-
-    >>> STATUS = Choices('DRAFT', 'PUBLISHED')
-    >>> STATUS.draft
-    DRAFT
-    >>> tuple(STATUS)
-    (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED'))
-
-    >>> STATUS = Choices(('DRAFT', 'is a draft'), ('PUBLISHED', 'is published'))
-    >>> STATUS.draft
-    is a draft
-    >>> tuple(STATUS)
-    (('DRAFT', 'is a draft'), ('PUBLISHED', 'is published'))
+    Choice IDs can be accessed as attributes for readable code.
 
     """
 
     def __init__(self, *choices):
-        self._choices = tuple(self.equalize(choices))
+        self._choices = list(self.equalize(choices))
         self._choice_dict = dict(self._choices)
         self._reverse_dict = dict(((i[0], i[0]) for i in self._choices))
 

@@ -4,6 +4,10 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- added StatusField, MonitorField, TimeFramedModel, and StatusModel
+  (thanks Jannis Leidel)
+- deprecated ChoiceEnum and replaced with Choices
+
 0.4.0 (2010.03.16)
 ------------------
 
