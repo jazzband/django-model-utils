@@ -91,8 +91,10 @@ field changes::
         STATUS = Choices('draft', 'published')
         
         status = StatusField()
-        status_changed = models.MonitorField(monitor='status')
-        
+        status_changed = MonitorField(monitor='status')
+
+(A ``MonitorField`` can monitor any type of field for changes, not only a
+``StatusField``.)
 
 SplitField
 ==========
