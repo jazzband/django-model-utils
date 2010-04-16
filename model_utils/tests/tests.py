@@ -8,7 +8,7 @@ from django.db.models.fields import FieldDoesNotExist
 from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt
 from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post, Article, Status, Status2, TimeFrame
+    Post, Article, Status, Status2, TimeFrame, Monitored
 
 
 class GetExcerptTests(TestCase):
@@ -76,6 +76,28 @@ class SplitFieldTests(TestCase):
         self.assertRaises(AttributeError, _invalid_assignment)
 
 
+class MonitorFieldTests(TestCase):
+    def setUp(self):
+        self.instance = Monitored(name='Charlie')
+        self.created = self.instance.name_changed
+
+    def test_save_no_change(self):
+        self.instance.save()
+        self.assertEquals(self.instance.name_changed, self.created)
+
+    def test_save_changed(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.failUnless(self.instance.name_changed > self.created)
+
+    def test_double_save(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        changed = self.instance.name_changed
+        self.instance.save()
+        self.assertEquals(self.instance.name_changed, changed)
+
+        
 class ChoicesTests(TestCase):
     def setUp(self):
         self.STATUS = Choices('DRAFT', 'PUBLISHED')
@@ -86,6 +108,7 @@ class ChoicesTests(TestCase):
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
 
+        
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
         self.STATUS = Choices(
@@ -159,25 +182,25 @@ class StatusModelTests(TestCase):
     def testCreated(self):
         c1 = self.model.objects.create()
         c2 = self.model.objects.create()
-        self.assert_(c2.status_date > c1.status_date)
+        self.assert_(c2.status_changed > c1.status_changed)
         self.assertEquals(self.model.active.count(), 2)
         self.assertEquals(self.model.deleted.count(), 0)
 
     def testModification(self):
         t1 = self.model.objects.create()
-        date_created = t1.status_date
+        date_created = t1.status_changed
         t1.status = t1.STATUS.on_hold
         t1.save()
         self.assertEquals(self.model.active.count(), 0)
         self.assertEquals(self.model.on_hold.count(), 1)
-        self.assert_(t1.status_date > date_created)
-        date_changed = t1.status_date
+        self.assert_(t1.status_changed > date_created)
+        date_changed = t1.status_changed
         t1.save()
-        self.assertEquals(t1.status_date, date_changed)
-        date_active_again = t1.status_date
+        self.assertEquals(t1.status_changed, date_changed)
+        date_active_again = t1.status_changed
         t1.status = t1.STATUS.active
         t1.save()
-        self.assert_(t1.status_date > date_active_again)
+        self.assert_(t1.status_changed > date_active_again)
 
         
 class Status2ModelTests(StatusModelTests):
@@ -186,19 +209,19 @@ class Status2ModelTests(StatusModelTests):
 
     def testModification(self):
         t1 = self.model.objects.create()
-        date_created = t1.status_date
+        date_created = t1.status_changed
         t1.status = t1.STATUS[2][0] # boring on_hold status
         t1.save()
         self.assertEquals(self.model.active.count(), 0)
         self.assertEquals(self.model.on_hold.count(), 1)
-        self.assert_(t1.status_date > date_created)
-        date_changed = t1.status_date
+        self.assert_(t1.status_changed > date_created)
+        date_changed = t1.status_changed
         t1.save()
-        self.assertEquals(t1.status_date, date_changed)
-        date_active_again = t1.status_date
+        self.assertEquals(t1.status_changed, date_changed)
+        date_active_again = t1.status_changed
         t1.status = t1.STATUS[0][0] # boring active status
         t1.save()
-        self.assert_(t1.status_date > date_active_again)
+        self.assert_(t1.status_changed > date_active_again)
 
 
 class QueryManagerTests(TestCase):

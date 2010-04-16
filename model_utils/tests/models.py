@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.managers import QueryManager
-from model_utils.fields import SplitField
+from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
 
 class InheritParent(InheritanceCastModel):
@@ -17,6 +17,10 @@ class TimeStamp(TimeStampedModel):
 
 class TimeFrame(TimeFramedModel):
     pass
+
+class Monitored(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor='name')
 
 class Status(StatusModel):
     STATUS = Choices(

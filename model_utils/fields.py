@@ -32,20 +32,14 @@ class AutoLastModifiedField(AutoCreatedField):
         return value
 
 
-def _previous_status(model_instance, attname, add):
-    if add:
-        return None
-    pk_value = getattr(model_instance, model_instance._meta.pk.attname)
-    try:
-        current = model_instance.__class__._default_manager.get(pk=pk_value)
-    except model_instance.__class__.DoesNotExist:
-        return None
-    return getattr(current, attname, None)
-
-
 class StatusField(models.CharField):
     """
-    A CharField that has set status choices by default.
+    A CharField that looks for a ``STATUS`` class-attribute and
+    automatically uses that as ``choices``. The first option in
+    ``STATUS`` is set as the default.
+
+    Also has a default max_length so you don't have to worry about
+    setting that.
 
     """
     def __init__(self, *args, **kwargs):
@@ -55,36 +49,49 @@ class StatusField(models.CharField):
     def contribute_to_class(self, cls, name):
         if not cls._meta.abstract:
             assert hasattr(cls, 'STATUS'), \
-                "To use StatusField, the model '%s' must have a STATUS choices attribute." \
+                "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
                 % cls.__name__
             setattr(self, '_choices', cls.STATUS)
             setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
         super(StatusField, self).contribute_to_class(cls, name)
 
 
-class StatusModifiedField(models.DateTimeField):
-
+class MonitorField(models.DateTimeField):
+    """
+    A DateTimeField that monitors another field on the same model and
+    sets itself to the current date/time whenever the monitored field
+    changes.
+    
+    """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', datetime.now)
-        depends_on = kwargs.pop('depends_on', 'status')
-        if not depends_on:
+        monitor = kwargs.pop('monitor', None)
+        if not monitor:
             raise TypeError(
-                '%s requires a depends_on parameter' % self.__class__.__name__)
-        self.depends_on = depends_on
-        super(StatusModifiedField, self).__init__(*args, **kwargs)
+                '%s requires a "monitor" argument' % self.__class__.__name__)
+        self.monitor = monitor
+        super(MonitorField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
-        assert not getattr(cls._meta, "has_status_modified_field", False), "A model can't have more than one StatusModifiedField."
-        super(StatusModifiedField, self).contribute_to_class(cls, name)
-        setattr(cls._meta, "has_status_modified_field", True)
+        self.monitor_attname = '_monitor_%s' % name
+        models.signals.post_init.connect(self._save_initial, sender=cls)
+        super(MonitorField, self).contribute_to_class(cls, name)
+
+    def get_monitored_value(self, instance):
+        return getattr(instance, self.monitor)
+    
+    def _save_initial(self, sender, instance, **kwargs):
+        setattr(instance, self.monitor_attname,
+                self.get_monitored_value(instance))
 
     def pre_save(self, model_instance, add):
         value = datetime.now()
-        previous = _previous_status(model_instance, self.depends_on, add)
-        current = getattr(model_instance, self.depends_on, None)
-        if (previous and (previous != current)) or (current and not previous):
+        previous = getattr(model_instance, self.monitor_attname, None)
+        current = self.get_monitored_value(model_instance)
+        if previous != current:
             setattr(model_instance, self.attname, value)
-        return super(StatusModifiedField, self).pre_save(model_instance, add)
+            self._save_initial(model_instance.__class__, model_instance)
+        return super(MonitorField, self).pre_save(model_instance, add)
 
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')

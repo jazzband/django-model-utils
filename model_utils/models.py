@@ -7,7 +7,7 @@ from django.db.models.fields import FieldDoesNotExist
 
 from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
-    StatusField, StatusModifiedField
+    StatusField, MonitorField
 
 class InheritanceCastModel(models.Model):
     """
@@ -60,8 +60,8 @@ class TimeFramedModel(models.Model):
         super(TimeFramedModel, self).__init__(*args, **kwargs)
         try:
             self._meta.get_field('timeframed')
-            raise ValueError("Model %s has a field named 'timeframed' and "
-                             "conflicts with a manager." % self.__name__)
+            raise ValueError("Model '%s' has a field named 'timeframed' which "
+                             "conflicts with the TimeFramedModel manager." % self.__name__)
         except FieldDoesNotExist:
             pass
         self.__class__.add_to_class('timeframed', QueryManager(
@@ -74,27 +74,28 @@ class TimeFramedModel(models.Model):
 
 class StatusModel(models.Model):
     """
-    An abstract base class model that provides self-updating
-    status fields like ``deleted`` and ``restored``.
+    An abstract base class model with a ``status`` field that
+    automatically uses a ``STATUS`` class attribute of choices, a
+    ``status_changed`` date-time field that records when ``status``
+    was last modified, and an automatically-added manager for each
+    status that returns objects with that status only.
 
     """
     status = StatusField(_('status'))
-    status_date = StatusModifiedField(_('status date'))
+    status_changed = MonitorField(_('status changed'), monitor='status')
 
     def __init__(self, *args, **kwargs):
         super(StatusModel, self).__init__(*args, **kwargs)
         for value, name in getattr(self, 'STATUS', ()):
             try:
                 self._meta.get_field(name)
-                raise ValueError("Model %s has a field named '%s' and "
-                                 "conflicts with a status."
-                                 % (self.__name__, name))
+                from django.core.exceptions import ImproperlyConfigured
+                raise ImproperlyConfigured("StatusModel: Model '%s' has a field named '%s' which "
+                                           "conflicts with a status of the same name."
+                                           % (self.__name__, name))
             except FieldDoesNotExist:
                 pass
             self.__class__.add_to_class(value, QueryManager(status=value))
-
-    def __unicode__(self):
-        return self.get_status_display()
 
     class Meta:
         abstract = True
