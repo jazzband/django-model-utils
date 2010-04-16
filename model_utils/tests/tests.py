@@ -95,16 +95,10 @@ class ChoicesTests(TestCase):
         self.STATUS = Choices('DRAFT', 'PUBLISHED')
 
     def test_getattr(self):
-        self.assertEquals(self.STATUS.draft, 'DRAFT')
-
-    def test_getitem(self):
-        self.assertEquals(self.STATUS[1], 'PUBLISHED')
+        self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
 
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
-
-    def test_display(self):
-        self.assertEquals(self.STATUS.draft, 'DRAFT')
 
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
@@ -122,7 +116,7 @@ class LabelChoicesTests(ChoicesTests):
         )
 
     def test_display(self):
-        self.assertEquals(self.STATUS.deleted, 'DELETED')
+        self.assertEquals(self.STATUS.DELETED, 'DELETED')
 
 
 class InheritanceCastModelTests(TestCase):

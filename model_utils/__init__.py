@@ -48,26 +48,25 @@ class Choices(object):
     A class to encapsulate handy functionality for lists of choices
     for a Django model field.
 
-    Accepts verbose choice names as arguments, and automatically
-    assigns numeric keys to them. When iterated over, behaves as the
-    standard Django choices tuple of two-tuples.
+    Accepts as arguments either tuples mapping choice IDs (numeric or
+    text) to human-readable names, or simply choice IDs (in which case
+    the ID is also used as the human-readable name). When iterated
+    over, behaves as the standard Django choices tuple of two-tuples.
 
-    Attribute access allows conversion of verbose choice name to
-    choice key, dictionary access the reverse.
+    Attribute access allows conversion of choice ID to human-readable
+    name.
 
     Example:
 
     >>> STATUS = Choices('DRAFT', 'PUBLISHED')
     >>> STATUS.draft
     DRAFT
-    >>> STATUS[1]
-    'PUBLISHED'
     >>> tuple(STATUS)
     (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED'))
 
     >>> STATUS = Choices(('DRAFT', 'is a draft'), ('PUBLISHED', 'is published'))
     >>> STATUS.draft
-    DRAFT
+    is a draft
     >>> tuple(STATUS)
     (('DRAFT', 'is a draft'), ('PUBLISHED', 'is published'))
 
@@ -76,7 +75,7 @@ class Choices(object):
     def __init__(self, *choices):
         self._choices = tuple(self.equalize(choices))
         self._choice_dict = dict(self._choices)
-        self._reverse_dict = dict(((i[0].lower(), i[0]) for i in self._choices))
+        self._reverse_dict = dict(((i[0], i[0]) for i in self._choices))
 
     def equalize(self, choices):
         for choice in choices:
@@ -93,9 +92,6 @@ class Choices(object):
             return self._reverse_dict[attname]
         except KeyError:
             raise AttributeError(attname)
-
-    def __getitem__(self, key):
-        return self._choices[key][0]
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
