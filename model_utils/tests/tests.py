@@ -105,6 +105,9 @@ class ChoicesTests(TestCase):
     def test_getattr(self):
         self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
 
+    def test_indexing(self):
+        self.assertEquals(self.STATUS[1], ('PUBLISHED', 'PUBLISHED'))
+
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
 
@@ -124,8 +127,14 @@ class LabelChoicesTests(ChoicesTests):
             ('DELETED', 'DELETED'))
         )
 
-    def test_display(self):
+    def test_indexing(self):
+        self.assertEquals(self.STATUS[1], ('PUBLISHED', 'is published'))
+
+    def test_default(self):
         self.assertEquals(self.STATUS.DELETED, 'DELETED')
+
+    def test_provided(self):
+        self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
 
 
 class InheritanceCastModelTests(TestCase):

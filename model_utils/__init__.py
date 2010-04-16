@@ -102,6 +102,9 @@ class Choices(object):
         except KeyError:
             raise AttributeError(attname)
 
+    def __getitem__(self, index):
+        return self._choices[index]
+
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                           ', '.join(("'%s'" % i[0] for i in self._choices)))
