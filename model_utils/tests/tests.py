@@ -161,18 +161,29 @@ class TimeStampedModelTests(TestCase):
 
 class TimeFramedModelTests(TestCase):
 
-    def test_created(self):
-        now = datetime.now()
-        # objects are out of the timeframe
-        TimeFrame.objects.create(start=now+timedelta(days=2))
-        TimeFrame.objects.create(end=now-timedelta(days=1))
+    def setUp(self):
+        self.now = datetime.now()
+    
+    def test_not_yet_begun(self):
+        TimeFrame.objects.create(start=self.now+timedelta(days=2))
         self.assertEquals(TimeFrame.timeframed.count(), 0)
 
-        # objects in the timeframe for various reasons
-        TimeFrame.objects.create(start=now-timedelta(days=10))
-        TimeFrame.objects.create(end=now+timedelta(days=2))
-        TimeFrame.objects.create(start=now-timedelta(days=1), end=now+timedelta(days=1))
-        self.assertEquals(TimeFrame.timeframed.count(), 3)
+    def test_finished(self):
+        TimeFrame.objects.create(end=self.now-timedelta(days=1))
+        self.assertEquals(TimeFrame.timeframed.count(), 0)
+
+    def test_no_end(self):
+        TimeFrame.objects.create(start=self.now-timedelta(days=10))
+        self.assertEquals(TimeFrame.timeframed.count(), 1)
+
+    def test_no_start(self):
+        TimeFrame.objects.create(end=self.now+timedelta(days=2))
+        self.assertEquals(TimeFrame.timeframed.count(), 1)
+
+    def test_within_range(self):
+        TimeFrame.objects.create(start=self.now-timedelta(days=1),
+                                 end=self.now+timedelta(days=1))
+        self.assertEquals(TimeFrame.timeframed.count(), 1)
 
 
 class StatusModelTests(TestCase):
