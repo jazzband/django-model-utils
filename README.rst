@@ -31,8 +31,7 @@ Dependencies
 Choices
 =======
 
-``Choices`` makes setting ``choices`` on a Django model field way
-too easy::
+``Choices`` provides some conveniences for setting ``choices`` on a Django model field::
 
     from model_utils import Choices
 
@@ -41,22 +40,39 @@ too easy::
         # ...
         status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
 
-A ``Choices`` object is initialized with any number of choices, which
-can either be a string ID or a tuple of (string ID, human-readable
-version). If a string ID is given alone, the ID itself is used as the
-human-readable version.
+A ``Choices`` object is initialized with any number of choices. In the
+simplest case, each choice is a string; that string will be used both
+as the database representation of the choice, and the human-readable
+representation. Note that you can access options as attributes on the
+``Choices`` object: ``STATUS.draft``.
 
-Accessing the string ID as an attribute on the ``Choices`` object
-returns the string ID; this is a convenience for readable code in
-assigning and testing values. 
+But you may want your human-readable versions translated, in which
+case you need to separate the human-readable version from the DB
+representation. In this case you can provide choices as two-tuples::
 
-When iterated over, a ``Choices`` object yields two-tuples linking id
-to text names, the format expected by the ``choices`` attribute of
-Django models. A ``Choices`` object can also be indexed into as if it
-were a list of two-tuples.
+    from model_utils import Choices
 
-.. note::
-    Whither ``ChoiceEnum``? It's been deprecated in favor of ``Choices``.
+    class Article(models.Model):
+        STATUS = Choices(('draft', _('draft')), ('published', _('published')))
+        # ...
+        status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
+
+But what if your database representation of choices is constrained in
+a way that would hinder readability of your code? For instance, you
+may need to use an ``IntegerField`` rather than a ``CharField``, or
+you may want the database to order the values in your field in some
+specific way. In this case, you can provide your choices as triples,
+where the first element is the database representation, the second is
+a valid Python identifier you will use in your code as a constant, and
+the third is the human-readable version::
+
+    from model_utils import Choices
+
+    class Article(models.Model):
+        STATUS = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
+        # ...
+        status = models.IntegerField(choices=STATUS, default=STATUS.draft)
+
 
 StatusField
 ===========
