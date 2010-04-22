@@ -111,6 +111,12 @@ class ChoicesTests(TestCase):
     def test_iteration(self):
         self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
 
+    def test_repr(self):
+        self.assertEquals(repr(self.STATUS),
+                          "Choices("
+                          "('DRAFT', 'DRAFT', 'DRAFT'), "
+                          "('PUBLISHED', 'PUBLISHED', 'PUBLISHED'))")
+
         
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
@@ -136,7 +142,41 @@ class LabelChoicesTests(ChoicesTests):
     def test_provided(self):
         self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
 
+    def test_repr(self):
+        self.assertEquals(repr(self.STATUS),
+                          "Choices("
+                          "('DRAFT', 'DRAFT', 'is draft'), "
+                          "('PUBLISHED', 'PUBLISHED', 'is published'), "
+                          "('DELETED', 'DELETED', 'DELETED'))")
 
+        
+class IdentifierChoicesTests(ChoicesTests):
+    def setUp(self):
+        self.STATUS = Choices(
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted'))
+
+    def test_iteration(self):
+        self.assertEqual(tuple(self.STATUS), (
+                (0, 'is draft'),
+                (1, 'is published'),
+                (2, 'is deleted')))
+
+    def test_indexing(self):
+        self.assertEquals(self.STATUS[1], (1, 'is published'))
+
+    def test_getattr(self):
+        self.assertEquals(self.STATUS.DRAFT, 0)
+        
+    def test_repr(self):
+        self.assertEquals(repr(self.STATUS),
+                          "Choices("
+                          "(0, 'DRAFT', 'is draft'), "
+                          "(1, 'PUBLISHED', 'is published'), "
+                          "(2, 'DELETED', 'is deleted'))")
+
+        
 class InheritanceCastModelTests(TestCase):
     def setUp(self):
         self.parent = InheritParent.objects.create()
