@@ -41,7 +41,7 @@ class StatusField(models.CharField):
     Also has a default max_length so you don't have to worry about
     setting that.
 
-    Alos features a ``no_check_for_status`` argument to make sure
+    Also features a ``no_check_for_status`` argument to make sure
     South can handle this field when it freezes a model.
     """
     def __init__(self, *args, **kwargs):
