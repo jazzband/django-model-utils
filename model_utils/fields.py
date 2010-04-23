@@ -41,13 +41,16 @@ class StatusField(models.CharField):
     Also has a default max_length so you don't have to worry about
     setting that.
 
+    Alos features a ``no_check_for_status`` argument to make sure
+    South can handle this field when it freezes a model.
     """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 100)
+        self.check_for_status = not kwargs.pop('no_check_for_status', False)
         super(StatusField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
-        if not cls._meta.abstract:
+        if not cls._meta.abstract and self.check_for_status:
             assert hasattr(cls, 'STATUS'), \
                 "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
                 % cls.__name__
@@ -205,11 +208,23 @@ try:
     # For a normal MarkupField, the add_excerpt_field attribute is
     # always True, which means no_excerpt_field arg will always be
     # True in a frozen MarkupField, which is what we want.
-    add_introspection_rules(rules=[((SplitField,),
-                                    [],
-                                    {'no_excerpt_field': ('add_excerpt_field',
-                                                          {})})],
-                            patterns=['model_utils\.fields\.'])
+    add_introspection_rules(rules=[
+        (
+            (SplitField,),
+            [],
+            {'no_excerpt_field': ('add_excerpt_field', {})}
+        ),
+        (
+            (MonitorField,),
+            [],
+            {'monitor': ('monitor', {})}
+        ),
+        (
+            (StatusField,),
+            [],
+            {'no_check_for_status': ('check_for_status', {})}
+        ),
+    ], patterns=['model_utils\.fields\.'])
 except ImportError:
     pass
 
