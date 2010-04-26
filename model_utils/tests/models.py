@@ -18,6 +18,9 @@ class TimeStamp(TimeStampedModel):
 class TimeFrame(TimeFramedModel):
     pass
 
+class TimeFrameManagerAdded(TimeFramedModel):
+    pass
+
 class Monitored(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor='name')
@@ -30,6 +33,13 @@ class Status(StatusModel):
     )
 
 class StatusPlainTuple(StatusModel):
+    STATUS = (
+        ('active', _('active')),
+        ('deleted', _('deleted')),
+        ('on_hold', _('on hold')),
+    )
+
+class StatusManagerAdded(StatusModel):
     STATUS = (
         ('active', _('active')),
         ('deleted', _('deleted')),

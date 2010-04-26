@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields import FieldDoesNotExist
+from django.core.exceptions import ImproperlyConfigured
 
 from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
@@ -56,19 +57,6 @@ class TimeFramedModel(models.Model):
     start = models.DateTimeField(_('start'), null=True, blank=True)
     end = models.DateTimeField(_('end'), null=True, blank=True)
 
-    def __init__(self, *args, **kwargs):
-        super(TimeFramedModel, self).__init__(*args, **kwargs)
-        try:
-            self._meta.get_field('timeframed')
-            raise ValueError("Model '%s' has a field named 'timeframed' which "
-                             "conflicts with the TimeFramedModel manager." % self.__name__)
-        except FieldDoesNotExist:
-            pass
-        self.__class__.add_to_class('timeframed', QueryManager(
-            (models.Q(start__lte=datetime.now()) | models.Q(start__isnull=True)) &
-            (models.Q(end__gte=datetime.now()) | models.Q(end__isnull=True))
-        ))
-
     class Meta:
         abstract = True
 
@@ -84,19 +72,43 @@ class StatusModel(models.Model):
     status = StatusField(_('status'))
     status_changed = MonitorField(_('status changed'), monitor='status')
 
-    def __init__(self, *args, **kwargs):
-        super(StatusModel, self).__init__(*args, **kwargs)
-        for value, name in getattr(self, 'STATUS', ()):
-            try:
-                self._meta.get_field(name)
-                from django.core.exceptions import ImproperlyConfigured
-                raise ImproperlyConfigured("StatusModel: Model '%s' has a field named '%s' which "
-                                           "conflicts with a status of the same name."
-                                           % (self.__name__, name))
-            except FieldDoesNotExist:
-                pass
-            self.__class__.add_to_class(value, QueryManager(status=value))
-
     class Meta:
         abstract = True
 
+def add_status_query_managers(sender, **kwargs):
+    """
+    Add a Querymanager for each status item dynamically.
+    """
+    if not issubclass(sender, StatusModel):
+        return
+    for value, name in getattr(sender, 'STATUS', ()):
+        try:
+            sender._meta.get_field(name)
+            raise ImproperlyConfigured("StatusModel: Model '%s' has a field "
+                                       "named '%s' which conflicts with a "
+                                       "status of the same name."
+                                       % (sender.__name__, name))
+        except FieldDoesNotExist:
+            pass
+        sender.add_to_class(value, QueryManager(status=value))
+
+def add_timeframed_query_manager(sender, **kwargs):
+    """
+    Addds a QueryManager for a specific timeframe
+    """
+    if not issubclass(sender, TimeFramedModel):
+        return
+    try:
+        sender._meta.get_field('timeframed')
+        raise ValueError("Model '%s' has a field named 'timeframed' which "
+                         "conflicts with the TimeFramedModel manager." % sender.__name__)
+    except FieldDoesNotExist:
+        pass
+    sender.add_to_class('timeframed', QueryManager(
+        (models.Q(start__lte=datetime.now) | models.Q(start__isnull=True)) &
+        (models.Q(end__gte=datetime.now) | models.Q(end__isnull=True))
+    ))
+
+
+models.signals.class_prepared.connect(add_status_query_managers)
+models.signals.class_prepared.connect(add_timeframed_query_manager)

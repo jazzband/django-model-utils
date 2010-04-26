@@ -7,8 +7,10 @@ from django.db.models.fields import FieldDoesNotExist
 
 from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt
-from model_utils.tests.models import InheritParent, InheritChild, TimeStamp, \
-    Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored
+from model_utils.managers import QueryManager
+from model_utils.tests.models import (InheritParent, InheritChild, TimeStamp,
+    Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
+    StatusManagerAdded, TimeFrameManagerAdded)
 
 
 class GetExcerptTests(TestCase):
@@ -234,6 +236,10 @@ class TimeFramedModelTests(TestCase):
                                  end=self.now+timedelta(days=1))
         self.assertEquals(TimeFrame.timeframed.count(), 1)
 
+class TimeFrameManagerAddedTests(TestCase):
+
+    def test_manager_avaiable(self):
+        self.assert_(isinstance(TimeFrameManagerAdded.timeframed, QueryManager))
 
 class StatusModelTests(TestCase):
     def setUp(self):
@@ -271,6 +277,10 @@ class StatusModelPlainTupleTests(StatusModelTests):
         self.on_hold = StatusPlainTuple.STATUS[2][0]
         self.active = StatusPlainTuple.STATUS[0][0]
 
+class StatusManagerAddedTests(TestCase):
+
+    def test_manager_avaiable(self):
+        self.assert_(isinstance(StatusManagerAdded.active, QueryManager))
 
 class QueryManagerTests(TestCase):
     def setUp(self):
