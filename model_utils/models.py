@@ -78,6 +78,7 @@ class StatusModel(models.Model):
 def add_status_query_managers(sender, **kwargs):
     """
     Add a Querymanager for each status item dynamically.
+
     """
     if not issubclass(sender, StatusModel):
         return
@@ -94,14 +95,17 @@ def add_status_query_managers(sender, **kwargs):
 
 def add_timeframed_query_manager(sender, **kwargs):
     """
-    Addds a QueryManager for a specific timeframe
+    Add a QueryManager for a specific timeframe.
+
     """
     if not issubclass(sender, TimeFramedModel):
         return
     try:
         sender._meta.get_field('timeframed')
-        raise ValueError("Model '%s' has a field named 'timeframed' which "
-                         "conflicts with the TimeFramedModel manager." % sender.__name__)
+        raise ImproperlyConfigured("Model '%s' has a field named "
+                                   "'timeframed' which conflicts with "
+                                   "the TimeFramedModel manager." 
+                                   % sender.__name__)
     except FieldDoesNotExist:
         pass
     sender.add_to_class('timeframed', QueryManager(
