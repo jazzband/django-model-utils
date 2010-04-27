@@ -238,7 +238,7 @@ class TimeFramedModelTests(TestCase):
 
 class TimeFrameManagerAddedTests(TestCase):
 
-    def test_manager_avaiable(self):
+    def test_manager_available(self):
         self.assert_(isinstance(TimeFrameManagerAdded.timeframed, QueryManager))
 
 class StatusModelTests(TestCase):
@@ -279,7 +279,7 @@ class StatusModelPlainTupleTests(StatusModelTests):
 
 class StatusManagerAddedTests(TestCase):
 
-    def test_manager_avaiable(self):
+    def test_manager_available(self):
         self.assert_(isinstance(StatusManagerAdded.active, QueryManager))
 
 class QueryManagerTests(TestCase):
