@@ -64,9 +64,6 @@ class Article(models.Model):
     title = models.CharField(max_length=50)
     body = SplitField()
 
-    def __unicode__(self):
-        return self.title
-
 class NoRendered(models.Model):
     """
     Test that the no_excerpt_field keyword arg works. This arg should

@@ -2,12 +2,16 @@ from datetime import datetime, timedelta
 
 from django.test import TestCase
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.db.models.fields import FieldDoesNotExist
+from django.core.exceptions import ImproperlyConfigured
+
+from django.contrib.contenttypes.models import ContentType
 
 from model_utils import ChoiceEnum, Choices
-from model_utils.fields import get_excerpt
-from model_utils.managers import QueryManager
+from model_utils.fields import get_excerpt, MonitorField
+from model_utils.managers import QueryManager, manager_from
+from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (InheritParent, InheritChild, TimeStamp,
     Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
     StatusManagerAdded, TimeFrameManagerAdded, Entry)
@@ -77,6 +81,24 @@ class SplitFieldTests(TestCase):
             self.post.body.excerpt = 'this should fail'
         self.assertRaises(AttributeError, _invalid_assignment)
 
+    def test_access_via_class(self):
+        def _invalid_access():
+            Article.body
+        self.assertRaises(AttributeError, _invalid_access)
+
+    def test_none(self):
+        a = Article(title='Some Title', body=None)
+        self.assertEquals(a.body, None)
+
+    def test_assign_splittext(self):
+        a = Article(title='Some Title')
+        a.body = self.post.body
+        self.assertEquals(a.body.excerpt, u'summary\n')
+
+    def test_value_to_string(self):
+        f = self.post._meta.get_field('body')
+        self.assertEquals(f.value_to_string(self.post), self.full_text)
+
 
 class MonitorFieldTests(TestCase):
     def setUp(self):
@@ -99,6 +121,9 @@ class MonitorFieldTests(TestCase):
         self.instance.save()
         self.assertEquals(self.instance.name_changed, changed)
 
+    def test_no_monitor_arg(self):
+        self.assertRaises(TypeError, MonitorField)
+
         
 class ChoicesTests(TestCase):
     def setUp(self):
@@ -118,6 +143,9 @@ class ChoicesTests(TestCase):
                           "Choices("
                           "('DRAFT', 'DRAFT', 'DRAFT'), "
                           "('PUBLISHED', 'PUBLISHED', 'PUBLISHED'))")
+
+    def test_wrong_length_tuple(self):
+        self.assertRaises(ValueError, Choices, ('a',))
 
         
 class LabelChoicesTests(ChoicesTests):
@@ -241,6 +269,13 @@ class TimeFrameManagerAddedTests(TestCase):
     def test_manager_available(self):
         self.assert_(isinstance(TimeFrameManagerAdded.timeframed, QueryManager))
 
+    def test_conflict_error(self):
+        def _run():
+            class ErrorModel(TimeFramedModel):
+                timeframed = models.BooleanField()
+        self.assertRaises(ImproperlyConfigured, _run)
+        
+                
 class StatusModelTests(TestCase):
     def setUp(self):
         self.model = Status
@@ -281,6 +316,17 @@ class StatusManagerAddedTests(TestCase):
 
     def test_manager_available(self):
         self.assert_(isinstance(StatusManagerAdded.active, QueryManager))
+
+    def test_conflict_error(self):
+        def _run():
+            class ErrorModel(StatusModel):
+                STATUS = (
+                    ('active', 'active'),
+                    ('deleted', 'deleted'),
+                    )
+                active = models.BooleanField()
+        self.assertRaises(ImproperlyConfigured, _run)
+                
 
 class QueryManagerTests(TestCase):
     def setUp(self):
@@ -331,3 +377,7 @@ class ManagerFromTests(TestCase):
 
     def test_function(self):
         self.assertEqual(Entry.objects.unpublished().count(), 1)
+
+    def test_typecheck(self):
+        self.assertRaises(TypeError, manager_from, 'somestring')
+        
