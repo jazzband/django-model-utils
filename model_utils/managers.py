@@ -56,6 +56,11 @@ def manager_from(*mixins, **kwds):
     qset_cls = type('Queryset_%d' % id, tuple(bases), attrs)
     # create the Manager subclass
     bases[0] = kwds.get('manager_cls', Manager)
-    attrs['get_query_set'] = lambda self: qset_cls(self.model, using=self._db)
+    def _get_query_set(self):
+        if hasattr(self, '_db'):
+            return qset_cls(self.model, using=self._db)
+        else:
+            return qset_cls(self.model)
+    attrs['get_query_set'] = _get_query_set
     manager_cls = type('Manager_%d' % id, tuple(bases), attrs)
     return manager_cls()
