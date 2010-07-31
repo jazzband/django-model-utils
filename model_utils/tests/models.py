@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.managers import QueryManager
+from model_utils.managers import QueryManager, manager_from
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
 
@@ -74,3 +74,20 @@ class NoRendered(models.Model):
 
     """
     body = SplitField(no_excerpt_field=True)
+
+class AuthorMixin(object):
+    def by_author(self, name):
+        return self.filter(author=name)
+
+class PublishedMixin(object):
+    def published(self):
+        return self.filter(published=True)
+
+def unpublished(self):
+    return self.filter(published=False)
+
+class Entry(models.Model):
+    author = models.CharField(max_length=20)
+    published = models.BooleanField()
+    
+    objects = manager_from(AuthorMixin, PublishedMixin, unpublished)

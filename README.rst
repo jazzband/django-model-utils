@@ -290,3 +290,46 @@ set the ordering of the ``QuerySet`` returned by the ``QueryManager``
 by chaining a call to ``.order_by()`` on the ``QueryManager`` (this is
 not required).
 
+manager_from
+============
+
+A common "gotcha" when defining methods on a custom manager class is
+that those same methods are not automatically also available on the
+QuerySet used by that model, so are not "chainable". This can be
+counterintuitive, as most of the public QuerySet API is also available
+on managers. It is possible to create a custom Manager that returns
+QuerySets that have the same additional methods, but this requires
+boilerplate code.
+
+The ``manager_from`` function (`created by George Sakkis`_ and
+included here by permission) solves this problem with zero
+boilerplate. It creates and returns a Manager subclass with additional
+behavior defined by mixin subclasses or functions you pass it, and the
+returned Manager will return instances of a custom QuerySet with those
+same additional methods::
+
+    from datetime import datetime
+    from django.db import models
+    
+    class AuthorMixin(object):
+        def by_author(self, user):
+            return self.filter(user=user)
+    
+    class PublishedMixin(object):
+        def published(self):
+            return self.filter(published__lte=datetime.now())
+    
+    def unpublished(self):
+        return self.filter(published__gte=datetime.now())
+    
+    
+    class Post(models.Model):
+        user = models.ForeignKey(User)
+        published = models.DateTimeField()
+    
+        objects = manager_from(AuthorMixin, PublishedMixin, unpublished)
+    
+    Post.objects.published()
+    Post.objects.by_author(user=request.user).unpublished()
+
+.. _created by George Sakkis: http://djangosnippets.org/snippets/2117/

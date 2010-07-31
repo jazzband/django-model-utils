@@ -10,7 +10,7 @@ from model_utils.fields import get_excerpt
 from model_utils.managers import QueryManager
 from model_utils.tests.models import (InheritParent, InheritChild, TimeStamp,
     Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
-    StatusManagerAdded, TimeFrameManagerAdded)
+    StatusManagerAdded, TimeFrameManagerAdded, Entry)
 
 
 class GetExcerptTests(TestCase):
@@ -318,3 +318,16 @@ if 'south' in settings.INSTALLED_APPS:
             self.assertRaises(FieldDoesNotExist,
                               NoRendered._meta.get_field,
                               '_body_excerpt')
+
+class ManagerFromTests(TestCase):
+    def setUp(self):
+        Entry.objects.create(author='George', published=True)
+        Entry.objects.create(author='George', published=False)
+        Entry.objects.create(author='Paul', published=True)
+    
+    def test_chaining(self):
+        self.assertEqual(Entry.objects.by_author('George').published().count(),
+                         1)
+
+    def test_function(self):
+        self.assertEqual(Entry.objects.unpublished().count(), 1)
