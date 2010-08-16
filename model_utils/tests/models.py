@@ -83,8 +83,20 @@ class PublishedMixin(object):
 def unpublished(self):
     return self.filter(published=False)
 
+class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
+    pass
+
+class FeaturedManager(models.Manager):
+    def get_query_set(self):
+        return ByAuthorQuerySet(self.model, using=self._db).filter(feature=True)
+
 class Entry(models.Model):
     author = models.CharField(max_length=20)
     published = models.BooleanField()
+    feature = models.BooleanField(default=False)
     
     objects = manager_from(AuthorMixin, PublishedMixin, unpublished)
+    broken = manager_from(PublishedMixin, manager_cls=FeaturedManager)
+    featured = manager_from(PublishedMixin,
+                            manager_cls=FeaturedManager,
+                            queryset_cls=ByAuthorQuerySet)

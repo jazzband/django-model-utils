@@ -369,7 +369,7 @@ class ManagerFromTests(TestCase):
     def setUp(self):
         Entry.objects.create(author='George', published=True)
         Entry.objects.create(author='George', published=False)
-        Entry.objects.create(author='Paul', published=True)
+        Entry.objects.create(author='Paul', published=True, feature=True)
     
     def test_chaining(self):
         self.assertEqual(Entry.objects.by_author('George').published().count(),
@@ -381,3 +381,8 @@ class ManagerFromTests(TestCase):
     def test_typecheck(self):
         self.assertRaises(TypeError, manager_from, 'somestring')
         
+    def test_custom_get_query_set(self):
+        self.assertEqual(Entry.featured.published().count(), 1)
+
+    def test_cant_reconcile_qs_class(self):
+        self.assertRaises(TypeError, Entry.broken.all)
