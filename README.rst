@@ -333,3 +333,4 @@ same additional methods::
     Post.objects.by_author(user=request.user).unpublished()
 
 .. _created by George Sakkis: http://djangosnippets.org/snippets/2117/
+
