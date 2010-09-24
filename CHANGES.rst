@@ -4,7 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
-- incorporated manager_from inherited queryset bugfix (thanks George Sakkis)
+0.5.0 (2010.09.24)
+------------------
+
 - added manager_from (thanks George Sakkis)
 - added StatusField, MonitorField, TimeFramedModel, and StatusModel
   (thanks Jannis Leidel)
