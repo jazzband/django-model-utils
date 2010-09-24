@@ -88,7 +88,10 @@ class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
 
 class FeaturedManager(models.Manager):
     def get_query_set(self):
-        return ByAuthorQuerySet(self.model, using=self._db).filter(feature=True)
+        kwargs = {}
+        if hasattr(self, '_db'):
+            kwargs['using'] = self._db
+        return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
 class Entry(models.Model):
     author = models.CharField(max_length=20)
