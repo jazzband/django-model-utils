@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
 
-from model_utils.managers import QueryManager
+from model_utils.managers import InheritanceCastManager, QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
     StatusField, MonitorField
 
@@ -19,6 +19,8 @@ class InheritanceCastModel(models.Model):
 
     """
     real_type = models.ForeignKey(ContentType, editable=False, null=True)
+
+    objects = InheritanceCastManager()
 
     def save(self, *args, **kwargs):
         if not self.id:

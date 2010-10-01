@@ -1,8 +1,39 @@
 from types import ClassType
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
+
+
+class InheritanceCastQuerySet(QuerySet):
+    def cast(self):
+        results = tuple(self.values_list('pk', 'real_type'))
+        type_to_pks = {}
+        for pk, real_type_id in results:
+            type_to_pks.setdefault(real_type_id, []).append(pk)
+        content_types = ContentType.objects.in_bulk(type_to_pks.keys())
+        pk_to_child = {}
+        for real_type_id, pks in type_to_pks.iteritems():
+            content_type = content_types[real_type_id]
+            child_type = content_type.model_class()
+            children = child_type._default_manager.in_bulk(pks)
+            for pk, child in children.iteritems():
+                pk_to_child[pk] = child
+        children = []
+        # sort children into same order as parents where returned
+        for pk, real_type_id in results:
+            children.append(pk_to_child[pk])
+        return children
+
+
+class InheritanceCastManager(models.Manager):
+    def cast(self):
+        return self.get_query_set().cast()
+
+    def get_query_set(self):
+        return InheritanceCastQuerySet(self.model)
+
 
 class QueryManager(models.Manager):
     def __init__(self, *args, **kwargs):

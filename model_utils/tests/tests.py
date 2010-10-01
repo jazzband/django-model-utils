@@ -225,6 +225,22 @@ class InheritanceCastModelTests(TestCase):
         self.assertEquals(obj.__class__, InheritChild)
 
 
+class InheritanceCastQuerysetTests(TestCase):
+    def setUp(self):
+        self.child = InheritChild.objects.create()
+
+    def test_cast_manager(self):
+        obj = InheritParent.objects.cast()[0]
+        self.assertEquals(obj.__class__, InheritChild)
+
+    def test_cast(self):
+        parent = InheritParent.objects.create()
+        obj = InheritParent.objects.filter(pk=self.child.pk).cast()[0]
+        self.assertEquals(obj.__class__, InheritChild)
+        obj = InheritChild.objects.all().cast()[0]
+        self.assertEquals(obj.__class__, InheritChild)
+
+
 class TimeStampedModelTests(TestCase):
     def test_created(self):
         t1 = TimeStamp.objects.create()
