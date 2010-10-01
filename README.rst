@@ -253,9 +253,21 @@ return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
 
 .. note:: 
     This is inefficient for large querysets, as it results in n
-    queries to the subtype tables.  It would be possible to write a
-    QuerySet subclass that could reduce this to k queries, where there
-    are k subtypes in the inheritance tree.
+    queries to the subtype tables.  You can use the ``cast()`` method
+    on a queryset to reduce this to as many queries as subtypes are
+    involved.
+
+::
+
+    nearby_places = Place.objects.filter(location='here')
+    for pace in nearby_places.cast():
+        # ...
+
+.. note:: 
+    The ``cast()`` method on a queryset does *not* return another
+    queryset but an already evaluated result of the database query.
+    This means that you cannot chain any athor queryset methods after
+    you have called ``cast()``.
 
 TimeStampedModel
 ================
