@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- added InheritanceCastManager and InheritanceCastQuerySet, to allow bulk
+  casting of a queryset to child types.  Thanks Gregor Müllegger.
+
 0.5.0 (2010.09.24)
 ------------------
 

@@ -12,9 +12,11 @@ from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt, MonitorField
 from model_utils.managers import QueryManager, manager_from
 from model_utils.models import StatusModel, TimeFramedModel
-from model_utils.tests.models import (InheritParent, InheritChild, TimeStamp,
-    Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
-    StatusManagerAdded, TimeFrameManagerAdded, Entry)
+from model_utils.tests.models import (InheritParent, InheritChild, InheritChild2,
+                                      TimeStamp, Post, Article, Status,
+                                      StatusPlainTuple, TimeFrame, Monitored,
+                                      StatusManagerAdded, TimeFrameManagerAdded,
+                                      Entry)
 
 
 class GetExcerptTests(TestCase):
@@ -228,17 +230,20 @@ class InheritanceCastModelTests(TestCase):
 class InheritanceCastQuerysetTests(TestCase):
     def setUp(self):
         self.child = InheritChild.objects.create()
+        self.child2 = InheritChild2.objects.create()
 
     def test_cast_manager(self):
-        obj = InheritParent.objects.cast()[0]
-        self.assertEquals(obj.__class__, InheritChild)
+        self.assertEquals(set(InheritParent.objects.cast()),
+                          set([self.child, self.child2]))
 
     def test_cast(self):
         parent = InheritParent.objects.create()
         obj = InheritParent.objects.filter(pk=self.child.pk).cast()[0]
         self.assertEquals(obj.__class__, InheritChild)
-        obj = InheritChild.objects.all().cast()[0]
-        self.assertEquals(obj.__class__, InheritChild)
+        self.assertEquals(set(InheritChild2.objects.all().cast()),
+                          set([self.child2]))
+        self.assertEquals(set(InheritParent.objects.all().cast()),
+                          set([parent, self.child, self.child2]))
 
 
 class TimeStampedModelTests(TestCase):

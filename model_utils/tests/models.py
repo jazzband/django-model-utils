@@ -12,6 +12,9 @@ class InheritParent(InheritanceCastModel):
 class InheritChild(InheritParent):
     pass
 
+class InheritChild2(InheritParent):
+    pass
+
 class TimeStamp(TimeStampedModel):
     pass
 

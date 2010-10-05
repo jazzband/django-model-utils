@@ -251,23 +251,17 @@ return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
         restaurant_or_bar = place.cast()
         # ...
 
-.. note:: 
-    This is inefficient for large querysets, as it results in n
-    queries to the subtype tables.  You can use the ``cast()`` method
-    on a queryset to reduce this to as many queries as subtypes are
-    involved.
-
-::
+This is inefficient for large querysets, as it results in a new query for every
+individual returned object.  You can use the ``cast()`` method on a queryset to
+reduce this to as many queries as subtypes are involved::
 
     nearby_places = Place.objects.filter(location='here')
-    for pace in nearby_places.cast():
+    for place in nearby_places.cast():
         # ...
 
-.. note:: 
-    The ``cast()`` method on a queryset does *not* return another
-    queryset but an already evaluated result of the database query.
-    This means that you cannot chain any athor queryset methods after
-    you have called ``cast()``.
+.. note:: The ``cast()`` queryset method does *not* return another
+    queryset but an already evaluated result of the database query.  This means
+    that you cannot chain additional queryset methods after ``cast()``.
 
 TimeStampedModel
 ================
