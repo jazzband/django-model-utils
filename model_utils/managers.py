@@ -6,7 +6,7 @@ from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
 
-class InheritanceCastQuerySet(QuerySet):
+class InheritanceCastMixin(object):
     def cast(self):
         results = tuple(self.values_list('pk', 'real_type'))
         type_to_pks = {}
@@ -25,14 +25,6 @@ class InheritanceCastQuerySet(QuerySet):
         for pk, real_type_id in results:
             children.append(pk_to_child[pk])
         return children
-
-
-class InheritanceCastManager(models.Manager):
-    def cast(self):
-        return self.get_query_set().cast()
-
-    def get_query_set(self):
-        return InheritanceCastQuerySet(self.model)
 
 
 class QueryManager(models.Manager):
