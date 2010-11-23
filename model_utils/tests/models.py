@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.managers import QueryManager, manager_from
+from model_utils.managers import QueryManager, manager_from, InheritanceManager
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
 
@@ -13,6 +13,15 @@ class InheritChild(InheritParent):
     pass
 
 class InheritChild2(InheritParent):
+    pass
+
+class InheritanceManagerTestParent(models.Model):
+    objects = InheritanceManager()
+
+class InheritanceManagerTestChild1(InheritanceManagerTestParent):
+    pass
+
+class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     pass
 
 class TimeStamp(TimeStampedModel):

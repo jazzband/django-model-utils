@@ -24,7 +24,8 @@ your ``INSTALLED_APPS`` setting.
 Dependencies
 ------------
 
-``django-model-utils`` requires `Django`_ 1.0 or later.
+Most of ``django-model-utils`` works with `Django`_ 1.0 or later.
+`InheritanceManager`_ requires Django 1.2 or later.
 
 .. _Django: http://www.djangoproject.com/
 
@@ -218,38 +219,89 @@ returns objects with that status only::
     # this query will only return published articles:
     Article.published.all()
 
-InheritanceCastModel
-====================
+InheritanceManager
+==================
 
-This abstract base class can be inherited by the root (parent) model
-in a model-inheritance tree.  It allows each model in the tree to
-"know" what type it is (via an automatically-set foreign key to
-``ContentType``), allowing for automatic casting of a parent instance
-to its proper leaf (child) type.
+This manager (`contributed by Jeff Elmore`_) should be attached to a base model
+class in a model-inheritance tree.  It allows queries on that base model to
+return heterogenous results of the actual proper subtypes, without any
+additional queries.
 
-For instance, if you have a ``Place`` model with subclasses
-``Restaurant`` and ``Bar``, you may want to query all Places::
+For instance, if you have a ``Place`` model with subclasses ``Restaurant`` and
+``Bar``, you may want to query all Places::
 
     nearby_places = Place.objects.filter(location='here')
 
 But when you iterate over ``nearby_places``, you'll get only ``Place``
-instances back, even for objects that are "really" ``Restaurant`` or
-``Bar``.  If you have ``Place`` inherit from ``InheritanceCastModel``,
-you can just call the ``cast()`` method on each ``Place`` and it will
-return an instance of the proper subtype, ``Restaurant`` or ``Bar``::
+instances back, even for objects that are "really" ``Restaurant`` or ``Bar``.
+If you attach an ``InheritanceManager`` to ``Place``, you can just call the
+``select_subclasses()`` method on the ``InheritanceManager`` or any
+``QuerySet`` from it, and the resulting objects will be instances of
+``Restaurant`` or ``Bar``::
+
+    from model_utils.managers import InheritanceManager
+
+    class Place(models.Model):
+        # ...
+        objects = InheritanceManager()
+
+    class Restaurant(Place):
+        # ...
+
+    class Bar(Place):
+        # ...
+
+    nearby_places = Place.objects.filter(location='here').select_subclasses()
+    for place in nearby_places:
+        # "place" will automatically be an instance of Place, Restaurant, or Bar
+
+The database query performed will have an extra join for each subclass; if you
+want to reduce the number of joins and you only need particular subclasses to
+be returned as their actual type, you can pass subclass names to
+``select_subclasses()``, much like the built-in ``select_related()`` method::
+
+    nearby_places = Place.objects.select_subclasses("restaurant")
+    # restaurants will be Restaurant instances, bars will still be Place instances
+
+If you don't explicitly call ``select_subclasses()``, an ``InheritanceManager``
+behaves identically to a normal ``Manager``; so it's safe to use as your
+default manager for the model.
+
+.. note::
+    ``InheritanceManager`` currently only supports a single level of model
+    inheritance; it won't work for grandchild models.
+
+.. note::
+    ``InheritanceManager`` requires Django 1.2 or later.
+
+.. _contributed by Jeff Elmore: http://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
+
+
+InheritanceCastModel
+====================
+
+This abstract base class can be inherited by the root (parent) model in a
+model-inheritance tree. It solves the same problem as `InheritanceManager`_ in
+a way that requires more database queries and is less convenient to use, but is
+compatible with Django versions prior to 1.2. Whenever possible,
+`InheritanceManager`_ should be used instead.
+
+Usage::
 
     from model_utils.models import InheritanceCastModel
 
     class Place(InheritanceCastModel):
         # ...
-    
+
     class Restaurant(Place):
+        # ...
+
+    class Bar(Place):
         # ...
 
     nearby_places = Place.objects.filter(location='here')
     for place in nearby_places:
-        restaurant_or_bar = place.cast()
-        # ...
+        restaurant_or_bar = place.cast() # ...
 
 This is inefficient for large querysets, as it results in a new query for every
 individual returned object.  You can use the ``cast()`` method on a queryset to
@@ -259,16 +311,16 @@ reduce this to as many queries as subtypes are involved::
     for place in nearby_places.cast():
         # ...
 
-.. note:: The ``cast()`` queryset method does *not* return another
-    queryset but an already evaluated result of the database query.  This means
-    that you cannot chain additional queryset methods after ``cast()``.
+.. note::
+    The ``cast()`` queryset method does *not* return another queryset but an
+    already evaluated result of the database query.  This means that you cannot
+    chain additional queryset methods after ``cast()``.
 
 TimeStampedModel
 ================
 
 This abstract base class just provides self-updating ``created`` and
-``modified`` fields on any model that inherits from it.        
-  
+``modified`` fields on any model that inherits from it.
 
 QueryManager
 ============

@@ -12,11 +12,11 @@ from model_utils import ChoiceEnum, Choices
 from model_utils.fields import get_excerpt, MonitorField
 from model_utils.managers import QueryManager, manager_from
 from model_utils.models import StatusModel, TimeFramedModel
-from model_utils.tests.models import (InheritParent, InheritChild, InheritChild2,
-                                      TimeStamp, Post, Article, Status,
-                                      StatusPlainTuple, TimeFrame, Monitored,
-                                      StatusManagerAdded, TimeFrameManagerAdded,
-                                      Entry)
+from model_utils.tests.models import (
+    InheritParent, InheritChild, InheritChild2, InheritanceManagerTestParent,
+    InheritanceManagerTestChild1, InheritanceManagerTestChild2,
+    TimeStamp, Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
+    StatusManagerAdded, TimeFrameManagerAdded,  Entry)
 
 
 class GetExcerptTests(TestCase):
@@ -35,11 +35,11 @@ class GetExcerptTests(TestCase):
     def test_middle_of_line(self):
         e = get_excerpt("some text <!-- split --> more text")
         self.assertEquals(e, "some text <!-- split --> more text")
-    
+
 class SplitFieldTests(TestCase):
     full_text = u'summary\n\n<!-- split -->\n\nmore'
     excerpt = u'summary\n'
-    
+
     def setUp(self):
         self.post = Article.objects.create(
             title='example post', body=self.full_text)
@@ -60,7 +60,7 @@ class SplitFieldTests(TestCase):
         post = Article.objects.create(title='example 2',
                                       body='some text\n\nsome more\n')
         self.failIf(post.body.has_more)
-        
+
     def test_load_back(self):
         post = Article.objects.get(pk=self.post.pk)
         self.assertEquals(post.body.content, self.post.body.content)
@@ -126,7 +126,7 @@ class MonitorFieldTests(TestCase):
     def test_no_monitor_arg(self):
         self.assertRaises(TypeError, MonitorField)
 
-        
+
 class ChoicesTests(TestCase):
     def setUp(self):
         self.STATUS = Choices('DRAFT', 'PUBLISHED')
@@ -149,7 +149,7 @@ class ChoicesTests(TestCase):
     def test_wrong_length_tuple(self):
         self.assertRaises(ValueError, Choices, ('a',))
 
-        
+
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
         self.STATUS = Choices(
@@ -181,7 +181,7 @@ class LabelChoicesTests(ChoicesTests):
                           "('PUBLISHED', 'PUBLISHED', 'is published'), "
                           "('DELETED', 'DELETED', 'DELETED'))")
 
-        
+
 class IdentifierChoicesTests(ChoicesTests):
     def setUp(self):
         self.STATUS = Choices(
@@ -200,7 +200,7 @@ class IdentifierChoicesTests(ChoicesTests):
 
     def test_getattr(self):
         self.assertEquals(self.STATUS.DRAFT, 0)
-        
+
     def test_repr(self):
         self.assertEquals(repr(self.STATUS),
                           "Choices("
@@ -208,12 +208,12 @@ class IdentifierChoicesTests(ChoicesTests):
                           "(1, 'PUBLISHED', 'is published'), "
                           "(2, 'DELETED', 'is deleted'))")
 
-        
+
 class InheritanceCastModelTests(TestCase):
     def setUp(self):
         self.parent = InheritParent.objects.create()
         self.child = InheritChild.objects.create()
-    
+
     def test_parent_real_type(self):
         self.assertEquals(self.parent.real_type,
                           ContentType.objects.get_for_model(InheritParent))
@@ -246,6 +246,28 @@ class InheritanceCastQuerysetTests(TestCase):
                           set([parent, self.child, self.child2]))
 
 
+class InheritanceManagerTests(TestCase):
+    def setUp(self):
+        self.child1 = InheritanceManagerTestChild1.objects.create()
+        self.child2 = InheritanceManagerTestChild2.objects.create()
+
+    def test_normal(self):
+        self.assertEquals(set(InheritanceManagerTestParent.objects.all()),
+                          set([
+                    InheritanceManagerTestParent(pk=self.child1.pk),
+                    InheritanceManagerTestParent(pk=self.child2.pk),
+                    ]))
+
+    def test_select_all_subclasses(self):
+        self.assertEquals(set(InheritanceManagerTestParent.objects.select_subclasses()),
+                          set([self.child1, self.child2]))
+
+    def test_select_specific_subclasses(self):
+        self.assertEquals(set(InheritanceManagerTestParent.objects.select_subclasses(
+                    "inheritancemanagertestchild1")),
+                          set([self.child1, InheritanceManagerTestParent(pk=self.child2.pk)]))
+
+
 class TimeStampedModelTests(TestCase):
     def test_created(self):
         t1 = TimeStamp.objects.create()
@@ -263,7 +285,7 @@ class TimeFramedModelTests(TestCase):
 
     def setUp(self):
         self.now = datetime.now()
-    
+
     def test_not_yet_begun(self):
         TimeFrame.objects.create(start=self.now+timedelta(days=2))
         self.assertEquals(TimeFrame.timeframed.count(), 0)
@@ -295,8 +317,8 @@ class TimeFrameManagerAddedTests(TestCase):
             class ErrorModel(TimeFramedModel):
                 timeframed = models.BooleanField()
         self.assertRaises(ImproperlyConfigured, _run)
-        
-                
+
+
 class StatusModelTests(TestCase):
     def setUp(self):
         self.model = Status
@@ -326,7 +348,7 @@ class StatusModelTests(TestCase):
         t1.save()
         self.assert_(t1.status_changed > date_active_again)
 
-        
+
 class StatusModelPlainTupleTests(StatusModelTests):
     def setUp(self):
         self.model = StatusPlainTuple
@@ -347,7 +369,7 @@ class StatusManagerAddedTests(TestCase):
                     )
                 active = models.BooleanField()
         self.assertRaises(ImproperlyConfigured, _run)
-                
+
 
 class QueryManagerTests(TestCase):
     def setUp(self):
@@ -379,7 +401,7 @@ if 'south' in settings.INSTALLED_APPS:
             mf = Article._meta.get_field('body')
             args, kwargs = introspector(mf)
             self.assertEquals(kwargs['no_excerpt_field'], 'True')
-        
+
         def test_no_excerpt_field_works(self):
             from models import NoRendered
             self.assertRaises(FieldDoesNotExist,
@@ -391,7 +413,7 @@ class ManagerFromTests(TestCase):
         Entry.objects.create(author='George', published=True)
         Entry.objects.create(author='George', published=False)
         Entry.objects.create(author='Paul', published=True, feature=True)
-    
+
     def test_chaining(self):
         self.assertEqual(Entry.objects.by_author('George').published().count(),
                          1)
@@ -401,7 +423,7 @@ class ManagerFromTests(TestCase):
 
     def test_typecheck(self):
         self.assertRaises(TypeError, manager_from, 'somestring')
-        
+
     def test_custom_get_query_set(self):
         self.assertEqual(Entry.featured.published().count(), 1)
 

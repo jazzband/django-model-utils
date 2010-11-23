@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- added InheritanceManager, a better approach to selecting subclass instances
+  for Django 1.2+. Thanks Jeff Elmore.
+
 - added InheritanceCastManager and InheritanceCastQuerySet, to allow bulk
   casting of a queryset to child types.  Thanks Gregor Müllegger.
 
