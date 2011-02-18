@@ -15,7 +15,7 @@ or get the `in-development version`_::
 
     pip install django-model-utils==tip
 
-.. _in-development version: http://bitbucket.org/carljm/django-model-utils/get/tip.gz#egg=django_model_utils-tip
+.. _in-development version: http://bitbucket.org/carljm/django-model-utils/get/tip.tar.gz#egg=django_model_utils-tip
 
 To use ``django-model-utils`` in your Django project, just import and
 use the utility classes described below; there is no need to modify
@@ -25,7 +25,7 @@ Dependencies
 ------------
 
 Most of ``django-model-utils`` works with `Django`_ 1.0 or later.
-`InheritanceManager`_ requires Django 1.2 or later.
+`InheritanceManager`_ and `SplitField`_ require Django 1.2 or later.
 
 .. _Django: http://www.djangoproject.com/
 
