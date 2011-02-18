@@ -26,7 +26,7 @@ long_description = (open('README.rst').read() +
 
 setup(
     name='django-model-utils',
-    version='0.6.0',
+    version='0.6.0.post%s' % hgrev,
     description='Django model mixins and utilities',
     long_description=long_description,
     author='Carl Meyer',
