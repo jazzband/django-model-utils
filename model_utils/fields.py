@@ -195,7 +195,7 @@ class SplitField(models.TextField):
         value = self._get_val_from_obj(obj)
         return value.content
 
-    def get_db_prep_value(self, value):
+    def get_prep_value(self, value):
         try:
             return value.content
         except AttributeError:
