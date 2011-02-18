@@ -1,8 +1,12 @@
 CHANGES
 =======
 
-tip (unreleased)
-----------------
+0.6.0 (2011.02.18)
+------------------
+
+- updated SplitField to define get_prep_value rather than get_db_prep_value.
+  This avoids deprecation warnings on Django trunk/1.3, but makes SplitField
+  incompatible with Django versions prior to 1.2.
 
 - added InheritanceManager, a better approach to selecting subclass instances
   for Django 1.2+. Thanks Jeff Elmore.
