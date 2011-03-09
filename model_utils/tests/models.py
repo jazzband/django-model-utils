@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.managers import QueryManager, manager_from, InheritanceManager
+from model_utils.managers import QueryManager, manager_from, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
 
@@ -115,3 +115,34 @@ class Entry(models.Model):
     featured = manager_from(PublishedMixin,
                             manager_cls=FeaturedManager,
                             queryset_cls=ByAuthorQuerySet)
+
+class DudeQuerySet(models.query.QuerySet):
+    def abiding(self):
+        return self.filter(abides=True)
+    
+    def rug_positive(self):
+        return self.filter(has_rug=True)
+    
+    def rug_negative(self):
+        return self.filter(has_rug=False)
+    
+    def by_name(self, name):
+        return self.filter(name__iexact=name)
+
+class AbidingManager(PassThroughManager):
+    def get_query_set(self):
+        return DudeQuerySet(self.model, using=self._db).abiding()
+    
+    def get_stats(self):
+        return {
+            'abiding_count': self.count(),
+            'rug_count': self.rug_positive().count(),
+        }
+
+class Dude(models.Model):
+    abides = models.BooleanField(default=True)
+    name = models.CharField(max_length=20)
+    has_rug = models.BooleanField()
+    
+    objects = PassThroughManager(DudeQuerySet)
+    abiders = AbidingManager()

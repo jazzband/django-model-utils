@@ -104,7 +104,7 @@ class PassThroughManager(models.Manager):
     
     def __init__(self, queryset_cls=None):
         self._queryset_cls = queryset_cls
-        super(PassthroughManager, self).__init__()
+        super(PassThroughManager, self).__init__()
     
     def __getattr__(self, name):
         if name in self._deny_methods:

@@ -1,3 +1,8 @@
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 from datetime import datetime, timedelta
 
 from django.test import TestCase
@@ -16,7 +21,7 @@ from model_utils.tests.models import (
     InheritParent, InheritChild, InheritChild2, InheritanceManagerTestParent,
     InheritanceManagerTestChild1, InheritanceManagerTestChild2,
     TimeStamp, Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
-    StatusManagerAdded, TimeFrameManagerAdded,  Entry)
+    StatusManagerAdded, TimeFrameManagerAdded, Entry, Dude)
 
 
 class GetExcerptTests(TestCase):
@@ -408,6 +413,7 @@ if 'south' in settings.INSTALLED_APPS:
                               NoRendered._meta.get_field,
                               '_body_excerpt')
 
+
 class ManagerFromTests(TestCase):
     def setUp(self):
         Entry.objects.create(author='George', published=True)
@@ -429,3 +435,37 @@ class ManagerFromTests(TestCase):
 
     def test_cant_reconcile_qs_class(self):
         self.assertRaises(TypeError, Entry.broken.all)
+    
+    def test_queryset_pickling_fails(self):
+        qs = Entry.objects.all()
+        def dump_load():
+            pqs = pickle.dumps(qs)
+            upqs = pickle.loads(pqs)
+        self.assertRaises(pickle.PicklingError, dump_load)
+
+
+class PassThroughManagerTests(TestCase):
+    def setUp(self):
+        Dude.objects.create(name='The Dude', abides=True, has_rug=False)
+        Dude.objects.create(name='His Dudeness', abides=False, has_rug=True)
+        Dude.objects.create(name='Duder', abides=False, has_rug=False)
+        Dude.objects.create(name='El Duderino', abides=True, has_rug=True)
+
+    def test_chaining(self):
+        self.assertEqual(Dude.objects.by_name('Duder').count(), 1)
+        self.assertEqual(Dude.objects.all().by_name('Duder').count(), 1)
+        self.assertEqual(Dude.abiders.rug_positive().count(), 1)
+        self.assertEqual(Dude.abiders.all().rug_positive().count(), 1)
+    
+    def test_manager_only_methods(self):
+        stats = Dude.abiders.get_stats()
+        self.assertEqual(stats['rug_count'], 1)
+        def notonqs():
+            Dude.abiders.all().get_stats()
+        self.assertRaises(AttributeError, notonqs)
+    
+    def test_queryset_pickling(self):
+        qs = Dude.objects.all()
+        saltyqs = pickle.dumps(qs)
+        unqs = pickle.loads(saltyqs)
+        self.assertEqual(unqs.by_name('The Dude').count(), 1)
