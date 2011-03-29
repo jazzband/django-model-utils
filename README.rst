@@ -392,3 +392,87 @@ same additional methods::
 
 .. _created by George Sakkis: http://djangosnippets.org/snippets/2117/
 
+PassThroughManager
+==================
+
+The ``PassThroughManager`` class (`contributed by Paul McLanahan`_) solves
+the same problem as the above ``manager_from`` function. This class, however,
+accomplishes it in a different way. The reason it exists is that the dynamically
+generated ``QuerySet`` classes created by the ``manager_from`` function are
+not picklable. It's probably not often that a ``QuerySet`` is pickled, but
+it is a documented feature of the Django ``QuerySet`` class, and this method
+maintains that functionality.
+
+``PassThroughManager`` is a subclass of ``django.db.models.manager.Manager``,
+so all that is required is that you change your custom managers to inherit from
+``PassThroughManager`` instead of Django's built-in ``Manager`` class. Once you
+do this, create your custom ``QuerySet`` class, and have your manager's
+``get_query_set`` method return instances of said class, then all of the
+methods you add to your custom ``QuerySet`` class will be available from your
+manager as well::
+
+    from datetime import datetime
+    from django.db import models
+    from django.db.models.query import QuerySet
+    
+    class PostQuerySet(QuerySet):
+        def by_author(self, user):
+            return self.filter(user=user)
+            
+        def published(self):
+            return self.filter(published__lte=datetime.now())
+    
+        def unpublished(self):
+            return self.filter(published__gte=datetime.now())
+    
+    class PostManager(PassThroughManager):
+        def get_query_set(self):
+            PostQuerySet(self.model, using=self._db)
+        
+        def get_stats(self):
+            return {
+                'published_count': self.published().count(),
+                'unpublished_count': self.unpublished().count(),
+            }
+    
+    class Post(models.Model):
+        user = models.ForeignKey(User)
+        published = models.DateTimeField()
+    
+        objects = PostManager()
+    
+    Post.objects.get_stats()
+    Post.objects.published()
+    Post.objects.by_author(user=request.user).unpublished()
+
+Alternatively, if you don't need any methods on your manager that shouldn't also
+be on your queryset, a shortcut is available. ``PassThroughManager``'s
+constructor takes an optional argument. If you pass it a ``QuerySet`` subclass
+it will automatically use that class when creating querysets for the manager::
+
+    from datetime import datetime
+    from django.db import models
+    from django.db.models.query import QuerySet
+    
+    class PostQuerySet(QuerySet):
+        def by_author(self, user):
+            return self.filter(user=user)
+            
+        def published(self):
+            return self.filter(published__lte=datetime.now())
+    
+        def unpublished(self):
+            return self.filter(published__gte=datetime.now())
+    
+    
+    class Post(models.Model):
+        user = models.ForeignKey(User)
+        published = models.DateTimeField()
+    
+        objects = PassThroughManager(PostQuerySet)
+    
+    Post.objects.published()
+    Post.objects.by_author(user=request.user).unpublished()
+
+.. _contributed by Paul McLanahan: http://paulm.us/post/3717466639/passthroughmanager-for-django
+
