@@ -7,6 +7,9 @@ tip (unreleased)
 0.6.0 (2011.02.18)
 ------------------
 
+- Fixed issue #6, bug with InheritanceManager and descriptor fields (e.g.
+  FileField).  Thanks zyegfryed for the fix and sayane for tests.
+
 - updated SplitField to define get_prep_value rather than get_db_prep_value.
   This avoids deprecation warnings on Django trunk/1.3, but makes SplitField
   incompatible with Django versions prior to 1.2.

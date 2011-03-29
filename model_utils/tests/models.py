@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -7,21 +8,35 @@ from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
 
 class InheritParent(InheritanceCastModel):
+    non_related_field_using_descriptor = models.FileField(upload_to='test')
+    normal_field = models.TextField()
     pass
 
 class InheritChild(InheritParent):
+    non_related_field_using_descriptor_2 = models.FileField(upload_to='test')
+    normal_field_2 = models.TextField()
     pass
 
 class InheritChild2(InheritParent):
+    non_related_field_using_descriptor_3 = models.FileField(upload_to='test')
+    normal_field_3 = models.TextField()
     pass
 
 class InheritanceManagerTestParent(models.Model):
+    # test for #6
+    # I'm using FileField, because it will always use descriptor
+    non_related_field_using_descriptor = models.FileField(upload_to='test')
+    normal_field = models.TextField()
     objects = InheritanceManager()
 
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
+    non_related_field_using_descriptor_2 = models.FileField(upload_to='test')
+    normal_field_2 = models.TextField()
     pass
 
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
+    non_related_field_using_descriptor_2 = models.FileField(upload_to='test')
+    normal_field_2 = models.TextField()
     pass
 
 class TimeStamp(TimeStampedModel):
