@@ -2,16 +2,16 @@ from types import ClassType
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.fields.related import SingleRelatedObjectDescriptor
+from django.db.models.fields.related import OneToOneField
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
 class InheritanceQuerySet(QuerySet):
     def select_subclasses(self, *subclasses):
         if not subclasses:
-            subclasses = [o for o in dir(self.model)
-                          if isinstance(getattr(self.model, o), SingleRelatedObjectDescriptor)
-                          and issubclass(getattr(self.model,o).related.model, self.model)]
+            subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
+                          if isinstance(rel.field, OneToOneField)
+                          and issubclass(rel.field.model, self.model)]
         new_qs = self.select_related(*subclasses)
         new_qs.subclasses = subclasses
         return new_qs
