@@ -145,7 +145,7 @@ class DudeQuerySet(models.query.QuerySet):
 
 class AbidingManager(PassThroughManager):
     def get_query_set(self):
-        return DudeQuerySet(self.model, using=self._db).abiding()
+        return DudeQuerySet(self.model).abiding()
 
     def get_stats(self):
         return {
