@@ -100,7 +100,7 @@ class PassThroughManager(models.Manager):
         objects = PassThroughManager(PostQuerySet)
     '''
     # pickling causes recursion errors
-    _deny_methods = ['__getstate__', '__setstate__']
+    _deny_methods = ['__getstate__', '__setstate__', '_db']
     
     def __init__(self, queryset_cls=None):
         self._queryset_cls = queryset_cls
@@ -113,7 +113,10 @@ class PassThroughManager(models.Manager):
     
     def get_query_set(self):
         if self._queryset_cls is not None:
-            return self._queryset_cls(self.model, using=self._db)
+            kargs = {'model': self.model}
+            if hasattr(self, '_db'):
+                kargs['using'] = self._db
+            return self._queryset_cls(**kargs)
         return super(PassThroughManager, self).get_query_set()
 
 
