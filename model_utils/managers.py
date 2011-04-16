@@ -35,6 +35,8 @@ class InheritanceQuerySet(QuerySet):
                 yield obj
 
 class InheritanceManager(models.Manager):
+    use_for_related_fields = True
+
     def get_query_set(self):
         return InheritanceQuerySet(self.model)
 

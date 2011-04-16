@@ -1,10 +1,11 @@
+from __future__ import with_statement
+
 import pickle, sys, warnings
 
 from datetime import datetime, timedelta
 
 import django
 from django.test import TestCase
-from django.conf import settings
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
@@ -16,10 +17,11 @@ from model_utils.fields import get_excerpt, MonitorField
 from model_utils.managers import QueryManager, manager_from
 from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (
-    InheritParent, InheritChild, InheritChild2, InheritanceManagerTestParent,
-    InheritanceManagerTestChild1, InheritanceManagerTestChild2,
-    TimeStamp, Post, Article, Status, StatusPlainTuple, TimeFrame, Monitored,
-    StatusManagerAdded, TimeFrameManagerAdded, Entry, Dude)
+    InheritParent, InheritChild, InheritChild2, InheritanceManagerTestRelated,
+    InheritanceManagerTestParent, InheritanceManagerTestChild1,
+    InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
+    StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
+    TimeFrameManagerAdded, Entry, Dude)
 
 
 
@@ -316,8 +318,12 @@ if django.VERSION >= (1, 2):
             self.child2 = InheritanceManagerTestChild2.objects.create()
 
 
+        def get_manager(self):
+            return InheritanceManagerTestParent.objects
+
+
         def test_normal(self):
-            self.assertEquals(set(InheritanceManagerTestParent.objects.all()),
+            self.assertEquals(set(self.get_manager().all()),
                               set([
                         InheritanceManagerTestParent(pk=self.child1.pk),
                         InheritanceManagerTestParent(pk=self.child2.pk),
@@ -326,16 +332,29 @@ if django.VERSION >= (1, 2):
 
         def test_select_all_subclasses(self):
             self.assertEquals(
-                set(InheritanceManagerTestParent.objects.select_subclasses()),
+                set(self.get_manager().select_subclasses()),
                 set([self.child1, self.child2]))
 
 
         def test_select_specific_subclasses(self):
             self.assertEquals(
-                set(InheritanceManagerTestParent.objects.select_subclasses(
+                set(self.get_manager().select_subclasses(
                         "inheritancemanagertestchild1")),
                 set([self.child1,
                      InheritanceManagerTestParent(pk=self.child2.pk)]))
+
+
+    class InheritanceManagerRelatedTests(InheritanceManagerTests):
+        def setUp(self):
+            self.related = InheritanceManagerTestRelated.objects.create()
+            self.child1 = InheritanceManagerTestChild1.objects.create(
+                related=self.related)
+            self.child2 = InheritanceManagerTestChild2.objects.create(
+                related=self.related)
+
+
+        def get_manager(self):
+            return self.related.imtests
 
 
 
