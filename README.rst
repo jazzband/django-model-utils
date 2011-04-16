@@ -24,7 +24,7 @@ your ``INSTALLED_APPS`` setting.
 Dependencies
 ------------
 
-Most of ``django-model-utils`` works with `Django`_ 1.0 or later.
+Most of ``django-model-utils`` works with `Django`_ 1.1 or later.
 `InheritanceManager`_ and `SplitField`_ require Django 1.2 or later.
 
 .. _Django: http://www.djangoproject.com/
@@ -272,49 +272,15 @@ default manager for the model.
     inheritance; it won't work for grandchild models.
 
 .. note::
-    ``InheritanceManager`` requires Django 1.2 or later.
+    ``InheritanceManager`` requires Django 1.2 or later. Previous versions of
+    django-model-utils included ``InheritanceCastModel``, an alternative (and
+    inferior) approach to this problem that is Django 1.1
+    compatible. ``InheritanceCastModel`` will remain in django-model-utils
+    until support for Django 1.1 is removed, but it is no longer documented and
+    its use in new code is discouraged.
 
 .. _contributed by Jeff Elmore: http://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
 
-
-InheritanceCastModel
-====================
-
-This abstract base class can be inherited by the root (parent) model in a
-model-inheritance tree. It solves the same problem as `InheritanceManager`_ in
-a way that requires more database queries and is less convenient to use, but is
-compatible with Django versions prior to 1.2. Whenever possible,
-`InheritanceManager`_ should be used instead.
-
-Usage::
-
-    from model_utils.models import InheritanceCastModel
-
-    class Place(InheritanceCastModel):
-        # ...
-
-    class Restaurant(Place):
-        # ...
-
-    class Bar(Place):
-        # ...
-
-    nearby_places = Place.objects.filter(location='here')
-    for place in nearby_places:
-        restaurant_or_bar = place.cast() # ...
-
-This is inefficient for large querysets, as it results in a new query for every
-individual returned object.  You can use the ``cast()`` method on a queryset to
-reduce this to as many queries as subtypes are involved::
-
-    nearby_places = Place.objects.filter(location='here')
-    for place in nearby_places.cast():
-        # ...
-
-.. note::
-    The ``cast()`` queryset method does *not* return another queryset but an
-    already evaluated result of the database query.  This means that you cannot
-    chain additional queryset methods after ``cast()``.
 
 TimeStampedModel
 ================
@@ -348,107 +314,26 @@ set the ordering of the ``QuerySet`` returned by the ``QueryManager``
 by chaining a call to ``.order_by()`` on the ``QueryManager`` (this is
 not required).
 
-manager_from
-============
-
-A common "gotcha" when defining methods on a custom manager class is
-that those same methods are not automatically also available on the
-QuerySet used by that model, so are not "chainable". This can be
-counterintuitive, as most of the public QuerySet API is also available
-on managers. It is possible to create a custom Manager that returns
-QuerySets that have the same additional methods, but this requires
-boilerplate code.
-
-The ``manager_from`` function (`created by George Sakkis`_ and
-included here by permission) solves this problem with zero
-boilerplate. It creates and returns a Manager subclass with additional
-behavior defined by mixin subclasses or functions you pass it, and the
-returned Manager will return instances of a custom QuerySet with those
-same additional methods::
-
-    from datetime import datetime
-    from django.db import models
-    
-    class AuthorMixin(object):
-        def by_author(self, user):
-            return self.filter(user=user)
-    
-    class PublishedMixin(object):
-        def published(self):
-            return self.filter(published__lte=datetime.now())
-    
-    def unpublished(self):
-        return self.filter(published__gte=datetime.now())
-    
-    
-    class Post(models.Model):
-        user = models.ForeignKey(User)
-        published = models.DateTimeField()
-    
-        objects = manager_from(AuthorMixin, PublishedMixin, unpublished)
-    
-    Post.objects.published()
-    Post.objects.by_author(user=request.user).unpublished()
-
-.. _created by George Sakkis: http://djangosnippets.org/snippets/2117/
 
 PassThroughManager
 ==================
 
-The ``PassThroughManager`` class (`contributed by Paul McLanahan`_) solves
-the same problem as the above ``manager_from`` function. This class, however,
-accomplishes it in a different way. The reason it exists is that the dynamically
-generated ``QuerySet`` classes created by the ``manager_from`` function are
-not picklable. It's probably not often that a ``QuerySet`` is pickled, but
-it is a documented feature of the Django ``QuerySet`` class, and this method
-maintains that functionality.
+A common "gotcha" when defining methods on a custom manager class is that those
+same methods are not automatically also available on the QuerySets returned by
+that manager, so are not "chainable". This can be counterintuitive, as most of
+the public QuerySet API is mirrored on managers. It is possible to create a
+custom Manager that returns QuerySets that have the same additional methods,
+but this requires boilerplate code. The ``PassThroughManager`` class
+(`contributed by Paul McLanahan`_) removes this boilerplate.
 
-``PassThroughManager`` is a subclass of ``django.db.models.manager.Manager``,
-so all that is required is that you change your custom managers to inherit from
-``PassThroughManager`` instead of Django's built-in ``Manager`` class. Once you
-do this, create your custom ``QuerySet`` class, and have your manager's
-``get_query_set`` method return instances of said class, then all of the
-methods you add to your custom ``QuerySet`` class will be available from your
-manager as well::
+.. _contributed by Paul McLanahan: http://paulm.us/post/3717466639/passthroughmanager-for-django
 
-    from datetime import datetime
-    from django.db import models
-    from django.db.models.query import QuerySet
-    
-    class PostQuerySet(QuerySet):
-        def by_author(self, user):
-            return self.filter(user=user)
-            
-        def published(self):
-            return self.filter(published__lte=datetime.now())
-    
-        def unpublished(self):
-            return self.filter(published__gte=datetime.now())
-    
-    class PostManager(PassThroughManager):
-        def get_query_set(self):
-            PostQuerySet(self.model, using=self._db)
-        
-        def get_stats(self):
-            return {
-                'published_count': self.published().count(),
-                'unpublished_count': self.unpublished().count(),
-            }
-    
-    class Post(models.Model):
-        user = models.ForeignKey(User)
-        published = models.DateTimeField()
-    
-        objects = PostManager()
-    
-    Post.objects.get_stats()
-    Post.objects.published()
-    Post.objects.by_author(user=request.user).unpublished()
-
-Alternatively, if you don't need any methods on your manager that shouldn't also
-be on your queryset, a shortcut is available. ``PassThroughManager``'s
-constructor takes an optional argument. If you pass it a ``QuerySet`` subclass
-it will automatically use that class when creating querysets for the manager::
+To use ``PassThroughManager``, rather than defining a custom manager with
+additional methods, define a custom ``QuerySet`` subclass with the additional
+methods you want, and pass that ``QuerySet`` subclass to the
+``PassThroughManager`` constructor. ``PassThroughManager`` will always return
+instances of your custom ``QuerySet``, and you can also call methods of your
+custom ``QuerySet`` directly on the manager::
 
     from datetime import datetime
     from django.db import models
@@ -474,5 +359,49 @@ it will automatically use that class when creating querysets for the manager::
     Post.objects.published()
     Post.objects.by_author(user=request.user).unpublished()
 
-.. _contributed by Paul McLanahan: http://paulm.us/post/3717466639/passthroughmanager-for-django
+If you want certain methods available only on the manager, or you need to
+override other manager methods (particularly ``get_query_set``), you can also
+define a custom manager that inherits from ``PassThroughManager``::
+
+    from datetime import datetime
+    from django.db import models
+    from django.db.models.query import QuerySet
+    
+    class PostQuerySet(QuerySet):
+        def by_author(self, user):
+            return self.filter(user=user)
+    
+        def published(self):
+            return self.filter(published__lte=datetime.now())
+    
+        def unpublished(self):
+            return self.filter(published__gte=datetime.now())
+    
+    class PostManager(PassThroughManager):
+        def get_query_set(self):
+            return PostQuerySet(self.model, using=self._db)
+    
+        def get_stats(self):
+            return {
+                'published_count': self.published().count(),
+                'unpublished_count': self.unpublished().count(),
+            }
+    
+    class Post(models.Model):
+        user = models.ForeignKey(User)
+        published = models.DateTimeField()
+    
+        objects = PostManager()
+    
+    Post.objects.get_stats()
+    Post.objects.published()
+    Post.objects.by_author(user=request.user).unpublished()
+
+.. note::
+
+   Previous versions of django-model-utils included ``manager_from``, a
+   function that solved the same problem as ``PassThroughManager``. The
+   ``manager_from`` approach created dynamic ``QuerySet`` subclasses on the
+   fly, which broke pickling of those querysets. For this reason,
+   ``PassThroughManager`` is recommended instead.
 

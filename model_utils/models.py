@@ -1,3 +1,5 @@
+import warnings
+
 from datetime import datetime
 
 from django.db import models
@@ -18,10 +20,20 @@ class InheritanceCastModel(models.Model):
     For use in trees of inherited models, to be able to downcast
     parent instances to their child types.
 
+    Pending deprecation; use InheritanceManager instead.
+
     """
     real_type = models.ForeignKey(ContentType, editable=False, null=True)
 
     objects = manager_from(InheritanceCastMixin)
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "InheritanceCastModel is pending deprecation. "
+            "Use InheritanceManager instead.",
+            PendingDeprecationWarning,
+            stacklevel=2)
+        super(InheritanceCastModel, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         if not self.id:

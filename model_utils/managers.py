@@ -1,4 +1,5 @@
 from types import ClassType
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -140,6 +141,10 @@ def manager_from(*mixins, **kwds):
         (``django.db.models.manager.Manager`` by default).
 
     """
+    warnings.warn(
+        "manager_from is pending deprecation; use PassThroughManager instead.",
+        PendingDeprecationWarning,
+        stacklevel=2)
     # collect separately the mixin classes and methods
     bases = [kwds.get('queryset_cls', QuerySet)]
     methods = {}

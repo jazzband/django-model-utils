@@ -4,6 +4,11 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Added pending-deprecation warnings for ``InheritanceCastModel``,
+  ``manager_from``, and Django 1.1 support. Removed documentation for the
+  deprecated utilities. Bumped ``ChoiceEnum`` from pending-deprecation to
+  deprecation.
+
 0.6.0 (2011.02.18)
 ------------------
 
