@@ -44,5 +44,5 @@ setup(
     ],
     zip_safe=False,
     tests_require=["Django>=1.1"],
-    test_suite='model_utils.tests.runtests.runtests'
+    test_suite='runtests.runtests'
 )
