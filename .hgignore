@@ -1,5 +1,6 @@
 ^dist/
-^django_model_utils.egg-info/
+^django_model_utils\.egg-info/
 ^HGREV$
-^.coverage$
-^.tox/
+^\.coverage$
+^\.tox/
+^Django.*\.egg$
