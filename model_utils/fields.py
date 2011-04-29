@@ -180,7 +180,6 @@ class SplitField(models.TextField):
     def contribute_to_class(self, cls, name):
         if self.add_excerpt_field:
             excerpt_field = models.TextField(editable=False)
-            excerpt_field.creation_counter = self.creation_counter+1
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
         super(SplitField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, SplitDescriptor(self))
