@@ -21,7 +21,7 @@ from model_utils.tests.models import (
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
-    TimeFrameManagerAdded, Entry, Dude)
+    TimeFrameManagerAdded, Entry, Dude, SplitFieldAbstractParent)
 
 
 
@@ -125,6 +125,16 @@ class SplitFieldTests(TestCase):
     def test_value_to_string(self):
         f = self.post._meta.get_field('body')
         self.assertEquals(f.value_to_string(self.post), self.full_text)
+
+
+    def test_abstract_inheritance(self):
+        class Child(SplitFieldAbstractParent):
+            pass
+
+        self.assertEqual(
+            [f.name for f in Child._meta.fields],
+            ["id", "content", "_content_excerpt"])
+
 
 
 class MonitorFieldTests(TestCase):

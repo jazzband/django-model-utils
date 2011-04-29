@@ -128,6 +128,15 @@ class Article(models.Model):
 
 
 
+class SplitFieldAbstractParent(models.Model):
+    content = SplitField()
+
+
+    class Meta:
+        abstract = True
+
+
+
 class NoRendered(models.Model):
     """
     Test that the no_excerpt_field keyword arg works. This arg should

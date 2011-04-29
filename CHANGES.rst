@@ -4,6 +4,8 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Fixed using SplitField on an abstract base model.
+
 - Added pending-deprecation warnings for ``InheritanceCastModel``,
   ``manager_from``, and Django 1.1 support. Removed documentation for the
   deprecated utilities. Bumped ``ChoiceEnum`` from pending-deprecation to

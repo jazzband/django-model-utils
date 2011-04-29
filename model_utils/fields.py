@@ -24,7 +24,7 @@ class AutoLastModifiedField(AutoCreatedField):
     A DateTimeField that updates itself on each save() of the model.
 
     By default, sets editable=False and default=datetime.now.
-    
+
     """
     def pre_save(self, model_instance, add):
         value = datetime.now()
@@ -64,7 +64,7 @@ class MonitorField(models.DateTimeField):
     A DateTimeField that monitors another field on the same model and
     sets itself to the current date/time whenever the monitored field
     changes.
-    
+
     """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', datetime.now)
@@ -82,7 +82,7 @@ class MonitorField(models.DateTimeField):
 
     def get_monitored_value(self, instance):
         return getattr(instance, self.monitor)
-    
+
     def _save_initial(self, sender, instance, **kwargs):
         setattr(instance, self.monitor_attname,
                 self.get_monitored_value(instance))
@@ -116,7 +116,7 @@ def get_excerpt(content):
         if line.strip() == SPLIT_MARKER:
             return '\n'.join(excerpt)
         excerpt.append(line)
-            
+
     return '\n'.join(default_excerpt)
 
 class SplitText(object):
@@ -143,7 +143,7 @@ class SplitText(object):
     def _get_has_more(self):
         return self.excerpt.strip() != self.content.strip()
     has_more = property(_get_has_more)
-    
+
     # allows display via templates without .content necessary
     def __unicode__(self):
         return self.content
@@ -176,9 +176,9 @@ class SplitField(models.TextField):
         # rules below.
         self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
         super(SplitField, self).__init__(*args, **kwargs)
-    
+
     def contribute_to_class(self, cls, name):
-        if self.add_excerpt_field:
+        if self.add_excerpt_field and not cls._meta.abstract:
             excerpt_field = models.TextField(editable=False)
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
         super(SplitField, self).contribute_to_class(cls, name)
@@ -200,7 +200,7 @@ class SplitField(models.TextField):
         except AttributeError:
             return value
 
-        
+
 # allow South to handle these fields smoothly
 try:
     from south.modelsinspector import add_introspection_rules
