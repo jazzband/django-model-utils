@@ -4,18 +4,26 @@ CHANGES
 tip (unreleased)
 ----------------
 
+1.0.0 (2011.06.16)
+------------------
+
 - Fixed using SplitField on an abstract base model.
+
+- Fixed issue #8, adding ``use_for_related_fields = True`` to
+  ``InheritanceManager``.
+
+- Added ``PassThroughManager``. Thanks Paul McLanahan.
 
 - Added pending-deprecation warnings for ``InheritanceCastModel``,
   ``manager_from``, and Django 1.1 support. Removed documentation for the
   deprecated utilities. Bumped ``ChoiceEnum`` from pending-deprecation to
   deprecation.
 
-0.6.0 (2011.02.18)
-------------------
-
 - Fixed issue #6, bug with InheritanceManager and descriptor fields (e.g.
   FileField).  Thanks zyegfryed for the fix and sayane for tests.
+
+0.6.0 (2011.02.18)
+------------------
 
 - updated SplitField to define get_prep_value rather than get_db_prep_value.
   This avoids deprecation warnings on Django trunk/1.3, but makes SplitField
