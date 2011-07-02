@@ -367,7 +367,11 @@ if django.VERSION >= (1, 2):
             return self.related.imtests
 
 
-
+    def test_get_method_with_select_subclasses(self):
+        self.assertEqual(InheritanceManagerTestParent.objects.select_subclasses().get(id=self.child1.id),
+                         self.child1)
+        
+        
 class TimeStampedModelTests(TestCase):
     def test_created(self):
         t1 = TimeStamp.objects.create()
