@@ -353,6 +353,11 @@ if django.VERSION >= (1, 2):
                 set([self.child1,
                      InheritanceManagerTestParent(pk=self.child2.pk)]))
 
+        def test_get_subclass(self):
+            self.assertEquals(
+                self.get_manager().get_subclass(pk=self.child1.pk),
+                self.child1)
+
 
     class InheritanceManagerRelatedTests(InheritanceManagerTests):
         def setUp(self):
