@@ -4,6 +4,8 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Added ``InheritanceManager.get_subclass()``. Thanks smacker.
+
 1.0.0 (2011.06.16)
 ------------------
 
