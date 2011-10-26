@@ -263,6 +263,11 @@ be returned as their actual type, you can pass subclass names to
     nearby_places = Place.objects.select_subclasses("restaurant")
     # restaurants will be Restaurant instances, bars will still be Place instances
 
+Also it provides syntax sugar for `get()` method::
+    
+    place = Place.objects.get_subclass(id=some_id)
+    # "place" will automatically be an instance of Place, Restaurant, or Bar
+
 If you don't explicitly call ``select_subclasses()``, an ``InheritanceManager``
 behaves identically to a normal ``Manager``; so it's safe to use as your
 default manager for the model.
