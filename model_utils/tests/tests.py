@@ -21,7 +21,7 @@ from model_utils.tests.models import (
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
-    TimeFrameManagerAdded, Entry, Dude, SplitFieldAbstractParent)
+    TimeFrameManagerAdded, Entry, Dude, SplitFieldAbstractParent, Car, Spot)
 
 
 
@@ -621,3 +621,24 @@ class PassThroughManagerTests(TestCase):
         saltyqs = pickle.dumps(qs)
         unqs = pickle.loads(saltyqs)
         self.assertEqual(unqs.by_name('The Dude').count(), 1)
+
+    def test_queryset_not_available_on_related_manager(self):
+        dude = Dude.objects.by_name('Duder').get()
+        Car.objects.create(name='Ford', owner=dude)
+        self.assertFalse(hasattr(dude.cars_owned, 'by_name'))
+
+
+class CreatePassThroughManagerTests(TestCase):
+    def setUp(self):
+        self.dude = Dude.objects.create(name='El Duderino')
+        Spot.objects.create(name='The Crib', owner=self.dude, closed=True,
+                            secure=True)
+
+    def test_reverse_manager(self):
+        self.assertEqual(self.dude.spots_owned.closed().count(), 1)
+
+    def test_related_queryset_pickling(self):
+        qs = self.dude.spots_owned.closed()
+        pickled_qs = pickle.dumps(qs)
+        unpickled_qs = pickle.loads(pickled_qs)
+        self.assertEqual(unpickled_qs.secured().count(), 1)
