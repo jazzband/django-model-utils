@@ -225,3 +225,27 @@ class Dude(models.Model):
 
     objects = PassThroughManager(DudeQuerySet)
     abiders = AbidingManager()
+
+
+class Car(models.Model):
+    name = models.CharField(max_length=20)
+    owner = models.ForeignKey(Dude, related_name='cars_owned')
+
+    objects = PassThroughManager(DudeQuerySet)
+
+
+class SpotQuerySet(models.query.QuerySet):
+    def closed(self):
+        return self.filter(closed=True)
+
+    def secured(self):
+        return self.filter(secure=True)
+
+
+class Spot(models.Model):
+    name = models.CharField(max_length=20)
+    secure = models.BooleanField(default=True)
+    closed = models.BooleanField(default=False)
+    owner = models.ForeignKey(Dude, related_name='spots_owned')
+
+    objects = PassThroughManager.for_queryset_class(SpotQuerySet)()

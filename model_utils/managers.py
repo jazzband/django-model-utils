@@ -126,6 +126,17 @@ class PassThroughManager(models.Manager):
             return self._queryset_cls(**kargs)
         return super(PassThroughManager, self).get_query_set()
 
+    @classmethod
+    def for_queryset_class(cls, queryset_cls):
+        class _PassThroughManager(cls):
+            def get_query_set(self):
+                kwargs = {}
+                if hasattr(self, "_db"):
+                    kwargs["using"] = self._db
+                return queryset_cls(self.model, **kwargs)
+
+        return _PassThroughManager
+
 
 def manager_from(*mixins, **kwds):
     """

@@ -411,3 +411,17 @@ define a custom manager that inherits from ``PassThroughManager``::
    fly, which broke pickling of those querysets. For this reason,
    ``PassThroughManager`` is recommended instead.
 
+If you would like your custom ``QuerySet`` methods available through related
+managers, use the convenience ``PassThroughManager.for_queryset_class``. For
+example::
+
+    class Post(models.Model):
+        user = models.ForeignKey(User)
+        published = models.DateTimeField()
+
+        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
+
+Now you will be able to make queries like::
+
+    >>> u = User.objects.all()[0]
+    >>> a.post_set.published()
