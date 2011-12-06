@@ -129,6 +129,9 @@ class PassThroughManager(models.Manager):
     @classmethod
     def for_queryset_class(cls, queryset_cls):
         class _PassThroughManager(cls):
+            def __init__(self):
+                return super(_PassThroughManager, self).__init__()
+
             def get_query_set(self):
                 kwargs = {}
                 if hasattr(self, "_db"):
