@@ -4,7 +4,7 @@ CHANGES
 tip (unreleased)
 ----------------
 
-- Added ``PassThroughManager.for_queryset_subclass()``, which fixes use of
+- Added ``PassThroughManager.for_queryset_class()``, which fixes use of
   ``PassThroughManager`` with related fields. Thanks Ryan Kaskel for report and
   fix.
 
