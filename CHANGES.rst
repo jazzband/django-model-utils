@@ -4,6 +4,10 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Added ``PassThroughManager.for_queryset_subclass()``, which fixes use of
+  ``PassThroughManager`` with related fields. Thanks Ryan Kaskel for report and
+  fix.
+
 - Added ``InheritanceManager.get_subclass()``. Thanks smacker.
 
 1.0.0 (2011.06.16)

@@ -337,9 +337,10 @@ but this requires boilerplate code. The ``PassThroughManager`` class
 To use ``PassThroughManager``, rather than defining a custom manager with
 additional methods, define a custom ``QuerySet`` subclass with the additional
 methods you want, and pass that ``QuerySet`` subclass to the
-``PassThroughManager`` constructor. ``PassThroughManager`` will always return
-instances of your custom ``QuerySet``, and you can also call methods of your
-custom ``QuerySet`` directly on the manager::
+``PassThroughManager.for_queryset_class()`` class method. The returned
+``PassThroughManager`` subclass will always return instances of your custom
+``QuerySet``, and you can also call methods of your custom ``QuerySet``
+directly on the manager::
 
     from datetime import datetime
     from django.db import models
@@ -360,46 +361,8 @@ custom ``QuerySet`` directly on the manager::
         user = models.ForeignKey(User)
         published = models.DateTimeField()
     
-        objects = PassThroughManager(PostQuerySet)
+        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
     
-    Post.objects.published()
-    Post.objects.by_author(user=request.user).unpublished()
-
-If you want certain methods available only on the manager, or you need to
-override other manager methods (particularly ``get_query_set``), you can also
-define a custom manager that inherits from ``PassThroughManager``::
-
-    from datetime import datetime
-    from django.db import models
-    from django.db.models.query import QuerySet
-    
-    class PostQuerySet(QuerySet):
-        def by_author(self, user):
-            return self.filter(user=user)
-    
-        def published(self):
-            return self.filter(published__lte=datetime.now())
-    
-        def unpublished(self):
-            return self.filter(published__gte=datetime.now())
-    
-    class PostManager(PassThroughManager):
-        def get_query_set(self):
-            return PostQuerySet(self.model, using=self._db)
-    
-        def get_stats(self):
-            return {
-                'published_count': self.published().count(),
-                'unpublished_count': self.unpublished().count(),
-            }
-    
-    class Post(models.Model):
-        user = models.ForeignKey(User)
-        published = models.DateTimeField()
-    
-        objects = PostManager()
-    
-    Post.objects.get_stats()
     Post.objects.published()
     Post.objects.by_author(user=request.user).unpublished()
 
@@ -410,18 +373,3 @@ define a custom manager that inherits from ``PassThroughManager``::
    ``manager_from`` approach created dynamic ``QuerySet`` subclasses on the
    fly, which broke pickling of those querysets. For this reason,
    ``PassThroughManager`` is recommended instead.
-
-If you would like your custom ``QuerySet`` methods available through related
-managers, use the convenience ``PassThroughManager.for_queryset_class``. For
-example::
-
-    class Post(models.Model):
-        user = models.ForeignKey(User)
-        published = models.DateTimeField()
-
-        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
-
-Now you will be able to make queries like::
-
-    >>> u = User.objects.all()[0]
-    >>> a.post_set.published()
