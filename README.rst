@@ -278,6 +278,11 @@ it's safe to use as your default manager for the model.
     inheritance; it won't work for grandchild models.
 
 .. note::
+    The implementation of ``InheritanceManager`` uses ``select_related``
+    internally.  Due to `Django bug #16855`_, this currently means that it
+    will override any previous ``select_related`` calls on the ``QuerySet``.
+
+.. note::
     ``InheritanceManager`` requires Django 1.2 or later. Previous versions of
     django-model-utils included ``InheritanceCastModel``, an alternative (and
     inferior) approach to this problem that is Django 1.1
@@ -286,6 +291,7 @@ it's safe to use as your default manager for the model.
     its use in new code is discouraged.
 
 .. _contributed by Jeff Elmore: http://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
+.. _Django bug #16855: https://code.djangoproject.com/ticket/16855
 
 
 TimeStampedModel
@@ -373,3 +379,4 @@ directly on the manager::
    ``manager_from`` approach created dynamic ``QuerySet`` subclasses on the
    fly, which broke pickling of those querysets. For this reason,
    ``PassThroughManager`` is recommended instead.
+
