@@ -385,6 +385,18 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
 
 
+    def test_annotate_before_select_subclasses(self):
+        qs = InheritanceManagerTestParent.objects.annotate(
+            models.Count('id')).select_subclasses()
+        self.assertEqual(qs.get(id=self.child1.id).id__count, 1)
+
+
+    def test_annotate_with_named_arguments_before_select_subclasses(self):
+        qs = InheritanceManagerTestParent.objects.annotate(
+            test_count=models.Count('id')).select_subclasses()
+        self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
+
+
 
 class TimeStampedModelTests(TestCase):
     def test_created(self):

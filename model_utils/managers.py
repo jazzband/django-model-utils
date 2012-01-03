@@ -9,10 +9,6 @@ from django.db.models.query import QuerySet
 
 
 class InheritanceQuerySet(QuerySet):
-    def __init__(self, *args, **kwargs):
-        self._annotated = None
-        super(InheritanceQuerySet, self).__init__(*args, **kwargs)
-
     def select_subclasses(self, *subclasses):
         if not subclasses:
             subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
@@ -23,11 +19,9 @@ class InheritanceQuerySet(QuerySet):
         return new_qs
 
     def _clone(self, klass=None, setup=False, **kwargs):
-        try:
-            kwargs.update({'subclasses': self.subclasses,
-                           '_annotated': self._annotated})
-        except AttributeError:
-            pass
+        for name in ['subclasses', '_annotated']:
+            if hasattr(self, name):
+                kwargs[name] = getattr(self, name)
         return super(InheritanceQuerySet, self)._clone(klass, setup, **kwargs)
 
     def annotate(self, *args, **kwargs):
@@ -41,7 +35,7 @@ class InheritanceQuerySet(QuerySet):
             for obj in iter:
                 sub_obj = [getattr(obj, s) for s in self.subclasses if getattr(obj, s)] or [obj]
                 sub_obj = sub_obj[0]
-                if self._annotated:
+                if getattr(self, '_annotated', False):
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
 

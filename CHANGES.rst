@@ -4,7 +4,8 @@ CHANGES
 tip (unreleased)
 ----------------
 
-- Fixed annotation of InheritanceQuerysets. Thanks Jeff Elmore.
+- Fixed annotation of InheritanceQuerysets. Thanks Jeff Elmore and Facundo
+  Gaich.
 
 - Dropped support for Python 2.5 and Django 1.1. Both are no longer supported
   even for security fixes, and should not be used.
