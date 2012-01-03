@@ -7,7 +7,12 @@ from django.db.models.fields.related import OneToOneField
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
+
 class InheritanceQuerySet(QuerySet):
+    def __init__(self, *args, **kwargs):
+        self._annotated = None
+        super(InheritanceQuerySet, self).__init__(*args, **kwargs)
+
     def select_subclasses(self, *subclasses):
         if not subclasses:
             subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
@@ -19,20 +24,32 @@ class InheritanceQuerySet(QuerySet):
 
     def _clone(self, klass=None, setup=False, **kwargs):
         try:
-            kwargs.update({'subclasses': self.subclasses})
+            kwargs.update({'subclasses': self.subclasses,
+                           '_annotated': self._annotated})
         except AttributeError:
             pass
         return super(InheritanceQuerySet, self)._clone(klass, setup, **kwargs)
+
+    def annotate(self, *args, **kwargs):
+        qset = super(InheritanceQuerySet, self).annotate(*args, **kwargs)
+        qset._annotated = [a.default_alias for a in args] + kwargs.keys()
+        return qset
 
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
             for obj in iter:
-                obj = [getattr(obj, s) for s in self.subclasses if getattr(obj, s)] or [obj]
-                yield obj[0]
+                sub_obj = [getattr(obj, s) for s in self.subclasses if getattr(obj, s)] or [obj]
+                sub_obj = sub_obj[0]
+                if self._annotated:
+                    for k in self._annotated:
+                        setattr(sub_obj, k, getattr(obj, k))
+
+                yield sub_obj
         else:
             for obj in iter:
                 yield obj
+
 
 class InheritanceManager(models.Manager):
     use_for_related_fields = True
