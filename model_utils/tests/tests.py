@@ -1,14 +1,13 @@
 from __future__ import with_statement
 
-import pickle, sys, warnings
+import pickle, warnings
 
 from datetime import datetime, timedelta
 
-import django
-from django.test import TestCase
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -286,15 +285,12 @@ class InheritanceCastModelTests(TestCase):
         self.assertEquals(obj.__class__, InheritChild)
 
 
-    # @@@ Use proper test skipping once Django 1.2 is minimum supported version.
-    if sys.version_info >= (2, 6):
-        # @@@ catch_warnings only available in Python 2.6 and newer
-        def test_pending_deprecation(self):
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                InheritParent()
-                self.assertEqual(len(w), 1)
-                assert issubclass(w[-1].category, PendingDeprecationWarning)
+    def test_pending_deprecation(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            InheritParent()
+            self.assertEqual(len(w), 1)
+            assert issubclass(w[-1].category, PendingDeprecationWarning)
 
 
 
@@ -320,63 +316,63 @@ class InheritanceCastQuerysetTests(TestCase):
 
 
 
-# @@@ Use proper test skipping once 1.2 is minimum supported version.
-if django.VERSION >= (1, 2):
-    class InheritanceManagerTests(TestCase):
-        def setUp(self):
-            self.child1 = InheritanceManagerTestChild1.objects.create()
-            self.child2 = InheritanceManagerTestChild2.objects.create()
+class InheritanceManagerTests(TestCase):
+    def setUp(self):
+        self.child1 = InheritanceManagerTestChild1.objects.create()
+        self.child2 = InheritanceManagerTestChild2.objects.create()
 
 
-        def get_manager(self):
-            return InheritanceManagerTestParent.objects
+    def get_manager(self):
+        return InheritanceManagerTestParent.objects
 
 
-        def test_normal(self):
-            self.assertEquals(set(self.get_manager().all()),
-                              set([
-                        InheritanceManagerTestParent(pk=self.child1.pk),
-                        InheritanceManagerTestParent(pk=self.child2.pk),
-                        ]))
+    def test_normal(self):
+        self.assertEquals(set(self.get_manager().all()),
+                          set([
+                    InheritanceManagerTestParent(pk=self.child1.pk),
+                    InheritanceManagerTestParent(pk=self.child2.pk),
+                    ]))
 
 
-        def test_select_all_subclasses(self):
-            self.assertEquals(
-                set(self.get_manager().select_subclasses()),
-                set([self.child1, self.child2]))
+    def test_select_all_subclasses(self):
+        self.assertEquals(
+            set(self.get_manager().select_subclasses()),
+            set([self.child1, self.child2]))
 
 
-        def test_select_specific_subclasses(self):
-            self.assertEquals(
-                set(self.get_manager().select_subclasses(
-                        "inheritancemanagertestchild1")),
-                set([self.child1,
-                     InheritanceManagerTestParent(pk=self.child2.pk)]))
+    def test_select_specific_subclasses(self):
+        self.assertEquals(
+            set(self.get_manager().select_subclasses(
+                    "inheritancemanagertestchild1")),
+            set([self.child1,
+                 InheritanceManagerTestParent(pk=self.child2.pk)]))
 
-        def test_get_subclass(self):
-            self.assertEquals(
-                self.get_manager().get_subclass(pk=self.child1.pk),
-                self.child1)
-
-
-    class InheritanceManagerRelatedTests(InheritanceManagerTests):
-        def setUp(self):
-            self.related = InheritanceManagerTestRelated.objects.create()
-            self.child1 = InheritanceManagerTestChild1.objects.create(
-                related=self.related)
-            self.child2 = InheritanceManagerTestChild2.objects.create(
-                related=self.related)
+    def test_get_subclass(self):
+        self.assertEquals(
+            self.get_manager().get_subclass(pk=self.child1.pk),
+            self.child1)
 
 
-        def get_manager(self):
-            return self.related.imtests
+class InheritanceManagerRelatedTests(InheritanceManagerTests):
+    def setUp(self):
+        self.related = InheritanceManagerTestRelated.objects.create()
+        self.child1 = InheritanceManagerTestChild1.objects.create(
+            related=self.related)
+        self.child2 = InheritanceManagerTestChild2.objects.create(
+            related=self.related)
+
+
+    def get_manager(self):
+        return self.related.imtests
 
 
     def test_get_method_with_select_subclasses(self):
-        self.assertEqual(InheritanceManagerTestParent.objects.select_subclasses().get(id=self.child1.id),
-                         self.child1)
-        
-        
+        self.assertEqual(
+            InheritanceManagerTestParent.objects.select_subclasses().get(
+                id=self.child1.id),
+            self.child1)
+
+
 class TimeStampedModelTests(TestCase):
     def test_created(self):
         t1 = TimeStamp.objects.create()
@@ -523,13 +519,13 @@ class QueryManagerTests(TestCase):
 
 
 
-# @@@ Use proper test skipping once Django 1.2 is minimum supported version.
 try:
     from south.modelsinspector import introspector
 except ImportError:
     introspector = None
 
-if introspector is not None:
+# @@@ use skipUnless once Django 1.3 is minimum supported version
+if introspector:
     class SouthFreezingTests(TestCase):
         def test_introspector_adds_no_excerpt_field(self):
             mf = Article._meta.get_field('body')
@@ -581,15 +577,12 @@ class ManagerFromTests(TestCase):
         self.assertRaises(pickle.PicklingError, dump_load)
 
 
-    # @@@ Use proper test skipping once Django 1.2 is minimum supported version.
-    if sys.version_info >= (2, 6):
-        # @@@ catch_warnings only available in Python 2.6 and newer
-        def test_pending_deprecation(self):
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                manager_from()
-                self.assertEqual(len(w), 1)
-                assert issubclass(w[-1].category, PendingDeprecationWarning)
+    def test_pending_deprecation(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            manager_from()
+            self.assertEqual(len(w), 1)
+            assert issubclass(w[-1].category, PendingDeprecationWarning)
 
 
 

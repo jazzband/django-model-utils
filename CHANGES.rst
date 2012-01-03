@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Dropped support for Python 2.5 and Django 1.1. Both are no longer supported
+  even for security fixes, and should not be used.
+
 - Added ``PassThroughManager.for_queryset_class()``, which fixes use of
   ``PassThroughManager`` with related fields. Thanks Ryan Kaskel for report and
   fix.
