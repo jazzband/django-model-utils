@@ -13,6 +13,12 @@ from model_utils.managers import manager_from, InheritanceCastMixin, \
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
     StatusField, MonitorField
 
+try:
+    from django.utils.timezone import now as now
+except ImportError:
+    now = datetime.now
+
+
 class InheritanceCastModel(models.Model):
     """
     An abstract base class that provides a ``real_type`` FK to ContentType.
@@ -119,13 +125,13 @@ def add_timeframed_query_manager(sender, **kwargs):
         sender._meta.get_field('timeframed')
         raise ImproperlyConfigured("Model '%s' has a field named "
                                    "'timeframed' which conflicts with "
-                                   "the TimeFramedModel manager." 
+                                   "the TimeFramedModel manager."
                                    % sender.__name__)
     except FieldDoesNotExist:
         pass
     sender.add_to_class('timeframed', QueryManager(
-        (models.Q(start__lte=datetime.now) | models.Q(start__isnull=True)) &
-        (models.Q(end__gte=datetime.now) | models.Q(end__isnull=True))
+        (models.Q(start__lte=now) | models.Q(start__isnull=True)) &
+        (models.Q(end__gte=now) | models.Q(end__isnull=True))
     ))
 
 
