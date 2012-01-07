@@ -5,6 +5,13 @@ from django.conf import settings
 
 from model_utils import Choices
 
+
+try:
+    from django.utils.timezone import now as now
+except ImportError:
+    now = datetime.now
+
+
 class AutoCreatedField(models.DateTimeField):
     """
     A DateTimeField that automatically populates itself at
@@ -15,7 +22,7 @@ class AutoCreatedField(models.DateTimeField):
     """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('editable', False)
-        kwargs.setdefault('default', datetime.now)
+        kwargs.setdefault('default', now)
         super(AutoCreatedField, self).__init__(*args, **kwargs)
 
 
@@ -27,7 +34,7 @@ class AutoLastModifiedField(AutoCreatedField):
 
     """
     def pre_save(self, model_instance, add):
-        value = datetime.now()
+        value = now()
         setattr(model_instance, self.attname, value)
         return value
 
@@ -67,7 +74,7 @@ class MonitorField(models.DateTimeField):
 
     """
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('default', datetime.now)
+        kwargs.setdefault('default', now)
         monitor = kwargs.pop('monitor', None)
         if not monitor:
             raise TypeError(
@@ -88,7 +95,7 @@ class MonitorField(models.DateTimeField):
                 self.get_monitored_value(instance))
 
     def pre_save(self, model_instance, add):
-        value = datetime.now()
+        value = now()
         previous = getattr(model_instance, self.monitor_attname, None)
         current = self.get_monitored_value(model_instance)
         if previous != current:
