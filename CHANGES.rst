@@ -4,6 +4,10 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Updated AutoCreatedField, AutoLastModifiedField, MonitorField, and
+  TimeFramedModel to use ``django.utils.timezone.now`` on Django 1.4.
+  Thanks Donald Stufft.
+
 - Fixed annotation of InheritanceQuerysets. Thanks Jeff Elmore and Facundo
   Gaich.
 
