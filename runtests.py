@@ -6,21 +6,18 @@ from django.conf import settings
 
 
 if not settings.configured:
-    from django import VERSION
     settings_dict = dict(
         INSTALLED_APPS=(
             'django.contrib.contenttypes',
             'model_utils',
             'model_utils.tests',
             ),
-        )
-    if VERSION >= (1, 2):
-        settings_dict["DATABASES"] = {
+        DATABASES={
             "default": {
                 "ENGINE": "django.db.backends.sqlite3"
-                }}
-    else:
-        settings_dict["DATABASE_ENGINE"] = "sqlite3"
+                }
+            },
+        )
 
     settings.configure(**settings_dict)
 
