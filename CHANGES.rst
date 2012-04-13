@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+1.1.0 (2012.04.13)
+------------------
+
 - Updated AutoCreatedField, AutoLastModifiedField, MonitorField, and
   TimeFramedModel to use ``django.utils.timezone.now`` on Django 1.4.
   Thanks Donald Stufft.
