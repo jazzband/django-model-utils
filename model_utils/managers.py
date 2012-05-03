@@ -9,12 +9,50 @@ from django.db.models.query import QuerySet
 
 
 class InheritanceQuerySet(QuerySet):
+
+    # get all OneToOneFields related with this model
+    _find_related_fields = lambda self, qs : [rel for rel in
+        qs.model._meta.get_all_related_objects()
+        if isinstance(rel.field, OneToOneField) and
+            issubclass(rel.field.model, self.model)
+    ]
+    
+    def _find_subclasses_tree(self, queryset, relations_tree={}):
+        """
+        Calculate the tree of relations:
+        {
+            'rel_name1': None
+            'rel_name2': {
+                 'rel_name3': None,
+                 'rel_name4': None,
+             }
+        }
+        The keys of every level will become a tuple for a select_related call.
+        """
+        
+        for rel in self._find_related_fields(queryset):
+            subtree = {}
+            relations_tree[rel.var_name] = subtree
+            self._find_subclasses_tree(rel, subtree)
+        return relations_tree
+        
+
+    def _select_related_subclasses(self, queryset, subclasses_tree):
+        subclasses = subclasses_tree.keys()
+        # no more keys, so exit recursion
+        if not subclasses:
+            return queryset
+        childs = {}
+        for child in subclasses_tree.values():
+            childs.update(child)
+        queryset.select_related(*subclasses)
+        return self._select_related_subclasses(queryset, childs)
+    
+        
     def select_subclasses(self, *subclasses):
         if not subclasses:
-            subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
-                          if isinstance(rel.field, OneToOneField)
-                          and issubclass(rel.field.model, self.model)]
-        new_qs = self.select_related(*subclasses)
+            subclasses = self._find_subclasses_tree(self)
+        new_qs = self._select_related_subclasses(self, subclasses)
         new_qs.subclasses = subclasses
         return new_qs
 
@@ -29,12 +67,21 @@ class InheritanceQuerySet(QuerySet):
         qset._annotated = [a.default_alias for a in args] + kwargs.keys()
         return qset
 
+    def _try_subclass_cast(self, obj, subclasses_tree):
+        for subclass, subtree in subclasses_tree.items():
+            if hasattr(obj, subclass):
+                obj = getattr(obj, subclass)
+                # try to cast to subchilds
+                if subtree:
+                    obj = self._try_subclass_cast(obj, subtree)
+        return obj
+            
+        
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
             for obj in iter:
-                sub_obj = [getattr(obj, s) for s in self.subclasses if getattr(obj, s)] or [obj]
-                sub_obj = sub_obj[0]
+                sub_obj = self._try_subclass_cast(obj, self.subclasses)
                 if getattr(self, '_annotated', False):
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
