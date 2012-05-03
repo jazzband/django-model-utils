@@ -9,12 +9,50 @@ from django.db.models.query import QuerySet
 
 
 class InheritanceQuerySet(QuerySet):
+
+    # get all OneToOneFields related with this model
+    def _find_related_fields(self, qs):
+        relations = []
+        for rel in qs.model._meta.get_all_related_objects():
+            if (isinstance(rel.field, OneToOneField) and
+                issubclass(rel.field.model, self.model)):
+                relations.append(rel)
+        return relations
+
+    def _find_subclasses_tree(self, queryset, relations_tree={}):
+        """
+        Calculate the tree of relations:
+        {
+            'rel_name1': None
+            'rel_name2': {
+                 'rel_name3': None,
+                 'rel_name4': None,
+             }
+        }
+        The keys of every level will become a tuple for a select_related call.
+        """
+        for rel in self._find_related_fields(queryset):
+            subtree = {}
+            relations_tree[rel.var_name] = subtree
+            self._find_subclasses_tree(rel, subtree)
+        return relations_tree
+
+    def _select_related_subclasses(self, queryset, subclasses_tree):
+        children = {}
+        # join all same-level subclasses
+        for child in subclasses_tree.values():
+            children.update(child)
+        subclasses = subclasses_tree.keys()
+        queryset.select_related(*subclasses)
+        # no more children? exit recursion
+        if not children:
+            return queryset
+        return self._select_related_subclasses(queryset, children)
+
     def select_subclasses(self, *subclasses):
         if not subclasses:
-            subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
-                          if isinstance(rel.field, OneToOneField)
-                          and issubclass(rel.field.model, self.model)]
-        new_qs = self.select_related(*subclasses)
+            subclasses = self._find_subclasses_tree(self)
+        new_qs = self._select_related_subclasses(self, subclasses)
         new_qs.subclasses = subclasses
         return new_qs
 
@@ -29,12 +67,21 @@ class InheritanceQuerySet(QuerySet):
         qset._annotated = [a.default_alias for a in args] + kwargs.keys()
         return qset
 
+    def _try_subclass_cast(self, obj, subclasses_tree):
+        for subclass, subtree in subclasses_tree.items():
+            if hasattr(obj, subclass):
+                obj = getattr(obj, subclass)
+                # try to cast to subchildren
+                if subtree:
+                    obj = self._try_subclass_cast(obj, subtree)
+                break
+        return obj
+
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
             for obj in iter:
-                sub_obj = [getattr(obj, s) for s in self.subclasses if getattr(obj, s)] or [obj]
-                sub_obj = sub_obj[0]
+                sub_obj = self._try_subclass_cast(obj, self.subclasses)
                 if getattr(self, '_annotated', False):
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
@@ -182,7 +229,8 @@ def manager_from(*mixins, **kwds):
         if isinstance(mixin, (ClassType, type)):
             bases.append(mixin)
         else:
-            try: methods[mixin.__name__] = mixin
+            try:
+                methods[mixin.__name__] = mixin
             except AttributeError:
                 raise TypeError('Mixin must be class or function, not %s' %
                                 mixin.__class__)
@@ -194,6 +242,7 @@ def manager_from(*mixins, **kwds):
     new_manager_cls = type('Manager_%d' % id, tuple(bases), methods)
     # and finally override new manager's get_query_set
     super_get_query_set = manager_cls.get_query_set
+
     def get_query_set(self):
         # first honor the super manager's get_query_set
         qs = super_get_query_set(self)
