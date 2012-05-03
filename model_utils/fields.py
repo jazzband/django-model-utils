@@ -59,10 +59,11 @@ class StatusField(models.CharField):
     def contribute_to_class(self, cls, name):
         if not cls._meta.abstract and self.check_for_status:
             assert hasattr(cls, 'STATUS'), \
-                "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
-                % cls.__name__
+                "To use StatusField, the model '%s' must have a \
+                STATUS choices class attribute." % cls.__name__
             setattr(self, '_choices', cls.STATUS)
-            setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
+            # sets first as default
+            setattr(self, 'default', tuple(cls.STATUS)[0][0])
         super(StatusField, self).contribute_to_class(cls, name)
 
 
@@ -111,6 +112,7 @@ SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
 _excerpt_field_name = lambda name: '_%s_excerpt' % name
 
+
 def get_excerpt(content):
     excerpt = []
     default_excerpt = []
@@ -126,7 +128,9 @@ def get_excerpt(content):
 
     return '\n'.join(default_excerpt)
 
+
 class SplitText(object):
+
     def __init__(self, instance, field_name, excerpt_field_name):
         # instead of storing actual values store a reference to the instance
         # along with field names, this makes assignment possible
@@ -137,6 +141,7 @@ class SplitText(object):
     # content is read/write
     def _get_content(self):
         return self.instance.__dict__[self.field_name]
+
     def _set_content(self, val):
         setattr(self.instance, self.field_name, val)
     content = property(_get_content, _set_content)
@@ -154,6 +159,7 @@ class SplitText(object):
     # allows display via templates without .content necessary
     def __unicode__(self):
         return self.content
+
 
 class SplitDescriptor(object):
     def __init__(self, field):
@@ -174,6 +180,7 @@ class SplitDescriptor(object):
             setattr(obj, self.excerpt_field_name, value.excerpt)
         else:
             obj.__dict__[self.field.name] = value
+
 
 class SplitField(models.TextField):
     def __init__(self, *args, **kwargs):
@@ -233,4 +240,3 @@ try:
     ], patterns=['model_utils\.fields\.'])
 except ImportError:
     pass
-

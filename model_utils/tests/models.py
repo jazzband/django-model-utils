@@ -1,11 +1,12 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.managers import QueryManager, manager_from, InheritanceManager, PassThroughManager
+from model_utils.models import InheritanceCastModel, \
+    TimeStampedModel, StatusModel, TimeFramedModel
+from model_utils.managers import QueryManager, manager_from, \
+    InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
-
 
 
 class InheritParent(InheritanceCastModel):
@@ -14,12 +15,10 @@ class InheritParent(InheritanceCastModel):
     pass
 
 
-
 class InheritChild(InheritParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
     pass
-
 
 
 class InheritChild2(InheritParent):
@@ -28,10 +27,8 @@ class InheritChild2(InheritParent):
     pass
 
 
-
 class InheritanceManagerTestRelated(models.Model):
     pass
-
 
 
 class InheritanceManagerTestParent(models.Model):
@@ -43,12 +40,10 @@ class InheritanceManagerTestParent(models.Model):
     objects = InheritanceManager()
 
 
-
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
     pass
-
 
 
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
@@ -57,26 +52,21 @@ class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     pass
 
 
-
 class TimeStamp(TimeStampedModel):
     pass
-
 
 
 class TimeFrame(TimeFramedModel):
     pass
 
 
-
 class TimeFrameManagerAdded(TimeFramedModel):
     pass
-
 
 
 class Monitored(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name")
-
 
 
 class Status(StatusModel):
@@ -87,7 +77,6 @@ class Status(StatusModel):
     )
 
 
-
 class StatusPlainTuple(StatusModel):
     STATUS = (
         ("active", _("active")),
@@ -96,14 +85,12 @@ class StatusPlainTuple(StatusModel):
     )
 
 
-
 class StatusManagerAdded(StatusModel):
     STATUS = (
         ("active", _("active")),
         ("deleted", _("deleted")),
         ("on_hold", _("on hold")),
     )
-
 
 
 class Post(models.Model):
@@ -121,20 +108,16 @@ class Post(models.Model):
         ordering = ("order",)
 
 
-
 class Article(models.Model):
     title = models.CharField(max_length=50)
     body = SplitField()
 
 
-
 class SplitFieldAbstractParent(models.Model):
     content = SplitField()
 
-
     class Meta:
         abstract = True
-
 
 
 class NoRendered(models.Model):
@@ -146,11 +129,9 @@ class NoRendered(models.Model):
     body = SplitField(no_excerpt_field=True)
 
 
-
 class AuthorMixin(object):
     def by_author(self, name):
         return self.filter(author=name)
-
 
 
 class PublishedMixin(object):
@@ -158,15 +139,12 @@ class PublishedMixin(object):
         return self.filter(published=True)
 
 
-
 def unpublished(self):
     return self.filter(published=False)
 
 
-
 class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
     pass
-
 
 
 class FeaturedManager(models.Manager):
@@ -177,18 +155,15 @@ class FeaturedManager(models.Manager):
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
 
-
 class Entry(models.Model):
     author = models.CharField(max_length=20)
     published = models.BooleanField()
     feature = models.BooleanField(default=False)
-
     objects = manager_from(AuthorMixin, PublishedMixin, unpublished)
     broken = manager_from(PublishedMixin, manager_cls=FeaturedManager)
     featured = manager_from(PublishedMixin,
                             manager_cls=FeaturedManager,
                             queryset_cls=ByAuthorQuerySet)
-
 
 
 class DudeQuerySet(models.query.QuerySet):
@@ -205,7 +180,6 @@ class DudeQuerySet(models.query.QuerySet):
         return self.filter(name__iexact=name)
 
 
-
 class AbidingManager(PassThroughManager):
     def get_query_set(self):
         return DudeQuerySet(self.model).abiding()
@@ -215,7 +189,6 @@ class AbidingManager(PassThroughManager):
             "abiding_count": self.count(),
             "rug_count": self.rug_positive().count(),
         }
-
 
 
 class Dude(models.Model):

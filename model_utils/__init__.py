@@ -6,7 +6,6 @@ if VERSION < (1, 2):
         PendingDeprecationWarning)
 
 
-
 class ChoiceEnum(object):
     """
     DEPRECATED: Use ``Choices`` (below) instead. This class has less
@@ -113,8 +112,8 @@ class Choices(object):
                 elif len(choice) == 2:
                     yield (choice[0], choice[0], choice[1])
                 else:
-                    raise ValueError("Choices can't handle a list/tuple of length %s, only 2 or 3"
-                                     % len(choice))
+                    raise ValueError("Choices can't handle a list/tuple \
+                        of length %s, only 2 or 3" % len(choice))
             else:
                 yield (choice, choice, choice)
 
