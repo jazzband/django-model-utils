@@ -3,6 +3,8 @@ import warnings
 from datetime import datetime
 
 from django.db import models
+from django.db import IntegrityError
+from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields import FieldDoesNotExist
@@ -51,6 +53,66 @@ class InheritanceCastModel(models.Model):
 
     def cast(self):
         return self.real_type.get_object_for_this_type(pk=self.pk)
+
+    class Meta:
+        abstract = True
+
+
+class TitleSlugModel(models.Model):
+    """
+    An abstract base class model that provides a ``title``
+    and ``slug`` fields
+    """
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=105, unique=True) # Longer if it tacks on integer
+
+    SLUG_MAX_RETRIES = 5 # How many integrity errors before failing
+
+    def generate_slug(self):
+        return slugify(self.name)
+
+    def increment_slug(self, slug):
+        """
+        What to do when the slug is already found in the table
+
+        Defaults to ordinary counter appending, but you may
+        want to use a date or some other token
+        """
+        tries = getattr(self, '_slug_increment', 1)
+        self._slug_increment = tries + 1
+        return slugify('%s-%s' % (slug, self._slug_increment))
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.generate_slug()
+
+        """
+        Its not enough to check for the slug first because in rare
+        cases it can be created between the get and the save below.
+
+        Below, we attempt to save a unique slug but sometimes that
+        doesn't go well. In that case, we retry on integrityerror a
+        few times, incrementing our slug along the way.
+
+        since our integrityerror might have other causes besides the slug,
+        we don't let this runaway indefinitely and eventually raise
+
+        If below fails, you must find another way of assigning
+        a slug before calling model save()
+
+        """
+
+        tries = self.SLUG_MAX_RETRIES
+        while True:
+            try:
+                super(TitleSlugModel, self).save(*args, **kwargs)
+                break
+            except IntegrityError, e:
+                if tries == 0:
+                    raise
+
+                tries = tries - 1
+                self.slug = self.increment_slug(self.generate_slug())
 
     class Meta:
         abstract = True

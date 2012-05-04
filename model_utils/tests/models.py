@@ -1,12 +1,10 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
+from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel, TitleSlugModel
 from model_utils.managers import QueryManager, manager_from, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
-
-
 
 class InheritParent(InheritanceCastModel):
     non_related_field_using_descriptor = models.FileField(upload_to="test")
@@ -57,6 +55,8 @@ class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     pass
 
 
+class Slug(TitleSlugModel):
+    pass
 
 class TimeStamp(TimeStampedModel):
     pass

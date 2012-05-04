@@ -19,7 +19,7 @@ from model_utils.tests.models import (
     InheritParent, InheritChild, InheritChild2, InheritanceManagerTestRelated,
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
-    StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
+    StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded, Slug,
     TimeFrameManagerAdded, Entry, Dude, SplitFieldAbstractParent, Car, Spot)
 
 
@@ -45,6 +45,14 @@ class GetExcerptTests(TestCase):
         self.assertEquals(e, "some text <!-- split --> more text")
 
 
+class SlugTests(TestCase):
+   def test_save(self):
+        slug = Slug.objects.create(name='Some Bits Of Text')
+        self.assertEquals(slug.slug, 'some-bits-of-text')
+
+        second_slug = Slug.objects.create(name='Some Bits Of Text')
+        self.assertEquals(second_slug.slug, 'some-bits-of-text-2')
+        
 
 class SplitFieldTests(TestCase):
     full_text = u'summary\n\n<!-- split -->\n\nmore'
