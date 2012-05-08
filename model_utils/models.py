@@ -57,13 +57,20 @@ class InheritanceCastModel(models.Model):
     class Meta:
         abstract = True
 
+class TitleModel(models.Model):
+    """
+    For good measure
+    """
+    name = models.CharField(max_length=100)
+    class Meta:
+        abstract = True
 
-class TitleSlugModel(models.Model):
+
+class TitleSlugModel(TitleModel):
     """
     An abstract base class model that provides a ``title``
     and ``slug`` fields
     """
-    name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=105, unique=True) # Longer if it tacks on integer
 
     SLUG_MAX_RETRIES = 5 # How many integrity errors before failing
