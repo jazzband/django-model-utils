@@ -183,6 +183,10 @@ class ChoicesTests(TestCase):
         self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
 
 
+    def test_len(self):
+        self.assertEqual(len(self.STATUS), 2)
+
+
     def test_repr(self):
         self.assertEquals(repr(self.STATUS),
                           "Choices("
@@ -224,6 +228,10 @@ class LabelChoicesTests(ChoicesTests):
         self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
 
 
+    def test_len(self):
+        self.assertEqual(len(self.STATUS), 3)
+
+
     def test_repr(self):
         self.assertEquals(repr(self.STATUS),
                           "Choices("
@@ -254,6 +262,10 @@ class IdentifierChoicesTests(ChoicesTests):
 
     def test_getattr(self):
         self.assertEquals(self.STATUS.DRAFT, 0)
+
+
+    def test_len(self):
+        self.assertEqual(len(self.STATUS), 3)
 
 
     def test_repr(self):

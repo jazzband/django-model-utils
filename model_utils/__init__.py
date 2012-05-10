@@ -130,6 +130,9 @@ class Choices(object):
     def __getitem__(self, index):
         return self._choices[index]
 
+    def __len__(self):
+        return len(self._choices)
+
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                           ', '.join(("%s" % str(i) for i in self._full)))
