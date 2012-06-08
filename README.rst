@@ -351,6 +351,7 @@ directly on the manager::
     from datetime import datetime
     from django.db import models
     from django.db.models.query import QuerySet
+    from model_utils.managers import PassThroughManager
     
     class PostQuerySet(QuerySet):
         def by_author(self, user):
@@ -398,6 +399,7 @@ manager with ``PassThroughManager``::
     from datetime import datetime
     from django.db import models
     from django.db.models.query import QuerySet
+    from model_utils.managers import UpdateOrCreateMixin
     
     class PostQuerySet(QuerySet, UpdateOrCreateMixin):
         pass
