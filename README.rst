@@ -380,3 +380,33 @@ directly on the manager::
    fly, which broke pickling of those querysets. For this reason,
    ``PassThroughManager`` is recommended instead.
 
+
+UpdateOrCreateMixin
+===================
+
+`Ticket #3182`_ in Django's bug tracker suggests
+an ``update_or_create()`` method for managers and querysets.
+The method works in a similar way as ``get_or_create()``,
+but in addition to returning an object if it's found in the database,
+it updates the object's fields according to the ``defaults`` keyword argument.
+
+.. _`Ticket #3182`: https://code.djangoproject.com/ticket/3182
+
+Use this mixin in a custom ``QuerySet`` subclass, and create a corresponding
+manager with ``PassThroughManager``::
+
+    from datetime import datetime
+    from django.db import models
+    from django.db.models.query import QuerySet
+    
+    class PostQuerySet(QuerySet, UpdateOrCreateMixin):
+        pass
+
+    class Post(models.Model):
+        user = models.ForeignKey(User)
+        published = models.DateTimeField()
+    
+        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
+    
+    Post.objects.update_or_create(user=request.user,
+                                  defaults={'published': datetime.now()})
