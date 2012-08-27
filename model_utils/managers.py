@@ -2,10 +2,11 @@ from types import ClassType
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models.fields.related import OneToOneField
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
+import sys
 
 
 class InheritanceQuerySet(QuerySet):
