@@ -2,10 +2,11 @@ from types import ClassType
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import IntegrityError, models, transaction
 from django.db.models.fields.related import OneToOneField
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
+import sys
 
 
 class InheritanceQuerySet(QuerySet):
@@ -206,3 +207,42 @@ def manager_from(*mixins, **kwds):
         return qs
     new_manager_cls.get_query_set = get_query_set
     return new_manager_cls()
+
+
+class UpdateOrCreateMixin(object):
+    def update_or_create(self, **kwargs):
+        """
+        Looks up an object with the given kwargs, creating one if necessary.
+        If the object already exists, then its fields are updated with the
+        values passed in the defaults dictionary.
+        Returns a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+
+        See https://code.djangoproject.com/ticket/3182
+        """
+        assert kwargs, \
+            'update_or_create() must be passed at least one keyword argument'
+        defaults = kwargs.pop('defaults', {})
+        lookup = kwargs.copy()
+        for f in self.model._meta.fields:
+            if f.attname in lookup:
+                lookup[f.name] = lookup.pop(f.attname)
+        self._for_write = True
+        sid = transaction.savepoint(using=self.db)
+        try:
+            obj = self.get(**lookup)
+            create = False
+        except self.model.DoesNotExist:
+            params = dict([(k, v) for k, v in kwargs.items() if '__' not in k])
+            obj = self.model(**params)
+            create = True
+        for attname, value in defaults.items():
+            setattr(obj, attname, value)
+        try:
+            obj.save(force_insert=create, using=self.db)
+            transaction.savepoint_commit(sid, using=self.db)
+            return obj, create
+        except IntegrityError:
+            transaction.savepoint_rollback(sid, using=self.db)
+            exc_info = sys.exc_info()
+            raise exc_info[1], None, exc_info[2]
