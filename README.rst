@@ -351,24 +351,25 @@ directly on the manager::
     from datetime import datetime
     from django.db import models
     from django.db.models.query import QuerySet
-    
+    from model_utils.managers import PassThroughManager
+
     class PostQuerySet(QuerySet):
         def by_author(self, user):
             return self.filter(user=user)
-            
+
         def published(self):
             return self.filter(published__lte=datetime.now())
-    
+
         def unpublished(self):
             return self.filter(published__gte=datetime.now())
-    
-    
+
+
     class Post(models.Model):
         user = models.ForeignKey(User)
         published = models.DateTimeField()
-    
+
         objects = PassThroughManager.for_queryset_class(PostQuerySet)()
-    
+
     Post.objects.published()
     Post.objects.by_author(user=request.user).unpublished()
 
