@@ -106,15 +106,15 @@ class PassThroughManager(models.Manager):
     method.
 
     Alternately, if you don't need any extra methods on your manager that
-    aren't on your QuerySet, then just pass your QuerySet class to this
-    class' constructer.
+    aren't on your QuerySet, then just pass your QuerySet class to the
+    ``for_queryset_class`` class method.
 
     class PostQuerySet(QuerySet):
         def enabled(self):
             return self.filter(disabled=False)
 
     class Post(models.Model):
-        objects = PassThroughManager(PostQuerySet)
+        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
 
     """
     # pickling causes recursion errors
