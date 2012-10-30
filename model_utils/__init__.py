@@ -118,6 +118,9 @@ class Choices(object):
             else:
                 yield (choice, choice, choice)
 
+    def __len__(self):
+        return len(self._choices)
+
     def __iter__(self):
         return iter(self._choices)
 

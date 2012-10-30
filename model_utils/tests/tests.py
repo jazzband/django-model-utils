@@ -193,6 +193,9 @@ class ChoicesTests(TestCase):
     def test_wrong_length_tuple(self):
         self.assertRaises(ValueError, Choices, ('a',))
 
+    def test_len(self):
+        self.assertEquals(len(self.STATUS), len(self.STATUS._choices))
+
 
 
 class LabelChoicesTests(ChoicesTests):
