@@ -1,4 +1,8 @@
-from types import ClassType
+try:
+    from types import ClassType
+except ImportError:
+    # Python 3
+    ClassType = type
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
