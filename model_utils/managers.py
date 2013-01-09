@@ -2,18 +2,51 @@ from types import ClassType
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.fields.related import OneToOneField
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 
 
+def child_classes(model, var_name_prefix=''):
+    """
+    Return list of (field_name, model_class) tuples for each child model
+
+    If given, `var_name_prefix` will prefix each field name (with `.` separator)
+    """
+    if var_name_prefix:
+        var_name_prefix += '.'
+    return [(var_name_prefix + rel.var_name, rel.model)
+            for rel in model._meta.get_all_related_objects()
+            if isinstance(rel.field, OneToOneField)
+            and issubclass(rel.field.model, model)]
+
+
+def nested_getattr(obj, deep_attr):
+    """Return attributes and decendant attributes in a recursive fashion"""
+    attrs = deep_attr.split('.')
+    for attr in attrs:
+        try:
+            obj = getattr(obj, attr)
+        except (AttributeError, ObjectDoesNotExist):
+            return None
+    return obj
+
+
 class InheritanceQuerySet(QuerySet):
     def select_subclasses(self, *subclasses):
         if not subclasses:
-            subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
-                          if isinstance(rel.field, OneToOneField)
-                          and issubclass(rel.field.model, self.model)]
+            # List of (field_name, model_class) tuples
+            attrs = []
+            current_attrs = [('', self.model)]
+            while current_attrs:
+                child_attrs = []
+                for field, klass in current_attrs:
+                    child_attrs += child_classes(klass, field)
+                attrs += child_attrs
+                current_attrs = child_attrs
+            subclasses, _ = zip(*attrs)
         new_qs = self.select_related(*subclasses)
         new_qs.subclasses = subclasses
         return new_qs
@@ -32,10 +65,15 @@ class InheritanceQuerySet(QuerySet):
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
+            # Yield deepest subclass model instance found
             for obj in iter:
-                sub_obj = [getattr(obj, s) for s in self.subclasses if getattr(obj, s)] or [obj]
-                sub_obj = sub_obj[0]
-                if getattr(self, '_annotated', False):
+                sub_obj = obj
+                for s in reversed(self.subclasses):
+                    new_obj = nested_getattr(obj, s)
+                    if new_obj:
+                        sub_obj = new_obj
+                        break
+                if getattr(self, '_annotated', False) and obj != sub_obj:
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
 
