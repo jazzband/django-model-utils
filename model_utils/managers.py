@@ -177,6 +177,7 @@ def manager_from(*mixins, **kwds):
         stacklevel=2)
     # collect separately the mixin classes and methods
     bases = [kwds.get('queryset_cls', QuerySet)]
+    as_class = kwds.pop('as_class', False)
     methods = {}
     for mixin in mixins:
         if isinstance(mixin, (ClassType, type)):
@@ -205,4 +206,7 @@ def manager_from(*mixins, **kwds):
         qs.__class__ = new_queryset_cls
         return qs
     new_manager_cls.get_query_set = get_query_set
-    return new_manager_cls()
+    if as_class:
+        return new_manager_cls
+    else:
+        return new_manager_cls()
