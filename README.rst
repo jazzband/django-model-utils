@@ -146,7 +146,7 @@ object has three attributes:
 ``excerpt``:
     The excerpt of ``content`` (read-only).
 ``has_more``:
-    True if the excerpt and content are the same, False otherwise.
+    True if the excerpt and content are different, False otherwise.
 
 This object also has a ``__unicode__`` method that returns the full
 content, allowing ``SplitField`` attributes to appear in templates
