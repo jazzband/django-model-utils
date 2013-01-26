@@ -95,6 +95,12 @@ default value to the first item in the ``STATUS`` choices::
 (The ``STATUS`` class attribute does not have to be a `Choices`_
 instance, it can be an ordinary list of two-tuples).
 
+``StatusField`` does not set ``db_index=True`` automatically; if you
+expect to frequently filter on your status field (and it will have
+enough selectivity to make an index worthwhile) you may want to add this
+yourself.
+
+
 MonitorField
 ============
 
