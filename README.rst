@@ -29,6 +29,24 @@ Most of ``django-model-utils`` works with `Django`_ 1.1 or later.
 
 .. _Django: http://www.djangoproject.com/
 
+
+Contributing
+============
+
+Please file bugs and send pull requests to the `GitHub repository`_ and `issue
+tracker`_.
+
+.. _GitHub repository: https://github.com/carljm/django-model-utils/
+.. _issue tracker: https://github.com/carljm/django-model-utils/issues
+
+(Until January 2013 django-model-utils primary development was hosted at
+`BitBucket`_; the issue tracker there will remain open until all issues and
+pull requests tracked in it are closed, but all new issues should be filed at
+GitHub.)
+
+.. _BitBucket: https://bitbucket.org/carljm/django-model-utils/overview
+
+
 Choices
 =======
 
