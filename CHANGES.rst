@@ -4,6 +4,24 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Moved primary development from `Bitbucket`_ to `GitHub`_. Bitbucket mirror
+  will continue to receive updates; Bitbucket issue tracker will be closed once
+  all issues tracked in it are resolved.
+
+.. _BitBucket: https://bitbucket.org/carljm/django-model-utils/overview
+.. _GitHub: https://github.com/carljm/django-model-utils/
+
+- Added ``UpdateOrCreateMixin`` for custom queryset subclasses. Thanks Antti
+  Kaihola.
+
+- Fixed pickling of ``PassThroughManager``. Thanks Rinat Shigapov.
+
+- Set ``use_for_related_fields = True`` on ``QueryManager``.
+
+- Added ``__len__`` method to ``Choices``. Thanks Ryan Kaskel and James Oakley.
+
+- Fixed ``InheritanceQuerySet`` on Django 1.5. Thanks Javier García Sogo.
+
 1.1.0 (2012.04.13)
 ------------------
 
