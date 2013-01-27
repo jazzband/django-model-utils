@@ -151,17 +151,33 @@ class PassThroughManager(models.Manager):
 
     @classmethod
     def for_queryset_class(cls, queryset_cls):
-        class _PassThroughManager(cls):
-            def __init__(self):
-                return super(_PassThroughManager, self).__init__()
+        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
 
-            def get_query_set(self):
-                kwargs = {}
-                if hasattr(self, "_db"):
-                    kwargs["using"] = self._db
-                return queryset_cls(self.model, **kwargs)
 
-        return _PassThroughManager
+def create_pass_through_manager_for_queryset_class(base, queryset_cls):
+    class _PassThroughManager(base):
+        def __init__(self):
+            return super(_PassThroughManager, self).__init__()
+
+        def get_query_set(self):
+            kwargs = {}
+            if hasattr(self, "_db"):
+                kwargs["using"] = self._db
+            return queryset_cls(self.model, **kwargs)
+
+        def __reduce__(self):
+            return (
+                unpickle_pass_through_manager_for_queryset_class,
+                (base, queryset_cls),
+                self.__dict__,
+                )
+
+    return _PassThroughManager
+
+
+def unpickle_pass_through_manager_for_queryset_class(base, queryset_cls):
+    cls = create_pass_through_manager_for_queryset_class(base, queryset_cls)
+    return cls.__new__(cls)
 
 
 def manager_from(*mixins, **kwds):
