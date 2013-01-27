@@ -24,8 +24,7 @@ your ``INSTALLED_APPS`` setting.
 Dependencies
 ------------
 
-Most of ``django-model-utils`` works with `Django`_ 1.1 or later.
-`InheritanceManager`_ and `SplitField`_ require Django 1.2 or later.
+``django-model-utils`` is tested with `Django`_ 1.2 and later on Python 2.6 and 2.7.
 
 .. _Django: http://www.djangoproject.com/
 
