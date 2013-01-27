@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+1.2.0 (2013.01.27)
+------------------
+
 - Moved primary development from `Bitbucket`_ to `GitHub`_. Bitbucket mirror
   will continue to receive updates; Bitbucket issue tracker will be closed once
   all issues tracked in it are resolved.
