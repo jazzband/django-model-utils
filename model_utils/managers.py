@@ -126,7 +126,8 @@ class PassThroughManager(models.Manager):
 
     """
     # pickling causes recursion errors
-    _deny_methods = ['__getstate__', '__setstate__', '_db']
+    _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
+                     '__getnewargs__', '__copy__', '__deepcopy__', '_db']
 
     def __init__(self, queryset_cls=None):
         self._queryset_cls = queryset_cls
