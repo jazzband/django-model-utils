@@ -88,6 +88,8 @@ class InheritanceCastMixin(object):
 
 
 class QueryManager(models.Manager):
+    use_for_related_fields = True
+
     def __init__(self, *args, **kwargs):
         if args:
             self._q = args[0]
