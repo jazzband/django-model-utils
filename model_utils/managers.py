@@ -34,13 +34,15 @@ class InheritanceQuerySet(QuerySet):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
             for obj in iter:
-                def get_attr(obj, s):
+                for s in self.subclasses:
                     try:
-                        return getattr(obj,s)
+                        sub_obj = getattr(obj, s)
                     except ObjectDoesNotExist:
-                        return None
-                sub_obj = [getattr(obj, s) for s in self.subclasses if get_attr(obj, s)] or [obj]
-                sub_obj = sub_obj[0]
+                        sub_obj = None
+                    if sub_obj:
+                        break
+                if not sub_obj:
+                    sub_obj = obj
                 if getattr(self, '_annotated', False):
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
