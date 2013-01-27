@@ -2,7 +2,7 @@ from __future__ import with_statement
 
 import pickle
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
@@ -18,8 +18,7 @@ from model_utils.tests.models import (
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
-    TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
-    Person)
+    TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot)
 
 
 
@@ -576,52 +575,3 @@ class CreatePassThroughManagerTests(TestCase):
         pickled_qs = pickle.dumps(qs)
         unpickled_qs = pickle.loads(pickled_qs)
         self.assertEqual(unpickled_qs.secured().count(), 1)
-
-
-class UpdateOrCreateTests(TestCase):
-    def test_update_or_create(self):
-        Person.objects.create(
-            first_name='John', last_name='Lennon', birthday=date(1940, 10, 9)
-        )
-
-        p, created = Person.objects.update_or_create(
-            first_name='John', last_name='Lennon', defaults={
-                'birthday': date(1970, 10, 9)
-            }
-        )
-        self.assertFalse(created)
-        self.assertEqual(Person.objects.count(), 1)
-        self.assertEqual(Person.objects.get().birthday, date(1970, 10, 9))
-
-        p, created = Person.objects.update_or_create(
-            first_name='George', last_name='Harrison', defaults={
-                'birthday': date(1943, 2, 25)
-            }
-        )
-        self.assertTrue(created)
-        self.assertEqual(Person.objects.count(), 2)
-
-        # If we execute the exact same statement, it won't create a Person.
-        p, created = Person.objects.update_or_create(
-            first_name='George', last_name='Harrison', defaults={
-                'birthday': date(1943, 2, 25)
-            }
-        )
-        self.assertFalse(created)
-        self.assertEqual(Person.objects.count(), 2)
-
-        # update_or_create() can take an empty 'defaults' parameter, but in
-        # this situation behaves exactly like get_or_create().  This is useful
-        # if you are building the 'defaults' dictionary dynamically.
-        p, created = Person.objects.update_or_create(
-            first_name='George', last_name='Harrison', defaults={}
-        )
-        self.assertFalse(created)
-
-        # A different name with an empty 'defaults'.
-        p, created = Person.objects.update_or_create(
-            first_name='John', last_name='Smith', birthday=date(1950, 2, 10),
-            defaults={}
-        )
-        self.assertTrue(created)
-        self.assertEqual(Person.objects.count(), 3)

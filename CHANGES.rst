@@ -14,9 +14,6 @@ tip (unreleased)
 - Removed deprecated ``ChoiceEnum``, ``InheritanceCastModel``,
   ``InheritanceCastManager``, and ``manager_from``.
 
-- Added ``UpdateOrCreateMixin`` for custom queryset subclasses. Thanks Antti
-  Kaihola.
-
 - Fixed pickling of ``PassThroughManager``. Thanks Rinat Shigapov.
 
 - Set ``use_for_related_fields = True`` on ``QueryManager``.
