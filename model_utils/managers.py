@@ -72,6 +72,7 @@ class QueryManager(models.Manager):
             self._q = args[0]
         else:
             self._q = models.Q(**kwargs)
+        self._order_by = None
         super(QueryManager, self).__init__()
 
     def order_by(self, *args):
@@ -80,7 +81,7 @@ class QueryManager(models.Manager):
 
     def get_query_set(self):
         qs = super(QueryManager, self).get_query_set().filter(self._q)
-        if hasattr(self, '_order_by'):
+        if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs
 
@@ -119,10 +120,9 @@ class PassThroughManager(models.Manager):
 
     def get_query_set(self):
         if self._queryset_cls is not None:
-            kargs = {'model': self.model}
-            if hasattr(self, '_db'):
-                kargs['using'] = self._db
-            return self._queryset_cls(**kargs)
+            kwargs = {'model': self.model}
+            kwargs['using'] = self._db
+            return self._queryset_cls(**kwargs)
         return super(PassThroughManager, self).get_query_set()
 
     @classmethod
@@ -137,8 +137,7 @@ def create_pass_through_manager_for_queryset_class(base, queryset_cls):
 
         def get_query_set(self):
             kwargs = {}
-            if hasattr(self, "_db"):
-                kwargs["using"] = self._db
+            kwargs["using"] = self._db
             return queryset_cls(self.model, **kwargs)
 
         def __reduce__(self):
