@@ -197,9 +197,6 @@ class ChoicesTests(TestCase):
     def test_wrong_length_tuple(self):
         self.assertRaises(ValueError, Choices, ('a',))
 
-    def test_len(self):
-        self.assertEquals(len(self.STATUS), len(self.STATUS._choices))
-
 
 
 class LabelChoicesTests(ChoicesTests):
@@ -654,6 +651,7 @@ class PassThroughManagerTests(TestCase):
         saltyqs = pickle.dumps(qs)
         unqs = pickle.loads(saltyqs)
         self.assertEqual(unqs.by_name('The Dude').count(), 1)
+
 
     def test_queryset_not_available_on_related_manager(self):
         dude = Dude.objects.by_name('Duder').get()
