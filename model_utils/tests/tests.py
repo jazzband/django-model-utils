@@ -1,6 +1,6 @@
 from __future__ import with_statement
 
-import pickle, warnings
+import pickle
 
 from datetime import date, datetime, timedelta
 
@@ -9,18 +9,16 @@ from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 
-from django.contrib.contenttypes.models import ContentType
-
 from model_utils import Choices
 from model_utils.fields import get_excerpt, MonitorField
-from model_utils.managers import QueryManager, manager_from
+from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (
-    InheritParent, InheritChild, InheritChild2, InheritanceManagerTestRelated,
+    InheritanceManagerTestRelated,
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
-    TimeFrameManagerAdded, Entry, Dude, SplitFieldAbstractParent, Car, Spot,
+    TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     Person)
 
 
@@ -277,57 +275,6 @@ class IdentifierChoicesTests(ChoicesTests):
                           "(2, 'DELETED', 'is deleted'))")
 
 
-class InheritanceCastModelTests(TestCase):
-    def setUp(self):
-        self.parent = InheritParent.objects.create()
-        self.child = InheritChild.objects.create()
-
-
-    def test_parent_real_type(self):
-        self.assertEquals(self.parent.real_type,
-                          ContentType.objects.get_for_model(InheritParent))
-
-
-    def test_child_real_type(self):
-        self.assertEquals(self.child.real_type,
-                          ContentType.objects.get_for_model(InheritChild))
-
-
-    def test_cast(self):
-        obj = InheritParent.objects.get(pk=self.child.pk).cast()
-        self.assertEquals(obj.__class__, InheritChild)
-
-
-    def test_pending_deprecation(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            InheritParent()
-            self.assertEqual(len(w), 1)
-            assert issubclass(w[-1].category, PendingDeprecationWarning)
-
-
-
-class InheritanceCastQuerysetTests(TestCase):
-    def setUp(self):
-        self.child = InheritChild.objects.create()
-        self.child2 = InheritChild2.objects.create()
-
-
-    def test_cast_manager(self):
-        self.assertEquals(set(InheritParent.objects.cast()),
-                          set([self.child, self.child2]))
-
-
-    def test_cast(self):
-        parent = InheritParent.objects.create()
-        obj = InheritParent.objects.filter(pk=self.child.pk).cast()[0]
-        self.assertEquals(obj.__class__, InheritChild)
-        self.assertEquals(set(InheritChild2.objects.all().cast()),
-                          set([self.child2]))
-        self.assertEquals(set(InheritParent.objects.all().cast()),
-                          set([parent, self.child, self.child2]))
-
-
 
 class InheritanceManagerTests(TestCase):
     def setUp(self):
@@ -576,51 +523,6 @@ if introspector:
             self.assertRaises(FieldDoesNotExist,
                               NoRendered._meta.get_field,
                               '_body_excerpt')
-
-
-
-class ManagerFromTests(TestCase):
-    def setUp(self):
-        Entry.objects.create(author='George', published=True)
-        Entry.objects.create(author='George', published=False)
-        Entry.objects.create(author='Paul', published=True, feature=True)
-
-
-    def test_chaining(self):
-        self.assertEqual(Entry.objects.by_author('George').published().count(),
-                         1)
-
-
-    def test_function(self):
-        self.assertEqual(Entry.objects.unpublished().count(), 1)
-
-
-    def test_typecheck(self):
-        self.assertRaises(TypeError, manager_from, 'somestring')
-
-
-    def test_custom_get_query_set(self):
-        self.assertEqual(Entry.featured.published().count(), 1)
-
-
-    def test_cant_reconcile_qs_class(self):
-        self.assertRaises(TypeError, Entry.broken.all)
-
-
-    def test_queryset_pickling_fails(self):
-        qs = Entry.objects.all()
-        def dump_load():
-            pqs = pickle.dumps(qs)
-            pickle.loads(pqs)
-        self.assertRaises(pickle.PicklingError, dump_load)
-
-
-    def test_pending_deprecation(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            manager_from()
-            self.assertEqual(len(w), 1)
-            assert issubclass(w[-1].category, PendingDeprecationWarning)
 
 
 

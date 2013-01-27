@@ -1,15 +1,11 @@
-import warnings
-
 from datetime import datetime
 
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
 
-from model_utils.managers import manager_from, InheritanceCastMixin, \
-    QueryManager
+from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
     StatusField, MonitorField
 
@@ -18,42 +14,6 @@ try:
 except ImportError:
     now = datetime.now
 
-
-class InheritanceCastModel(models.Model):
-    """
-    An abstract base class that provides a ``real_type`` FK to ContentType.
-
-    For use in trees of inherited models, to be able to downcast
-    parent instances to their child types.
-
-    Pending deprecation; use InheritanceManager instead.
-
-    """
-    real_type = models.ForeignKey(ContentType, editable=False, null=True)
-
-    objects = manager_from(InheritanceCastMixin)
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "InheritanceCastModel is pending deprecation. "
-            "Use InheritanceManager instead.",
-            PendingDeprecationWarning,
-            stacklevel=2)
-        super(InheritanceCastModel, self).__init__(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.real_type = self._get_real_type()
-        super(InheritanceCastModel, self).save(*args, **kwargs)
-
-    def _get_real_type(self):
-        return ContentType.objects.get_for_model(type(self))
-
-    def cast(self):
-        return self.real_type.get_object_for_this_type(pk=self.pk)
-
-    class Meta:
-        abstract = True
 
 
 class TimeStampedModel(models.Model):

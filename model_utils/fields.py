@@ -3,8 +3,6 @@ from datetime import datetime
 from django.db import models
 from django.conf import settings
 
-from model_utils import Choices
-
 
 try:
     from django.utils.timezone import now as now

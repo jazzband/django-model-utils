@@ -1,31 +1,10 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from model_utils.models import InheritanceCastModel, TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.managers import QueryManager, manager_from, InheritanceManager, PassThroughManager, UpdateOrCreateMixin
+from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
+from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager, UpdateOrCreateMixin
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
-
-
-
-class InheritParent(InheritanceCastModel):
-    non_related_field_using_descriptor = models.FileField(upload_to="test")
-    normal_field = models.TextField()
-    pass
-
-
-
-class InheritChild(InheritParent):
-    non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
-    normal_field_2 = models.TextField()
-    pass
-
-
-
-class InheritChild2(InheritParent):
-    non_related_field_using_descriptor_3 = models.FileField(upload_to="test")
-    normal_field_3 = models.TextField()
-    pass
 
 
 
@@ -175,19 +154,6 @@ class FeaturedManager(models.Manager):
         if hasattr(self, "_db"):
             kwargs["using"] = self._db
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
-
-
-
-class Entry(models.Model):
-    author = models.CharField(max_length=20)
-    published = models.BooleanField()
-    feature = models.BooleanField(default=False)
-
-    objects = manager_from(AuthorMixin, PublishedMixin, unpublished)
-    broken = manager_from(PublishedMixin, manager_cls=FeaturedManager)
-    featured = manager_from(PublishedMixin,
-                            manager_cls=FeaturedManager,
-                            queryset_cls=ByAuthorQuerySet)
 
 
 
