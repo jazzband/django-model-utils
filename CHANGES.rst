@@ -11,6 +11,8 @@ tip (unreleased)
 .. _BitBucket: https://bitbucket.org/carljm/django-model-utils/overview
 .. _GitHub: https://github.com/carljm/django-model-utils/
 
+- Removed deprecated ``ChoiceEnum`` class.
+
 - Added ``UpdateOrCreateMixin`` for custom queryset subclasses. Thanks Antti
   Kaihola.
 
