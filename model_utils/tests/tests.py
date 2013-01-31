@@ -1,9 +1,10 @@
 from __future__ import with_statement
-
+import unittest
 import pickle
 
 from datetime import datetime, timedelta
 
+import django
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
@@ -20,6 +21,8 @@ from model_utils.tests.models import (
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot)
 
+if django.VERSION >= (1, 6, 0):
+    from model_utils.tests.models import InheritanceManagerTestGrandChild1
 
 
 class GetExcerptTests(TestCase):
@@ -279,32 +282,45 @@ class InheritanceManagerTests(TestCase):
     def setUp(self):
         self.child1 = InheritanceManagerTestChild1.objects.create()
         self.child2 = InheritanceManagerTestChild2.objects.create()
-
+        if django.VERSION >= (1, 6, 0):
+            self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
 
     def get_manager(self):
         return InheritanceManagerTestParent.objects
 
 
     def test_normal(self):
-        self.assertEquals(set(self.get_manager().all()),
-                          set([
-                    InheritanceManagerTestParent(pk=self.child1.pk),
-                    InheritanceManagerTestParent(pk=self.child2.pk),
-                    ]))
+        children = set([InheritanceManagerTestParent(pk=self.child1.pk),
+                        InheritanceManagerTestParent(pk=self.child2.pk)])
+        if django.VERSION >= (1, 6, 0):
+            children.add(InheritanceManagerTestParent(pk=self.grandchild1.pk))
+        self.assertEquals(set(self.get_manager().all()), children)
 
 
     def test_select_all_subclasses(self):
+        children = set([self.child1, self.child2])
+        if django.VERSION >= (1, 6, 0):
+            children.add(self.grandchild1)
         self.assertEquals(
-            set(self.get_manager().select_subclasses()),
-            set([self.child1, self.child2]))
+            set(self.get_manager().select_subclasses()), children)
 
 
     def test_select_specific_subclasses(self):
+        children = set([self.child1, InheritanceManagerTestParent(pk=self.child2.pk)])
+        if django.VERSION >= (1, 6, 0):
+            children.add(InheritanceManagerTestChild1(pk=self.grandchild1.pk))
         self.assertEquals(
             set(self.get_manager().select_subclasses(
-                    "inheritancemanagertestchild1")),
-            set([self.child1,
-                 InheritanceManagerTestParent(pk=self.child2.pk)]))
+                    "inheritancemanagertestchild1")), children)
+
+    @unittest.skipIf(django.VERSION < (1, 6, 0), "not supported in this django version")
+    def test_select_specific_grandchildren(self):
+        children = set([self.child1, InheritanceManagerTestParent(pk=self.child2.pk)])
+        if django.VERSION >= (1, 6, 0):
+            children.add(InheritanceManagerTestGrandChild1(pk=self.grandchild1.pk))
+        self.assertEquals(
+            set(self.get_manager().select_subclasses(
+                    "inheritancemanagertestchild1__inheritancemanagertestgrandchild1")), children)
 
     def test_get_subclass(self):
         self.assertEquals(
@@ -319,6 +335,8 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
             related=self.related)
         self.child2 = InheritanceManagerTestChild2.objects.create(
             related=self.related)
+        if django.VERSION >= (1, 6, 0):
+            self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create(related=self.related)
 
 
     def get_manager(self):

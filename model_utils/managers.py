@@ -5,13 +5,15 @@ from django.db.models.fields.related import OneToOneField
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 
+try:
+    from django.db.models.constants import LOOKUP_SEP
+except ImportError: # Django <= 1.5
+    from django.db.models.sql.constants import LOOKUP_SEP
 
 class InheritanceQuerySet(QuerySet):
     def select_subclasses(self, *subclasses):
         if not subclasses:
-            subclasses = [rel.var_name for rel in self.model._meta.get_all_related_objects()
-                          if isinstance(rel.field, OneToOneField)
-                          and issubclass(rel.field.model, self.model)]
+            subclasses = self._get_subclasses_recurse(self.model)
         new_qs = self.select_related(*subclasses)
         new_qs.subclasses = subclasses
         return new_qs
@@ -31,15 +33,14 @@ class InheritanceQuerySet(QuerySet):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
             for obj in iter:
+                sub_obj = None
                 for s in self.subclasses:
-                    try:
-                        sub_obj = getattr(obj, s)
-                    except ObjectDoesNotExist:
-                        sub_obj = None
+                    sub_obj = self._get_sub_obj_recurse(obj, s)
                     if sub_obj:
                         break
                 if not sub_obj:
                     sub_obj = obj
+
                 if getattr(self, '_annotated', False):
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
@@ -48,6 +49,29 @@ class InheritanceQuerySet(QuerySet):
         else:
             for obj in iter:
                 yield obj
+
+    def _get_subclasses_recurse(self, model):
+        rels = [rel for rel in model._meta.get_all_related_objects()
+                      if isinstance(rel.field, OneToOneField)
+                      and issubclass(rel.field.model, model)]
+        subclasses = []
+        for rel in rels:
+            for subclass in self._get_subclasses_recurse(rel.field.model):
+                subclasses.append(rel.var_name + LOOKUP_SEP + subclass)
+            subclasses.append(rel.var_name)
+        return subclasses
+
+    def _get_sub_obj_recurse(self, obj, s):
+        rel, _, s = s.partition(LOOKUP_SEP)
+        try:
+            node = getattr(obj, rel)
+        except ObjectDoesNotExist:
+            return None
+        if s:
+            child = self._get_sub_obj_recurse(node, s)
+            return child or node
+        else:
+            return node
 
 
 class InheritanceManager(models.Manager):
