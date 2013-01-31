@@ -1,3 +1,4 @@
+import django
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,6 +29,10 @@ class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     normal_field_2 = models.TextField()
     pass
 
+
+if django.VERSION >= (1, 6, 0):
+    class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
+        text_field = models.TextField()
 
 
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
