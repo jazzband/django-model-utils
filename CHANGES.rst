@@ -4,6 +4,10 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Add workaround for https://code.djangoproject.com/ticket/16855 in
+  InheritanceQuerySet to avoid overriding prior calls to
+  ``select_related()``. Thanks ivirabyan.
+
 - Added support for arbitrary levels of model inheritance in
   InheritanceManager. Thanks ivirabyan. (This feature only works in Django
   1.6+ due to https://code.djangoproject.com/ticket/16572).

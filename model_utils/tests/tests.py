@@ -344,6 +344,17 @@ class InheritanceManagerTests(TestCase):
             self.child1)
 
 
+    def test_prior_select_related(self):
+        # Django 1.2 doesn't have assertNumQueries
+        if django.VERSION >= (1, 3):
+            with self.assertNumQueries(1):
+                obj = self.get_manager().select_related(
+                    "inheritancemanagertestchild1").select_subclasses(
+                    "inheritancemanagertestchild2").get(pk=self.child1.pk)
+                obj.inheritancemanagertestchild1
+
+
+
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def setUp(self):
         self.related = InheritanceManagerTestRelated.objects.create()

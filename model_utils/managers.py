@@ -20,7 +20,11 @@ class InheritanceQuerySet(QuerySet):
             if django.VERSION < (1, 6, 0):
                 levels = 1
             subclasses = self._get_subclasses_recurse(self.model, levels=levels)
+        # workaround https://code.djangoproject.com/ticket/16855
+        field_dict = self.query.select_related
         new_qs = self.select_related(*subclasses)
+        if isinstance(new_qs.query.select_related, dict) and isinstance(field_dict, dict):
+            new_qs.query.select_related.update(field_dict)
         new_qs.subclasses = subclasses
         return new_qs
 
