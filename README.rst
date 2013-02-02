@@ -297,8 +297,10 @@ an ``InheritanceManager`` behaves identically to a normal ``Manager``; so
 it's safe to use as your default manager for the model.
 
 .. note::
-    ``InheritanceManager`` currently only supports a single level of model
-    inheritance; it won't work for grandchild models.
+
+    Due to `Django bug #16572`_, on Django versions prior to 1.6
+    ``InheritanceManager`` only supports a single level of model inheritance;
+    it won't work for grandchild models.
 
 .. note::
     The implementation of ``InheritanceManager`` uses ``select_related``
@@ -307,6 +309,7 @@ it's safe to use as your default manager for the model.
 
 .. _contributed by Jeff Elmore: http://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
 .. _Django bug #16855: https://code.djangoproject.com/ticket/16855
+.. _Django bug #16572: https://code.djangoproject.com/ticket/16572
 
 
 TimeStampedModel

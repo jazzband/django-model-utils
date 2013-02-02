@@ -4,6 +4,11 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Added support for arbitrary levels of model inheritance in
+  InheritanceManager. Thanks ivirabyan. (This feature only works in Django
+  1.6+ due to https://code.djangoproject.com/ticket/16572).
+
+
 1.2.0 (2013.01.27)
 ------------------
 

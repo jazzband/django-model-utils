@@ -1,4 +1,4 @@
 TODO
 ====
 
-* Add support for multiple levels of inheritance to ``InheritanceManager``.
+* Switch to proper test skips once Django 1.3 is minimum supported.
