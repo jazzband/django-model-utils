@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Fix calling ``create()`` on a ``RelatedManager`` that subclasses a dynamic
+  ``PassThroughManager``. Thanks SeiryuZ for the report. Fixes GH-24.
+
 - Add workaround for https://code.djangoproject.com/ticket/16855 in
   InheritanceQuerySet to avoid overriding prior calls to
   ``select_related()``. Thanks ivirabyan.
