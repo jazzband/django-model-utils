@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import django
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.test import TestCase
 
 from model_utils import Choices
@@ -18,7 +18,8 @@ from model_utils.tests.models import (
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
-    TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot)
+    TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
+    Tracked, TrackedNotDefault)
 
 
 
@@ -624,3 +625,110 @@ class CreatePassThroughManagerTests(TestCase):
 
     def test_related_manager_create(self):
         self.dude.spots_owned.create(name='The Crib', closed=True, secure=True)
+
+
+class ModelTrackerTestCase(TestCase):
+    def assertHasChanged(self, **kwargs):
+        for field, value in kwargs.iteritems():
+            if value is None:
+                self.assertRaises(FieldError, self.tracker.has_changed, field)
+            else:
+                self.assertEqual(self.tracker.has_changed(field), value)
+
+    def assertPrevious(self, **kwargs):
+        for field, value in kwargs.iteritems():
+            self.assertEqual(self.tracker.previous(field), value)
+
+    def assertChanged(self, **kwargs):
+        self.assertEqual(self.tracker.changed(), kwargs)
+
+    def update_instance(self, **kwargs):
+        for field, value in kwargs.iteritems():
+            setattr(self.instance, field, value)
+        self.instance.save()
+
+
+class ModelTrackerCommonTests(object):
+
+    def test_pre_save_has_changed(self):
+        self.assertHasChanged(name=True, number=True)
+        self.instance.name = 'new age'
+        self.assertHasChanged(name=True, number=True)
+
+    def test_pre_save_changed(self):
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged()
+        self.instance.number = 8
+        self.assertChanged()
+        self.instance.name = ''
+        self.assertChanged()
+
+    def test_pre_save_previous(self):
+        self.assertPrevious(name=None, number=None)
+        self.instance.name = 'new age'
+        self.instance.number = 8
+        self.assertPrevious(name=None, number=None)
+
+
+class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
+    def setUp(self):
+        self.instance = Tracked()
+        self.tracker = self.instance.tracker
+
+    def test_post_save_has_changed(self):
+        self.update_instance(name='retro', number=4)
+        self.assertHasChanged(name=False, number=False)
+        self.instance.name = 'new age'
+        self.assertHasChanged(name=True, number=False)
+        self.instance.number = 8
+        self.assertHasChanged(name=True, number=True)
+        self.instance.name = 'retro'
+        self.assertHasChanged(name=False, number=True)
+
+    def test_post_save_previous(self):
+        self.update_instance(name='retro', number=4)
+        self.instance.name = 'new age'
+        self.assertPrevious(name='retro', number=4)
+
+    def test_post_save_changed(self):
+        self.update_instance(name='retro', number=4)
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged(name='retro')
+        self.instance.number = 8
+        self.assertChanged(name='retro', number=4)
+        self.instance.name = 'retro'
+        self.assertChanged(number=4)
+
+
+class FieldTrackedModelCustomTests(ModelTrackerTestCase,
+                                   ModelTrackerCommonTests):
+    def setUp(self):
+        self.instance = TrackedNotDefault()
+        self.tracker = self.instance.name_tracker
+
+    def test_post_save_has_changed(self):
+        self.update_instance(name='retro', number=4)
+        self.assertHasChanged(name=False, number=None)
+        self.instance.name = 'new age'
+        self.assertHasChanged(name=True, number=None)
+        self.instance.number = 8
+        self.assertHasChanged(name=True, number=None)
+        self.instance.name = 'retro'
+        self.assertHasChanged(name=False, number=None)
+
+    def test_post_save_previous(self):
+        self.update_instance(name='retro', number=4)
+        self.instance.name = 'new age'
+        self.assertPrevious(name='retro', number=None)
+
+    def test_post_save_changed(self):
+        self.update_instance(name='retro', number=4)
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged(name='retro')
+        self.instance.number = 8
+        self.assertChanged(name='retro')
+        self.instance.name = 'retro'
+        self.assertChanged()
