@@ -50,9 +50,9 @@ class ModelInstanceTracker(object):
         self.fields = fields
 
     def set_saved_fields(self):
-        self.saved_data = self.current_fields()
+        self.saved_data = self.current()
 
-    def current_fields(self):
+    def current(self):
         return (dict((f, getattr(self.instance, f)) for f in self.fields)
                 if self.instance.pk else {})
 
@@ -74,5 +74,5 @@ class ModelInstanceTracker(object):
         if not self.instance.pk:
             return {}
         saved = self.saved_data.iteritems()
-        current = self.current_fields()
+        current = self.current()
         return dict((k, v) for k, v in saved if v != current[k])
