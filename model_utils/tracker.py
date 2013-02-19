@@ -8,22 +8,16 @@ class ModelTracker(object):
 
     def contribute_to_class(self, cls, name):
         self.name = name
-        models.signals.class_prepared.connect(self.finalize, sender=cls)
-
-    def finalize(self, sender, **kwargs):
-        descriptor = ModelTrackerDescriptor(sender, self.name, self.fields)
-        setattr(sender, self.name, descriptor)
-
-
-class ModelTrackerDescriptor(object):
-    def __init__(self, cls, name, fields):
         self.attname = '_%s' % name
-        self.fields = fields
-        if self.fields is None:
-            self.fields = [field.attname for field in cls._meta.local_fields]
-        models.signals.post_init.connect(self.initialize, sender=cls)
+        models.signals.class_prepared.connect(self.finalize_class, sender=cls)
 
-    def initialize(self, sender, instance, **kwargs):
+    def finalize_class(self, sender, **kwargs):
+        if self.fields is None:
+            self.fields = [field.attname for field in sender._meta.local_fields]
+        models.signals.post_init.connect(self.initialize_tracker, sender=sender)
+        setattr(sender, self.name, self)
+
+    def initialize_tracker(self, sender, instance, **kwargs):
         tracker = ModelInstanceTracker(instance, self.fields)
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()
