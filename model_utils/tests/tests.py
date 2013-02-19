@@ -642,6 +642,9 @@ class ModelTrackerTestCase(TestCase):
     def assertChanged(self, **kwargs):
         self.assertEqual(self.tracker.changed(), kwargs)
 
+    def assertCurrent(self, **kwargs):
+        self.assertEqual(self.tracker.current(), kwargs)
+
     def update_instance(self, **kwargs):
         for field, value in kwargs.iteritems():
             setattr(self.instance, field, value)
@@ -701,6 +704,15 @@ class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
         self.instance.name = 'retro'
         self.assertChanged(number=4)
 
+    def test_current(self):
+        self.assertCurrent(id=None, name='', number=None)
+        self.instance.name = 'new age'
+        self.assertCurrent(id=None, name='new age', number=None)
+        self.instance.number = 8
+        self.assertCurrent(id=None, name='new age', number=8)
+        self.instance.save()
+        self.assertCurrent(id=self.instance.id, name='new age', number=8)
+
 
 class FieldTrackedModelCustomTests(ModelTrackerTestCase,
                                    ModelTrackerCommonTests):
@@ -732,3 +744,12 @@ class FieldTrackedModelCustomTests(ModelTrackerTestCase,
         self.assertChanged(name='retro')
         self.instance.name = 'retro'
         self.assertChanged()
+
+    def test_current(self):
+        self.assertCurrent(name='')
+        self.instance.name = 'new age'
+        self.assertCurrent(name='new age')
+        self.instance.number = 8
+        self.assertCurrent(name='new age')
+        self.instance.save()
+        self.assertCurrent(name='new age')
