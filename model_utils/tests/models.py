@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel, ModelTracker
+from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
+from model_utils.tracker import ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField
 from model_utils import Choices
