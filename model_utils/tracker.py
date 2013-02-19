@@ -35,7 +35,7 @@ class ModelTrackerDescriptor(object):
             ret = original_save()
             getattr(instance, self.attname).set_saved_fields()
             return ret
-        setattr(instance, 'save', save)
+        instance.save = save
 
     def __get__(self, instance, owner):
         if instance is None:
