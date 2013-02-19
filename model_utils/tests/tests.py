@@ -9,7 +9,7 @@ from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.test import TestCase
 
-from model_utils import Choices
+from model_utils import Choices, ModelTracker
 from model_utils.fields import get_excerpt, MonitorField
 from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
@@ -685,6 +685,9 @@ class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
     def setUp(self):
         self.instance = Tracked()
         self.tracker = self.instance.tracker
+
+    def test_descriptor(self):
+        self.assertTrue(isinstance(Tracked.tracker, ModelTracker))
 
     def test_post_save_has_changed(self):
         self.update_instance(name='retro', number=4)
