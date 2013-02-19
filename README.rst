@@ -392,3 +392,83 @@ directly on the manager::
     Post.objects.by_author(user=request.user).unpublished()
 
 
+ModelTracker
+============
+
+A ``ModelTracker`` can be added to a model to track changes in model fields.  A
+``ModelTracker`` allows querying for field changes since a model instance was
+last saved.  An example of applying ``ModelTracker`` to a model::
+
+    from django.db import models
+    from model_utils import ModelTracker
+
+    class Post(models.Model):
+        title = models.CharField(max_length=100)
+        body = models.TextField()
+
+        tracker = ModelTracker()
+
+Accessing a model tracker
+-------------------------
+
+There are multiple methods available for checking for changes in model fields.
+
+previous
+~~~~~~~~
+Returns the value of the given field during the last save::
+
+    >>> a = Post.objects.create(title='First Post')
+    >>> a.title = 'Welcome'
+    >>> a.tracker.previous('title')
+    u'First Post'
+
+Returns ``None`` when the model instance isn't saved yet.
+
+has_changed
+~~~~~~~~~~~
+Returns ``True`` if the given field has changed since the last save::
+
+    >>> a = Post.objects.create(title='First Post')
+    >>> a.title = 'Welcome'
+    >>> a.tracker.has_changed('title')
+    True
+    >>> a.tracker.has_changed('body')
+    False
+
+Returns ``True`` if the model instance hasn't been saved yet.
+
+changed
+~~~~~~~
+Returns a dictionary of all fields that have been changed since the last save
+and the values of the fields during the last save::
+
+    >>> a = Post.objects.create(title='First Post')
+    >>> a.title = 'Welcome'
+    >>> a.body = 'First post!'
+    >>> a.tracker.changed()
+    {'title': 'First Post', 'body': ''}
+
+Returns ``{}`` if the model instance hasn't been saved yet.
+
+
+Tracking specific fields
+------------------------
+
+A fields parameter can be given to ``ModelTracker`` to limit model tracking to
+the specific fields::
+
+    from django.db import models
+    from model_utils import ModelTracker
+
+    class Post(models.Model):
+        title = models.CharField(max_length=100)
+        body = models.TextField()
+
+        title_tracker = ModelTracker(fields=['title'])
+
+An example using the model specified above::
+
+    >>> a = Post.objects.create(title='First Post')
+    >>> a.body = 'First post!'
+    >>> a.title_tracker.changed()
+    {}
