@@ -15,7 +15,8 @@ tip (unreleased)
   InheritanceManager. Thanks ivirabyan. (This feature only works in Django
   1.6+ due to https://code.djangoproject.com/ticket/16572).
 
-- Added ``ModelTracker`` for tracking field changes between model saves.
+- Added ``ModelTracker`` for tracking field changes between model saves. Thanks
+  Trey Hunner.
 
 
 1.2.0 (2013.01.27)
