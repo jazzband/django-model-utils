@@ -13,4 +13,5 @@ Rinat Shigapov <rinatshigapov@gmail.com>
 Ryan Kaskel <dev@ryankaskel.com>
 Simon Meers <simon@simonmeers.com>
 sayane
+Trey Hunner <trey@treyhunner.com>
 zyegfryed
