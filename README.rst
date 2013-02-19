@@ -472,3 +472,4 @@ An example using the model specified above::
     >>> a.body = 'First post!'
     >>> a.title_tracker.changed()
     {}
+
