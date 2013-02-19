@@ -44,11 +44,13 @@ class ModelInstanceTracker(object):
         self.fields = fields
 
     def set_saved_fields(self):
-        self.saved_data = self.current()
+        if self.instance.pk:
+            self.saved_data = self.current()
+        else:
+            self.saved_data = {}
 
     def current(self):
-        return (dict((f, getattr(self.instance, f)) for f in self.fields)
-                if self.instance.pk else {})
+        return dict((f, getattr(self.instance, f)) for f in self.fields)
 
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
