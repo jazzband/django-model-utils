@@ -233,3 +233,11 @@ class TrackedNotDefault(models.Model):
     number = models.IntegerField()
 
     name_tracker = ModelTracker(fields=['name'])
+
+
+class TrackedMultiple(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+
+    name_tracker = ModelTracker(fields=['name'])
+    number_tracker = ModelTracker(fields=['number'])
