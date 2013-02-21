@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Allow specifying default value for a ``StatusField``. Thanks Felipe
+  Prenholato.
+
 - Fix calling ``create()`` on a ``RelatedManager`` that subclasses a dynamic
   ``PassThroughManager``. Thanks SeiryuZ for the report. Fixes GH-24.
 

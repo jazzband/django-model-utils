@@ -2,6 +2,7 @@ Alejandro Varas <alej0varas@gmail.com>
 Carl Meyer <carl@dirtcircle.com>
 Donald Stufft <donald.stufft@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
+Felipe Prenholato <philipe.rp@gmail.com>
 Gregor Müllegger <gregor@muellegger.de>
 James Oakley <jfunk@funktronics.ca>
 Jannis Leidel <jannis@leidel.info>
