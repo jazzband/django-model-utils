@@ -19,7 +19,8 @@ from model_utils.tests.models import (
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
-    Tracked, TrackedNotDefault, TrackedMultiple)
+    Tracked, TrackedNotDefault, TrackedMultiple, StatusFieldDefaultFilled,
+    StatusFieldDefaultNotFilled)
 
 
 
@@ -163,6 +164,16 @@ class MonitorFieldTests(TestCase):
     def test_no_monitor_arg(self):
         self.assertRaises(TypeError, MonitorField)
 
+
+class StatusFieldTests(TestCase):
+
+    def test_status_with_default_filled(self):
+        instance = StatusFieldDefaultFilled()
+        self.assertEquals(instance.status, instance.STATUS.yes)
+
+    def test_status_with_default_not_filled(self):
+        instance = StatusFieldDefaultNotFilled()
+        self.assertEquals(instance.status, instance.STATUS.no)
 
 
 class ChoicesTests(TestCase):

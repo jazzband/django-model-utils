@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.tracker import ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
-from model_utils.fields import SplitField, MonitorField
+from model_utils.fields import SplitField, MonitorField, StatusField
 from model_utils import Choices
 
 
@@ -241,3 +241,13 @@ class TrackedMultiple(models.Model):
 
     name_tracker = ModelTracker(fields=['name'])
     number_tracker = ModelTracker(fields=['number'])
+
+
+class StatusFieldDefaultFilled(models.Model):
+    STATUS = Choices((0, "no", "No"), (1, "yes", "Yes"))
+    status = StatusField(default=STATUS.yes)
+
+
+class StatusFieldDefaultNotFilled(models.Model):
+    STATUS = Choices((0, "no", "No"), (1, "yes", "Yes"))
+    status = StatusField()
