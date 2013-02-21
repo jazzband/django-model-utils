@@ -60,7 +60,8 @@ class StatusField(models.CharField):
                 "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
                 % cls.__name__
             setattr(self, '_choices', cls.STATUS)
-            setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
+            if not self.has_default():
+                setattr(self, 'default', tuple(cls.STATUS)[0][0])  # sets first as default
         super(StatusField, self).contribute_to_class(cls, name)
 
 
