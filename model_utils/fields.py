@@ -59,9 +59,9 @@ class StatusField(models.CharField):
             assert hasattr(cls, 'STATUS'), \
                 "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
                 % cls.__name__
-            setattr(self, '_choices', cls.STATUS)
+            self._choices = cls.STATUS
             if not self.has_default():
-                setattr(self, 'default', tuple(cls.STATUS)[0][0])  # sets first as default
+                self.default = tuple(cls.STATUS)[0][0]  # set first as default
         super(StatusField, self).contribute_to_class(cls, name)
 
 
