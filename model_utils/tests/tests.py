@@ -745,9 +745,15 @@ class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
             self.instance.save(update_fields=[])
             self.assertChanged(name='retro', number=4)
             self.instance.save(update_fields=['name'])
+            in_db = Tracked.objects.get(id=self.instance.id)
+            self.assertEqual(in_db.name, self.instance.name)
+            self.assertNotEqual(in_db.number, self.instance.number)
             self.assertChanged(number=4)
             self.instance.save(update_fields=['number'])
             self.assertChanged()
+            in_db = Tracked.objects.get(id=self.instance.id)
+            self.assertEqual(in_db.name, self.instance.name)
+            self.assertEqual(in_db.number, self.instance.number)
 
 
 class FieldTrackedModelCustomTests(ModelTrackerTestCase,
