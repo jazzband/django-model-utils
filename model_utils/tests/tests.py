@@ -734,6 +734,21 @@ class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
         self.instance.save()
         self.assertCurrent(id=self.instance.id, name='new age', number=8)
 
+    def test_update_fields(self):
+        # Django 1.4 doesn't have update_fields
+        if django.VERSION >= (1, 5, 0):
+            self.update_instance(name='retro', number=4)
+            self.assertChanged()
+            self.instance.name = 'new age'
+            self.instance.number = 8
+            self.assertChanged(name='retro', number=4)
+            self.instance.save(update_fields=[])
+            self.assertChanged(name='retro', number=4)
+            self.instance.save(update_fields=['name'])
+            self.assertChanged(number=4)
+            self.instance.save(update_fields=['number'])
+            self.assertChanged()
+
 
 class FieldTrackedModelCustomTests(ModelTrackerTestCase,
                                    ModelTrackerCommonTests):
