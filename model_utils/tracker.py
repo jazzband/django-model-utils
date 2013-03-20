@@ -27,7 +27,8 @@ class ModelTracker(object):
         original_save = instance.save
         def save(**kwargs):
             ret = original_save()
-            getattr(instance, self.attname).set_saved_fields()
+            getattr(instance, self.attname).set_saved_fields(
+                fields=kwargs.get('update_fields'))
             return ret
         instance.save = save
 
@@ -43,14 +44,18 @@ class ModelInstanceTracker(object):
         self.instance = instance
         self.fields = fields
 
-    def set_saved_fields(self):
-        if self.instance.pk:
+    def set_saved_fields(self, fields=None):
+        if not self.instance.pk:
+            self.saved_data = {}
+        elif fields is None:
             self.saved_data = self.current()
         else:
-            self.saved_data = {}
+            self.saved_data.update(**self.current(fields=fields))
 
-    def current(self):
-        return dict((f, getattr(self.instance, f)) for f in self.fields)
+    def current(self, fields=None):
+        if fields is None:
+            fields = self.fields
+        return dict((f, getattr(self.instance, f)) for f in fields)
 
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
