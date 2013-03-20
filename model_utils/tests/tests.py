@@ -700,6 +700,27 @@ class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
     def test_descriptor(self):
         self.assertTrue(isinstance(Tracked.tracker, ModelTracker))
 
+    def test_first_save(self):
+        self.assertHasChanged(name=True, number=True)
+        self.assertPrevious(name=None, number=None)
+        self.assertCurrent(name='', number=None, id=None)
+        self.assertChanged()
+        self.instance.name = 'retro'
+        self.instance.number = 4
+        self.assertHasChanged(name=True, number=True)
+        self.assertPrevious(name=None, number=None)
+        self.assertCurrent(name='retro', number=4, id=None)
+        self.assertChanged()
+        # Django 1.4 doesn't have update_fields
+        if django.VERSION >= (1, 5, 0):
+            self.instance.save(update_fields=[])
+            self.assertHasChanged(name=True, number=True)
+            self.assertPrevious(name=None, number=None)
+            self.assertCurrent(name='retro', number=4, id=None)
+            self.assertChanged()
+            self.assertRaises(ValueError, self.instance.save,
+                    update_fields=['number'])
+
     def test_post_save_has_changed(self):
         self.update_instance(name='retro', number=4)
         self.assertHasChanged(name=False, number=False)
