@@ -26,7 +26,7 @@ class ModelTracker(object):
     def patch_save(self, instance):
         original_save = instance.save
         def save(**kwargs):
-            ret = original_save()
+            ret = original_save(**kwargs)
             getattr(instance, self.attname).set_saved_fields(
                 fields=kwargs.get('update_fields'))
             return ret
