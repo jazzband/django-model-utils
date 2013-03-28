@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-tip (unreleased)
-----------------
+1.3.0 (2013.03.27)
+------------------
 
 - Allow specifying default value for a ``StatusField``. Thanks Felipe
   Prenholato.
