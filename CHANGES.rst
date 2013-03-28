@@ -4,6 +4,10 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Added explicit default to ``BooleanField`` in tests, for Django trunk
+  compatibility.
+
+
 1.3.0 (2013.03.27)
 ------------------
 
