@@ -191,7 +191,7 @@ class AbidingManager(PassThroughManager):
 class Dude(models.Model):
     abides = models.BooleanField(default=True)
     name = models.CharField(max_length=20)
-    has_rug = models.BooleanField()
+    has_rug = models.BooleanField(default=False)
 
     objects = PassThroughManager(DudeQuerySet)
     abiders = AbidingManager()
