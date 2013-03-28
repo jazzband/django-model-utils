@@ -2,6 +2,9 @@
 django-model-utils
 ==================
 
+.. image:: https://secure.travis-ci.org/carljm/django-model-utils.png
+   :target: http://travis-ci.org/carljm/django-model-utils
+
 Django model mixins and utilities.
 
 Installation
