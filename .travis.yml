@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.5"
   - "2.6"
   - "2.7"
 
@@ -22,10 +21,3 @@ install:
 script: coverage run -a --branch --include="model_utils/*" --omit="model_utils/tests/*" setup.py test
 
 after_success: coveralls
-
-matrix:
-  exclude:
-    - python: "2.5"
-      env: DJANGO=Django==1.5 SOUTH=1
-    - python: "2.5"
-      env: DJANGO=https://github.com/django/django/tarball/master SOUTH=1
