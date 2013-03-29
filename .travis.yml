@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.5"
   - "2.6"
   - "2.7"
 
@@ -16,13 +15,9 @@ env:
 
 install:
   - pip install $DJANGO --use-mirrors
+  - pip install coverage coveralls --use-mirrors
   - sh -c "if [ '$SOUTH' = '1' ]; then pip install South==0.7.6; fi"
 
-script: python runtests.py
+script: coverage run -a --branch --include="model_utils/*" --omit="model_utils/tests/*" setup.py test
 
-matrix:
-  exclude:
-    - python: "2.5"
-      env: DJANGO=Django==1.5 SOUTH=1
-    - python: "2.5"
-      env: DJANGO=https://github.com/django/django/tarball/master SOUTH=1
+after_success: coveralls
