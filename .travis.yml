@@ -16,9 +16,12 @@ env:
 
 install:
   - pip install $DJANGO --use-mirrors
+  - pip install coverage coveralls --use-mirrors
   - sh -c "if [ '$SOUTH' = '1' ]; then pip install South==0.7.6; fi"
 
-script: python runtests.py
+script: coverage run -a --branch --include="model_utils/*" --omit="model_utils/tests/*" setup.py test
+
+after_success: coveralls
 
 matrix:
   exclude:
