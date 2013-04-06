@@ -654,7 +654,7 @@ class ModelTrackerTestCase(TestCase):
 
     def assertHasChanged(self, **kwargs):
         tracker = kwargs.pop('tracker', self.tracker)
-        for field, value in kwargs.iteritems():
+        for field, value in kwargs.items():
             if value is None:
                 self.assertRaises(FieldError, tracker.has_changed, field)
             else:
@@ -662,7 +662,7 @@ class ModelTrackerTestCase(TestCase):
 
     def assertPrevious(self, **kwargs):
         tracker = kwargs.pop('tracker', self.tracker)
-        for field, value in kwargs.iteritems():
+        for field, value in kwargs.items():
             self.assertEqual(tracker.previous(field), value)
 
     def assertChanged(self, **kwargs):
@@ -674,7 +674,7 @@ class ModelTrackerTestCase(TestCase):
         self.assertEqual(tracker.current(), kwargs)
 
     def update_instance(self, **kwargs):
-        for field, value in kwargs.iteritems():
+        for field, value in kwargs.items():
             setattr(self.instance, field, value)
         self.instance.save()
 

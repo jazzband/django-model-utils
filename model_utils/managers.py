@@ -38,7 +38,7 @@ class InheritanceQuerySet(QuerySet):
 
     def annotate(self, *args, **kwargs):
         qset = super(InheritanceQuerySet, self).annotate(*args, **kwargs)
-        qset._annotated = [a.default_alias for a in args] + kwargs.keys()
+        qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
 
 

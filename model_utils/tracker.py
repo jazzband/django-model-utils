@@ -74,6 +74,6 @@ class ModelInstanceTracker(object):
         """Returns dict of fields that changed since save (with old values)"""
         if not self.instance.pk:
             return {}
-        saved = self.saved_data.iteritems()
+        saved = self.saved_data.items()
         current = self.current()
         return dict((k, v) for k, v in saved if v != current[k])
