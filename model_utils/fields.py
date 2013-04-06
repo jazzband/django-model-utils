@@ -1,7 +1,9 @@
+from __future__ import unicode_literals
 from datetime import datetime
 
 from django.db import models
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 
 
 try:
@@ -128,6 +130,7 @@ def get_excerpt(content):
 
     return '\n'.join(default_excerpt)
 
+@python_2_unicode_compatible
 class SplitText(object):
     def __init__(self, instance, field_name, excerpt_field_name):
         # instead of storing actual values store a reference to the instance
@@ -153,8 +156,7 @@ class SplitText(object):
         return self.excerpt.strip() != self.content.strip()
     has_more = property(_get_has_more)
 
-    # allows display via templates without .content necessary
-    def __unicode__(self):
+    def __str__(self):
         return self.content
 
 class SplitDescriptor(object):
