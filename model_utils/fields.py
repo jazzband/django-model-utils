@@ -54,14 +54,17 @@ class StatusField(models.CharField):
         self.check_for_status = not kwargs.pop('no_check_for_status', False)
         super(StatusField, self).__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name):
-        if not cls._meta.abstract and self.check_for_status:
-            assert hasattr(cls, 'STATUS'), \
+    def prepare_class(self, sender, **kwargs):
+        if not sender._meta.abstract and self.check_for_status:
+            assert hasattr(sender, 'STATUS'), \
                 "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
-                % cls.__name__
-            self._choices = cls.STATUS
+                % sender.__name__
+            self._choices = sender.STATUS
             if not self.has_default():
-                self.default = tuple(cls.STATUS)[0][0]  # set first as default
+                self.default = tuple(sender.STATUS)[0][0]  # set first as default
+
+    def contribute_to_class(self, cls, name):
+        models.signals.class_prepared.connect(self.prepare_class, sender=cls)
         super(StatusField, self).contribute_to_class(cls, name)
 
 
