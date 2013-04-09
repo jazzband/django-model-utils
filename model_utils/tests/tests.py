@@ -204,10 +204,10 @@ class ChoicesTests(TestCase):
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.STATUS),
-                          "Choices("
-                          "('DRAFT', 'DRAFT', 'DRAFT'), "
-                          "('PUBLISHED', 'PUBLISHED', 'PUBLISHED'))")
+        self.assertEquals(repr(self.STATUS), "Choices" + repr((
+            ('DRAFT', 'DRAFT', 'DRAFT'),
+            ('PUBLISHED', 'PUBLISHED', 'PUBLISHED'),
+        )))
 
 
     def test_wrong_length_tuple(self):
@@ -249,11 +249,11 @@ class LabelChoicesTests(ChoicesTests):
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.STATUS),
-                          "Choices("
-                          "('DRAFT', 'DRAFT', 'is draft'), "
-                          "('PUBLISHED', 'PUBLISHED', 'is published'), "
-                          "('DELETED', 'DELETED', 'DELETED'))")
+        self.assertEquals(repr(self.STATUS), "Choices" + repr((
+            ('DRAFT', 'DRAFT', 'is draft'),
+            ('PUBLISHED', 'PUBLISHED', 'is published'),
+            ('DELETED', 'DELETED', 'DELETED'),
+        )))
 
 
 
@@ -285,12 +285,11 @@ class IdentifierChoicesTests(ChoicesTests):
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.STATUS),
-                          "Choices("
-                          "(0, 'DRAFT', 'is draft'), "
-                          "(1, 'PUBLISHED', 'is published'), "
-                          "(2, 'DELETED', 'is deleted'))")
-
+        self.assertEquals(repr(self.STATUS), "Choices" + repr((
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted'),
+        )))
 
 
 class InheritanceManagerTests(TestCase):
