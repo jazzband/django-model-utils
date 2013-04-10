@@ -6,6 +6,7 @@ tip (unreleased)
 
 - Added explicit default to ``BooleanField`` in tests, for Django trunk
   compatibility.
+- Fix intermittent ``StatusField`` bug.  Fixes GH-29.
 
 
 1.3.0 (2013.03.27)
