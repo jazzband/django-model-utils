@@ -1,15 +1,9 @@
 from __future__ import unicode_literals
-from datetime import datetime
 
 from django.db import models
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
-
-
-try:
-    from django.utils.timezone import now as now
-except ImportError:
-    now = datetime.now
+from django.utils.timezone import now as now
 
 
 class AutoCreatedField(models.DateTimeField):
