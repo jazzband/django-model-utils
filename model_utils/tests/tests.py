@@ -10,7 +10,7 @@ from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.test import TestCase
 
 from model_utils import Choices, ModelTracker
-from model_utils.fields import get_excerpt, MonitorField
+from model_utils.fields import get_excerpt, MonitorField, StatusField
 from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (
@@ -174,6 +174,11 @@ class StatusFieldTests(TestCase):
     def test_status_with_default_not_filled(self):
         instance = StatusFieldDefaultNotFilled()
         self.assertEquals(instance.status, instance.STATUS.no)
+
+    def test_no_check_for_status(self):
+        field = StatusField(no_check_for_status=True)
+        # this model has no STATUS attribute, so checking for it would error
+        field.prepare_class(Article)
 
 
 class ChoicesTests(TestCase):
@@ -578,6 +583,11 @@ if introspector:
             self.assertRaises(FieldDoesNotExist,
                               NoRendered._meta.get_field,
                               '_body_excerpt')
+
+        def test_status_field_no_check_for_status(self):
+            sf = StatusFieldDefaultFilled._meta.get_field('status')
+            args, kwargs = introspector(sf)
+            self.assertEqual(kwargs['no_check_for_status'], 'True')
 
 
 
