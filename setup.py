@@ -8,7 +8,7 @@ long_description = (open('README.rst').read() +
 
 setup(
     name='django-model-utils',
-    version='1.3.1',
+    version='1.3.1.post1',
     description='Django model mixins and utilities',
     long_description=long_description,
     author='Carl Meyer',
