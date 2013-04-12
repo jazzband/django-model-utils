@@ -1,11 +1,12 @@
 CHANGES
 =======
 
-tip (unreleased)
-----------------
+1.3.1 (2013.04.11)
+------------------
 
 - Added explicit default to ``BooleanField`` in tests, for Django trunk
   compatibility.
+
 - Fix intermittent ``StatusField`` bug.  Fixes GH-29.
 
 
