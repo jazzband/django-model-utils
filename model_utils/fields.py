@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.timezone import now as now
+from django.utils.timezone import now
 
 
 class AutoCreatedField(models.DateTimeField):

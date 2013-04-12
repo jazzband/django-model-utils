@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.timezone import now as now
+from django.utils.timezone import now
 
 from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
