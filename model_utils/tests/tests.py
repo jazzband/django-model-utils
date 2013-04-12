@@ -1,4 +1,4 @@
-from __future__ import unicode_literals, with_statement
+from __future__ import unicode_literals
 import pickle
 
 from datetime import datetime, timedelta
