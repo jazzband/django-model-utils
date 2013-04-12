@@ -15,6 +15,7 @@ setup(
     author_email='carl@oddbird.net',
     url='https://github.com/carljm/django-model-utils/',
     packages=find_packages(),
+    install_requires=['django>=1.4.2'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
