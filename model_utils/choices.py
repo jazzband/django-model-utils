@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+
+
 class Choices(object):
     """
     A class to encapsulate handy functionality for lists of choices
@@ -72,4 +75,4 @@ class Choices(object):
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-                          ', '.join(("%s" % str(i) for i in self._full)))
+                          ', '.join(("%s" % repr(i) for i in self._full)))

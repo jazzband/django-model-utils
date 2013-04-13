@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import unicode_literals
 import pickle
 
 from datetime import datetime, timedelta
@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import django
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
+from django.utils.six import text_type
 from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.test import TestCase
 
@@ -27,28 +28,28 @@ from model_utils.tests.models import (
 class GetExcerptTests(TestCase):
     def test_split(self):
         e = get_excerpt("some content\n\n<!-- split -->\n\nsome more")
-        self.assertEquals(e, 'some content\n')
+        self.assertEqual(e, 'some content\n')
 
 
     def test_auto_split(self):
         e = get_excerpt("para one\n\npara two\n\npara three")
-        self.assertEquals(e, 'para one\n\npara two')
+        self.assertEqual(e, 'para one\n\npara two')
 
 
     def test_middle_of_para(self):
         e = get_excerpt("some text\n<!-- split -->\nmore text")
-        self.assertEquals(e, 'some text')
+        self.assertEqual(e, 'some text')
 
 
     def test_middle_of_line(self):
         e = get_excerpt("some text <!-- split --> more text")
-        self.assertEquals(e, "some text <!-- split --> more text")
+        self.assertEqual(e, "some text <!-- split --> more text")
 
 
 
 class SplitFieldTests(TestCase):
-    full_text = u'summary\n\n<!-- split -->\n\nmore'
-    excerpt = u'summary\n'
+    full_text = 'summary\n\n<!-- split -->\n\nmore'
+    excerpt = 'summary\n'
 
 
     def setUp(self):
@@ -57,45 +58,45 @@ class SplitFieldTests(TestCase):
 
 
     def test_unicode_content(self):
-        self.assertEquals(unicode(self.post.body), self.full_text)
+        self.assertEqual(text_type(self.post.body), self.full_text)
 
 
     def test_excerpt(self):
-        self.assertEquals(self.post.body.excerpt, self.excerpt)
+        self.assertEqual(self.post.body.excerpt, self.excerpt)
 
 
     def test_content(self):
-        self.assertEquals(self.post.body.content, self.full_text)
+        self.assertEqual(self.post.body.content, self.full_text)
 
 
     def test_has_more(self):
-        self.failUnless(self.post.body.has_more)
+        self.assertTrue(self.post.body.has_more)
 
 
     def test_not_has_more(self):
         post = Article.objects.create(title='example 2',
                                       body='some text\n\nsome more\n')
-        self.failIf(post.body.has_more)
+        self.assertFalse(post.body.has_more)
 
 
     def test_load_back(self):
         post = Article.objects.get(pk=self.post.pk)
-        self.assertEquals(post.body.content, self.post.body.content)
-        self.assertEquals(post.body.excerpt, self.post.body.excerpt)
+        self.assertEqual(post.body.content, self.post.body.content)
+        self.assertEqual(post.body.excerpt, self.post.body.excerpt)
 
 
     def test_assign_to_body(self):
-        new_text = u'different\n\n<!-- split -->\n\nother'
+        new_text = 'different\n\n<!-- split -->\n\nother'
         self.post.body = new_text
         self.post.save()
-        self.assertEquals(unicode(self.post.body), new_text)
+        self.assertEqual(text_type(self.post.body), new_text)
 
 
     def test_assign_to_content(self):
-        new_text = u'different\n\n<!-- split -->\n\nother'
+        new_text = 'different\n\n<!-- split -->\n\nother'
         self.post.body.content = new_text
         self.post.save()
-        self.assertEquals(unicode(self.post.body), new_text)
+        self.assertEqual(text_type(self.post.body), new_text)
 
 
     def test_assign_to_excerpt(self):
@@ -112,18 +113,18 @@ class SplitFieldTests(TestCase):
 
     def test_none(self):
         a = Article(title='Some Title', body=None)
-        self.assertEquals(a.body, None)
+        self.assertEqual(a.body, None)
 
 
     def test_assign_splittext(self):
         a = Article(title='Some Title')
         a.body = self.post.body
-        self.assertEquals(a.body.excerpt, u'summary\n')
+        self.assertEqual(a.body.excerpt, 'summary\n')
 
 
     def test_value_to_string(self):
         f = self.post._meta.get_field('body')
-        self.assertEquals(f.value_to_string(self.post), self.full_text)
+        self.assertEqual(f.value_to_string(self.post), self.full_text)
 
 
     def test_abstract_inheritance(self):
@@ -144,13 +145,13 @@ class MonitorFieldTests(TestCase):
 
     def test_save_no_change(self):
         self.instance.save()
-        self.assertEquals(self.instance.name_changed, self.created)
+        self.assertEqual(self.instance.name_changed, self.created)
 
 
     def test_save_changed(self):
         self.instance.name = 'Maria'
         self.instance.save()
-        self.failUnless(self.instance.name_changed > self.created)
+        self.assertTrue(self.instance.name_changed > self.created)
 
 
     def test_double_save(self):
@@ -158,7 +159,7 @@ class MonitorFieldTests(TestCase):
         self.instance.save()
         changed = self.instance.name_changed
         self.instance.save()
-        self.assertEquals(self.instance.name_changed, changed)
+        self.assertEqual(self.instance.name_changed, changed)
 
 
     def test_no_monitor_arg(self):
@@ -169,11 +170,11 @@ class StatusFieldTests(TestCase):
 
     def test_status_with_default_filled(self):
         instance = StatusFieldDefaultFilled()
-        self.assertEquals(instance.status, instance.STATUS.yes)
+        self.assertEqual(instance.status, instance.STATUS.yes)
 
     def test_status_with_default_not_filled(self):
         instance = StatusFieldDefaultNotFilled()
-        self.assertEquals(instance.status, instance.STATUS.no)
+        self.assertEqual(instance.status, instance.STATUS.no)
 
     def test_no_check_for_status(self):
         field = StatusField(no_check_for_status=True)
@@ -187,15 +188,15 @@ class ChoicesTests(TestCase):
 
 
     def test_getattr(self):
-        self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
+        self.assertEqual(self.STATUS.DRAFT, 'DRAFT')
 
 
     def test_indexing(self):
-        self.assertEquals(self.STATUS[1], ('PUBLISHED', 'PUBLISHED'))
+        self.assertEqual(self.STATUS[1], ('PUBLISHED', 'PUBLISHED'))
 
 
     def test_iteration(self):
-        self.assertEquals(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
+        self.assertEqual(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
 
 
     def test_len(self):
@@ -203,10 +204,10 @@ class ChoicesTests(TestCase):
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.STATUS),
-                          "Choices("
-                          "('DRAFT', 'DRAFT', 'DRAFT'), "
-                          "('PUBLISHED', 'PUBLISHED', 'PUBLISHED'))")
+        self.assertEqual(repr(self.STATUS), "Choices" + repr((
+            ('DRAFT', 'DRAFT', 'DRAFT'),
+            ('PUBLISHED', 'PUBLISHED', 'PUBLISHED'),
+        )))
 
 
     def test_wrong_length_tuple(self):
@@ -224,7 +225,7 @@ class LabelChoicesTests(ChoicesTests):
 
 
     def test_iteration(self):
-        self.assertEquals(tuple(self.STATUS), (
+        self.assertEqual(tuple(self.STATUS), (
             ('DRAFT', 'is draft'),
             ('PUBLISHED', 'is published'),
             ('DELETED', 'DELETED'))
@@ -232,15 +233,15 @@ class LabelChoicesTests(ChoicesTests):
 
 
     def test_indexing(self):
-        self.assertEquals(self.STATUS[1], ('PUBLISHED', 'is published'))
+        self.assertEqual(self.STATUS[1], ('PUBLISHED', 'is published'))
 
 
     def test_default(self):
-        self.assertEquals(self.STATUS.DELETED, 'DELETED')
+        self.assertEqual(self.STATUS.DELETED, 'DELETED')
 
 
     def test_provided(self):
-        self.assertEquals(self.STATUS.DRAFT, 'DRAFT')
+        self.assertEqual(self.STATUS.DRAFT, 'DRAFT')
 
 
     def test_len(self):
@@ -248,11 +249,11 @@ class LabelChoicesTests(ChoicesTests):
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.STATUS),
-                          "Choices("
-                          "('DRAFT', 'DRAFT', 'is draft'), "
-                          "('PUBLISHED', 'PUBLISHED', 'is published'), "
-                          "('DELETED', 'DELETED', 'DELETED'))")
+        self.assertEqual(repr(self.STATUS), "Choices" + repr((
+            ('DRAFT', 'DRAFT', 'is draft'),
+            ('PUBLISHED', 'PUBLISHED', 'is published'),
+            ('DELETED', 'DELETED', 'DELETED'),
+        )))
 
 
 
@@ -272,11 +273,11 @@ class IdentifierChoicesTests(ChoicesTests):
 
 
     def test_indexing(self):
-        self.assertEquals(self.STATUS[1], (1, 'is published'))
+        self.assertEqual(self.STATUS[1], (1, 'is published'))
 
 
     def test_getattr(self):
-        self.assertEquals(self.STATUS.DRAFT, 0)
+        self.assertEqual(self.STATUS.DRAFT, 0)
 
 
     def test_len(self):
@@ -284,12 +285,11 @@ class IdentifierChoicesTests(ChoicesTests):
 
 
     def test_repr(self):
-        self.assertEquals(repr(self.STATUS),
-                          "Choices("
-                          "(0, 'DRAFT', 'is draft'), "
-                          "(1, 'PUBLISHED', 'is published'), "
-                          "(2, 'DELETED', 'is deleted'))")
-
+        self.assertEqual(repr(self.STATUS), "Choices" + repr((
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted'),
+        )))
 
 
 class InheritanceManagerTests(TestCase):
@@ -309,7 +309,7 @@ class InheritanceManagerTests(TestCase):
                 InheritanceManagerTestParent(pk=self.child2.pk),
                 InheritanceManagerTestParent(pk=self.grandchild1.pk),
                 ])
-        self.assertEquals(set(self.get_manager().all()), children)
+        self.assertEqual(set(self.get_manager().all()), children)
 
 
     def test_select_all_subclasses(self):
@@ -318,7 +318,7 @@ class InheritanceManagerTests(TestCase):
             children.add(self.grandchild1)
         else:
             children.add(InheritanceManagerTestChild1(pk=self.grandchild1.pk))
-        self.assertEquals(
+        self.assertEqual(
             set(self.get_manager().select_subclasses()), children)
 
 
@@ -328,7 +328,7 @@ class InheritanceManagerTests(TestCase):
                 InheritanceManagerTestParent(pk=self.child2.pk),
                 InheritanceManagerTestChild1(pk=self.grandchild1.pk),
                 ])
-        self.assertEquals(
+        self.assertEqual(
             set(
                 self.get_manager().select_subclasses(
                     "inheritancemanagertestchild1")
@@ -344,7 +344,7 @@ class InheritanceManagerTests(TestCase):
                     InheritanceManagerTestParent(pk=self.child2.pk),
                     self.grandchild1,
                     ])
-            self.assertEquals(
+            self.assertEqual(
                 set(
                     self.get_manager().select_subclasses(
                         "inheritancemanagertestchild1__"
@@ -356,7 +356,7 @@ class InheritanceManagerTests(TestCase):
 
 
     def test_get_subclass(self):
-        self.assertEquals(
+        self.assertEqual(
             self.get_manager().get_subclass(pk=self.child1.pk),
             self.child1)
 
@@ -422,14 +422,14 @@ class TimeStampedModelTests(TestCase):
     def test_created(self):
         t1 = TimeStamp.objects.create()
         t2 = TimeStamp.objects.create()
-        self.assert_(t2.created > t1.created)
+        self.assertTrue(t2.created > t1.created)
 
 
     def test_modified(self):
         t1 = TimeStamp.objects.create()
         t2 = TimeStamp.objects.create()
         t1.save()
-        self.assert_(t2.modified < t1.modified)
+        self.assertTrue(t2.modified < t1.modified)
 
 
 
@@ -440,34 +440,34 @@ class TimeFramedModelTests(TestCase):
 
     def test_not_yet_begun(self):
         TimeFrame.objects.create(start=self.now+timedelta(days=2))
-        self.assertEquals(TimeFrame.timeframed.count(), 0)
+        self.assertEqual(TimeFrame.timeframed.count(), 0)
 
 
     def test_finished(self):
         TimeFrame.objects.create(end=self.now-timedelta(days=1))
-        self.assertEquals(TimeFrame.timeframed.count(), 0)
+        self.assertEqual(TimeFrame.timeframed.count(), 0)
 
 
     def test_no_end(self):
         TimeFrame.objects.create(start=self.now-timedelta(days=10))
-        self.assertEquals(TimeFrame.timeframed.count(), 1)
+        self.assertEqual(TimeFrame.timeframed.count(), 1)
 
 
     def test_no_start(self):
         TimeFrame.objects.create(end=self.now+timedelta(days=2))
-        self.assertEquals(TimeFrame.timeframed.count(), 1)
+        self.assertEqual(TimeFrame.timeframed.count(), 1)
 
 
     def test_within_range(self):
         TimeFrame.objects.create(start=self.now-timedelta(days=1),
                                  end=self.now+timedelta(days=1))
-        self.assertEquals(TimeFrame.timeframed.count(), 1)
+        self.assertEqual(TimeFrame.timeframed.count(), 1)
 
 
 
 class TimeFrameManagerAddedTests(TestCase):
     def test_manager_available(self):
-        self.assert_(isinstance(TimeFrameManagerAdded.timeframed, QueryManager))
+        self.assertTrue(isinstance(TimeFrameManagerAdded.timeframed, QueryManager))
 
 
     def test_conflict_error(self):
@@ -488,9 +488,9 @@ class StatusModelTests(TestCase):
     def test_created(self):
         c1 = self.model.objects.create()
         c2 = self.model.objects.create()
-        self.assert_(c2.status_changed > c1.status_changed)
-        self.assertEquals(self.model.active.count(), 2)
-        self.assertEquals(self.model.deleted.count(), 0)
+        self.assertTrue(c2.status_changed > c1.status_changed)
+        self.assertEqual(self.model.active.count(), 2)
+        self.assertEqual(self.model.deleted.count(), 0)
 
 
     def test_modification(self):
@@ -498,16 +498,16 @@ class StatusModelTests(TestCase):
         date_created = t1.status_changed
         t1.status = self.on_hold
         t1.save()
-        self.assertEquals(self.model.active.count(), 0)
-        self.assertEquals(self.model.on_hold.count(), 1)
-        self.assert_(t1.status_changed > date_created)
+        self.assertEqual(self.model.active.count(), 0)
+        self.assertEqual(self.model.on_hold.count(), 1)
+        self.assertTrue(t1.status_changed > date_created)
         date_changed = t1.status_changed
         t1.save()
-        self.assertEquals(t1.status_changed, date_changed)
+        self.assertEqual(t1.status_changed, date_changed)
         date_active_again = t1.status_changed
         t1.status = self.active
         t1.save()
-        self.assert_(t1.status_changed > date_active_again)
+        self.assertTrue(t1.status_changed > date_active_again)
 
 
 
@@ -521,7 +521,7 @@ class StatusModelPlainTupleTests(StatusModelTests):
 
 class StatusManagerAddedTests(TestCase):
     def test_manager_available(self):
-        self.assert_(isinstance(StatusManagerAdded.active, QueryManager))
+        self.assertTrue(isinstance(StatusManagerAdded.active, QueryManager))
 
 
     def test_conflict_error(self):
@@ -550,17 +550,17 @@ class QueryManagerTests(TestCase):
 
     def test_passing_kwargs(self):
         qs = Post.public.all()
-        self.assertEquals([p.order for p in qs], [0, 1, 4, 5])
+        self.assertEqual([p.order for p in qs], [0, 1, 4, 5])
 
 
     def test_passing_Q(self):
         qs = Post.public_confirmed.all()
-        self.assertEquals([p.order for p in qs], [0, 1])
+        self.assertEqual([p.order for p in qs], [0, 1])
 
 
     def test_ordering(self):
         qs = Post.public_reversed.all()
-        self.assertEquals([p.order for p in qs], [5, 4, 1, 0])
+        self.assertEqual([p.order for p in qs], [5, 4, 1, 0])
 
 
 
@@ -575,7 +575,7 @@ if introspector:
         def test_introspector_adds_no_excerpt_field(self):
             mf = Article._meta.get_field('body')
             args, kwargs = introspector(mf)
-            self.assertEquals(kwargs['no_excerpt_field'], 'True')
+            self.assertEqual(kwargs['no_excerpt_field'], 'True')
 
 
         def test_no_excerpt_field_works(self):
@@ -654,7 +654,7 @@ class ModelTrackerTestCase(TestCase):
 
     def assertHasChanged(self, **kwargs):
         tracker = kwargs.pop('tracker', self.tracker)
-        for field, value in kwargs.iteritems():
+        for field, value in kwargs.items():
             if value is None:
                 self.assertRaises(FieldError, tracker.has_changed, field)
             else:
@@ -662,7 +662,7 @@ class ModelTrackerTestCase(TestCase):
 
     def assertPrevious(self, **kwargs):
         tracker = kwargs.pop('tracker', self.tracker)
-        for field, value in kwargs.iteritems():
+        for field, value in kwargs.items():
             self.assertEqual(tracker.previous(field), value)
 
     def assertChanged(self, **kwargs):
@@ -674,7 +674,7 @@ class ModelTrackerTestCase(TestCase):
         self.assertEqual(tracker.current(), kwargs)
 
     def update_instance(self, **kwargs):
-        for field, value in kwargs.iteritems():
+        for field, value in kwargs.items():
             setattr(self.instance, field, value)
         self.instance.save()
 
