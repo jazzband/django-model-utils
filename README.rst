@@ -29,7 +29,8 @@ your ``INSTALLED_APPS`` setting.
 Dependencies
 ------------
 
-``django-model-utils`` is tested with `Django`_ 1.2 and later on Python 2.6 and 2.7.
+``django-model-utils`` supports `Django`_ 1.4.2 and later on Python 2.6, 2.7,
+3.2, and 3.3.
 
 .. _Django: http://www.djangoproject.com/
 

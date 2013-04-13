@@ -12,6 +12,8 @@ tip (unreleased)
   compatibility.
 
 - Fix intermittent ``StatusField`` bug.  Fixes GH-29.
+- Added Python 3 support
+- Dropped support for Django 1.2 and 1.3.  Django 1.4.2+ required.
 
 
 1.3.0 (2013.03.27)
