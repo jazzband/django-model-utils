@@ -55,7 +55,9 @@ GitHub.)
 Choices
 =======
 
-``Choices`` provides some conveniences for setting ``choices`` on a Django model field::
+``Choices`` provides some conveniences for setting ``choices`` on a Django model field:
+
+.. code-block:: python
 
     from model_utils import Choices
 
@@ -72,7 +74,9 @@ representation. Note that you can access options as attributes on the
 
 But you may want your human-readable versions translated, in which
 case you need to separate the human-readable version from the DB
-representation. In this case you can provide choices as two-tuples::
+representation. In this case you can provide choices as two-tuples:
+
+.. code-block:: python
 
     from model_utils import Choices
 
@@ -88,7 +92,9 @@ you may want the database to order the values in your field in some
 specific way. In this case, you can provide your choices as triples,
 where the first element is the database representation, the second is
 a valid Python identifier you will use in your code as a constant, and
-the third is the human-readable version::
+the third is the human-readable version:
+
+.. code-block:: python
 
     from model_utils import Choices
 
@@ -105,7 +111,9 @@ A simple convenience for giving a model a set of "states."
 ``StatusField`` is a ``CharField`` subclass that expects to find a
 ``STATUS`` class attribute on its model, and uses that as its
 ``choices``. Also sets a default ``max_length`` of 100, and sets its
-default value to the first item in the ``STATUS`` choices::
+default value to the first item in the ``STATUS`` choices:
+
+.. code-block:: python
 
     from model_utils.fields import StatusField
     from model_utils import Choices
@@ -129,7 +137,9 @@ MonitorField
 
 A ``DateTimeField`` subclass that monitors another field on the model,
 and updates itself to the current date-time whenever the monitored
-field changes::
+field changes:
+
+.. code-block:: python
 
     from model_utils.fields import MonitorField, StatusField
     
@@ -150,7 +160,9 @@ its content (based on a "split here" marker or a default number of
 initial paragraphs) and stores both its content and excerpt values in
 the database.
 
-A ``SplitField`` is easy to add to any model definition::
+A ``SplitField`` is easy to add to any model definition:
+
+.. code-block:: python
 
     from django.db import models
     from model_utils.fields import SplitField
@@ -181,7 +193,9 @@ This object also has a ``__unicode__`` method that returns the full
 content, allowing ``SplitField`` attributes to appear in templates
 without having to access ``content`` directly.
 
-Assuming the ``Article`` model above::
+Assuming the ``Article`` model above:
+
+.. code-block:: pycon
 
     >>> a = Article.objects.all()[0]
     >>> a.body.content
@@ -229,7 +243,9 @@ Just provide a ``STATUS`` class-attribute (a `Choices`_ object or a
 list of two-tuples), and your model will have a ``status`` field with
 those choices, a ``status_changed`` field containing the date-time the
 ``status`` was last changed, and a manager for each status that
-returns objects with that status only::
+returns objects with that status only:
+
+.. code-block:: python
 
     from model_utils.models import StatusModel
     from model_utils import Choices
@@ -257,7 +273,9 @@ return heterogenous results of the actual proper subtypes, without any
 additional queries.
 
 For instance, if you have a ``Place`` model with subclasses ``Restaurant`` and
-``Bar``, you may want to query all Places::
+``Bar``, you may want to query all Places:
+
+.. code-block:: python
 
     nearby_places = Place.objects.filter(location='here')
 
@@ -266,7 +284,9 @@ instances back, even for objects that are "really" ``Restaurant`` or ``Bar``.
 If you attach an ``InheritanceManager`` to ``Place``, you can just call the
 ``select_subclasses()`` method on the ``InheritanceManager`` or any
 ``QuerySet`` from it, and the resulting objects will be instances of
-``Restaurant`` or ``Bar``::
+``Restaurant`` or ``Bar``:
+
+.. code-block:: python
 
     from model_utils.managers import InheritanceManager
 
@@ -287,13 +307,17 @@ If you attach an ``InheritanceManager`` to ``Place``, you can just call the
 The database query performed will have an extra join for each subclass; if you
 want to reduce the number of joins and you only need particular subclasses to
 be returned as their actual type, you can pass subclass names to
-``select_subclasses()``, much like the built-in ``select_related()`` method::
+``select_subclasses()``, much like the built-in ``select_related()`` method:
+
+.. code-block:: python
 
     nearby_places = Place.objects.select_subclasses("restaurant")
     # restaurants will be Restaurant instances, bars will still be Place instances
 
 ``InheritanceManager`` also provides a subclass-fetching alternative to the
-``get()`` method::
+``get()`` method:
+
+.. code-block:: python
     
     place = Place.objects.get_subclass(id=some_id)
     # "place" will automatically be an instance of Place, Restaurant, or Bar
@@ -329,7 +353,9 @@ QueryManager
 
 Many custom model managers do nothing more than return a QuerySet that
 is filtered in some way. ``QueryManager`` allows you to express this
-pattern with a minimum of boilerplate::
+pattern with a minimum of boilerplate:
+
+.. code-block:: python
 
     from django.db import models
     from model_utils.managers import QueryManager
@@ -370,7 +396,9 @@ methods you want, and pass that ``QuerySet`` subclass to the
 ``PassThroughManager.for_queryset_class()`` class method. The returned
 ``PassThroughManager`` subclass will always return instances of your custom
 ``QuerySet``, and you can also call methods of your custom ``QuerySet``
-directly on the manager::
+directly on the manager:
+
+.. code-block:: python
 
     from datetime import datetime
     from django.db import models
@@ -403,7 +431,9 @@ ModelTracker
 
 A ``ModelTracker`` can be added to a model to track changes in model fields.  A
 ``ModelTracker`` allows querying for field changes since a model instance was
-last saved.  An example of applying ``ModelTracker`` to a model::
+last saved.  An example of applying ``ModelTracker`` to a model:
+
+.. code-block:: python
 
     from django.db import models
     from model_utils import ModelTracker
@@ -421,7 +451,9 @@ There are multiple methods available for checking for changes in model fields.
 
 previous
 ~~~~~~~~
-Returns the value of the given field during the last save::
+Returns the value of the given field during the last save:
+
+.. code-block:: pycon
 
     >>> a = Post.objects.create(title='First Post')
     >>> a.title = 'Welcome'
@@ -432,7 +464,9 @@ Returns ``None`` when the model instance isn't saved yet.
 
 has_changed
 ~~~~~~~~~~~
-Returns ``True`` if the given field has changed since the last save::
+Returns ``True`` if the given field has changed since the last save:
+
+.. code-block:: pycon
 
     >>> a = Post.objects.create(title='First Post')
     >>> a.title = 'Welcome'
@@ -446,7 +480,9 @@ Returns ``True`` if the model instance hasn't been saved yet.
 changed
 ~~~~~~~
 Returns a dictionary of all fields that have been changed since the last save
-and the values of the fields during the last save::
+and the values of the fields during the last save:
+
+.. code-block:: pycon
 
     >>> a = Post.objects.create(title='First Post')
     >>> a.title = 'Welcome'
@@ -461,7 +497,9 @@ Tracking specific fields
 ------------------------
 
 A fields parameter can be given to ``ModelTracker`` to limit model tracking to
-the specific fields::
+the specific fields:
+
+.. code-block:: python
 
     from django.db import models
     from model_utils import ModelTracker
@@ -472,7 +510,9 @@ the specific fields::
 
         title_tracker = ModelTracker(fields=['title'])
 
-An example using the model specified above::
+An example using the model specified above:
+
+.. code-block:: pycon
 
     >>> a = Post.objects.create(title='First Post')
     >>> a.body = 'First post!'
