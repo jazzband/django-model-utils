@@ -16,12 +16,6 @@ Install from PyPI with ``pip``::
 
     pip install django-model-utils
 
-or get the `in-development version`_::
-
-    pip install django-model-utils==tip
-
-.. _in-development version: http://bitbucket.org/carljm/django-model-utils/get/tip.tar.gz#egg=django_model_utils-tip
-
 To use ``django-model-utils`` in your Django project, just import and
 use the utility classes described below; there is no need to modify
 your ``INSTALLED_APPS`` setting.
