@@ -31,6 +31,6 @@ setup(
         'Framework :: Django',
     ],
     zip_safe=False,
-    tests_require=["Django>=1.2"],
+    tests_require=["Django>=1.4.2"],
     test_suite='runtests.runtests'
 )
