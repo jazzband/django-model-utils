@@ -70,6 +70,9 @@ class Choices(object):
         except KeyError:
             raise AttributeError(attname)
 
+    def __contains__(self, attname):
+        return attname in self._choice_dict
+
     def __getitem__(self, index):
         return self._choices[index]
 
