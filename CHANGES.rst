@@ -4,6 +4,8 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Fixed lack of ``get_FOO_display`` method for ``StatusField``. Fixes GH-41.
+
 
 1.3.1 (2013.04.11)
 ------------------
@@ -11,8 +13,10 @@ tip (unreleased)
 - Added explicit default to ``BooleanField`` in tests, for Django trunk
   compatibility.
 
-- Fix intermittent ``StatusField`` bug.  Fixes GH-29.
+- Fixed intermittent ``StatusField`` bug.  Fixes GH-29.
+
 - Added Python 3 support
+
 - Dropped support for Django 1.2 and 1.3.  Django 1.4.2+ required.
 
 

@@ -61,6 +61,10 @@ class StatusField(models.CharField):
 
     def contribute_to_class(self, cls, name):
         models.signals.class_prepared.connect(self.prepare_class, sender=cls)
+        # we don't set the real choices until class_prepared (so we can rely on
+        # the STATUS class attr being available), but we need to set some dummy
+        # choices now so the super method will add the get_FOO_display method
+        self._choices = [(0, 'dummy')]
         super(StatusField, self).contribute_to_class(cls, name)
 
 

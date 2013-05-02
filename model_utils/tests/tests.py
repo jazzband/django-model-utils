@@ -181,6 +181,10 @@ class StatusFieldTests(TestCase):
         # this model has no STATUS attribute, so checking for it would error
         field.prepare_class(Article)
 
+    def test_get_status_display(self):
+        instance = StatusFieldDefaultFilled()
+        self.assertEqual(instance.get_status_display(), "Yes")
+
 
 class ChoicesTests(TestCase):
     def setUp(self):
