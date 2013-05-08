@@ -228,6 +228,14 @@ class Tracked(models.Model):
     tracker = ModelTracker()
 
 
+class TrackedFK(models.Model):
+    fk = models.ForeignKey('Tracked')
+
+    tracker = ModelTracker()
+    custom_tracker = ModelTracker(fields=['fk_id'])
+    custom_tracker_without_id = ModelTracker(fields=['fk'])
+
+
 class TrackedNotDefault(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()

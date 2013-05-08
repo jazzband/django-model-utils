@@ -20,8 +20,8 @@ from model_utils.tests.models import (
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
-    Tracked, TrackedNotDefault, TrackedMultiple, StatusFieldDefaultFilled,
-    StatusFieldDefaultNotFilled)
+    Tracked, TrackedFK, TrackedNotDefault, TrackedMultiple,
+    StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
 
 
 
@@ -903,3 +903,40 @@ class FieldTrackedModelMultiTests(ModelTrackerTestCase,
         self.instance.save()
         self.assertCurrent(tracker=self.trackers[0], name='new age')
         self.assertCurrent(tracker=self.trackers[1], number=8)
+
+
+class ModelTrackerForeignKeyTests(ModelTrackerTestCase):
+    def setUp(self):
+        self.old_fk = Tracked.objects.create(number=8)
+        self.instance = TrackedFK.objects.create(fk=self.old_fk)
+
+    def test_default(self):
+        self.tracker = self.instance.tracker
+        self.assertChanged()
+        self.assertPrevious()
+        self.assertCurrent(id=self.instance.id, fk_id=self.old_fk.id)
+        self.instance.fk = Tracked.objects.create(number=8)
+        self.assertChanged(fk_id=self.old_fk.id)
+        self.assertPrevious(fk_id=self.old_fk.id)
+        self.assertCurrent(id=self.instance.id, fk_id=self.instance.fk_id)
+
+    def test_custom(self):
+        self.tracker = self.instance.custom_tracker
+        self.assertChanged()
+        self.assertPrevious()
+        self.assertCurrent(fk_id=self.old_fk.id)
+        self.instance.fk = Tracked.objects.create(number=8)
+        self.assertChanged(fk_id=self.old_fk.id)
+        self.assertPrevious(fk_id=self.old_fk.id)
+        self.assertCurrent(fk_id=self.instance.fk_id)
+
+    def test_custom_without_id(self):
+        self.tracker = self.instance.custom_tracker_without_id
+        self.assertChanged()
+        self.assertPrevious()
+        self.assertCurrent(fk=self.old_fk)
+        self.instance.fk = Tracked.objects.create(number=8)
+        self.assertNotEqual(self.instance.fk, self.old_fk)
+        self.assertChanged(fk=self.old_fk)
+        self.assertPrevious(fk=self.old_fk)
+        self.assertCurrent(fk=self.instance.fk)
