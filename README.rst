@@ -507,3 +507,7 @@ An example using the model specified above:
     >>> a.title_tracker.changed()
     {}
 
+Note that when specifying ForeignKeys you should specify field attribute
+name and not field name (ie: ``user_id`` instead of ``user``). Otherwise, 
+``ModelTracker`` will load every tracked related model.
+
