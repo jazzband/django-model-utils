@@ -940,3 +940,7 @@ class ModelTrackerForeignKeyTests(ModelTrackerTestCase):
         self.assertChanged(fk=self.old_fk)
         self.assertPrevious(fk=self.old_fk)
         self.assertCurrent(fk=self.instance.fk)
+
+    def test_number_of_queries(self):
+        with self.assertNumQueries(1):
+            TrackedFK.objects.all()[0]
