@@ -15,7 +15,9 @@ install:
   - pip install coverage coveralls --use-mirrors
   - sh -c "if [ '$SOUTH' = '1' ]; then pip install South==0.7.6; fi"
 
-script: coverage run -a --branch --include="model_utils/*" --omit="model_utils/tests/*" setup.py test
+script:
+  - coverage run -a setup.py test
+  - coverage report
 
 matrix:
   include:
