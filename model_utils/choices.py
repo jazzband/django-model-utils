@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django.utils.translation import ugettext as _
 
 
 class Choices(object):
@@ -41,7 +42,7 @@ class Choices(object):
         self._choices = []
         self._choice_dict = {}
         for choice in self.equalize(choices):
-            self._full.append(choice)
+            self._full.append(tuple(choice))
             self._choices.append((choice[0], choice[2]))
             self._choice_dict[choice[1]] = choice[0]
 
@@ -49,14 +50,14 @@ class Choices(object):
         for choice in choices:
             if isinstance(choice, (list, tuple)):
                 if len(choice) == 3:
-                    yield choice
+                    yield list(choice)
                 elif len(choice) == 2:
-                    yield (choice[0], choice[0], choice[1])
+                    yield [choice[0], choice[0], choice[1]]
                 else:
                     raise ValueError("Choices can't handle a list/tuple of length %s, only 2 or 3"
                                      % len(choice))
             else:
-                yield (choice, choice, choice)
+                yield [choice, choice, choice]
 
     def __len__(self):
         return len(self._choices)
@@ -76,3 +77,14 @@ class Choices(object):
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                           ', '.join(("%s" % repr(i) for i in self._full)))
+
+class _Choices( Choices ):
+    """
+    The human readable representation is automatically translated with ``ugettext``
+    """
+    def __init__(self, *choices ):
+        choices = list(self.equalize(choices))
+        for choice in choices:
+            choice[-1]=_(choice[-1])
+
+        super( _Choices, self ).__init__( *choices )

@@ -70,8 +70,7 @@ as the database representation of the choice, and the human-readable
 representation. Note that you can access options as attributes on the
 ``Choices`` object: ``STATUS.draft``.
 
-But you may want your human-readable versions translated, in which
-case you need to separate the human-readable version from the DB
+But you may want to separate the human-readable version from the DB
 representation. In this case you can provide choices as two-tuples:
 
 .. code-block:: python
@@ -79,7 +78,31 @@ representation. In this case you can provide choices as two-tuples:
     from model_utils import Choices
 
     class Article(models.Model):
+        STATUS = Choices(('draft', 'still draft'), ('published', 'already published'))
+        # ...
+        status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
+
+If you are separating human-readable and database represenations only to provide 
+translation for the database representation, you can use ``_Choices`` which is translation 
+aware version of ``Choices`` object:
+
+.. code-block:: python
+
+    from model_utils import Choices
+
+    class Article(models.Model):
         STATUS = Choices(('draft', _('draft')), ('published', _('published')))
+        # ...
+        status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
+
+Becomes:
+
+.. code-block:: python
+
+    from model_utils import _Choices
+
+    class Article(models.Model):
+        STATUS = _Choices('draft', 'published')
         # ...
         status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
 
@@ -100,7 +123,6 @@ the third is the human-readable version:
         STATUS = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
         # ...
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
-
 
 StatusField
 ===========

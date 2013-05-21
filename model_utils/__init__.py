@@ -1,2 +1,2 @@
-from .choices import Choices
+from .choices import Choices, _Choices
 from .tracker import ModelTracker
