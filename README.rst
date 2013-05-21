@@ -115,7 +115,7 @@ default value to the first item in the ``STATUS`` choices:
 
     from model_utils.fields import StatusField
     from model_utils import Choices
-    
+
     class Article(models.Model):
         STATUS = Choices('draft', 'published')
         # ...
@@ -140,10 +140,10 @@ field changes:
 .. code-block:: python
 
     from model_utils.fields import MonitorField, StatusField
-    
+
     class Article(models.Model):
         STATUS = Choices('draft', 'published')
-        
+
         status = StatusField()
         status_changed = MonitorField(monitor='status')
 
@@ -247,18 +247,18 @@ returns objects with that status only:
 
     from model_utils.models import StatusModel
     from model_utils import Choices
-    
+
     class Article(StatusModel):
         STATUS = Choices('draft', 'published')
-    
+
     # ...
-    
+
     a = Article()
     a.status = Article.STATUS.published
 
     # this save will update a.status_changed
     a.save()
-    
+
     # this query will only return published articles:
     Article.published.all()
 
@@ -316,7 +316,7 @@ be returned as their actual type, you can pass subclass names to
 ``get()`` method:
 
 .. code-block:: python
-    
+
     place = Place.objects.get_subclass(id=some_id)
     # "place" will automatically be an instance of Place, Restaurant, or Bar
 
