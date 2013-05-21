@@ -89,7 +89,7 @@ class InheritanceQuerySet(QuerySet):
             return None
         if s:
             child = self._get_sub_obj_recurse(node, s)
-            return child or node
+            return child
         else:
             return node
 
