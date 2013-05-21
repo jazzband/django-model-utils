@@ -83,5 +83,8 @@ class _Choices( Choices ):
     The human readable representation is automatically translated with ``ugettext``
     """
     def __init__(self, *choices ):
-        choices = map(lambda c: c[:-1]+[_(c[-1])], self.equalize(choices))
+        choices = list(self.equalize(choices))
+        for choice in choices:
+            choice[-1]=_(choice[-1])
+
         super( _Choices, self ).__init__( *choices )
