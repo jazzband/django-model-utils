@@ -34,6 +34,10 @@ class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
     text_field = models.TextField()
 
 
+class InheritanceManagerTestGrandChild1_2(InheritanceManagerTestChild1):
+    text_field = models.TextField()
+
+
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()

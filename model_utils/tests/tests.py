@@ -16,6 +16,7 @@ from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (
     InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
+    InheritanceManagerTestGrandChild1_2,
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
@@ -301,6 +302,8 @@ class InheritanceManagerTests(TestCase):
         self.child1 = InheritanceManagerTestChild1.objects.create()
         self.child2 = InheritanceManagerTestChild2.objects.create()
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
+        self.grandchild1_2 = \
+                InheritanceManagerTestGrandChild1_2.objects.create()
 
 
     def get_manager(self):
@@ -312,6 +315,7 @@ class InheritanceManagerTests(TestCase):
                 InheritanceManagerTestParent(pk=self.child1.pk),
                 InheritanceManagerTestParent(pk=self.child2.pk),
                 InheritanceManagerTestParent(pk=self.grandchild1.pk),
+                InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
                 ])
         self.assertEqual(set(self.get_manager().all()), children)
 
@@ -320,8 +324,10 @@ class InheritanceManagerTests(TestCase):
         children = set([self.child1, self.child2])
         if django.VERSION >= (1, 6, 0):
             children.add(self.grandchild1)
+            children.add(self.grandchild1_2)
         else:
             children.add(InheritanceManagerTestChild1(pk=self.grandchild1.pk))
+            children.add(InheritanceManagerTestChild1(pk=self.grandchild1_2.pk))
         self.assertEqual(
             set(self.get_manager().select_subclasses()), children)
 
@@ -331,6 +337,7 @@ class InheritanceManagerTests(TestCase):
                 self.child1,
                 InheritanceManagerTestParent(pk=self.child2.pk),
                 InheritanceManagerTestChild1(pk=self.grandchild1.pk),
+                InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
                 ])
         self.assertEqual(
             set(
@@ -344,9 +351,10 @@ class InheritanceManagerTests(TestCase):
     def test_select_specific_grandchildren(self):
         if django.VERSION >= (1, 6, 0):
             children = set([
-                    self.child1,
+                    InheritanceManagerTestParent(pk=self.child1.pk),
                     InheritanceManagerTestParent(pk=self.child2.pk),
                     self.grandchild1,
+                    InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
                     ])
             self.assertEqual(
                 set(
@@ -384,6 +392,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         self.child2 = InheritanceManagerTestChild2.objects.create(
             related=self.related)
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create(related=self.related)
+        self.grandchild1_2 = InheritanceManagerTestGrandChild1_2.objects.create(related=self.related)
 
 
     def get_manager(self):
