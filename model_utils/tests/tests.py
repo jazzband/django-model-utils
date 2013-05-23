@@ -945,17 +945,16 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
         self.assertCurrent(fk_id=self.instance.fk_id)
 
     def test_custom_without_id(self):
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(1):
             self.tracked_class.objects.get()
         self.tracker = self.instance.custom_tracker_without_id
         self.assertChanged()
         self.assertPrevious()
-        self.assertCurrent(fk=self.old_fk)
+        self.assertCurrent(fk=self.old_fk.id)
         self.instance.fk = self.fk_class.objects.create(number=8)
-        self.assertNotEqual(self.instance.fk, self.old_fk)
-        self.assertChanged(fk=self.old_fk)
-        self.assertPrevious(fk=self.old_fk)
-        self.assertCurrent(fk=self.instance.fk)
+        self.assertChanged(fk=self.old_fk.id)
+        self.assertPrevious(fk=self.old_fk.id)
+        self.assertCurrent(fk=self.instance.fk_id)
 
 
 class ModelTrackerTests(FieldTrackerTests):
@@ -977,3 +976,16 @@ class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
 
     fk_class = ModelTracked
     tracked_class = ModelTrackedFK
+
+    def test_custom_without_id(self):
+        with self.assertNumQueries(2):
+            self.tracked_class.objects.get()
+        self.tracker = self.instance.custom_tracker_without_id
+        self.assertChanged()
+        self.assertPrevious()
+        self.assertCurrent(fk=self.old_fk)
+        self.instance.fk = self.fk_class.objects.create(number=8)
+        self.assertNotEqual(self.instance.fk, self.old_fk)
+        self.assertChanged(fk=self.old_fk)
+        self.assertPrevious(fk=self.old_fk)
+        self.assertCurrent(fk=self.instance.fk)
