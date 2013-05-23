@@ -10,7 +10,7 @@ from django.utils.six import text_type
 from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.test import TestCase
 
-from model_utils import Choices, ModelTracker
+from model_utils import Choices, FieldTracker, ModelTracker
 from model_utils.fields import get_excerpt, MonitorField, StatusField
 from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
@@ -20,6 +20,7 @@ from model_utils.tests.models import (
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
+    ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple,
     Tracked, TrackedFK, TrackedNotDefault, TrackedMultiple,
     StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
 
@@ -652,7 +653,7 @@ class CreatePassThroughManagerTests(TestCase):
         self.dude.spots_owned.create(name='The Crib', closed=True, secure=True)
 
 
-class ModelTrackerTestCase(TestCase):
+class FieldTrackerTestCase(TestCase):
 
     tracker = None
 
@@ -683,7 +684,7 @@ class ModelTrackerTestCase(TestCase):
         self.instance.save()
 
 
-class ModelTrackerCommonTests(object):
+class FieldTrackerCommonTests(object):
 
     def test_pre_save_has_changed(self):
         self.assertHasChanged(name=True, number=True)
@@ -706,13 +707,16 @@ class ModelTrackerCommonTests(object):
         self.assertPrevious(name=None, number=None)
 
 
-class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
+class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
+
+    tracked_class = Tracked
+
     def setUp(self):
-        self.instance = Tracked()
+        self.instance = self.tracked_class()
         self.tracker = self.instance.tracker
 
     def test_descriptor(self):
-        self.assertTrue(isinstance(Tracked.tracker, ModelTracker))
+        self.assertTrue(isinstance(self.tracked_class.tracker, FieldTracker))
 
     def test_first_save(self):
         self.assertHasChanged(name=True, number=True)
@@ -780,21 +784,24 @@ class ModelTrackerTests(ModelTrackerTestCase, ModelTrackerCommonTests):
             self.instance.save(update_fields=[])
             self.assertChanged(name='retro', number=4)
             self.instance.save(update_fields=['name'])
-            in_db = Tracked.objects.get(id=self.instance.id)
+            in_db = self.tracked_class.objects.get(id=self.instance.id)
             self.assertEqual(in_db.name, self.instance.name)
             self.assertNotEqual(in_db.number, self.instance.number)
             self.assertChanged(number=4)
             self.instance.save(update_fields=['number'])
             self.assertChanged()
-            in_db = Tracked.objects.get(id=self.instance.id)
+            in_db = self.tracked_class.objects.get(id=self.instance.id)
             self.assertEqual(in_db.name, self.instance.name)
             self.assertEqual(in_db.number, self.instance.number)
 
 
-class FieldTrackedModelCustomTests(ModelTrackerTestCase,
-                                   ModelTrackerCommonTests):
+class FieldTrackedModelCustomTests(FieldTrackerTestCase,
+                                   FieldTrackerCommonTests):
+
+    tracked_class = TrackedNotDefault
+
     def setUp(self):
-        self.instance = TrackedNotDefault()
+        self.instance = self.tracked_class()
         self.tracker = self.instance.name_tracker
 
     def test_post_save_has_changed(self):
@@ -832,10 +839,13 @@ class FieldTrackedModelCustomTests(ModelTrackerTestCase,
         self.assertCurrent(name='new age')
 
 
-class FieldTrackedModelMultiTests(ModelTrackerTestCase,
-                                   ModelTrackerCommonTests):
+class FieldTrackedModelMultiTests(FieldTrackerTestCase,
+                                   FieldTrackerCommonTests):
+
+    tracked_class = TrackedMultiple
+
     def setUp(self):
-        self.instance = TrackedMultiple()
+        self.instance = self.tracked_class()
         self.trackers = [self.instance.name_tracker,
                          self.instance.number_tracker]
 
@@ -905,17 +915,21 @@ class FieldTrackedModelMultiTests(ModelTrackerTestCase,
         self.assertCurrent(tracker=self.trackers[1], number=8)
 
 
-class ModelTrackerForeignKeyTests(ModelTrackerTestCase):
+class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
+
+    fk_class = Tracked
+    tracked_class = TrackedFK
+
     def setUp(self):
-        self.old_fk = Tracked.objects.create(number=8)
-        self.instance = TrackedFK.objects.create(fk=self.old_fk)
+        self.old_fk = self.fk_class.objects.create(number=8)
+        self.instance = self.tracked_class.objects.create(fk=self.old_fk)
 
     def test_default(self):
         self.tracker = self.instance.tracker
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(id=self.instance.id, fk_id=self.old_fk.id)
-        self.instance.fk = Tracked.objects.create(number=8)
+        self.instance.fk = self.fk_class.objects.create(number=8)
         self.assertChanged(fk_id=self.old_fk.id)
         self.assertPrevious(fk_id=self.old_fk.id)
         self.assertCurrent(id=self.instance.id, fk_id=self.instance.fk_id)
@@ -925,20 +939,41 @@ class ModelTrackerForeignKeyTests(ModelTrackerTestCase):
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(fk_id=self.old_fk.id)
-        self.instance.fk = Tracked.objects.create(number=8)
+        self.instance.fk = self.fk_class.objects.create(number=8)
         self.assertChanged(fk_id=self.old_fk.id)
         self.assertPrevious(fk_id=self.old_fk.id)
         self.assertCurrent(fk_id=self.instance.fk_id)
 
     def test_custom_without_id(self):
         with self.assertNumQueries(2):
-            TrackedFK.objects.get()
+            self.tracked_class.objects.get()
         self.tracker = self.instance.custom_tracker_without_id
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(fk=self.old_fk)
-        self.instance.fk = Tracked.objects.create(number=8)
+        self.instance.fk = self.fk_class.objects.create(number=8)
         self.assertNotEqual(self.instance.fk, self.old_fk)
         self.assertChanged(fk=self.old_fk)
         self.assertPrevious(fk=self.old_fk)
         self.assertCurrent(fk=self.instance.fk)
+
+
+class ModelTrackerTests(FieldTrackerTests):
+
+    tracked_class = ModelTracked
+
+
+class ModelTrackedModelCustomTests(FieldTrackedModelCustomTests):
+
+    tracked_class = ModelTrackedNotDefault
+
+
+class ModelTrackedModelMultiTests(FieldTrackedModelMultiTests):
+
+    tracked_class = ModelTrackedMultiple
+
+
+class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
+
+    fk_class = ModelTracked
+    tracked_class = ModelTrackedFK

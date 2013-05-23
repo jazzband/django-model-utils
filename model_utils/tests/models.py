@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.tracker import ModelTracker
+from model_utils.tracker import FieldTracker, ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField, StatusField
 from model_utils import Choices
@@ -225,25 +225,55 @@ class Tracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
-    tracker = ModelTracker()
+    tracker = FieldTracker()
 
 
 class TrackedFK(models.Model):
     fk = models.ForeignKey('Tracked')
 
-    tracker = ModelTracker()
-    custom_tracker = ModelTracker(fields=['fk_id'])
-    custom_tracker_without_id = ModelTracker(fields=['fk'])
+    tracker = FieldTracker()
+    custom_tracker = FieldTracker(fields=['fk_id'])
+    custom_tracker_without_id = FieldTracker(fields=['fk'])
 
 
 class TrackedNotDefault(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
-    name_tracker = ModelTracker(fields=['name'])
+    name_tracker = FieldTracker(fields=['name'])
 
 
 class TrackedMultiple(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+
+    name_tracker = FieldTracker(fields=['name'])
+    number_tracker = FieldTracker(fields=['number'])
+
+
+class ModelTracked(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+
+    tracker = ModelTracker()
+
+
+class ModelTrackedFK(models.Model):
+    fk = models.ForeignKey('ModelTracked')
+
+    tracker = ModelTracker()
+    custom_tracker = ModelTracker(fields=['fk_id'])
+    custom_tracker_without_id = ModelTracker(fields=['fk'])
+
+
+class ModelTrackedNotDefault(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+
+    name_tracker = ModelTracker(fields=['name'])
+
+
+class ModelTrackedMultiple(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
