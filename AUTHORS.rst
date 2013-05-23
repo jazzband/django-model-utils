@@ -1,4 +1,5 @@
 Alejandro Varas <alej0varas@gmail.com>
+Alex Orange <crazycasta@gmail.com>
 Carl Meyer <carl@dirtcircle.com>
 Donald Stufft <donald.stufft@gmail.com>
 Facundo Gaich <facugaich@gmail.com>

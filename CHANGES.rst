@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Fixed ``InheritanceManager`` bug with grandchildren in Django 1.6. Thanks
+  CrazyCasta.
+
 - Fixed lack of ``get_FOO_display`` method for ``StatusField``. Fixes GH-41.
 
 
