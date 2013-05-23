@@ -30,7 +30,7 @@ class FieldInstanceTracker(object):
         if not self.instance.pk:
             return True
         elif field in self.saved_data:
-            return self.saved_data.get(field) != self.get_field(field)
+            return self.previous(field) != self.get_field_value(field)
         else:
             raise FieldError('field "%s" not tracked' % field)
 
@@ -40,11 +40,11 @@ class FieldInstanceTracker(object):
 
     def changed(self):
         """Returns dict of fields that changed since save (with old values)"""
-        if not self.instance.pk:
-            return {}
-        saved = self.saved_data.items()
-        current = self.current()
-        return dict((k, v) for k, v in saved if v != current[k])
+        return dict(
+            (field, self.previous(field))
+            for field in self.fields
+            if self.has_changed(field)
+        )
 
 
 class FieldTracker(object):
@@ -97,7 +97,14 @@ class FieldTracker(object):
 
 
 class ModelInstanceTracker(FieldInstanceTracker):
-    pass
+
+    def changed(self):
+        """Returns dict of fields that changed since save (with old values)"""
+        if not self.instance.pk:
+            return {}
+        saved = self.saved_data.items()
+        current = self.current()
+        return dict((k, v) for k, v in saved if v != current[k])
 
 
 class ModelTracker(FieldTracker):

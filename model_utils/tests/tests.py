@@ -691,15 +691,6 @@ class FieldTrackerCommonTests(object):
         self.instance.name = 'new age'
         self.assertHasChanged(name=True, number=True)
 
-    def test_pre_save_changed(self):
-        self.assertChanged()
-        self.instance.name = 'new age'
-        self.assertChanged()
-        self.instance.number = 8
-        self.assertChanged()
-        self.instance.name = ''
-        self.assertChanged()
-
     def test_pre_save_previous(self):
         self.assertPrevious(name=None, number=None)
         self.instance.name = 'new age'
@@ -718,24 +709,33 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
     def test_descriptor(self):
         self.assertTrue(isinstance(self.tracked_class.tracker, FieldTracker))
 
+    def test_pre_save_changed(self):
+        self.assertChanged(name=None, number=None, id=None)
+        self.instance.name = 'new age'
+        self.assertChanged(name=None, number=None, id=None)
+        self.instance.number = 8
+        self.assertChanged(name=None, number=None, id=None)
+        self.instance.name = ''
+        self.assertChanged(name=None, number=None, id=None)
+
     def test_first_save(self):
         self.assertHasChanged(name=True, number=True)
         self.assertPrevious(name=None, number=None)
         self.assertCurrent(name='', number=None, id=None)
-        self.assertChanged()
+        self.assertChanged(name=None, number=None, id=None)
         self.instance.name = 'retro'
         self.instance.number = 4
         self.assertHasChanged(name=True, number=True)
         self.assertPrevious(name=None, number=None)
         self.assertCurrent(name='retro', number=4, id=None)
-        self.assertChanged()
+        self.assertChanged(name=None, number=None, id=None)
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
             self.assertHasChanged(name=True, number=True)
             self.assertPrevious(name=None, number=None)
             self.assertCurrent(name='retro', number=4, id=None)
-            self.assertChanged()
+            self.assertChanged(name=None, number=None, id=None)
             self.assertRaises(ValueError, self.instance.save,
                     update_fields=['number'])
 
@@ -804,6 +804,15 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.instance = self.tracked_class()
         self.tracker = self.instance.name_tracker
 
+    def test_pre_save_changed(self):
+        self.assertChanged(name=None)
+        self.instance.name = 'new age'
+        self.assertChanged(name=None)
+        self.instance.number = 8
+        self.assertChanged(name=None)
+        self.instance.name = ''
+        self.assertChanged(name=None)
+
     def test_post_save_has_changed(self):
         self.update_instance(name='retro', number=4)
         self.assertHasChanged(name=False, number=None)
@@ -855,9 +864,20 @@ class FieldTrackedModelMultiTests(FieldTrackerTestCase,
             super(FieldTrackedModelMultiTests, self).test_pre_save_has_changed()
 
     def test_pre_save_changed(self):
-        for tracker in self.trackers:
-            self.tracker = tracker
-            super(FieldTrackedModelMultiTests, self).test_pre_save_changed()
+        self.tracker = self.instance.name_tracker
+        self.assertChanged(name=None)
+        self.instance.name = 'new age'
+        self.assertChanged(name=None)
+        self.instance.number = 8
+        self.assertChanged(name=None)
+        self.instance.name = ''
+        self.assertChanged(name=None)
+        self.tracker = self.instance.number_tracker
+        self.assertChanged(number=None)
+        self.instance.name = 'new age'
+        self.assertChanged(number=None)
+        self.instance.number = 8
+        self.assertChanged(number=None)
 
     def test_pre_save_previous(self):
         for tracker in self.trackers:
@@ -961,15 +981,70 @@ class ModelTrackerTests(FieldTrackerTests):
 
     tracked_class = ModelTracked
 
+    def test_pre_save_changed(self):
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged()
+        self.instance.number = 8
+        self.assertChanged()
+        self.instance.name = ''
+        self.assertChanged()
+
+    def test_first_save(self):
+        self.assertHasChanged(name=True, number=True)
+        self.assertPrevious(name=None, number=None)
+        self.assertCurrent(name='', number=None, id=None)
+        self.assertChanged()
+        self.instance.name = 'retro'
+        self.instance.number = 4
+        self.assertHasChanged(name=True, number=True)
+        self.assertPrevious(name=None, number=None)
+        self.assertCurrent(name='retro', number=4, id=None)
+        self.assertChanged()
+        # Django 1.4 doesn't have update_fields
+        if django.VERSION >= (1, 5, 0):
+            self.instance.save(update_fields=[])
+            self.assertHasChanged(name=True, number=True)
+            self.assertPrevious(name=None, number=None)
+            self.assertCurrent(name='retro', number=4, id=None)
+            self.assertChanged()
+            self.assertRaises(ValueError, self.instance.save,
+                    update_fields=['number'])
+
 
 class ModelTrackedModelCustomTests(FieldTrackedModelCustomTests):
 
     tracked_class = ModelTrackedNotDefault
 
+    def test_pre_save_changed(self):
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged()
+        self.instance.number = 8
+        self.assertChanged()
+        self.instance.name = ''
+        self.assertChanged()
+
 
 class ModelTrackedModelMultiTests(FieldTrackedModelMultiTests):
 
     tracked_class = ModelTrackedMultiple
+
+    def test_pre_save_changed(self):
+        self.tracker = self.instance.name_tracker
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged()
+        self.instance.number = 8
+        self.assertChanged()
+        self.instance.name = ''
+        self.assertChanged()
+        self.tracker = self.instance.number_tracker
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged()
+        self.instance.number = 8
+        self.assertChanged()
 
 
 class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
