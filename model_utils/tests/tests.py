@@ -646,16 +646,27 @@ class CreatePassThroughManagerTests(TestCase):
 
     def test_reverse_manager(self):
         Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True)
+            name='The Crib', owner=self.dude, closed=True, secure=True,
+            secret=False)
         self.assertEqual(self.dude.spots_owned.closed().count(), 1)
 
     def test_related_queryset_pickling(self):
         Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True)
+            name='The Crib', owner=self.dude, closed=True, secure=True,
+            secret=False)
         qs = self.dude.spots_owned.closed()
         pickled_qs = pickle.dumps(qs)
         unpickled_qs = pickle.loads(pickled_qs)
         self.assertEqual(unpickled_qs.secured().count(), 1)
+
+    def test_related_queryset_superclass_method(self):
+        Spot.objects.create(
+            name='The Crib', owner=self.dude, closed=True, secure=True,
+            secret=False)
+        Spot.objects.create(
+            name='The Secret Crib', owner=self.dude, closed=False, secure=True,
+            secret=True)
+        self.assertEqual(self.dude.spots_owned.count(), 1)
 
     def test_related_manager_create(self):
         self.dude.spots_owned.create(name='The Crib', closed=True, secure=True)

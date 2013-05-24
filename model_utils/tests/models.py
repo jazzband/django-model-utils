@@ -208,6 +208,11 @@ class Car(models.Model):
     objects = PassThroughManager(DudeQuerySet)
 
 
+class SpotManager(PassThroughManager):
+    def get_query_set(self):
+        return super(SpotManager, self).get_query_set().filter(secret=False)
+
+
 class SpotQuerySet(models.query.QuerySet):
     def closed(self):
         return self.filter(closed=True)
@@ -220,9 +225,10 @@ class Spot(models.Model):
     name = models.CharField(max_length=20)
     secure = models.BooleanField(default=True)
     closed = models.BooleanField(default=False)
+    secret = models.BooleanField(default=False)
     owner = models.ForeignKey(Dude, related_name='spots_owned')
 
-    objects = PassThroughManager.for_queryset_class(SpotQuerySet)()
+    objects = SpotManager.for_queryset_class(SpotQuerySet)()
 
 
 class Tracked(models.Model):
