@@ -27,9 +27,7 @@ class FieldInstanceTracker(object):
 
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
-        if not self.instance.pk:
-            return True
-        elif field in self.saved_data:
+        if field in self.fields:
             return self.previous(field) != self.get_field_value(field)
         else:
             raise FieldError('field "%s" not tracked' % field)
@@ -97,6 +95,15 @@ class FieldTracker(object):
 
 
 class ModelInstanceTracker(FieldInstanceTracker):
+
+    def has_changed(self, field):
+        """Returns ``True`` if field has changed from currently saved value"""
+        if not self.instance.pk:
+            return True
+        elif field in self.saved_data:
+            return self.previous(field) != self.get_field_value(field)
+        else:
+            raise FieldError('field "%s" not tracked' % field)
 
     def changed(self):
         """Returns dict of fields that changed since save (with old values)"""
