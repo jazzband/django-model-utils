@@ -5,7 +5,7 @@ tip (unreleased)
 ----------------
 
 - ``PassThroughManager.for_queryset_class()`` no longer ignores superclass
-  ``get_query_set``. Thanks Andy Freeland. Fixes GH-31.
+  ``get_query_set``. Thanks Andy Freeland.
 
 - Fixed ``InheritanceManager`` bug with grandchildren in Django 1.6. Thanks
   CrazyCasta.
