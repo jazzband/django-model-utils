@@ -21,6 +21,7 @@ class FieldInstanceTracker(object):
             self.saved_data.update(**self.current(fields=fields))
 
     def current(self, fields=None):
+        """Return dict of current values for all tracked fields"""
         if fields is None:
             fields = self.fields
         return dict((f, self.get_field_value(f)) for f in fields)
@@ -53,7 +54,7 @@ class FieldTracker(object):
         self.fields = fields
 
     def get_field_map(self, cls):
-        """Return ``dict`` mapping fields to model instance attribute names"""
+        """Return dict mapping fields names to model attribute names"""
         field_map = dict((field, field) for field in self.fields)
         all_fields = dict((f.name, f.attname) for f in cls._meta.local_fields)
         field_map.update(**dict((k, v) for (k, v) in all_fields.items()
