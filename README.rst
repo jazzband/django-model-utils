@@ -418,25 +418,25 @@ directly on the manager:
     Post.objects.by_author(user=request.user).unpublished()
 
 
-ModelTracker
+FieldTracker
 ============
 
-A ``ModelTracker`` can be added to a model to track changes in model fields.  A
-``ModelTracker`` allows querying for field changes since a model instance was
-last saved.  An example of applying ``ModelTracker`` to a model:
+A ``FieldTracker`` can be added to a model to track changes in model fields.  A
+``FieldTracker`` allows querying for field changes since a model instance was
+last saved.  An example of applying ``FieldTracker`` to a model:
 
 .. code-block:: python
 
     from django.db import models
-    from model_utils import ModelTracker
+    from model_utils import FieldTracker
 
     class Post(models.Model):
         title = models.CharField(max_length=100)
         body = models.TextField()
 
-        tracker = ModelTracker()
+        tracker = FieldTracker()
 
-Accessing a model tracker
+Accessing a field tracker
 -------------------------
 
 There are multiple methods available for checking for changes in model fields.
@@ -467,7 +467,8 @@ Returns ``True`` if the given field has changed since the last save:
     >>> a.tracker.has_changed('body')
     False
 
-Returns ``True`` if the model instance hasn't been saved yet.
+The ``has_changed`` method relies on ``previous`` to determine whether a
+field's values has changed.
 
 changed
 ~~~~~~~
@@ -482,25 +483,26 @@ and the values of the fields during the last save:
     >>> a.tracker.changed()
     {'title': 'First Post', 'body': ''}
 
-Returns ``{}`` if the model instance hasn't been saved yet.
+The ``changed`` method relies on ``has_changed`` to determine which fields
+have changed.
 
 
 Tracking specific fields
 ------------------------
 
-A fields parameter can be given to ``ModelTracker`` to limit model tracking to
-the specific fields:
+A fields parameter can be given to ``FieldTracker`` to limit tracking to
+specific fields:
 
 .. code-block:: python
 
     from django.db import models
-    from model_utils import ModelTracker
+    from model_utils import FieldTracker
 
     class Post(models.Model):
         title = models.CharField(max_length=100)
         body = models.TextField()
 
-        title_tracker = ModelTracker(fields=['title'])
+        title_tracker = FieldTracker(fields=['title'])
 
 An example using the model specified above:
 
@@ -509,5 +511,5 @@ An example using the model specified above:
     >>> a = Post.objects.create(title='First Post')
     >>> a.body = 'First post!'
     >>> a.title_tracker.changed()
-    {}
+    {'title': None}
 
