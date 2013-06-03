@@ -4,6 +4,12 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- ``PassThroughManager.for_queryset_class()`` no longer ignores superclass
+  ``get_query_set``. Thanks Andy Freeland.
+
+- Fixed ``InheritanceManager`` bug with grandchildren in Django 1.6. Thanks
+  CrazyCasta.
+
 - Fixed lack of ``get_FOO_display`` method for ``StatusField``. Fixes GH-41.
 
 
@@ -15,7 +21,7 @@ tip (unreleased)
 
 - Fixed intermittent ``StatusField`` bug.  Fixes GH-29.
 
-- Added Python 3 support
+- Added Python 3 support.
 
 - Dropped support for Django 1.2 and 1.3.  Django 1.4.2+ required.
 

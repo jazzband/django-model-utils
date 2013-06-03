@@ -34,6 +34,10 @@ class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
     text_field = models.TextField()
 
 
+class InheritanceManagerTestGrandChild1_2(InheritanceManagerTestChild1):
+    text_field = models.TextField()
+
+
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
@@ -204,6 +208,11 @@ class Car(models.Model):
     objects = PassThroughManager(DudeQuerySet)
 
 
+class SpotManager(PassThroughManager):
+    def get_query_set(self):
+        return super(SpotManager, self).get_query_set().filter(secret=False)
+
+
 class SpotQuerySet(models.query.QuerySet):
     def closed(self):
         return self.filter(closed=True)
@@ -216,9 +225,10 @@ class Spot(models.Model):
     name = models.CharField(max_length=20)
     secure = models.BooleanField(default=True)
     closed = models.BooleanField(default=False)
+    secret = models.BooleanField(default=False)
     owner = models.ForeignKey(Dude, related_name='spots_owned')
 
-    objects = PassThroughManager.for_queryset_class(SpotQuerySet)()
+    objects = SpotManager.for_queryset_class(SpotQuerySet)()
 
 
 class Tracked(models.Model):

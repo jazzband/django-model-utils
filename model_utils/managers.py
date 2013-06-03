@@ -89,7 +89,7 @@ class InheritanceQuerySet(QuerySet):
             return None
         if s:
             child = self._get_sub_obj_recurse(node, s)
-            return child or node
+            return child
         else:
             return node
 
@@ -164,11 +164,10 @@ class PassThroughManager(models.Manager):
         return getattr(self.get_query_set(), name)
 
     def get_query_set(self):
+        qs = super(PassThroughManager, self).get_query_set()
         if self._queryset_cls is not None:
-            kwargs = {'model': self.model}
-            kwargs['using'] = self._db
-            return self._queryset_cls(**kwargs)
-        return super(PassThroughManager, self).get_query_set()
+            qs = qs._clone(klass=self._queryset_cls)
+        return qs
 
     @classmethod
     def for_queryset_class(cls, queryset_cls):
@@ -181,9 +180,8 @@ def create_pass_through_manager_for_queryset_class(base, queryset_cls):
             return super(_PassThroughManager, self).__init__()
 
         def get_query_set(self):
-            kwargs = {}
-            kwargs["using"] = self._db
-            return queryset_cls(self.model, **kwargs)
+            qs = super(_PassThroughManager, self).get_query_set()
+            return qs._clone(klass=queryset_cls)
 
         def __reduce__(self):
             # our pickling support breaks for subclasses (e.g. RelatedManager)

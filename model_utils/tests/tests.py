@@ -16,6 +16,7 @@ from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (
     InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
+    InheritanceManagerTestGrandChild1_2,
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
@@ -302,6 +303,8 @@ class InheritanceManagerTests(TestCase):
         self.child1 = InheritanceManagerTestChild1.objects.create()
         self.child2 = InheritanceManagerTestChild2.objects.create()
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
+        self.grandchild1_2 = \
+                InheritanceManagerTestGrandChild1_2.objects.create()
 
 
     def get_manager(self):
@@ -313,6 +316,7 @@ class InheritanceManagerTests(TestCase):
                 InheritanceManagerTestParent(pk=self.child1.pk),
                 InheritanceManagerTestParent(pk=self.child2.pk),
                 InheritanceManagerTestParent(pk=self.grandchild1.pk),
+                InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
                 ])
         self.assertEqual(set(self.get_manager().all()), children)
 
@@ -321,8 +325,10 @@ class InheritanceManagerTests(TestCase):
         children = set([self.child1, self.child2])
         if django.VERSION >= (1, 6, 0):
             children.add(self.grandchild1)
+            children.add(self.grandchild1_2)
         else:
             children.add(InheritanceManagerTestChild1(pk=self.grandchild1.pk))
+            children.add(InheritanceManagerTestChild1(pk=self.grandchild1_2.pk))
         self.assertEqual(
             set(self.get_manager().select_subclasses()), children)
 
@@ -332,6 +338,7 @@ class InheritanceManagerTests(TestCase):
                 self.child1,
                 InheritanceManagerTestParent(pk=self.child2.pk),
                 InheritanceManagerTestChild1(pk=self.grandchild1.pk),
+                InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
                 ])
         self.assertEqual(
             set(
@@ -345,9 +352,10 @@ class InheritanceManagerTests(TestCase):
     def test_select_specific_grandchildren(self):
         if django.VERSION >= (1, 6, 0):
             children = set([
-                    self.child1,
+                    InheritanceManagerTestParent(pk=self.child1.pk),
                     InheritanceManagerTestParent(pk=self.child2.pk),
                     self.grandchild1,
+                    InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
                     ])
             self.assertEqual(
                 set(
@@ -385,6 +393,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         self.child2 = InheritanceManagerTestChild2.objects.create(
             related=self.related)
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create(related=self.related)
+        self.grandchild1_2 = InheritanceManagerTestGrandChild1_2.objects.create(related=self.related)
 
 
     def get_manager(self):
@@ -638,16 +647,27 @@ class CreatePassThroughManagerTests(TestCase):
 
     def test_reverse_manager(self):
         Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True)
+            name='The Crib', owner=self.dude, closed=True, secure=True,
+            secret=False)
         self.assertEqual(self.dude.spots_owned.closed().count(), 1)
 
     def test_related_queryset_pickling(self):
         Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True)
+            name='The Crib', owner=self.dude, closed=True, secure=True,
+            secret=False)
         qs = self.dude.spots_owned.closed()
         pickled_qs = pickle.dumps(qs)
         unpickled_qs = pickle.loads(pickled_qs)
         self.assertEqual(unpickled_qs.secured().count(), 1)
+
+    def test_related_queryset_superclass_method(self):
+        Spot.objects.create(
+            name='The Crib', owner=self.dude, closed=True, secure=True,
+            secret=False)
+        Spot.objects.create(
+            name='The Secret Crib', owner=self.dude, closed=False, secure=True,
+            secret=True)
+        self.assertEqual(self.dude.spots_owned.count(), 1)
 
     def test_related_manager_create(self):
         self.dude.spots_owned.create(name='The Crib', closed=True, secure=True)
