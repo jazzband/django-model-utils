@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-tip (unreleased)
-----------------
+1.4.0 (2013.06.03)
+------------------
 
 - Introduced ``FieldTracker`` as replacement for ``ModelTracker``, which is now
   deprecated.
