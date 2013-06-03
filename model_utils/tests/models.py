@@ -253,6 +253,16 @@ class TrackedNotDefault(models.Model):
     name_tracker = FieldTracker(fields=['name'])
 
 
+class TrackedNonFieldAttr(models.Model):
+    number = models.FloatField()
+
+    @property
+    def rounded(self):
+        return round(self.number) if self.number is not None else None
+
+    tracker = FieldTracker(fields=['rounded'])
+
+
 class TrackedMultiple(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()

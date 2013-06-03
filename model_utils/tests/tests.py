@@ -22,8 +22,8 @@ from model_utils.tests.models import (
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedMultiple,
-    StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
+    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr,
+    TrackedMultiple, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
 
 
 
@@ -887,6 +887,57 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.assertCurrent(name='new age')
         self.instance.save()
         self.assertCurrent(name='new age')
+
+
+class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
+
+    tracked_class = TrackedNonFieldAttr
+
+    def setUp(self):
+        self.instance = self.tracked_class()
+        self.tracker = self.instance.tracker
+
+    def test_previous(self):
+        self.assertPrevious(rounded=None)
+        self.instance.number = 8.5
+        self.assertPrevious(rounded=None)
+        self.instance.save()
+        self.assertPrevious(rounded=9)
+        self.instance.number = 8.2
+        self.assertPrevious(rounded=9)
+        self.instance.save()
+        self.assertPrevious(rounded=8)
+
+    def test_has_changed(self):
+        self.assertHasChanged(rounded=False)
+        self.instance.number = 8.5
+        self.assertHasChanged(rounded=True)
+        self.instance.save()
+        self.assertHasChanged(rounded=False)
+        self.instance.number = 8.2
+        self.assertHasChanged(rounded=True)
+        self.instance.number = 8.8
+        self.assertHasChanged(rounded=False)
+
+    def test_changed(self):
+        self.assertChanged()
+        self.instance.number = 8.5
+        self.assertPrevious(rounded=None)
+        self.instance.save()
+        self.assertPrevious()
+        self.instance.number = 8.8
+        self.assertPrevious()
+        self.instance.number = 8.2
+        self.assertPrevious(rounded=9)
+        self.instance.save()
+        self.assertPrevious()
+
+    def test_current(self):
+        self.assertCurrent(rounded=None)
+        self.instance.number = 8.5
+        self.assertCurrent(rounded=9)
+        self.instance.save()
+        self.assertCurrent(rounded=9)
 
 
 class FieldTrackedModelMultiTests(FieldTrackerTestCase,
