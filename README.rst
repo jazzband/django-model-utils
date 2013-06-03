@@ -207,6 +207,7 @@ Assignment to ``a.body`` is equivalent to assignment to
 ``a.body.content``.
 
 .. note::
+
     a.body.excerpt is only updated when a.save() is called
 
 
@@ -436,10 +437,39 @@ last saved.  An example of applying ``FieldTracker`` to a model:
 
         tracker = FieldTracker()
 
+.. note::
+
+    ``django-model-utils`` 1.3.0 introduced the ``ModelTracker`` object for
+    tracking changes to model field values. Unfortunately ``ModelTracker``
+    suffered from some serious flaws in its handling of ``ForeignKey`` fields,
+    potentially resulting in many extra database queries if a ``ForeignKey``
+    field was tracked. In order to avoid breaking API backwards-compatibility,
+    ``ModelTracker`` retains the previous behavior but is deprecated, and
+    ``FieldTracker`` has been introduced to provide better ``ForeignKey``
+    handling. All uses of ``ModelTracker`` should be replaced by
+    ``FieldTracker``.
+
+    Summary of differences between ``ModelTracker`` and ``FieldTracker``:
+
+    * The previous value returned for a tracked ``ForeignKey`` field will now
+      be the raw ID rather than the full object (avoiding extra database
+      queries). (GH-43)
+
+    * The ``changed()`` method no longer returns the empty dictionary for all
+      unsaved instances; rather, ``None`` is considered to be the initial value
+      of all fields if the model has never been saved, thus ``changed()`` on an
+      unsaved instance will return a dictionary containing all fields whose
+      current value is not ``None``.
+
+    * The ``has_changed()`` method no longer crashes after an object's first
+      save. (GH-53).
+
+
 Accessing a field tracker
 -------------------------
 
 There are multiple methods available for checking for changes in model fields.
+
 
 previous
 ~~~~~~~~
@@ -453,6 +483,7 @@ Returns the value of the given field during the last save:
     u'First Post'
 
 Returns ``None`` when the model instance isn't saved yet.
+
 
 has_changed
 ~~~~~~~~~~~
@@ -469,6 +500,7 @@ Returns ``True`` if the given field has changed since the last save:
 
 The ``has_changed`` method relies on ``previous`` to determine whether a
 field's values has changed.
+
 
 changed
 ~~~~~~~

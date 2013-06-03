@@ -4,6 +4,9 @@ CHANGES
 tip (unreleased)
 ----------------
 
+- Introduced ``FieldTracker`` as replacement for ``ModelTracker``, which is now
+  deprecated.
+
 - ``PassThroughManager.for_queryset_class()`` no longer ignores superclass
   ``get_query_set``. Thanks Andy Freeland.
 
