@@ -899,45 +899,45 @@ class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
 
     def test_previous(self):
         self.assertPrevious(rounded=None)
-        self.instance.number = 8.5
+        self.instance.number = 7.5
         self.assertPrevious(rounded=None)
         self.instance.save()
-        self.assertPrevious(rounded=9)
-        self.instance.number = 8.2
-        self.assertPrevious(rounded=9)
-        self.instance.save()
         self.assertPrevious(rounded=8)
+        self.instance.number = 7.2
+        self.assertPrevious(rounded=8)
+        self.instance.save()
+        self.assertPrevious(rounded=7)
 
     def test_has_changed(self):
         self.assertHasChanged(rounded=False)
-        self.instance.number = 8.5
+        self.instance.number = 7.5
         self.assertHasChanged(rounded=True)
         self.instance.save()
         self.assertHasChanged(rounded=False)
-        self.instance.number = 8.2
+        self.instance.number = 7.2
         self.assertHasChanged(rounded=True)
-        self.instance.number = 8.8
+        self.instance.number = 7.8
         self.assertHasChanged(rounded=False)
 
     def test_changed(self):
         self.assertChanged()
-        self.instance.number = 8.5
+        self.instance.number = 7.5
         self.assertPrevious(rounded=None)
         self.instance.save()
         self.assertPrevious()
-        self.instance.number = 8.8
+        self.instance.number = 7.8
         self.assertPrevious()
-        self.instance.number = 8.2
-        self.assertPrevious(rounded=9)
+        self.instance.number = 7.2
+        self.assertPrevious(rounded=8)
         self.instance.save()
         self.assertPrevious()
 
     def test_current(self):
         self.assertCurrent(rounded=None)
-        self.instance.number = 8.5
-        self.assertCurrent(rounded=9)
+        self.instance.number = 7.5
+        self.assertCurrent(rounded=8)
         self.instance.save()
-        self.assertCurrent(rounded=9)
+        self.assertCurrent(rounded=8)
 
 
 class FieldTrackedModelMultiTests(FieldTrackerTestCase,
