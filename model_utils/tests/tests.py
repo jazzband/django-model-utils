@@ -593,7 +593,7 @@ if introspector:
 
 
         def test_no_excerpt_field_works(self):
-            from models import NoRendered
+            from .models import NoRendered
             self.assertRaises(FieldDoesNotExist,
                               NoRendered._meta.get_field,
                               '_body_excerpt')
