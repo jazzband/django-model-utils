@@ -7,13 +7,14 @@ python:
 env:
   - DJANGO=Django==1.4.5 SOUTH=1
   - DJANGO=Django==1.5.1 SOUTH=1
+  - DJANGO=https://github.com/django/django/tarball/stable/1.6.x SOUTH=1
   - DJANGO=https://github.com/django/django/tarball/master SOUTH=1
   - DJANGO=Django==1.5.1 SOUTH=0
 
 install:
-  - pip install $DJANGO --use-mirrors
-  - pip install coverage coveralls --use-mirrors
-  - sh -c "if [ '$SOUTH' = '1' ]; then pip install South==0.7.6; fi"
+  - pip install $DJANGO
+  - pip install coverage coveralls
+  - sh -c "if [ '$SOUTH' = '1' ]; then pip install South==0.8.1; fi"
 
 script:
   - coverage run -a setup.py test
@@ -22,12 +23,16 @@ script:
 matrix:
   include:
    - python: 3.2
-     env: DJANGO=Django==1.5.1 SOUTH=0
+     env: DJANGO=Django==1.5.1 SOUTH=1
    - python: 3.2
-     env: DJANGO=https://github.com/django/django/tarball/master SOUTH=0
+     env: DJANGO=https://github.com/django/django/tarball/stable/1.6.x SOUTH=1
+   - python: 3.2
+     env: DJANGO=https://github.com/django/django/tarball/master SOUTH=1
    - python: 3.3
-     env: DJANGO=Django==1.5.1 SOUTH=0
+     env: DJANGO=Django==1.5.1 SOUTH=1
    - python: 3.3
-     env: DJANGO=https://github.com/django/django/tarball/master SOUTH=0
+     env: DJANGO=https://github.com/django/django/tarball/stable/1.6.x SOUTH=1
+   - python: 3.3
+     env: DJANGO=https://github.com/django/django/tarball/master SOUTH=1
 
 after_success: coveralls
