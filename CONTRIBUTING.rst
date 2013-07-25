@@ -11,7 +11,7 @@ Issues are often easier to reproduce/resolve when they have:
 
 - A pull request with a failing test demonstrating the issue
 - A code example that produces the issue consistently
-- A traceback or an guest guest as to where the problem may be occurring
+- A traceback (when applicable)
 
 Pull Requests
 -------------
@@ -43,3 +43,6 @@ First install tox::
 To run tox and generate a coverage report (in ``htmlcov`` directory)::
 
     ./runtests.sh
+
+**Please note**: Before a pull request can be merged, all tests must pass and
+code/branch coverage in tests must be 100%.
