@@ -28,7 +28,7 @@ matrix:
    - python: 3.2
      env: DJANGO=Django==1.4.5 SOUTH=1
    - python: 3.3
-     end: DJANGO=Django==1.4.5 SOUTH=1
+     env: DJANGO=Django==1.4.5 SOUTH=1
   include:
    - python: 2.7
      env: DJANGO=Django==1.5.1 SOUTH=0
