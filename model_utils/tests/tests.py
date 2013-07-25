@@ -1,7 +1,11 @@
 from __future__ import unicode_literals
-import pickle
 
 from datetime import datetime, timedelta
+import pickle
+try:
+    from unittest import skipUnless
+except ImportError: # Python 2.6
+    from django.utils.unittest import skipUnless
 
 import django
 from django.db import models
@@ -583,25 +587,24 @@ try:
 except ImportError:
     introspector = None
 
-# @@@ use skipUnless once Django 1.3 is minimum supported version
-if introspector:
-    class SouthFreezingTests(TestCase):
-        def test_introspector_adds_no_excerpt_field(self):
-            mf = Article._meta.get_field('body')
-            args, kwargs = introspector(mf)
-            self.assertEqual(kwargs['no_excerpt_field'], 'True')
+@skipUnless(introspector, 'South is not installed')
+class SouthFreezingTests(TestCase):
+    def test_introspector_adds_no_excerpt_field(self):
+        mf = Article._meta.get_field('body')
+        args, kwargs = introspector(mf)
+        self.assertEqual(kwargs['no_excerpt_field'], 'True')
 
 
-        def test_no_excerpt_field_works(self):
-            from .models import NoRendered
-            self.assertRaises(FieldDoesNotExist,
-                              NoRendered._meta.get_field,
-                              '_body_excerpt')
+    def test_no_excerpt_field_works(self):
+        from .models import NoRendered
+        self.assertRaises(FieldDoesNotExist,
+                          NoRendered._meta.get_field,
+                          '_body_excerpt')
 
-        def test_status_field_no_check_for_status(self):
-            sf = StatusFieldDefaultFilled._meta.get_field('status')
-            args, kwargs = introspector(sf)
-            self.assertEqual(kwargs['no_check_for_status'], 'True')
+    def test_status_field_no_check_for_status(self):
+        sf = StatusFieldDefaultFilled._meta.get_field('status')
+        args, kwargs = introspector(sf)
+        self.assertEqual(kwargs['no_check_for_status'], 'True')
 
 
 
