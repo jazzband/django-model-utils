@@ -70,10 +70,13 @@ class FieldTracker(object):
         if self.fields is None:
             self.fields = [field.attname for field in sender._meta.local_fields]
         self.field_map = self.get_field_map(sender)
-        models.signals.post_init.connect(self.initialize_tracker, sender=sender)
+        models.signals.post_init.connect(self.initialize_tracker)
+        self.model_class = sender
         setattr(sender, self.name, self)
 
     def initialize_tracker(self, sender, instance, **kwargs):
+        if not isinstance(instance, self.model_class):
+            return  # Only init instances of given model (including children)
         tracker = self.tracker_class(instance, self.fields, self.field_map)
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()

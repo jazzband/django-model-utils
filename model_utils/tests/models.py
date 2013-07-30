@@ -271,6 +271,10 @@ class TrackedMultiple(models.Model):
     number_tracker = FieldTracker(fields=['number'])
 
 
+class InheritedTracked(Tracked):
+    name2 = models.CharField(max_length=20)
+
+
 class ModelTracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
@@ -299,6 +303,9 @@ class ModelTrackedMultiple(models.Model):
 
     name_tracker = ModelTracker(fields=['name'])
     number_tracker = ModelTracker(fields=['number'])
+
+class InheritedModelTracked(ModelTracked):
+    name2 = models.CharField(max_length=20)
 
 
 class StatusFieldDefaultFilled(models.Model):

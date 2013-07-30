@@ -4,6 +4,8 @@ CHANGES
 master (unreleased)
 -------------------
 
+- Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
+
 
 1.4.0 (2013.06.03)
 ------------------
