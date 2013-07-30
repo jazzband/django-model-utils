@@ -1074,10 +1074,15 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
         self.assertCurrent(fk=self.instance.fk_id)
 
 
-# TODO test stuff with name2
 class InheritedFieldTrackerTests(FieldTrackerTests):
 
     tracked_class = InheritedTracked
+
+    def test_child_fields_not_tracked(self):
+        self.name2 = 'test'
+        self.assertEqual(self.tracker.previous('name2'), None)
+        self.assertRaises(FieldError, self.tracker.has_changed, 'name2')
+
 
 class ModelTrackerTests(FieldTrackerTests):
 
@@ -1204,7 +1209,11 @@ class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
         self.assertCurrent(fk=self.instance.fk)
 
 
-# TODO test stuff with name2
-class InheritanceModelTrackerTests(ModelTrackerTests):
+class InheritedModelTrackerTests(ModelTrackerTests):
 
     tracked_class = InheritedModelTracked
+
+    def test_child_fields_not_tracked(self):
+        self.name2 = 'test'
+        self.assertEqual(self.tracker.previous('name2'), None)
+        self.assertTrue(self.tracker.has_changed('name2'))
