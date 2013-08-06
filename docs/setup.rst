@@ -13,6 +13,7 @@ To use ``django-model-utils`` in your Django project, just import and
 use the utility classes described in this documentation; there is no need to
 modify your ``INSTALLED_APPS`` setting.
 
+
 Dependencies
 ============
 

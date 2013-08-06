@@ -4,6 +4,7 @@ django-model-utils
 
 Django model mixins and utilities.
 
+
 Contents
 ========
 
@@ -12,6 +13,7 @@ Contents
 
    setup
    usage
+
 
 Contributing
 ============

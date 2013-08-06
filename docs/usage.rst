@@ -105,6 +105,7 @@ field changes:
 (A ``MonitorField`` can monitor any type of field for changes, not only a
 ``StatusField``.)
 
+
 SplitField
 ----------
 
@@ -127,6 +128,7 @@ A ``SplitField`` is easy to add to any model definition:
 ``SplitField`` automatically creates an extra non-editable field
 ``_body_excerpt`` to store the excerpt. This field doesn't need to be
 accessed directly; see below.
+
 
 Accessing a SplitField on a model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,6 +181,7 @@ paragraphs are blocks of text separated by a blank line) are taken to
 be the excerpt. This number can be customized by setting the
 ``SPLIT_DEFAULT_PARAGRAPHS`` setting.
 
+
 Models
 ======
 
@@ -189,6 +192,7 @@ An abstract base class for any model that expresses a time-range. Adds
 ``start`` and ``end`` nullable DateTimeFields, and a ``timeframed``
 manager that returns only objects for whom the current date-time lies
 within their time range.
+
 
 StatusModel
 -----------
@@ -220,6 +224,7 @@ returns objects with that status only:
 
     # this query will only return published articles:
     Article.published.all()
+
 
 Model Managers
 ==============
@@ -301,6 +306,7 @@ TimeStampedModel
 
 This abstract base class just provides self-updating ``created`` and
 ``modified`` fields on any model that inherits from it.
+
 
 QueryManager
 ------------
