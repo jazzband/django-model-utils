@@ -10,6 +10,7 @@ James Oakley <jfunk@funktronics.ca>
 Jannis Leidel <jannis@leidel.info>
 Javier García Sogo <jgsogo@gmail.com>
 Jeff Elmore <jeffelmore.org>
+Keryn Knight <kerynknight.com>
 ivirabyan
 Paul McLanahan <paul@mclanahan.net>
 Rinat Shigapov <rinatshigapov@gmail.com>
