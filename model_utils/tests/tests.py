@@ -223,6 +223,12 @@ class ChoicesTests(TestCase):
     def test_wrong_length_tuple(self):
         self.assertRaises(ValueError, Choices, ('a',))
 
+    def test_contains_value(self):
+        self.assertTrue('PUBLISHED' in self.STATUS)
+        self.assertTrue('DRAFT' in self.STATUS)
+
+    def test_doesnt_contain_value(self):
+        self.assertFalse('UNPUBLISHED' in self.STATUS)
 
 
 class LabelChoicesTests(ChoicesTests):
@@ -265,6 +271,19 @@ class LabelChoicesTests(ChoicesTests):
             ('DELETED', 'DELETED', 'DELETED'),
         )))
 
+    def test_contains_value(self):
+        self.assertTrue('PUBLISHED' in self.STATUS)
+        self.assertTrue('DRAFT' in self.STATUS)
+        # This should be True, because both the display value
+        # and the internal representation are both DELETED.
+        self.assertTrue('DELETED' in self.STATUS)
+
+    def test_doesnt_contain_value(self):
+        self.assertFalse('UNPUBLISHED' in self.STATUS)
+
+    def test_doesnt_contain_display_value(self):
+        self.assertFalse('is draft' in self.STATUS)
+
 
 
 class IdentifierChoicesTests(ChoicesTests):
@@ -301,6 +320,19 @@ class IdentifierChoicesTests(ChoicesTests):
             (2, 'DELETED', 'is deleted'),
         )))
 
+    def test_contains_value(self):
+        self.assertTrue(0 in self.STATUS)
+        self.assertTrue(1 in self.STATUS)
+        self.assertTrue(2 in self.STATUS)
+
+    def test_doesnt_contain_value(self):
+        self.assertFalse(3 in self.STATUS)
+
+    def test_doesnt_contain_display_value(self):
+        self.assertFalse('is draft' in self.STATUS)
+
+    def test_doesnt_contain_python_attr(self):
+        self.assertFalse('PUBLISHED' in self.STATUS)
 
 class InheritanceManagerTests(TestCase):
     def setUp(self):
