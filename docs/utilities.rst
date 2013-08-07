@@ -2,6 +2,8 @@
 Miscellaneous Utilities
 =======================
 
+.. _Choices:
+
 Choices
 =======
 

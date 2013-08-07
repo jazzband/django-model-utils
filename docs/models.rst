@@ -13,10 +13,10 @@ within their time range.
 StatusModel
 -----------
 
-Pulls together `StatusField`_, `MonitorField`_ and `QueryManager`_
+Pulls together :ref:`StatusField`, :ref:`MonitorField` and :ref:`QueryManager`
 into an abstract base class for any model with a "status."
 
-Just provide a ``STATUS`` class-attribute (a `Choices`_ object or a
+Just provide a ``STATUS`` class-attribute (a :ref:`Choices` object or a
 list of two-tuples), and your model will have a ``status`` field with
 those choices, a ``status_changed`` field containing the date-time the
 ``status`` was last changed, and a manager for each status that

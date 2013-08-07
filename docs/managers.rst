@@ -80,6 +80,8 @@ This abstract base class just provides self-updating ``created`` and
 ``modified`` fields on any model that inherits from it.
 
 
+.. _QueryManager:
+
 QueryManager
 ------------
 
