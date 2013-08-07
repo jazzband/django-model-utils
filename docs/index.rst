@@ -12,7 +12,10 @@ Contents
    :maxdepth: 3
 
    setup
-   usage
+   fields
+   models
+   managers
+   utilities
 
 
 Contributing
