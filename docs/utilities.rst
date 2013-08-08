@@ -54,7 +54,14 @@ the third is the human-readable version:
         STATUS = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
         # ...
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
+        
+To display the human readable choice of a field in the template you must prepend
+the variable with get_ and append with _display. For example the Article status
+field would look like this:
 
+.. code-block:: html
+
+    Article Status: {{ article.get_status_display }}
 
 Field Tracker
 =============
