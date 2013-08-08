@@ -42,7 +42,7 @@ First install tox::
 
 To run tox and generate a coverage report (in ``htmlcov`` directory)::
 
-    ./runtests.sh
+    make test
 
 **Please note**: Before a pull request can be merged, all tests must pass and
 code/branch coverage in tests must be 100%.
