@@ -1,3 +1,4 @@
+from os.path import join
 from setuptools import setup, find_packages
 
 
@@ -6,9 +7,16 @@ long_description = (open('README.rst').read() +
                     open('TODO.rst').read())
 
 
+def get_version():
+    with open(join('model_utils', '__init__.py')) as f:
+        for line in f:
+            if line.startswith('__version__ ='):
+                return line.split('=')[1].strip().strip('"\'')
+
+
 setup(
     name='django-model-utils',
-    version='1.4.0.post1',
+    version=get_version(),
     description='Django model mixins and utilities',
     long_description=long_description,
     author='Carl Meyer',
