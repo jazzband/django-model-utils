@@ -1,4 +1,7 @@
 from __future__ import unicode_literals
+
+from copy import deepcopy
+
 from django.db import models
 from django.core.exceptions import FieldError
 
@@ -19,6 +22,7 @@ class FieldInstanceTracker(object):
             self.saved_data = self.current()
         else:
             self.saved_data.update(**self.current(fields=fields))
+        return self.saved_data
 
     def current(self, fields=None):
         """Return dict of current values for all tracked fields"""
@@ -76,7 +80,8 @@ class FieldTracker(object):
     def initialize_tracker(self, sender, instance, **kwargs):
         tracker = self.tracker_class(instance, self.fields, self.field_map)
         setattr(instance, self.attname, tracker)
-        tracker.set_saved_fields()
+        saved_data = tracker.set_saved_fields()
+        self.prevent_side_effects(saved_data)
         self.patch_save(instance)
 
     def patch_save(self, instance):
@@ -87,6 +92,11 @@ class FieldTracker(object):
                 fields=kwargs.get('update_fields'))
             return ret
         instance.save = save
+
+    def prevent_side_effects(self, saved_data):
+        for field, field_value in saved_data.items():
+            if isinstance(field_value, dict):
+                saved_data[field] = deepcopy(field_value)
 
     def __get__(self, instance, owner):
         if instance is None:

@@ -26,9 +26,9 @@ from model_utils.tests.models import (
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr,
-    TrackedMultiple, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
-
+    Tracked, TrackedFK, TrackedNotDefault, TrackedWithJsonField,
+    TrackedNonFieldAttr, TrackedMultiple, StatusFieldDefaultFilled,
+    StatusFieldDefaultNotFilled)
 
 
 class GetExcerptTests(TestCase):
@@ -922,6 +922,171 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.assertCurrent(name='new age')
         self.instance.save()
         self.assertCurrent(name='new age')
+
+
+class JSONFieldTrackedModelTests(FieldTrackerTestCase):
+
+    tracked_class = TrackedWithJsonField
+
+    def setUp(self):
+        self.instance = self.tracked_class()
+        self.tracker = self.instance.tracker
+
+    def test_pre_save_changed(self):
+        self.assertChanged(name=None)
+        self.instance.name = 'new age'
+        self.assertChanged(name=None)
+        self.instance.number = 8
+        self.assertChanged(name=None, number=None)
+        self.instance.name = ''
+        self.assertChanged(name=None, number=None)
+        self.instance.props = {'attr': 1}
+        self.assertChanged(name=None, number=None, props=None)
+
+    def test_first_save(self):
+        self.assertHasChanged(name=True)
+        self.assertPrevious(name=None, number=None, props=None)
+        self.assertCurrent(name='', number=None, props=None, id=None)
+        self.assertChanged(name=None)
+        self.instance.name = 'retro'
+        self.instance.number = 4
+        self.instance.props = {'vodka': True}
+        self.assertHasChanged(name=True, number=True, props=True)
+        self.assertPrevious(name=None, number=None, props=None)
+        self.assertCurrent(name='retro', number=4,
+                           props={'vodka': True}, id=None)
+        self.assertChanged(name=None, number=None, props=None)
+
+    def test_pre_save_has_changed(self):
+        self.assertHasChanged(name=True)
+        self.instance.name = 'new age'
+        self.assertHasChanged(name=True)
+        self.instance.number = 7
+        self.assertHasChanged(name=True, number=True)
+        self.instance.props = {'bears_on_red_square': False}
+        self.assertChanged(name=None, number=None, props=None)
+
+    def test_post_save_has_changed(self):
+        self.update_instance(
+            name='retro', number=4,
+            props={
+                'goodies': {
+                    'balalaika': True,
+                    'Topol-M': True
+                }
+            }
+        )
+        self.assertHasChanged(name=False, number=False, props=False)
+        self.instance.name = 'new age'
+        self.assertHasChanged(name=True, number=False, props=False)
+        self.instance.number = 8
+        self.assertHasChanged(name=True, number=True)
+        self.instance.name = 'retro'
+        self.assertHasChanged(name=False, number=True)
+        self.instance.props = {
+            'goodies': {
+                'balalaika': False,
+                'Topol-M': True
+            }
+        }
+        self.assertHasChanged(name=False, number=True, props=True)
+
+    def test_post_save_previous(self):
+        self.update_instance(
+            name='retro', number=4,
+            props={
+                'goodies': {
+                    'balalaika': True,
+                    'Topol-M': True
+                }
+            }
+        )
+        self.instance.name = 'new age'
+        self.instance.props = {
+            'goodies': {
+                'balalaika': False,
+                'Topol-M': True
+            }
+        }
+        self.assertPrevious(
+            name='retro',
+            number=4,
+            props={
+                'goodies': {
+                    'balalaika': True,
+                    'Topol-M': True
+                }
+            }
+        )
+
+    def test_post_save_changed(self):
+        self.update_instance(
+            name='retro', number=4,
+            props={
+                'goodies': {
+                    'balalaika': True,
+                    'Topol-M': True
+                }
+            }
+        )
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.assertChanged(name='retro')
+        self.instance.number = 8
+        self.assertChanged(name='retro', number=4)
+        self.instance.name = 'retro'
+        self.assertChanged(number=4)
+        self.instance.props = {
+            'goodies': {
+                'balalaika': False,
+                'Topol-M': True
+            }
+        }
+        self.assertChanged(
+            number=4,
+            props={
+                'goodies': {
+                    'balalaika': True,
+                    'Topol-M': True
+                }
+            }
+        )
+
+    def test_current(self):
+        self.assertCurrent(name='', number=None, props=None, id=None)
+        self.instance.name = 'new age'
+        self.assertCurrent(name='new age', number=None, props=None, id=None)
+        self.instance.number = 8
+        self.assertCurrent(name='new age', number=8, props=None, id=None)
+        self.instance.props = {
+            'goodies': {
+                'balalaika': False,
+                'Topol-M': True
+            }
+        }
+        self.assertCurrent(
+            name='new age',
+            number=8,
+            props={
+                'goodies': {
+                    'balalaika': False,
+                    'Topol-M': True
+                }
+            },
+            id=None
+        )
+        self.instance.save()
+        self.assertCurrent(
+            name='new age',
+            number=8,
+            props={
+                'goodies': {
+                    'balalaika': False,
+                    'Topol-M': True
+                }
+            },
+            id=self.instance.id
+        )
 
 
 class FieldTrackedModelAttributeTests(FieldTrackerTestCase):

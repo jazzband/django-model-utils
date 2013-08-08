@@ -5,6 +5,7 @@ from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.tracker import FieldTracker, ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.tests.fields import SimpleJSONField
 from model_utils import Choices
 
 
@@ -269,6 +270,15 @@ class TrackedMultiple(models.Model):
 
     name_tracker = FieldTracker(fields=['name'])
     number_tracker = FieldTracker(fields=['number'])
+
+
+class TrackedWithJsonField(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+
+    props = SimpleJSONField()
+
+    tracker = FieldTracker()
 
 
 class ModelTracked(models.Model):

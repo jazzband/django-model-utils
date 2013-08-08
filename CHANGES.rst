@@ -7,6 +7,8 @@ master (unreleased)
 * `Choices` now `__contains__` its Python identifier values. Thanks Keryn
   Knight. (Merge of GH-69).
 
+* Added JSON Fields support.
+
 
 1.4.0 (2013.06.03)
 ------------------
