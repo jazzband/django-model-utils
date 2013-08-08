@@ -8,7 +8,8 @@ master (unreleased)
   Knight. (Merge of GH-69).
 
 * Fixed a bug causing ``KeyError`` when saving with the parameter
-  ``update_fields`` in which there are untracked fields.
+  ``update_fields`` in which there are untracked fields. Thanks Mikhail
+  Silonov. (Merge of GH-70, fixes GH-71).
 
 
 1.4.0 (2013.06.03)
