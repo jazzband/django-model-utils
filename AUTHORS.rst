@@ -19,3 +19,4 @@ Simon Meers <simon@simonmeers.com>
 sayane
 Trey Hunner <trey@treyhunner.com>
 zyegfryed
+Mikhail Silonov <silonov.pro>
