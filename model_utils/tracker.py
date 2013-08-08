@@ -68,7 +68,8 @@ class FieldTracker(object):
 
     def finalize_class(self, sender, **kwargs):
         if self.fields is None:
-            self.fields = [field.attname for field in sender._meta.local_fields]
+            self.fields = (field.attname for field in sender._meta.local_fields)
+        self.fields = set(self.fields)
         self.field_map = self.get_field_map(sender)
         models.signals.post_init.connect(self.initialize_tracker, sender=sender)
         setattr(sender, self.name, self)
@@ -83,8 +84,19 @@ class FieldTracker(object):
         original_save = instance.save
         def save(**kwargs):
             ret = original_save(**kwargs)
+            update_fields = kwargs.get('update_fields')
+            if not update_fields and update_fields is not None:  # () or []
+                fields = update_fields
+            elif update_fields is None:
+                fields = None
+            else:
+                fields = (
+                    field for field in update_fields if
+                    field in self.fields
+                )
             getattr(instance, self.attname).set_saved_fields(
-                fields=kwargs.get('update_fields'))
+                fields=fields
+            )
             return ret
         instance.save = save
 

@@ -923,6 +923,16 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.instance.save()
         self.assertCurrent(name='new age')
 
+    def test_update_fields(self):
+        # Django 1.4 doesn't have update_fields
+        if django.VERSION >= (1, 5, 0):
+            self.update_instance(name='retro', number=4)
+            self.assertChanged()
+            self.instance.name = 'new age'
+            self.instance.number = 8
+            self.instance.save(update_fields=['name', 'number'])
+            self.assertChanged()
+
 
 class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
 
@@ -976,7 +986,7 @@ class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
 
 
 class FieldTrackedModelMultiTests(FieldTrackerTestCase,
-                                   FieldTrackerCommonTests):
+                                  FieldTrackerCommonTests):
 
     tracked_class = TrackedMultiple
 
