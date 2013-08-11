@@ -26,9 +26,9 @@ from model_utils.tests.models import (
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedWithJsonField,
-    TrackedNonFieldAttr, TrackedMultiple, StatusFieldDefaultFilled,
-    StatusFieldDefaultNotFilled)
+    Tracked, TrackedFK, TrackedNotDefault,TrackedNonFieldAttr, TrackedMultiple,
+    StatusFieldDefaultFilled,StatusFieldDefaultNotFilled
+    )
 
 
 class GetExcerptTests(TestCase):
@@ -762,52 +762,61 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None, number=None)
         self.instance.name = ''
         self.assertChanged(name=None, number=None)
+        self.instance.mutable = [1,2,3]
+        self.assertChanged(name=None, number=None, mutable=None)
 
     def test_pre_save_has_changed(self):
-        self.assertHasChanged(name=True, number=False)
+        self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.name = 'new age'
-        self.assertHasChanged(name=True, number=False)
+        self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.number = 7
         self.assertHasChanged(name=True, number=True)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
 
     def test_first_save(self):
-        self.assertHasChanged(name=True, number=False)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='', number=None, id=None)
+        self.assertHasChanged(name=True, number=False, mutable=False)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged(name=None)
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='retro', number=4, id=None)
-        self.assertChanged(name=None, number=None)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertChanged(name=None, number=None, mutable=None)
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True)
-            self.assertPrevious(name=None, number=None)
-            self.assertCurrent(name='retro', number=4, id=None)
-            self.assertChanged(name=None, number=None)
+            self.assertHasChanged(name=True, number=True, mutable=True)
+            self.assertPrevious(name=None, number=None, mutable=None)
+            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+            self.assertChanged(name=None, number=None, mutable=None)
             with self.assertRaises(ValueError):
                 self.instance.save(update_fields=['number'])
 
     def test_post_save_has_changed(self):
-        self.update_instance(name='retro', number=4)
-        self.assertHasChanged(name=False, number=False)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.assertHasChanged(name=False, number=False, mutable=False)
         self.instance.name = 'new age'
         self.assertHasChanged(name=True, number=False)
         self.instance.number = 8
         self.assertHasChanged(name=True, number=True)
+        self.instance.mutable[1] = 4
+        self.assertHasChanged(name=True, number=True, mutable=True)
         self.instance.name = 'retro'
-        self.assertHasChanged(name=False, number=True)
+        self.assertHasChanged(name=False, number=True, mutable=True)
 
     def test_post_save_previous(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.instance.name = 'new age'
-        self.assertPrevious(name='retro', number=4)
+        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.instance.mutable[1] = 4
+        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
 
     def test_post_save_changed(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.assertChanged(name='retro')
@@ -815,36 +824,48 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name='retro', number=4)
         self.instance.name = 'retro'
         self.assertChanged(number=4)
+        self.instance.mutable[1] = 4
+        self.assertChanged(number=4, mutable=[1,2,3])
+        self.instance.mutable = [1,2,3]
+        self.assertChanged(number=4)
 
     def test_current(self):
-        self.assertCurrent(id=None, name='', number=None)
+        self.assertCurrent(id=None, name='', number=None, mutable=None)
         self.instance.name = 'new age'
-        self.assertCurrent(id=None, name='new age', number=None)
+        self.assertCurrent(id=None, name='new age', number=None, mutable=None)
         self.instance.number = 8
-        self.assertCurrent(id=None, name='new age', number=8)
+        self.assertCurrent(id=None, name='new age', number=8, mutable=None)
+        self.instance.mutable = [1,2,3]
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,2,3])
+        self.instance.mutable[1] = 4
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,4,3])
         self.instance.save()
-        self.assertCurrent(id=self.instance.id, name='new age', number=8)
+        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1,4,3])
 
     @skipUnless(
         django.VERSION >= (1, 5, 0), "Django 1.4 doesn't have update_fields")
     def test_update_fields(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.instance.number = 8
-        self.assertChanged(name='retro', number=4)
+        self.instance.mutable = [4,5,6]
+        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
         self.instance.save(update_fields=[])
-        self.assertChanged(name='retro', number=4)
+        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
         self.instance.save(update_fields=['name'])
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertNotEqual(in_db.number, self.instance.number)
-        self.assertChanged(number=4)
+        self.assertChanged(number=4, mutable=[1,2,3])
         self.instance.save(update_fields=['number'])
+        self.assertChanged(mutable=[1,2,3])
+        self.instance.save(update_fields=['mutable'])
         self.assertChanged()
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertEqual(in_db.number, self.instance.number)
+        self.assertEqual(in_db.mutable, self.instance.mutable)
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
@@ -927,171 +948,6 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.instance.number = 8
         self.instance.save(update_fields=['name', 'number'])
         self.assertChanged()
-
-
-class JSONFieldTrackedModelTests(FieldTrackerTestCase):
-
-    tracked_class = TrackedWithJsonField
-
-    def setUp(self):
-        self.instance = self.tracked_class()
-        self.tracker = self.instance.tracker
-
-    def test_pre_save_changed(self):
-        self.assertChanged(name=None)
-        self.instance.name = 'new age'
-        self.assertChanged(name=None)
-        self.instance.number = 8
-        self.assertChanged(name=None, number=None)
-        self.instance.name = ''
-        self.assertChanged(name=None, number=None)
-        self.instance.props = {'attr': 1}
-        self.assertChanged(name=None, number=None, props=None)
-
-    def test_first_save(self):
-        self.assertHasChanged(name=True)
-        self.assertPrevious(name=None, number=None, props=None)
-        self.assertCurrent(name='', number=None, props=None, id=None)
-        self.assertChanged(name=None)
-        self.instance.name = 'retro'
-        self.instance.number = 4
-        self.instance.props = {'vodka': True}
-        self.assertHasChanged(name=True, number=True, props=True)
-        self.assertPrevious(name=None, number=None, props=None)
-        self.assertCurrent(name='retro', number=4,
-                           props={'vodka': True}, id=None)
-        self.assertChanged(name=None, number=None, props=None)
-
-    def test_pre_save_has_changed(self):
-        self.assertHasChanged(name=True)
-        self.instance.name = 'new age'
-        self.assertHasChanged(name=True)
-        self.instance.number = 7
-        self.assertHasChanged(name=True, number=True)
-        self.instance.props = {'bears_on_red_square': False}
-        self.assertChanged(name=None, number=None, props=None)
-
-    def test_post_save_has_changed(self):
-        self.update_instance(
-            name='retro', number=4,
-            props={
-                'goodies': {
-                    'balalaika': True,
-                    'Topol-M': True
-                }
-            }
-        )
-        self.assertHasChanged(name=False, number=False, props=False)
-        self.instance.name = 'new age'
-        self.assertHasChanged(name=True, number=False, props=False)
-        self.instance.number = 8
-        self.assertHasChanged(name=True, number=True)
-        self.instance.name = 'retro'
-        self.assertHasChanged(name=False, number=True)
-        self.instance.props = {
-            'goodies': {
-                'balalaika': False,
-                'Topol-M': True
-            }
-        }
-        self.assertHasChanged(name=False, number=True, props=True)
-
-    def test_post_save_previous(self):
-        self.update_instance(
-            name='retro', number=4,
-            props={
-                'goodies': {
-                    'balalaika': True,
-                    'Topol-M': True
-                }
-            }
-        )
-        self.instance.name = 'new age'
-        self.instance.props = {
-            'goodies': {
-                'balalaika': False,
-                'Topol-M': True
-            }
-        }
-        self.assertPrevious(
-            name='retro',
-            number=4,
-            props={
-                'goodies': {
-                    'balalaika': True,
-                    'Topol-M': True
-                }
-            }
-        )
-
-    def test_post_save_changed(self):
-        self.update_instance(
-            name='retro', number=4,
-            props={
-                'goodies': {
-                    'balalaika': True,
-                    'Topol-M': True
-                }
-            }
-        )
-        self.assertChanged()
-        self.instance.name = 'new age'
-        self.assertChanged(name='retro')
-        self.instance.number = 8
-        self.assertChanged(name='retro', number=4)
-        self.instance.name = 'retro'
-        self.assertChanged(number=4)
-        self.instance.props = {
-            'goodies': {
-                'balalaika': False,
-                'Topol-M': True
-            }
-        }
-        self.assertChanged(
-            number=4,
-            props={
-                'goodies': {
-                    'balalaika': True,
-                    'Topol-M': True
-                }
-            }
-        )
-
-    def test_current(self):
-        self.assertCurrent(name='', number=None, props=None, id=None)
-        self.instance.name = 'new age'
-        self.assertCurrent(name='new age', number=None, props=None, id=None)
-        self.instance.number = 8
-        self.assertCurrent(name='new age', number=8, props=None, id=None)
-        self.instance.props = {
-            'goodies': {
-                'balalaika': False,
-                'Topol-M': True
-            }
-        }
-        self.assertCurrent(
-            name='new age',
-            number=8,
-            props={
-                'goodies': {
-                    'balalaika': False,
-                    'Topol-M': True
-                }
-            },
-            id=None
-        )
-        self.instance.save()
-        self.assertCurrent(
-            name='new age',
-            number=8,
-            props={
-                'goodies': {
-                    'balalaika': False,
-                    'Topol-M': True
-                }
-            },
-            id=self.instance.id
-        )
 
 
 class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
@@ -1291,24 +1147,27 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = ''
         self.assertChanged()
+        self.instance.mutable = [1,2,3]
+        self.assertChanged()
 
     def test_first_save(self):
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='', number=None, id=None)
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged()
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='retro', number=4, id=None)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
         self.assertChanged()
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True)
-            self.assertPrevious(name=None, number=None)
-            self.assertCurrent(name='retro', number=4, id=None)
+            self.assertHasChanged(name=True, number=True, mutable=True)
+            self.assertPrevious(name=None, number=None, mutable=None)
+            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
             self.assertChanged()
             with self.assertRaises(ValueError):
                 self.instance.save(update_fields=['number'])

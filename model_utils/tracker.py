@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from copy import deepcopy
-from json import JSONEncoder
 
 from django.db import models
 from django.core.exceptions import FieldError
@@ -23,7 +22,10 @@ class FieldInstanceTracker(object):
             self.saved_data = self.current()
         else:
             self.saved_data.update(**self.current(fields=fields))
-        return self.saved_data
+
+        # preventing mutable fields side effects
+        for field, field_value in self.saved_data.items():
+            self.saved_data[field] = deepcopy(field_value)
 
     def current(self, fields=None):
         """Return dict of current values for all tracked fields"""
@@ -82,8 +84,7 @@ class FieldTracker(object):
     def initialize_tracker(self, sender, instance, **kwargs):
         tracker = self.tracker_class(instance, self.fields, self.field_map)
         setattr(instance, self.attname, tracker)
-        saved_data = tracker.set_saved_fields()
-        self.prevent_json_fields_side_effects(saved_data)
+        tracker.set_saved_fields()
         self.patch_save(instance)
 
     def patch_save(self, instance):
@@ -105,16 +106,6 @@ class FieldTracker(object):
             )
             return ret
         instance.save = save
-
-    def prevent_json_fields_side_effects(self, saved_data):
-        for field, field_value in saved_data.items():
-            if isinstance(field_value, (dict, list, tuple)):
-                try:
-                    JSONEncoder().encode(field_value)
-                except TypeError:
-                    pass
-                else:
-                    saved_data[field] = deepcopy(field_value)
 
     def __get__(self, instance, owner):
         if instance is None:

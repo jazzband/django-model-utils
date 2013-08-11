@@ -12,7 +12,7 @@ master (unreleased)
   ``update_fields`` in which there are untracked fields. Thanks Mikhail
   Silonov. (Merge of GH-70, fixes GH-71).
 
-* Added JSON Fields support.
+* Added support for mutable fields (Merge of GH-73, fixes GH-74)
 
 
 1.4.0 (2013.06.03)
