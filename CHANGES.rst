@@ -11,6 +11,8 @@ master (unreleased)
   ``update_fields`` in which there are untracked fields. Thanks Mikhail
   Silonov. (Merge of GH-70, fixes GH-71).
 
+* Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
+
 
 1.4.0 (2013.06.03)
 ------------------
