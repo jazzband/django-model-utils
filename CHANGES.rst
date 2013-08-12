@@ -7,7 +7,6 @@ master (unreleased)
 * `Choices` now `__contains__` its Python identifier values. Thanks Keryn
   Knight. (Merge of GH-69).
 
-=======
 * Fixed a bug causing ``KeyError`` when saving with the parameter
   ``update_fields`` in which there are untracked fields. Thanks Mikhail
   Silonov. (Merge of GH-70, fixes GH-71).
