@@ -334,6 +334,7 @@ class IdentifierChoicesTests(ChoicesTests):
     def test_doesnt_contain_python_attr(self):
         self.assertFalse('PUBLISHED' in self.STATUS)
 
+
 class InheritanceManagerTests(TestCase):
     def setUp(self):
         self.child1 = InheritanceManagerTestChild1.objects.create()

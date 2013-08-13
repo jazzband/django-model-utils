@@ -75,7 +75,7 @@ class Choices(object):
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
-                          ', '.join(("%s" % repr(i) for i in self._full)))
+                           ', '.join(("%s" % repr(i) for i in self._full)))
 
     def __contains__(self, item):
         if item in self._choice_dict.values():

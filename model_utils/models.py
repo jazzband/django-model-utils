@@ -36,6 +36,7 @@ class TimeFramedModel(models.Model):
     class Meta:
         abstract = True
 
+
 class StatusModel(models.Model):
     """
     An abstract base class model with a ``status`` field that
@@ -50,6 +51,7 @@ class StatusModel(models.Model):
 
     class Meta:
         abstract = True
+
 
 def add_status_query_managers(sender, **kwargs):
     """
@@ -68,6 +70,7 @@ def add_status_query_managers(sender, **kwargs):
         except FieldDoesNotExist:
             pass
         sender.add_to_class(value, QueryManager(status=value))
+
 
 def add_timeframed_query_manager(sender, **kwargs):
     """
