@@ -13,7 +13,7 @@ master (unreleased)
 
 * Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
 
-* Add mutable field support to ``FieldTracker`` (Merge of GH-73, fixes GH-74)
+* Added mutable field support to ``FieldTracker`` (Merge of GH-73, fixes GH-74)
 
 
 1.4.0 (2013.06.03)
