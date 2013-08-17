@@ -1,13 +1,5 @@
 from django.db import models
-
-try:
-    unicode()
-    str_class = basestring
-except NameError:
-    str_class = str
-
-def with_metaclass(meta, base=object):
-    return meta("NewBase", (base,), {})
+from django.utils.six import with_metaclass, string_types
 
 
 class MutableField(with_metaclass(models.SubfieldBase, models.TextField)):
@@ -17,7 +9,7 @@ class MutableField(with_metaclass(models.SubfieldBase, models.TextField)):
             return None
 
         try:
-            if isinstance(value, str_class):
+            if isinstance(value, string_types):
                 return [int(i) for i in value.split(',')]
         except ValueError:
             pass
