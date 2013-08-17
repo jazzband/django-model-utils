@@ -5,6 +5,7 @@ from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.tracker import FieldTracker, ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.tests.fields import MutableField
 from model_utils import Choices
 
 
@@ -234,6 +235,7 @@ class Spot(models.Model):
 class Tracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
+    mutable = MutableField()
 
     tracker = FieldTracker()
 
@@ -278,6 +280,7 @@ class InheritedTracked(Tracked):
 class ModelTracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
+    mutable = MutableField()
 
     tracker = ModelTracker()
 

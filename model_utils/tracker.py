@@ -1,4 +1,7 @@
 from __future__ import unicode_literals
+
+from copy import deepcopy
+
 from django.db import models
 from django.core.exceptions import FieldError
 
@@ -19,6 +22,10 @@ class FieldInstanceTracker(object):
             self.saved_data = self.current()
         else:
             self.saved_data.update(**self.current(fields=fields))
+
+        # preventing mutable fields side effects
+        for field, field_value in self.saved_data.items():
+            self.saved_data[field] = deepcopy(field_value)
 
     def current(self, fields=None):
         """Return dict of current values for all tracked fields"""
