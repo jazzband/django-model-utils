@@ -229,6 +229,11 @@ class ChoicesTests(TestCase):
     def test_doesnt_contain_value(self):
         self.assertFalse('UNPUBLISHED' in self.STATUS)
 
+    def test_deepcopy(self):
+        import copy
+        self.assertEqual(list(self.STATUS),
+                         list(copy.deepcopy(self.STATUS)))
+
 
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):

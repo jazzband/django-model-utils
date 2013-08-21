@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import copy
+
 
 class Choices(object):
     """
@@ -80,3 +82,6 @@ class Choices(object):
     def __contains__(self, item):
         if item in self._choice_dict.values():
             return True
+
+    def __deepcopy__(self, memo):
+        return self.__class__(*copy.deepcopy(self._full, memo))
