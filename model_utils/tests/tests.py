@@ -220,6 +220,15 @@ class ChoicesTests(TestCase):
         self.assertRaises(ValueError, Choices, ('a',))
 
 
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices('DRAFT', 'PUBLISHED'))
+
+
+    def test_composability(self):
+        self.assertEqual(Choices('DRAFT') + Choices('PUBLISHED'), self.STATUS)
+        self.assertEqual(Choices('DRAFT') + ('PUBLISHED',), self.STATUS)
+        self.assertEqual(('DRAFT',) + Choices('PUBLISHED'), self.STATUS)
+
 
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
@@ -254,6 +263,14 @@ class LabelChoicesTests(ChoicesTests):
         self.assertEqual(len(self.STATUS), 3)
 
 
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices(
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
+            'DELETED',
+        ))
+
+
     def test_repr(self):
         self.assertEqual(repr(self.STATUS), "Choices" + repr((
             ('DRAFT', 'DRAFT', 'is draft'),
@@ -261,6 +278,22 @@ class LabelChoicesTests(ChoicesTests):
             ('DELETED', 'DELETED', 'DELETED'),
         )))
 
+
+    def test_composability(self):
+        self.assertEqual(
+            Choices(('DRAFT', 'is draft',)) + Choices(('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            (('DRAFT', 'is draft',),) + Choices(('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            Choices(('DRAFT', 'is draft',)) + (('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
 
 
 class IdentifierChoicesTests(ChoicesTests):
@@ -296,6 +329,46 @@ class IdentifierChoicesTests(ChoicesTests):
             (1, 'PUBLISHED', 'is published'),
             (2, 'DELETED', 'is deleted'),
         )))
+
+
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices(
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted'))
+        )
+
+
+    def test_composability(self):
+        self.assertEqual(
+            Choices(
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + Choices(
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            Choices(
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + (
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            (
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + Choices(
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
 
 
 class InheritanceManagerTests(TestCase):
