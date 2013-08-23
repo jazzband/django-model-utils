@@ -109,7 +109,7 @@ instances and other iterable objects that could be converted into Choices:
     GENERIC_CHOICES = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
 
     class Article(models.Model):
-        STATUS = GENERIC_CHOICES + [(2, 'featured', _('featured))]
+        STATUS = GENERIC_CHOICES + [(2, 'featured', _('featured'))]
         # ...
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
 
