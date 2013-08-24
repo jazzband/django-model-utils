@@ -4,6 +4,17 @@ CHANGES
 master (unreleased)
 -------------------
 
+* `Choices` now `__contains__` its Python identifier values. Thanks Keryn
+  Knight. (Merge of GH-69).
+
+* Fixed a bug causing ``KeyError`` when saving with the parameter
+  ``update_fields`` in which there are untracked fields. Thanks Mikhail
+  Silonov. (Merge of GH-70, fixes GH-71).
+
+* Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
+
+* Added mutable field support to ``FieldTracker`` (Merge of GH-73, fixes GH-74)
+
 
 1.4.0 (2013.06.03)
 ------------------

@@ -1,7 +1,11 @@
 from __future__ import unicode_literals
-import pickle
 
 from datetime import datetime, timedelta
+import pickle
+try:
+    from unittest import skipUnless
+except ImportError: # Python 2.6
+    from django.utils.unittest import skipUnless
 
 import django
 from django.db import models
@@ -21,10 +25,9 @@ from model_utils.tests.models import (
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
-    ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr,
-    TrackedMultiple, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
-
+    ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
+    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
+    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
 
 
 class GetExcerptTests(TestCase):
@@ -102,15 +105,13 @@ class SplitFieldTests(TestCase):
 
 
     def test_assign_to_excerpt(self):
-        def _invalid_assignment():
+        with self.assertRaises(AttributeError):
             self.post.body.excerpt = 'this should fail'
-        self.assertRaises(AttributeError, _invalid_assignment)
 
 
     def test_access_via_class(self):
-        def _invalid_access():
+        with self.assertRaises(AttributeError):
             Article.body
-        self.assertRaises(AttributeError, _invalid_access)
 
 
     def test_none(self):
@@ -165,7 +166,8 @@ class MonitorFieldTests(TestCase):
 
 
     def test_no_monitor_arg(self):
-        self.assertRaises(TypeError, MonitorField)
+        with self.assertRaises(TypeError):
+            MonitorField()
 
 
 class StatusFieldTests(TestCase):
@@ -217,8 +219,15 @@ class ChoicesTests(TestCase):
 
 
     def test_wrong_length_tuple(self):
-        self.assertRaises(ValueError, Choices, ('a',))
+        with self.assertRaises(ValueError):
+            Choices(('a',))
 
+    def test_contains_value(self):
+        self.assertTrue('PUBLISHED' in self.STATUS)
+        self.assertTrue('DRAFT' in self.STATUS)
+
+    def test_doesnt_contain_value(self):
+        self.assertFalse('UNPUBLISHED' in self.STATUS)
 
     def test_equality(self):
         self.assertEqual(self.STATUS, Choices('DRAFT', 'PUBLISHED'))
@@ -278,6 +287,19 @@ class LabelChoicesTests(ChoicesTests):
             ('DELETED', 'DELETED', 'DELETED'),
         )))
 
+    def test_contains_value(self):
+        self.assertTrue('PUBLISHED' in self.STATUS)
+        self.assertTrue('DRAFT' in self.STATUS)
+        # This should be True, because both the display value
+        # and the internal representation are both DELETED.
+        self.assertTrue('DELETED' in self.STATUS)
+
+    def test_doesnt_contain_value(self):
+        self.assertFalse('UNPUBLISHED' in self.STATUS)
+
+    def test_doesnt_contain_display_value(self):
+        self.assertFalse('is draft' in self.STATUS)
+
 
     def test_composability(self):
         self.assertEqual(
@@ -330,6 +352,19 @@ class IdentifierChoicesTests(ChoicesTests):
             (2, 'DELETED', 'is deleted'),
         )))
 
+    def test_contains_value(self):
+        self.assertTrue(0 in self.STATUS)
+        self.assertTrue(1 in self.STATUS)
+        self.assertTrue(2 in self.STATUS)
+
+    def test_doesnt_contain_value(self):
+        self.assertFalse(3 in self.STATUS)
+
+    def test_doesnt_contain_display_value(self):
+        self.assertFalse('is draft' in self.STATUS)
+
+    def test_doesnt_contain_python_attr(self):
+        self.assertFalse('PUBLISHED' in self.STATUS)
 
     def test_equality(self):
         self.assertEqual(self.STATUS, Choices(
@@ -422,23 +457,23 @@ class InheritanceManagerTests(TestCase):
             )
 
 
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_select_specific_grandchildren(self):
-        if django.VERSION >= (1, 6, 0):
-            children = set([
-                    InheritanceManagerTestParent(pk=self.child1.pk),
-                    InheritanceManagerTestParent(pk=self.child2.pk),
-                    self.grandchild1,
-                    InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
-                    ])
-            self.assertEqual(
-                set(
-                    self.get_manager().select_subclasses(
-                        "inheritancemanagertestchild1__"
-                        "inheritancemanagertestgrandchild1"
-                        )
-                    ),
-                children,
-                )
+        children = set([
+                InheritanceManagerTestParent(pk=self.child1.pk),
+                InheritanceManagerTestParent(pk=self.child2.pk),
+                self.grandchild1,
+                InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
+                ])
+        self.assertEqual(
+            set(
+                self.get_manager().select_subclasses(
+                    "inheritancemanagertestchild1__"
+                    "inheritancemanagertestgrandchild1"
+                    )
+                ),
+            children,
+            )
 
 
     def test_get_subclass(self):
@@ -448,13 +483,11 @@ class InheritanceManagerTests(TestCase):
 
 
     def test_prior_select_related(self):
-        # Django 1.2 doesn't have assertNumQueries
-        if django.VERSION >= (1, 3):
-            with self.assertNumQueries(1):
-                obj = self.get_manager().select_related(
-                    "inheritancemanagertestchild1").select_subclasses(
-                    "inheritancemanagertestchild2").get(pk=self.child1.pk)
-                obj.inheritancemanagertestchild1
+        with self.assertNumQueries(1):
+            obj = self.get_manager().select_related(
+                "inheritancemanagertestchild1").select_subclasses(
+                "inheritancemanagertestchild2").get(pk=self.child1.pk)
+            obj.inheritancemanagertestchild1
 
 
 
@@ -558,10 +591,9 @@ class TimeFrameManagerAddedTests(TestCase):
 
 
     def test_conflict_error(self):
-        def _run():
+        with self.assertRaises(ImproperlyConfigured):
             class ErrorModel(TimeFramedModel):
                 timeframed = models.BooleanField()
-        self.assertRaises(ImproperlyConfigured, _run)
 
 
 
@@ -612,14 +644,13 @@ class StatusManagerAddedTests(TestCase):
 
 
     def test_conflict_error(self):
-        def _run():
+        with self.assertRaises(ImproperlyConfigured):
             class ErrorModel(StatusModel):
                 STATUS = (
                     ('active', 'active'),
                     ('deleted', 'deleted'),
                     )
                 active = models.BooleanField()
-        self.assertRaises(ImproperlyConfigured, _run)
 
 
 
@@ -656,25 +687,23 @@ try:
 except ImportError:
     introspector = None
 
-# @@@ use skipUnless once Django 1.3 is minimum supported version
-if introspector:
-    class SouthFreezingTests(TestCase):
-        def test_introspector_adds_no_excerpt_field(self):
-            mf = Article._meta.get_field('body')
-            args, kwargs = introspector(mf)
-            self.assertEqual(kwargs['no_excerpt_field'], 'True')
+@skipUnless(introspector, 'South is not installed')
+class SouthFreezingTests(TestCase):
+    def test_introspector_adds_no_excerpt_field(self):
+        mf = Article._meta.get_field('body')
+        args, kwargs = introspector(mf)
+        self.assertEqual(kwargs['no_excerpt_field'], 'True')
 
 
-        def test_no_excerpt_field_works(self):
-            from models import NoRendered
-            self.assertRaises(FieldDoesNotExist,
-                              NoRendered._meta.get_field,
-                              '_body_excerpt')
+    def test_no_excerpt_field_works(self):
+        from .models import NoRendered
+        with self.assertRaises(FieldDoesNotExist):
+            NoRendered._meta.get_field('_body_excerpt')
 
-        def test_status_field_no_check_for_status(self):
-            sf = StatusFieldDefaultFilled._meta.get_field('status')
-            args, kwargs = introspector(sf)
-            self.assertEqual(kwargs['no_check_for_status'], 'True')
+    def test_status_field_no_check_for_status(self):
+        sf = StatusFieldDefaultFilled._meta.get_field('status')
+        args, kwargs = introspector(sf)
+        self.assertEqual(kwargs['no_check_for_status'], 'True')
 
 
 
@@ -696,9 +725,8 @@ class PassThroughManagerTests(TestCase):
     def test_manager_only_methods(self):
         stats = Dude.abiders.get_stats()
         self.assertEqual(stats['rug_count'], 1)
-        def notonqs():
+        with self.assertRaises(AttributeError):
             Dude.abiders.all().get_stats()
-        self.assertRaises(AttributeError, notonqs)
 
 
     def test_queryset_pickling(self):
@@ -754,7 +782,8 @@ class FieldTrackerTestCase(TestCase):
         tracker = kwargs.pop('tracker', self.tracker)
         for field, value in kwargs.items():
             if value is None:
-                self.assertRaises(FieldError, tracker.has_changed, field)
+                with self.assertRaises(FieldError):
+                    tracker.has_changed(field)
             else:
                 self.assertEqual(tracker.has_changed(field), value)
 
@@ -805,52 +834,61 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None, number=None)
         self.instance.name = ''
         self.assertChanged(name=None, number=None)
+        self.instance.mutable = [1,2,3]
+        self.assertChanged(name=None, number=None, mutable=None)
 
     def test_pre_save_has_changed(self):
-        self.assertHasChanged(name=True, number=False)
+        self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.name = 'new age'
-        self.assertHasChanged(name=True, number=False)
+        self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.number = 7
         self.assertHasChanged(name=True, number=True)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
 
     def test_first_save(self):
-        self.assertHasChanged(name=True, number=False)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='', number=None, id=None)
+        self.assertHasChanged(name=True, number=False, mutable=False)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged(name=None)
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='retro', number=4, id=None)
-        self.assertChanged(name=None, number=None)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertChanged(name=None, number=None, mutable=None)
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True)
-            self.assertPrevious(name=None, number=None)
-            self.assertCurrent(name='retro', number=4, id=None)
-            self.assertChanged(name=None, number=None)
-            self.assertRaises(ValueError, self.instance.save,
-                    update_fields=['number'])
+            self.assertHasChanged(name=True, number=True, mutable=True)
+            self.assertPrevious(name=None, number=None, mutable=None)
+            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+            self.assertChanged(name=None, number=None, mutable=None)
+            with self.assertRaises(ValueError):
+                self.instance.save(update_fields=['number'])
 
     def test_post_save_has_changed(self):
-        self.update_instance(name='retro', number=4)
-        self.assertHasChanged(name=False, number=False)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.assertHasChanged(name=False, number=False, mutable=False)
         self.instance.name = 'new age'
         self.assertHasChanged(name=True, number=False)
         self.instance.number = 8
         self.assertHasChanged(name=True, number=True)
+        self.instance.mutable[1] = 4
+        self.assertHasChanged(name=True, number=True, mutable=True)
         self.instance.name = 'retro'
-        self.assertHasChanged(name=False, number=True)
+        self.assertHasChanged(name=False, number=True, mutable=True)
 
     def test_post_save_previous(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.instance.name = 'new age'
-        self.assertPrevious(name='retro', number=4)
+        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.instance.mutable[1] = 4
+        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
 
     def test_post_save_changed(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.assertChanged(name='retro')
@@ -858,36 +896,48 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name='retro', number=4)
         self.instance.name = 'retro'
         self.assertChanged(number=4)
+        self.instance.mutable[1] = 4
+        self.assertChanged(number=4, mutable=[1,2,3])
+        self.instance.mutable = [1,2,3]
+        self.assertChanged(number=4)
 
     def test_current(self):
-        self.assertCurrent(id=None, name='', number=None)
+        self.assertCurrent(id=None, name='', number=None, mutable=None)
         self.instance.name = 'new age'
-        self.assertCurrent(id=None, name='new age', number=None)
+        self.assertCurrent(id=None, name='new age', number=None, mutable=None)
         self.instance.number = 8
-        self.assertCurrent(id=None, name='new age', number=8)
+        self.assertCurrent(id=None, name='new age', number=8, mutable=None)
+        self.instance.mutable = [1,2,3]
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,2,3])
+        self.instance.mutable[1] = 4
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,4,3])
         self.instance.save()
-        self.assertCurrent(id=self.instance.id, name='new age', number=8)
+        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1,4,3])
 
+    @skipUnless(
+        django.VERSION >= (1, 5, 0), "Django 1.4 doesn't have update_fields")
     def test_update_fields(self):
-        # Django 1.4 doesn't have update_fields
-        if django.VERSION >= (1, 5, 0):
-            self.update_instance(name='retro', number=4)
-            self.assertChanged()
-            self.instance.name = 'new age'
-            self.instance.number = 8
-            self.assertChanged(name='retro', number=4)
-            self.instance.save(update_fields=[])
-            self.assertChanged(name='retro', number=4)
-            self.instance.save(update_fields=['name'])
-            in_db = self.tracked_class.objects.get(id=self.instance.id)
-            self.assertEqual(in_db.name, self.instance.name)
-            self.assertNotEqual(in_db.number, self.instance.number)
-            self.assertChanged(number=4)
-            self.instance.save(update_fields=['number'])
-            self.assertChanged()
-            in_db = self.tracked_class.objects.get(id=self.instance.id)
-            self.assertEqual(in_db.name, self.instance.name)
-            self.assertEqual(in_db.number, self.instance.number)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.instance.number = 8
+        self.instance.mutable = [4,5,6]
+        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
+        self.instance.save(update_fields=[])
+        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
+        self.instance.save(update_fields=['name'])
+        in_db = self.tracked_class.objects.get(id=self.instance.id)
+        self.assertEqual(in_db.name, self.instance.name)
+        self.assertNotEqual(in_db.number, self.instance.number)
+        self.assertChanged(number=4, mutable=[1,2,3])
+        self.instance.save(update_fields=['number'])
+        self.assertChanged(mutable=[1,2,3])
+        self.instance.save(update_fields=['mutable'])
+        self.assertChanged()
+        in_db = self.tracked_class.objects.get(id=self.instance.id)
+        self.assertEqual(in_db.name, self.instance.name)
+        self.assertEqual(in_db.number, self.instance.number)
+        self.assertEqual(in_db.mutable, self.instance.mutable)
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
@@ -961,6 +1011,16 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.instance.save()
         self.assertCurrent(name='new age')
 
+    @skipUnless(
+        django.VERSION >= (1, 5, 0), "Django 1.4 doesn't have update_fields")
+    def test_update_fields(self):
+        self.update_instance(name='retro', number=4)
+        self.assertChanged()
+        self.instance.name = 'new age'
+        self.instance.number = 8
+        self.instance.save(update_fields=['name', 'number'])
+        self.assertChanged()
+
 
 class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
 
@@ -1014,7 +1074,7 @@ class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
 
 
 class FieldTrackedModelMultiTests(FieldTrackerTestCase,
-                                   FieldTrackerCommonTests):
+                                  FieldTrackerCommonTests):
 
     tracked_class = TrackedMultiple
 
@@ -1147,6 +1207,16 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
         self.assertCurrent(fk=self.instance.fk_id)
 
 
+class InheritedFieldTrackerTests(FieldTrackerTests):
+
+    tracked_class = InheritedTracked
+
+    def test_child_fields_not_tracked(self):
+        self.name2 = 'test'
+        self.assertEqual(self.tracker.previous('name2'), None)
+        self.assertRaises(FieldError, self.tracker.has_changed, 'name2')
+
+
 class ModelTrackerTests(FieldTrackerTests):
 
     tracked_class = ModelTracked
@@ -1159,27 +1229,30 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = ''
         self.assertChanged()
+        self.instance.mutable = [1,2,3]
+        self.assertChanged()
 
     def test_first_save(self):
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='', number=None, id=None)
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged()
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='retro', number=4, id=None)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
         self.assertChanged()
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True)
-            self.assertPrevious(name=None, number=None)
-            self.assertCurrent(name='retro', number=4, id=None)
+            self.assertHasChanged(name=True, number=True, mutable=True)
+            self.assertPrevious(name=None, number=None, mutable=None)
+            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
             self.assertChanged()
-            self.assertRaises(ValueError, self.instance.save,
-                    update_fields=['number'])
+            with self.assertRaises(ValueError):
+                self.instance.save(update_fields=['number'])
 
     def test_pre_save_has_changed(self):
         self.assertHasChanged(name=True, number=True)
@@ -1270,3 +1343,13 @@ class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
         self.assertChanged(fk=self.old_fk)
         self.assertPrevious(fk=self.old_fk)
         self.assertCurrent(fk=self.instance.fk)
+
+
+class InheritedModelTrackerTests(ModelTrackerTests):
+
+    tracked_class = InheritedModelTracked
+
+    def test_child_fields_not_tracked(self):
+        self.name2 = 'test'
+        self.assertEqual(self.tracker.previous('name2'), None)
+        self.assertTrue(self.tracker.has_changed('name2'))

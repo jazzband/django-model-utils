@@ -1,4 +1,7 @@
 from __future__ import unicode_literals
+
+from copy import deepcopy
+
 from django.db import models
 from django.core.exceptions import FieldError
 
@@ -20,8 +23,12 @@ class FieldInstanceTracker(object):
         else:
             self.saved_data.update(**self.current(fields=fields))
 
+        # preventing mutable fields side effects
+        for field, field_value in self.saved_data.items():
+            self.saved_data[field] = deepcopy(field_value)
+
     def current(self, fields=None):
-        """Return dict of current values for all tracked fields"""
+        """Returns dict of current values for all tracked fields"""
         if fields is None:
             fields = self.fields
         return dict((f, self.get_field_value(f)) for f in fields)
@@ -34,7 +41,7 @@ class FieldInstanceTracker(object):
             raise FieldError('field "%s" not tracked' % field)
 
     def previous(self, field):
-        """Return currently saved value of given field"""
+        """Returns currently saved value of given field"""
         return self.saved_data.get(field)
 
     def changed(self):
@@ -54,7 +61,7 @@ class FieldTracker(object):
         self.fields = fields
 
     def get_field_map(self, cls):
-        """Return dict mapping fields names to model attribute names"""
+        """Returns dict mapping fields names to model attribute names"""
         field_map = dict((field, field) for field in self.fields)
         all_fields = dict((f.name, f.attname) for f in cls._meta.local_fields)
         field_map.update(**dict((k, v) for (k, v) in all_fields.items()
@@ -68,12 +75,16 @@ class FieldTracker(object):
 
     def finalize_class(self, sender, **kwargs):
         if self.fields is None:
-            self.fields = [field.attname for field in sender._meta.local_fields]
+            self.fields = (field.attname for field in sender._meta.local_fields)
+        self.fields = set(self.fields)
         self.field_map = self.get_field_map(sender)
-        models.signals.post_init.connect(self.initialize_tracker, sender=sender)
+        models.signals.post_init.connect(self.initialize_tracker)
+        self.model_class = sender
         setattr(sender, self.name, self)
 
     def initialize_tracker(self, sender, instance, **kwargs):
+        if not isinstance(instance, self.model_class):
+            return  # Only init instances of given model (including children)
         tracker = self.tracker_class(instance, self.fields, self.field_map)
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()
@@ -83,8 +94,19 @@ class FieldTracker(object):
         original_save = instance.save
         def save(**kwargs):
             ret = original_save(**kwargs)
+            update_fields = kwargs.get('update_fields')
+            if not update_fields and update_fields is not None:  # () or []
+                fields = update_fields
+            elif update_fields is None:
+                fields = None
+            else:
+                fields = (
+                    field for field in update_fields if
+                    field in self.fields
+                )
             getattr(instance, self.attname).set_saved_fields(
-                fields=kwargs.get('update_fields'))
+                fields=fields
+            )
             return ret
         instance.save = save
 

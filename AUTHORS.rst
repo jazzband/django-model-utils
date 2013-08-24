@@ -6,11 +6,13 @@ Donald Stufft <donald.stufft@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
 Felipe Prenholato <philipe.rp@gmail.com>
 Gregor Müllegger <gregor@muellegger.de>
+ivirabyan
 James Oakley <jfunk@funktronics.ca>
 Jannis Leidel <jannis@leidel.info>
 Javier García Sogo <jgsogo@gmail.com>
 Jeff Elmore <jeffelmore.org>
-ivirabyan
+Keryn Knight <kerynknight.com>
+Mikhail Silonov <silonov.pro>
 Paul McLanahan <paul@mclanahan.net>
 Rinat Shigapov <rinatshigapov@gmail.com>
 Ryan Kaskel <dev@ryankaskel.com>
