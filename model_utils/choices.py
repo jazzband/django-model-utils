@@ -92,9 +92,6 @@ class Choices(object):
             return self._full == other._full
         return False
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                           ', '.join(("%s" % repr(i) for i in self._full)))
