@@ -18,6 +18,6 @@ Rinat Shigapov <rinatshigapov@gmail.com>
 Ryan Kaskel <dev@ryankaskel.com>
 Simon Meers <simon@simonmeers.com>
 sayane
+Tony Aldridge <zaragopha@hotmail.com>
 Trey Hunner <trey@treyhunner.com>
 zyegfryed
-Tony Aldridge <zaragopha@hotmail.com>
