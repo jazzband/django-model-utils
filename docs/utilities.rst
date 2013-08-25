@@ -55,6 +55,20 @@ the third is the human-readable version:
         # ...
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
 
+Choices can be concatenated with the ``+`` operator, both to other Choices
+instances and other iterable objects that could be converted into Choices:
+
+.. code-block:: python
+
+    from model_utils import Choices
+
+    GENERIC_CHOICES = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
+
+    class Article(models.Model):
+        STATUS = GENERIC_CHOICES + [(2, 'featured', _('featured'))]
+        # ...
+        status = models.IntegerField(choices=STATUS, default=STATUS.draft)
+
 
 Field Tracker
 =============

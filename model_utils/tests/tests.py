@@ -230,6 +230,21 @@ class ChoicesTests(TestCase):
         self.assertFalse('UNPUBLISHED' in self.STATUS)
 
 
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices('DRAFT', 'PUBLISHED'))
+
+
+    def test_inequality(self):
+        self.assertNotEqual(self.STATUS, ['DRAFT', 'PUBLISHED'])
+        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
+
+
+    def test_composability(self):
+        self.assertEqual(Choices('DRAFT') + Choices('PUBLISHED'), self.STATUS)
+        self.assertEqual(Choices('DRAFT') + ('PUBLISHED',), self.STATUS)
+        self.assertEqual(('DRAFT',) + Choices('PUBLISHED'), self.STATUS)
+
+
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
         self.STATUS = Choices(
@@ -263,6 +278,23 @@ class LabelChoicesTests(ChoicesTests):
         self.assertEqual(len(self.STATUS), 3)
 
 
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices(
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
+            'DELETED',
+        ))
+
+
+    def test_inequality(self):
+        self.assertNotEqual(self.STATUS, [
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
+            'DELETED'
+        ])
+        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
+
+
     def test_repr(self):
         self.assertEqual(repr(self.STATUS), "Choices" + repr((
             ('DRAFT', 'DRAFT', 'is draft'),
@@ -283,6 +315,22 @@ class LabelChoicesTests(ChoicesTests):
     def test_doesnt_contain_display_value(self):
         self.assertFalse('is draft' in self.STATUS)
 
+
+    def test_composability(self):
+        self.assertEqual(
+            Choices(('DRAFT', 'is draft',)) + Choices(('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            (('DRAFT', 'is draft',),) + Choices(('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            Choices(('DRAFT', 'is draft',)) + (('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
 
 
 class IdentifierChoicesTests(ChoicesTests):
@@ -332,6 +380,54 @@ class IdentifierChoicesTests(ChoicesTests):
 
     def test_doesnt_contain_python_attr(self):
         self.assertFalse('PUBLISHED' in self.STATUS)
+
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices(
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted')
+        ))
+
+    def test_inequality(self):
+        self.assertNotEqual(self.STATUS, [
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted')
+        ])
+        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
+
+
+    def test_composability(self):
+        self.assertEqual(
+            Choices(
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + Choices(
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            Choices(
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + (
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            (
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + Choices(
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
 
 class InheritanceManagerTests(TestCase):
     def setUp(self):

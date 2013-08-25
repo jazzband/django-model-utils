@@ -73,6 +73,23 @@ class Choices(object):
     def __getitem__(self, index):
         return self._choices[index]
 
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            other = other._full
+        else:
+            other = list(other)
+        return Choices(*(self._full + other))
+
+    def __radd__(self, other):
+        # radd is never called for matching types, so we don't check here
+        other = list(other)
+        return Choices(*(other + self._full))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self._full == other._full
+        return False
+
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                           ', '.join(("%s" % repr(i) for i in self._full)))
