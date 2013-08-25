@@ -81,10 +81,8 @@ class Choices(object):
         return Choices(*(self._full + other))
 
     def __radd__(self, other):
-        if isinstance(other, self.__class__):
-            other = other._full
-        else:
-            other = list(other)
+        # radd is never called for matching types, so we don't check here
+        other = list(other)
         return Choices(*(other + self._full))
 
     def __eq__(self, other):
