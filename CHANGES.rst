@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* `Choices` can now be added to other `Choices` or to any iterable, and can be
+  compared for equality with itself. Thanks Tony Aldridge. (Merge of GH-76.)
+
 * `Choices` now `__contains__` its Python identifier values. Thanks Keryn
   Knight. (Merge of GH-69).
 
