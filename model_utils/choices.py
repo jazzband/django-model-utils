@@ -34,66 +34,111 @@ class Choices(object):
     identifier, the database representation itself is available as an
     attribute on the ``Choices`` object, returning itself.)
 
+    Option groups can also be used with ``Choices``; in that case each
+    argument is a tuple consisting of the option group name and a list
+    of options, where each option in the list is either a string, a
+    two-tuple, or a triple as outlined above.
+
     """
 
     def __init__(self, *choices):
-        self._full = []
-        self._choices = []
-        self._choice_dict = {}
-        for choice in self.equalize(choices):
-            self._full.append(choice)
-            self._choices.append((choice[0], choice[2]))
-            self._choice_dict[choice[1]] = choice[0]
+        # list of choices expanded to triples - can include optgroups
+        self._triples = []
+        # list of choices as (db, human-readable) - can include optgroups
+        self._doubles = []
+        # dictionary mapping Python identifier to db representation
+        self._mapping = {}
+        # set of db representations
+        self._db_values = set()
 
-    def equalize(self, choices):
+        self._process(choices)
+
+
+    def _store(self, triple, triple_collector, double_collector):
+        self._mapping[triple[1]] = triple[0]
+        self._db_values.add(triple[0])
+        triple_collector.append(triple)
+        double_collector.append((triple[0], triple[2]))
+
+
+    def _process(self, choices, triple_collector=None, double_collector=None):
+        if triple_collector is None:
+            triple_collector = self._triples
+        if double_collector is None:
+            double_collector = self._doubles
+
+        store = lambda c: self._store(c, triple_collector, double_collector)
+
         for choice in choices:
             if isinstance(choice, (list, tuple)):
                 if len(choice) == 3:
-                    yield choice
+                    store(choice)
                 elif len(choice) == 2:
-                    yield (choice[0], choice[0], choice[1])
+                    if isinstance(choice[1], (list, tuple)):
+                        # option group
+                        group_name = choice[0]
+                        subchoices = choice[1]
+                        tc = []
+                        triple_collector.append((group_name, tc))
+                        dc = []
+                        double_collector.append((group_name, dc))
+                        self._process(subchoices, tc, dc)
+                    else:
+                        store((choice[0], choice[0], choice[1]))
                 else:
-                    raise ValueError("Choices can't handle a list/tuple of length %s, only 2 or 3"
-                                     % len(choice))
+                    raise ValueError(
+                        "Choices can't take a list of length %s, only 2 or 3"
+                        % len(choice)
+                        )
             else:
-                yield (choice, choice, choice)
+                store((choice, choice, choice))
+
 
     def __len__(self):
-        return len(self._choices)
+        return len(self._doubles)
+
 
     def __iter__(self):
-        return iter(self._choices)
+        return iter(self._doubles)
+
 
     def __getattr__(self, attname):
         try:
-            return self._choice_dict[attname]
+            return self._mapping[attname]
         except KeyError:
             raise AttributeError(attname)
 
+
     def __getitem__(self, index):
-        return self._choices[index]
+        return self._doubles[index]
+
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
-            other = other._full
+            other = other._triples
         else:
             other = list(other)
-        return Choices(*(self._full + other))
+        return Choices(*(self._triples + other))
+
 
     def __radd__(self, other):
         # radd is never called for matching types, so we don't check here
         other = list(other)
-        return Choices(*(other + self._full))
+        return Choices(*(other + self._triples))
+
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self._full == other._full
+            return self._triples == other._triples
         return False
 
+
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__,
-                          ', '.join(("%s" % repr(i) for i in self._full)))
+        return '%s(%s)' % (
+            self.__class__.__name__,
+            ', '.join(("%s" % repr(i) for i in self._triples))
+            )
+
 
     def __contains__(self, item):
-        if item in self._choice_dict.values():
-            return True
+        return item in self._db_values

@@ -15,7 +15,6 @@ Choices
 
     class Article(models.Model):
         STATUS = Choices('draft', 'published')
-        # ...
         status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
 
 A ``Choices`` object is initialized with any number of choices. In the
@@ -34,7 +33,6 @@ representation. In this case you can provide choices as two-tuples:
 
     class Article(models.Model):
         STATUS = Choices(('draft', _('draft')), ('published', _('published')))
-        # ...
         status = models.CharField(choices=STATUS, default=STATUS.draft, max_length=20)
 
 But what if your database representation of choices is constrained in
@@ -52,8 +50,19 @@ the third is the human-readable version:
 
     class Article(models.Model):
         STATUS = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
-        # ...
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
+
+Option groups can also be used with ``Choices``; in that case each
+argument is a tuple consisting of the option group name and a list of
+options, where each option in the list is either a string, a two-tuple,
+or a triple as outlined above. For example::
+
+.. code-block:: python
+
+    from model_utils import Choices
+
+    class Article(models.Model):
+    STATUS = Choices(('Visible', ['new', 'archived']), ('Invisible', ['draft', 'deleted']))
 
 Choices can be concatenated with the ``+`` operator, both to other Choices
 instances and other iterable objects that could be converted into Choices:
@@ -66,7 +75,6 @@ instances and other iterable objects that could be converted into Choices:
 
     class Article(models.Model):
         STATUS = GENERIC_CHOICES + [(2, 'featured', _('featured'))]
-        # ...
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
 
 

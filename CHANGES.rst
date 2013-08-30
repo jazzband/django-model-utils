@@ -4,6 +4,8 @@ CHANGES
 master (unreleased)
 -------------------
 
+* `Choices` now accepts option-groupings. Fixes GH-14.
+
 * `Choices` can now be added to other `Choices` or to any iterable, and can be
   compared for equality with itself. Thanks Tony Aldridge. (Merge of GH-76.)
 

@@ -222,9 +222,11 @@ class ChoicesTests(TestCase):
         with self.assertRaises(ValueError):
             Choices(('a',))
 
+
     def test_contains_value(self):
         self.assertTrue('PUBLISHED' in self.STATUS)
         self.assertTrue('DRAFT' in self.STATUS)
+
 
     def test_doesnt_contain_value(self):
         self.assertFalse('UNPUBLISHED' in self.STATUS)
@@ -243,6 +245,17 @@ class ChoicesTests(TestCase):
         self.assertEqual(Choices('DRAFT') + Choices('PUBLISHED'), self.STATUS)
         self.assertEqual(Choices('DRAFT') + ('PUBLISHED',), self.STATUS)
         self.assertEqual(('DRAFT',) + Choices('PUBLISHED'), self.STATUS)
+
+
+    def test_option_groups(self):
+        c = Choices(('group a', ['one', 'two']), ['group b', ('three',)])
+        self.assertEqual(
+                list(c),
+                [
+                    ('group a', [('one', 'one'), ('two', 'two')]),
+                    ('group b', [('three', 'three')]),
+                    ],
+                )
 
 
 class LabelChoicesTests(ChoicesTests):
@@ -302,6 +315,7 @@ class LabelChoicesTests(ChoicesTests):
             ('DELETED', 'DELETED', 'DELETED'),
         )))
 
+
     def test_contains_value(self):
         self.assertTrue('PUBLISHED' in self.STATUS)
         self.assertTrue('DRAFT' in self.STATUS)
@@ -309,8 +323,10 @@ class LabelChoicesTests(ChoicesTests):
         # and the internal representation are both DELETED.
         self.assertTrue('DELETED' in self.STATUS)
 
+
     def test_doesnt_contain_value(self):
         self.assertFalse('UNPUBLISHED' in self.STATUS)
+
 
     def test_doesnt_contain_display_value(self):
         self.assertFalse('is draft' in self.STATUS)
@@ -331,6 +347,21 @@ class LabelChoicesTests(ChoicesTests):
             Choices(('DRAFT', 'is draft',)) + (('PUBLISHED', 'is published'), 'DELETED'),
             self.STATUS
         )
+
+
+    def test_option_groups(self):
+        c = Choices(
+            ('group a', [(1, 'one'), (2, 'two')]),
+            ['group b', ((3, 'three'),)]
+            )
+        self.assertEqual(
+                list(c),
+                [
+                    ('group a', [(1, 'one'), (2, 'two')]),
+                    ('group b', [(3, 'three')]),
+                    ],
+                )
+
 
 
 class IdentifierChoicesTests(ChoicesTests):
@@ -367,19 +398,24 @@ class IdentifierChoicesTests(ChoicesTests):
             (2, 'DELETED', 'is deleted'),
         )))
 
+
     def test_contains_value(self):
         self.assertTrue(0 in self.STATUS)
         self.assertTrue(1 in self.STATUS)
         self.assertTrue(2 in self.STATUS)
 
+
     def test_doesnt_contain_value(self):
         self.assertFalse(3 in self.STATUS)
+
 
     def test_doesnt_contain_display_value(self):
         self.assertFalse('is draft' in self.STATUS)
 
+
     def test_doesnt_contain_python_attr(self):
         self.assertFalse('PUBLISHED' in self.STATUS)
+
 
     def test_equality(self):
         self.assertEqual(self.STATUS, Choices(
@@ -387,6 +423,7 @@ class IdentifierChoicesTests(ChoicesTests):
             (1, 'PUBLISHED', 'is published'),
             (2, 'DELETED', 'is deleted')
         ))
+
 
     def test_inequality(self):
         self.assertNotEqual(self.STATUS, [
@@ -427,6 +464,20 @@ class IdentifierChoicesTests(ChoicesTests):
             ),
             self.STATUS
         )
+
+
+    def test_option_groups(self):
+        c = Choices(
+            ('group a', [(1, 'ONE', 'one'), (2, 'TWO', 'two')]),
+            ['group b', ((3, 'THREE', 'three'),)]
+            )
+        self.assertEqual(
+                list(c),
+                [
+                    ('group a', [(1, 'one'), (2, 'two')]),
+                    ('group b', [(3, 'three')]),
+                    ],
+                )
 
 
 class InheritanceManagerTests(TestCase):
