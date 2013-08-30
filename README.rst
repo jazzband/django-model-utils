@@ -42,3 +42,4 @@ pull requests tracked in it are closed, but all new issues should be filed at
 GitHub.)
 
 .. _BitBucket: https://bitbucket.org/carljm/django-model-utils/overview
+

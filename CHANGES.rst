@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+1.5.0 (2013.08.29)
+------------------
 
 * `Choices` now accepts option-groupings. Fixes GH-14.
 
