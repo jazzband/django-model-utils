@@ -55,7 +55,7 @@ the third is the human-readable version:
 Option groups can also be used with ``Choices``; in that case each
 argument is a tuple consisting of the option group name and a list of
 options, where each option in the list is either a string, a two-tuple,
-or a triple as outlined above. For example::
+or a triple as outlined above. For example:
 
 .. code-block:: python
 
