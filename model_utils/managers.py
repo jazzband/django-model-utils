@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import django
 from django.db import models
 from django.db.models.fields.related import OneToOneField
-from django.db.models.query import QuerySet
+from django.db.models.query import QuerySet, get_klass_info
 from django.core.exceptions import ObjectDoesNotExist
 
 try:
@@ -148,6 +148,11 @@ class InheritanceQuerySetMixin(object):
         rel, _, s = s.partition(LOOKUP_SEP)
         try:
             node = getattr(obj, rel)
+            klass_info = get_klass_info(self.model, max_depth=2, only_load={}, requested=self.query.select_related)
+            for rrf, klass_info in klass_info[4]:
+                related_cache = rrf.related.get_cache_name()
+                if hasattr(obj, related_cache) and not hasattr(node, related_cache):
+                    setattr(node, related_cache, getattr(obj, related_cache))
         except ObjectDoesNotExist:
             return None
         if s:
