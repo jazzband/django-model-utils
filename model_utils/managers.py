@@ -85,11 +85,12 @@ class InheritanceQuerySet(QuerySet):
         rel, _, s = s.partition(LOOKUP_SEP)
         try:
             node = getattr(obj, rel)
-            klass_info = get_klass_info(self.model, max_depth=2, only_load={}, requested=self.query.select_related)
-            for reverse_related_field, klass_info in klass_info[4]:
-                related_cache = reverse_related_field.related.get_cache_name()
-                if hasattr(obj, related_cache) and not hasattr(node, related_cache):
-                    setattr(node, related_cache, getattr(obj, related_cache))
+            if node is not None:
+                klass_info = get_klass_info(self.model, max_depth=2, only_load={}, requested=self.query.select_related)
+                for rrf, klass_info in klass_info[4]:
+                    related_cache = rrf.related.get_cache_name()
+                    if hasattr(obj, related_cache) and not hasattr(node, related_cache):
+                        setattr(node, related_cache, getattr(obj, related_cache))
         except ObjectDoesNotExist:
             return None
         if s:
