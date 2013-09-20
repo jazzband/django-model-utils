@@ -1,4 +1,7 @@
+from __future__ import unicode_literals
+
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
@@ -15,6 +18,7 @@ class InheritanceManagerTestRelated(models.Model):
 
 
 
+@python_2_unicode_compatible
 class InheritanceManagerTestParent(models.Model):
     # FileField is just a handy descriptor-using field. Refs #6.
     non_related_field_using_descriptor = models.FileField(upload_to="test")
@@ -24,11 +28,17 @@ class InheritanceManagerTestParent(models.Model):
     objects = InheritanceManager()
 
 
+    def __str__(self):
+        return "%s(%s)" % (
+            self.__class__.__name__[len('InheritanceManagerTest'):],
+            self.pk,
+            )
+
+
 
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
-    pass
 
 
 class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):

@@ -542,8 +542,26 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(
             set(
                 self.get_manager().select_subclasses(
-                    "inheritancemanagertestchild1__"
-                    "inheritancemanagertestgrandchild1"
+                    "inheritancemanagertestchild1__inheritancemanagertestgrandchild1"
+                    )
+                ),
+            children,
+            )
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_children_and_grandchildren(self):
+        children = set([
+                self.child1,
+                InheritanceManagerTestParent(pk=self.child2.pk),
+                self.grandchild1,
+                InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
+                ])
+        self.assertEqual(
+            set(
+                self.get_manager().select_subclasses(
+                    "inheritancemanagertestchild1",
+                    "inheritancemanagertestchild1__inheritancemanagertestgrandchild1"
                     )
                 ),
             children,

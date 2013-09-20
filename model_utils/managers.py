@@ -46,9 +46,12 @@ class InheritanceQuerySet(QuerySet):
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
+            # sort the subclass names longest first,
+            # so with 'a' and 'a__b' it goes as deep as possible
+            subclasses = sorted(self.subclasses, key=len, reverse=True)
             for obj in iter:
                 sub_obj = None
-                for s in self.subclasses:
+                for s in subclasses:
                     sub_obj = self._get_sub_obj_recurse(obj, s)
                     if sub_obj:
                         break

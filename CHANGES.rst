@@ -4,6 +4,10 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix bug in `InheritanceManager` with grandchild classes on Django 1.6+;
+  `select_subclasses('child', 'child__grandchild')` would only ever get to the
+  child class. Thanks Keryn Knight for report and proposed fix.
+
 
 1.5.0 (2013.08.29)
 ------------------
