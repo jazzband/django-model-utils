@@ -250,6 +250,17 @@ class Tracked(models.Model):
     tracker = FieldTracker()
 
 
+class AbstractTracked(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+    mutable = MutableField()
+
+    tracker = FieldTracker()
+
+    class Meta:
+        abstract = True
+
+
 class TrackedFK(models.Model):
     fk = models.ForeignKey('Tracked')
 
@@ -284,6 +295,10 @@ class TrackedMultiple(models.Model):
 
 
 class InheritedTracked(Tracked):
+    name2 = models.CharField(max_length=20)
+
+
+class InheritedAbstractTracked(AbstractTracked):
     name2 = models.CharField(max_length=20)
 
 

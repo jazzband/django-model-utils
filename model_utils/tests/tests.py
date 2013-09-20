@@ -27,7 +27,7 @@ from model_utils.tests.models import (
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
+    InheritedTracked, InheritedAbstractTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
 
 
 class GetExcerptTests(TestCase):
@@ -1302,6 +1302,16 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
 class InheritedFieldTrackerTests(FieldTrackerTests):
 
     tracked_class = InheritedTracked
+
+    def test_child_fields_not_tracked(self):
+        self.name2 = 'test'
+        self.assertEqual(self.tracker.previous('name2'), None)
+        self.assertRaises(FieldError, self.tracker.has_changed, 'name2')
+
+
+class InheritedAbstractFieldTrackerTests(FieldTrackerTests):
+
+    tracked_class = InheritedAbstractTracked
 
     def test_child_fields_not_tracked(self):
         self.name2 = 'test'
