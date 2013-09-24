@@ -46,8 +46,10 @@ class Choices(object):
         self._triples = []
         # list of choices as (db, human-readable) - can include optgroups
         self._doubles = []
+        # dictionary mapping db representation to human-readable
+        self._display_map = {}
         # dictionary mapping Python identifier to db representation
-        self._mapping = {}
+        self._identifier_map = {}
         # set of db representations
         self._db_values = set()
 
@@ -55,7 +57,8 @@ class Choices(object):
 
 
     def _store(self, triple, triple_collector, double_collector):
-        self._mapping[triple[1]] = triple[0]
+        self._identifier_map[triple[1]] = triple[0]
+        self._display_map[triple[0]] = triple[2]
         self._db_values.add(triple[0])
         triple_collector.append(triple)
         double_collector.append((triple[0], triple[2]))
@@ -104,13 +107,13 @@ class Choices(object):
 
     def __getattr__(self, attname):
         try:
-            return self._mapping[attname]
+            return self._identifier_map[attname]
         except KeyError:
             raise AttributeError(attname)
 
 
-    def __getitem__(self, index):
-        return self._doubles[index]
+    def __getitem__(self, key):
+        return self._display_map[key]
 
 
     def __add__(self, other):

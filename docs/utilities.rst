@@ -52,6 +52,13 @@ the third is the human-readable version:
         STATUS = Choices((0, 'draft', _('draft')), (1, 'published', _('published')))
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
 
+You can index into a ``Choices`` instance to translate a database
+representation to its display name:
+
+.. code-block:: python
+
+    status_display = Article.STATUS[article.status]
+
 Option groups can also be used with ``Choices``; in that case each
 argument is a tuple consisting of the option group name and a list of
 options, where each option in the list is either a string, a two-tuple,

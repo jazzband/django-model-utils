@@ -200,7 +200,7 @@ class ChoicesTests(TestCase):
 
 
     def test_indexing(self):
-        self.assertEqual(self.STATUS[1], ('PUBLISHED', 'PUBLISHED'))
+        self.assertEqual(self.STATUS['PUBLISHED'], 'PUBLISHED')
 
 
     def test_iteration(self):
@@ -276,7 +276,7 @@ class LabelChoicesTests(ChoicesTests):
 
 
     def test_indexing(self):
-        self.assertEqual(self.STATUS[1], ('PUBLISHED', 'is published'))
+        self.assertEqual(self.STATUS['PUBLISHED'], 'is published')
 
 
     def test_default(self):
@@ -380,7 +380,7 @@ class IdentifierChoicesTests(ChoicesTests):
 
 
     def test_indexing(self):
-        self.assertEqual(self.STATUS[1], (1, 'is published'))
+        self.assertEqual(self.STATUS[1], 'is published')
 
 
     def test_getattr(self):

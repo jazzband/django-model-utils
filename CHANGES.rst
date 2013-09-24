@@ -4,6 +4,10 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Indexing into a ``Choices`` instance now translates database representations
+  to human-readable choice names, rather than simply indexing into an array of
+  choice tuples. (Indexing into ``Choices`` was previously not documented.)
+
 * Fix bug in `InheritanceManager` with grandchild classes on Django 1.6+;
   `select_subclasses('child', 'child__grandchild')` would only ever get to the
   child class. Thanks Keryn Knight for report and proposed fix.
