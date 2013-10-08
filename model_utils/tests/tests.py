@@ -574,6 +574,12 @@ class InheritanceManagerTests(TestCase):
             self.child1)
 
 
+    def test_get_subclass_on_queryset(self):
+        self.assertEqual(
+            self.get_manager().all().get_subclass(pk=self.child1.pk),
+            self.child1)
+
+
     def test_prior_select_related(self):
         with self.assertNumQueries(1):
             obj = self.get_manager().select_related(
