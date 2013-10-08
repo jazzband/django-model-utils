@@ -96,6 +96,8 @@ class InheritanceQuerySet(QuerySet):
         else:
             return node
 
+    def get_subclass(self, *args, **kwargs):
+        return self.select_subclasses().get(*args, **kwargs)
 
 
 class InheritanceManager(models.Manager):
@@ -108,8 +110,7 @@ class InheritanceManager(models.Manager):
         return self.get_query_set().select_subclasses(*subclasses)
 
     def get_subclass(self, *args, **kwargs):
-        return self.get_query_set().select_subclasses().get(*args, **kwargs)
-
+        return self.get_query_set().get_subclass(*args, **kwargs)
 
 
 class QueryManager(models.Manager):
