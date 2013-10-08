@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* `get_subclass()` method is now available on both managers and
+  querysets. Thanks Travis Swicegood. Merge of GH-82.
+
 * Indexing into a ``Choices`` instance now translates database representations
   to human-readable choice names, rather than simply indexing into an array of
   choice tuples. (Indexing into ``Choices`` was previously not documented.)
