@@ -53,6 +53,19 @@ field changes:
 (A ``MonitorField`` can monitor any type of field for changes, not only a
 ``StatusField``.)
 
+If a list is passed to the ``when`` parameter, the field will only 
+update when it matches one of the specified values:
+
+.. code-block:: python
+
+    from model_utils.fields import MonitorField, StatusField
+
+    class Article(models.Model):
+        STATUS = Choices('draft', 'published')
+
+        status = StatusField()
+        published_at = MonitorField(monitor='status', when=['published'])
+
 
 SplitField
 ----------
