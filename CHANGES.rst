@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Deepcopying a `Choices` instance no longer fails with infinite recursion in
+  `getattr`. Thanks Leden. Merge of GH-75.
+
 * `get_subclass()` method is now available on both managers and
   querysets. Thanks Travis Swicegood. Merge of GH-82.
 
