@@ -53,7 +53,7 @@ field changes:
 (A ``MonitorField`` can monitor any type of field for changes, not only a
 ``StatusField``.)
 
-In case something is passed to the ``when`` parameter, the field will only 
+If a list is passed to the ``when`` parameter, the field will only 
 update when it matches one of the specified values:
 
 .. code-block:: python

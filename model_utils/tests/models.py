@@ -77,15 +77,15 @@ class Monitored(models.Model):
 
 
 
-class MonitoredSingleWhen(models.Model):
-    name = models.CharField(max_length=25)
-    name_changed = MonitorField(monitor="name", when="Jose")
-
-
-
-class MonitoredMultipleWhen(models.Model):
+class MonitorWhen(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name", when=["Jose", "Maria"])
+
+
+
+class MonitorWhenEmpty(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name", when=[])
 
 
 

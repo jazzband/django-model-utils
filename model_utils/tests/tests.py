@@ -23,7 +23,7 @@ from model_utils.tests.models import (
     InheritanceManagerTestGrandChild1_2,
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
-    StatusPlainTuple, TimeFrame, Monitored, MonitoredSingleWhen, MonitoredMultipleWhen, StatusManagerAdded,
+    StatusPlainTuple, TimeFrame, Monitored, MonitorWhen, MonitorWhenEmpty, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
@@ -171,47 +171,12 @@ class MonitorFieldTests(TestCase):
 
 
 
-class MonitorSingleWhenFieldTests(TestCase):
+class MonitorWhenFieldTests(TestCase):
     """
-    Will record change only when name is 'Jose'
-    """
-    def setUp(self):
-        self.instance = MonitoredSingleWhen(name='Charlie')
-        self.created = self.instance.name_changed
-
-
-    def test_save_no_change(self):
-        self.instance.save()
-        self.assertEqual(self.instance.name_changed, self.created)
-
-
-    def test_save_changed_to_Jose(self):
-        self.instance.name = 'Jose'
-        self.instance.save()
-        self.assertTrue(self.instance.name_changed > self.created)
-
-
-    def test_save_changed_to_Maria(self):
-        self.instance.name = 'Maria'
-        self.instance.save()
-        self.assertEqual(self.instance.name_changed, self.created)
-
-
-    def test_double_save(self):
-        self.instance.name = 'Jose'
-        self.instance.save()
-        changed = self.instance.name_changed
-        self.instance.save()
-        self.assertEqual(self.instance.name_changed, changed)
-
-
-
-class MonitorMultipleWhenFieldTests(TestCase):
-    """
-    Will record change only when name is 'Jose' or 'Maria'
+    Will record changes only when name is 'Jose' or 'Maria'
     """
     def setUp(self):
-        self.instance = MonitoredMultipleWhen(name='Charlie')
+        self.instance = MonitorWhen(name='Charlie')
         self.created = self.instance.name_changed
 
 
@@ -244,6 +209,33 @@ class MonitorMultipleWhenFieldTests(TestCase):
         changed = self.instance.name_changed
         self.instance.save()
         self.assertEqual(self.instance.name_changed, changed)
+
+
+
+class MonitorWhenEmptyFieldTests(TestCase):
+    """
+    Monitor should never be updated id when is an empty list.
+    """
+    def setUp(self):
+        self.instance = MonitorWhenEmpty(name='Charlie')
+        self.created = self.instance.name_changed
+
+
+    def test_save_no_change(self):
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed_to_Jose(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed_to_Maria(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
 
 
 
