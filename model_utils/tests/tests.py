@@ -23,12 +23,11 @@ from model_utils.tests.models import (
     InheritanceManagerTestGrandChild1_2,
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
-    StatusPlainTuple, TimeFrame, Monitored, StatusManagerAdded,
+    StatusPlainTuple, TimeFrame, Monitored, MonitorWhen, MonitorWhenEmpty, StatusManagerAdded,
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr,
-    TrackedMultiple, InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
-
+    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
+    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
 
 
 class GetExcerptTests(TestCase):
@@ -171,6 +170,75 @@ class MonitorFieldTests(TestCase):
             MonitorField()
 
 
+
+class MonitorWhenFieldTests(TestCase):
+    """
+    Will record changes only when name is 'Jose' or 'Maria'
+    """
+    def setUp(self):
+        self.instance = MonitorWhen(name='Charlie')
+        self.created = self.instance.name_changed
+
+
+    def test_save_no_change(self):
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed_to_Jose(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        self.assertTrue(self.instance.name_changed > self.created)
+
+
+    def test_save_changed_to_Maria(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.assertTrue(self.instance.name_changed > self.created)
+
+
+    def test_save_changed_to_Pedro(self):
+        self.instance.name = 'Pedro'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_double_save(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        changed = self.instance.name_changed
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, changed)
+
+
+
+class MonitorWhenEmptyFieldTests(TestCase):
+    """
+    Monitor should never be updated id when is an empty list.
+    """
+    def setUp(self):
+        self.instance = MonitorWhenEmpty(name='Charlie')
+        self.created = self.instance.name_changed
+
+
+    def test_save_no_change(self):
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed_to_Jose(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed_to_Maria(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+
 class StatusFieldTests(TestCase):
 
     def test_status_with_default_filled(self):
@@ -201,7 +269,7 @@ class ChoicesTests(TestCase):
 
 
     def test_indexing(self):
-        self.assertEqual(self.STATUS[1], ('PUBLISHED', 'PUBLISHED'))
+        self.assertEqual(self.STATUS['PUBLISHED'], 'PUBLISHED')
 
 
     def test_iteration(self):
@@ -223,9 +291,11 @@ class ChoicesTests(TestCase):
         with self.assertRaises(ValueError):
             Choices(('a',))
 
+
     def test_contains_value(self):
         self.assertTrue('PUBLISHED' in self.STATUS)
         self.assertTrue('DRAFT' in self.STATUS)
+
 
     def test_doesnt_contain_value(self):
         self.assertFalse('UNPUBLISHED' in self.STATUS)
@@ -234,6 +304,32 @@ class ChoicesTests(TestCase):
         import copy
         self.assertEqual(list(self.STATUS),
                          list(copy.deepcopy(self.STATUS)))
+
+
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices('DRAFT', 'PUBLISHED'))
+
+
+    def test_inequality(self):
+        self.assertNotEqual(self.STATUS, ['DRAFT', 'PUBLISHED'])
+        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
+
+
+    def test_composability(self):
+        self.assertEqual(Choices('DRAFT') + Choices('PUBLISHED'), self.STATUS)
+        self.assertEqual(Choices('DRAFT') + ('PUBLISHED',), self.STATUS)
+        self.assertEqual(('DRAFT',) + Choices('PUBLISHED'), self.STATUS)
+
+
+    def test_option_groups(self):
+        c = Choices(('group a', ['one', 'two']), ['group b', ('three',)])
+        self.assertEqual(
+                list(c),
+                [
+                    ('group a', [('one', 'one'), ('two', 'two')]),
+                    ('group b', [('three', 'three')]),
+                    ],
+                )
 
 
 class LabelChoicesTests(ChoicesTests):
@@ -254,7 +350,7 @@ class LabelChoicesTests(ChoicesTests):
 
 
     def test_indexing(self):
-        self.assertEqual(self.STATUS[1], ('PUBLISHED', 'is published'))
+        self.assertEqual(self.STATUS['PUBLISHED'], 'is published')
 
 
     def test_default(self):
@@ -269,12 +365,30 @@ class LabelChoicesTests(ChoicesTests):
         self.assertEqual(len(self.STATUS), 3)
 
 
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices(
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
+            'DELETED',
+        ))
+
+
+    def test_inequality(self):
+        self.assertNotEqual(self.STATUS, [
+            ('DRAFT', 'is draft'),
+            ('PUBLISHED', 'is published'),
+            'DELETED'
+        ])
+        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
+
+
     def test_repr(self):
         self.assertEqual(repr(self.STATUS), "Choices" + repr((
             ('DRAFT', 'DRAFT', 'is draft'),
             ('PUBLISHED', 'PUBLISHED', 'is published'),
             ('DELETED', 'DELETED', 'DELETED'),
         )))
+
 
     def test_contains_value(self):
         self.assertTrue('PUBLISHED' in self.STATUS)
@@ -283,11 +397,44 @@ class LabelChoicesTests(ChoicesTests):
         # and the internal representation are both DELETED.
         self.assertTrue('DELETED' in self.STATUS)
 
+
     def test_doesnt_contain_value(self):
         self.assertFalse('UNPUBLISHED' in self.STATUS)
 
+
     def test_doesnt_contain_display_value(self):
         self.assertFalse('is draft' in self.STATUS)
+
+
+    def test_composability(self):
+        self.assertEqual(
+            Choices(('DRAFT', 'is draft',)) + Choices(('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            (('DRAFT', 'is draft',),) + Choices(('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            Choices(('DRAFT', 'is draft',)) + (('PUBLISHED', 'is published'), 'DELETED'),
+            self.STATUS
+        )
+
+
+    def test_option_groups(self):
+        c = Choices(
+            ('group a', [(1, 'one'), (2, 'two')]),
+            ['group b', ((3, 'three'),)]
+            )
+        self.assertEqual(
+                list(c),
+                [
+                    ('group a', [(1, 'one'), (2, 'two')]),
+                    ('group b', [(3, 'three')]),
+                    ],
+                )
 
 
 
@@ -307,7 +454,7 @@ class IdentifierChoicesTests(ChoicesTests):
 
 
     def test_indexing(self):
-        self.assertEqual(self.STATUS[1], (1, 'is published'))
+        self.assertEqual(self.STATUS[1], 'is published')
 
 
     def test_getattr(self):
@@ -325,19 +472,87 @@ class IdentifierChoicesTests(ChoicesTests):
             (2, 'DELETED', 'is deleted'),
         )))
 
+
     def test_contains_value(self):
         self.assertTrue(0 in self.STATUS)
         self.assertTrue(1 in self.STATUS)
         self.assertTrue(2 in self.STATUS)
 
+
     def test_doesnt_contain_value(self):
         self.assertFalse(3 in self.STATUS)
+
 
     def test_doesnt_contain_display_value(self):
         self.assertFalse('is draft' in self.STATUS)
 
+
     def test_doesnt_contain_python_attr(self):
         self.assertFalse('PUBLISHED' in self.STATUS)
+
+
+    def test_equality(self):
+        self.assertEqual(self.STATUS, Choices(
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted')
+        ))
+
+
+    def test_inequality(self):
+        self.assertNotEqual(self.STATUS, [
+            (0, 'DRAFT', 'is draft'),
+            (1, 'PUBLISHED', 'is published'),
+            (2, 'DELETED', 'is deleted')
+        ])
+        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
+
+
+    def test_composability(self):
+        self.assertEqual(
+            Choices(
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + Choices(
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            Choices(
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + (
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+        self.assertEqual(
+            (
+                (0, 'DRAFT', 'is draft'),
+                (1, 'PUBLISHED', 'is published')
+            ) + Choices(
+                (2, 'DELETED', 'is deleted'),
+            ),
+            self.STATUS
+        )
+
+
+    def test_option_groups(self):
+        c = Choices(
+            ('group a', [(1, 'ONE', 'one'), (2, 'TWO', 'two')]),
+            ['group b', ((3, 'THREE', 'three'),)]
+            )
+        self.assertEqual(
+                list(c),
+                [
+                    ('group a', [(1, 'one'), (2, 'two')]),
+                    ('group b', [(3, 'three')]),
+                    ],
+                )
+
 
 class InheritanceManagerTests(TestCase):
     def setUp(self):
@@ -401,8 +616,26 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(
             set(
                 self.get_manager().select_subclasses(
-                    "inheritancemanagertestchild1__"
-                    "inheritancemanagertestgrandchild1"
+                    "inheritancemanagertestchild1__inheritancemanagertestgrandchild1"
+                    )
+                ),
+            children,
+            )
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_children_and_grandchildren(self):
+        children = set([
+                self.child1,
+                InheritanceManagerTestParent(pk=self.child2.pk),
+                self.grandchild1,
+                InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
+                ])
+        self.assertEqual(
+            set(
+                self.get_manager().select_subclasses(
+                    "inheritancemanagertestchild1",
+                    "inheritancemanagertestchild1__inheritancemanagertestgrandchild1"
                     )
                 ),
             children,
@@ -412,6 +645,12 @@ class InheritanceManagerTests(TestCase):
     def test_get_subclass(self):
         self.assertEqual(
             self.get_manager().get_subclass(pk=self.child1.pk),
+            self.child1)
+
+
+    def test_get_subclass_on_queryset(self):
+        self.assertEqual(
+            self.get_manager().all().get_subclass(pk=self.child1.pk),
             self.child1)
 
 
@@ -767,52 +1006,61 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None, number=None)
         self.instance.name = ''
         self.assertChanged(name=None, number=None)
+        self.instance.mutable = [1,2,3]
+        self.assertChanged(name=None, number=None, mutable=None)
 
     def test_pre_save_has_changed(self):
-        self.assertHasChanged(name=True, number=False)
+        self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.name = 'new age'
-        self.assertHasChanged(name=True, number=False)
+        self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.number = 7
         self.assertHasChanged(name=True, number=True)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
 
     def test_first_save(self):
-        self.assertHasChanged(name=True, number=False)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='', number=None, id=None)
+        self.assertHasChanged(name=True, number=False, mutable=False)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged(name=None)
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='retro', number=4, id=None)
-        self.assertChanged(name=None, number=None)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertChanged(name=None, number=None, mutable=None)
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True)
-            self.assertPrevious(name=None, number=None)
-            self.assertCurrent(name='retro', number=4, id=None)
-            self.assertChanged(name=None, number=None)
+            self.assertHasChanged(name=True, number=True, mutable=True)
+            self.assertPrevious(name=None, number=None, mutable=None)
+            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+            self.assertChanged(name=None, number=None, mutable=None)
             with self.assertRaises(ValueError):
                 self.instance.save(update_fields=['number'])
 
     def test_post_save_has_changed(self):
-        self.update_instance(name='retro', number=4)
-        self.assertHasChanged(name=False, number=False)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.assertHasChanged(name=False, number=False, mutable=False)
         self.instance.name = 'new age'
         self.assertHasChanged(name=True, number=False)
         self.instance.number = 8
         self.assertHasChanged(name=True, number=True)
+        self.instance.mutable[1] = 4
+        self.assertHasChanged(name=True, number=True, mutable=True)
         self.instance.name = 'retro'
-        self.assertHasChanged(name=False, number=True)
+        self.assertHasChanged(name=False, number=True, mutable=True)
 
     def test_post_save_previous(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.instance.name = 'new age'
-        self.assertPrevious(name='retro', number=4)
+        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.instance.mutable[1] = 4
+        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
 
     def test_post_save_changed(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.assertChanged(name='retro')
@@ -820,36 +1068,48 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name='retro', number=4)
         self.instance.name = 'retro'
         self.assertChanged(number=4)
+        self.instance.mutable[1] = 4
+        self.assertChanged(number=4, mutable=[1,2,3])
+        self.instance.mutable = [1,2,3]
+        self.assertChanged(number=4)
 
     def test_current(self):
-        self.assertCurrent(id=None, name='', number=None)
+        self.assertCurrent(id=None, name='', number=None, mutable=None)
         self.instance.name = 'new age'
-        self.assertCurrent(id=None, name='new age', number=None)
+        self.assertCurrent(id=None, name='new age', number=None, mutable=None)
         self.instance.number = 8
-        self.assertCurrent(id=None, name='new age', number=8)
+        self.assertCurrent(id=None, name='new age', number=8, mutable=None)
+        self.instance.mutable = [1,2,3]
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,2,3])
+        self.instance.mutable[1] = 4
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,4,3])
         self.instance.save()
-        self.assertCurrent(id=self.instance.id, name='new age', number=8)
+        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1,4,3])
 
     @skipUnless(
         django.VERSION >= (1, 5, 0), "Django 1.4 doesn't have update_fields")
     def test_update_fields(self):
-        self.update_instance(name='retro', number=4)
+        self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.instance.number = 8
-        self.assertChanged(name='retro', number=4)
+        self.instance.mutable = [4,5,6]
+        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
         self.instance.save(update_fields=[])
-        self.assertChanged(name='retro', number=4)
+        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
         self.instance.save(update_fields=['name'])
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertNotEqual(in_db.number, self.instance.number)
-        self.assertChanged(number=4)
+        self.assertChanged(number=4, mutable=[1,2,3])
         self.instance.save(update_fields=['number'])
+        self.assertChanged(mutable=[1,2,3])
+        self.instance.save(update_fields=['mutable'])
         self.assertChanged()
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertEqual(in_db.number, self.instance.number)
+        self.assertEqual(in_db.mutable, self.instance.mutable)
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
@@ -1141,24 +1401,27 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = ''
         self.assertChanged()
+        self.instance.mutable = [1,2,3]
+        self.assertChanged()
 
     def test_first_save(self):
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='', number=None, id=None)
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged()
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.assertHasChanged(name=True, number=True)
-        self.assertPrevious(name=None, number=None)
-        self.assertCurrent(name='retro', number=4, id=None)
+        self.instance.mutable = [1,2,3]
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
         self.assertChanged()
         # Django 1.4 doesn't have update_fields
         if django.VERSION >= (1, 5, 0):
             self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True)
-            self.assertPrevious(name=None, number=None)
-            self.assertCurrent(name='retro', number=4, id=None)
+            self.assertHasChanged(name=True, number=True, mutable=True)
+            self.assertPrevious(name=None, number=None, mutable=None)
+            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
             self.assertChanged()
             with self.assertRaises(ValueError):
                 self.instance.save(update_fields=['number'])

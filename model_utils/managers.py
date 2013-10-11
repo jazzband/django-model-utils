@@ -46,9 +46,12 @@ class InheritanceQuerySet(QuerySet):
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
+            # sort the subclass names longest first,
+            # so with 'a' and 'a__b' it goes as deep as possible
+            subclasses = sorted(self.subclasses, key=len, reverse=True)
             for obj in iter:
                 sub_obj = None
-                for s in self.subclasses:
+                for s in subclasses:
                     sub_obj = self._get_sub_obj_recurse(obj, s)
                     if sub_obj:
                         break
@@ -93,6 +96,8 @@ class InheritanceQuerySet(QuerySet):
         else:
             return node
 
+    def get_subclass(self, *args, **kwargs):
+        return self.select_subclasses().get(*args, **kwargs)
 
 
 class InheritanceManager(models.Manager):
@@ -105,8 +110,7 @@ class InheritanceManager(models.Manager):
         return self.get_query_set().select_subclasses(*subclasses)
 
     def get_subclass(self, *args, **kwargs):
-        return self.get_query_set().select_subclasses().get(*args, **kwargs)
-
+        return self.get_query_set().get_subclass(*args, **kwargs)
 
 
 class QueryManager(models.Manager):

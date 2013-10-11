@@ -4,6 +4,29 @@ CHANGES
 master (unreleased)
 -------------------
 
+* `get_subclass()` method is now available on both managers and
+  querysets. Thanks Travis Swicegood. Merge of GH-82.
+
+* Indexing into a ``Choices`` instance now translates database representations
+  to human-readable choice names, rather than simply indexing into an array of
+  choice tuples. (Indexing into ``Choices`` was previously not documented.)
+
+* Fix bug in `InheritanceManager` with grandchild classes on Django 1.6+;
+  `select_subclasses('child', 'child__grandchild')` would only ever get to the
+  child class. Thanks Keryn Knight for report and proposed fix.
+
+* MonitorField now accepts a 'when' parameter. It will update only when the field 
+  changes to one of the values specified.
+
+
+1.5.0 (2013.08.29)
+------------------
+
+* `Choices` now accepts option-groupings. Fixes GH-14.
+
+* `Choices` can now be added to other `Choices` or to any iterable, and can be
+  compared for equality with itself. Thanks Tony Aldridge. (Merge of GH-76.)
+
 * `Choices` now `__contains__` its Python identifier values. Thanks Keryn
   Knight. (Merge of GH-69).
 
@@ -12,6 +35,8 @@ master (unreleased)
   Silonov. (Merge of GH-70, fixes GH-71).
 
 * Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
+
+* Added mutable field support to ``FieldTracker`` (Merge of GH-73, fixes GH-74)
 
 
 1.4.0 (2013.06.03)

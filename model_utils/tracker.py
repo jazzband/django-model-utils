@@ -1,4 +1,7 @@
 from __future__ import unicode_literals
+
+from copy import deepcopy
+
 from django.db import models
 from django.core.exceptions import FieldError
 
@@ -20,8 +23,12 @@ class FieldInstanceTracker(object):
         else:
             self.saved_data.update(**self.current(fields=fields))
 
+        # preventing mutable fields side effects
+        for field, field_value in self.saved_data.items():
+            self.saved_data[field] = deepcopy(field_value)
+
     def current(self, fields=None):
-        """Return dict of current values for all tracked fields"""
+        """Returns dict of current values for all tracked fields"""
         if fields is None:
             fields = self.fields
         return dict((f, self.get_field_value(f)) for f in fields)
@@ -34,7 +41,7 @@ class FieldInstanceTracker(object):
             raise FieldError('field "%s" not tracked' % field)
 
     def previous(self, field):
-        """Return currently saved value of given field"""
+        """Returns currently saved value of given field"""
         return self.saved_data.get(field)
 
     def changed(self):
@@ -54,7 +61,7 @@ class FieldTracker(object):
         self.fields = fields
 
     def get_field_map(self, cls):
-        """Return dict mapping fields names to model attribute names"""
+        """Returns dict mapping fields names to model attribute names"""
         field_map = dict((field, field) for field in self.fields)
         all_fields = dict((f.name, f.attname) for f in cls._meta.local_fields)
         field_map.update(**dict((k, v) for (k, v) in all_fields.items()

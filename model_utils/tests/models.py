@@ -1,10 +1,14 @@
+from __future__ import unicode_literals
+
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.tracker import FieldTracker, ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
 from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.tests.fields import MutableField
 from model_utils import Choices
 
 
@@ -14,6 +18,7 @@ class InheritanceManagerTestRelated(models.Model):
 
 
 
+@python_2_unicode_compatible
 class InheritanceManagerTestParent(models.Model):
     # FileField is just a handy descriptor-using field. Refs #6.
     non_related_field_using_descriptor = models.FileField(upload_to="test")
@@ -23,11 +28,17 @@ class InheritanceManagerTestParent(models.Model):
     objects = InheritanceManager()
 
 
+    def __str__(self):
+        return "%s(%s)" % (
+            self.__class__.__name__[len('InheritanceManagerTest'):],
+            self.pk,
+            )
+
+
 
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
-    pass
 
 
 class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
@@ -63,6 +74,18 @@ class TimeFrameManagerAdded(TimeFramedModel):
 class Monitored(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name")
+
+
+
+class MonitorWhen(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name", when=["Jose", "Maria"])
+
+
+
+class MonitorWhenEmpty(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name", when=[])
 
 
 
@@ -234,6 +257,7 @@ class Spot(models.Model):
 class Tracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
+    mutable = MutableField()
 
     tracker = FieldTracker()
 
@@ -278,6 +302,7 @@ class InheritedTracked(Tracked):
 class ModelTracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
+    mutable = MutableField()
 
     tracker = ModelTracker()
 

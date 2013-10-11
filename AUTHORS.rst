@@ -18,5 +18,8 @@ Rinat Shigapov <rinatshigapov@gmail.com>
 Ryan Kaskel <dev@ryankaskel.com>
 Simon Meers <simon@simonmeers.com>
 sayane
+Tony Aldridge <zaragopha@hotmail.com>
+Travis Swicegood <travis@domain51.com>
 Trey Hunner <trey@treyhunner.com>
 zyegfryed
+Filipe Ximenes <filipeximenes@gmail.com>
