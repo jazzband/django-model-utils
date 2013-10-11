@@ -77,6 +77,18 @@ class Monitored(models.Model):
 
 
 
+class MonitoredSingleWhen(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name", when="Jose")
+
+
+
+class MonitoredMultipleWhen(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name", when=["Jose", "Maria"])
+
+
+
 class Status(StatusModel):
     STATUS = Choices(
         ("active", _("active")),

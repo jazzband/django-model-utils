@@ -15,6 +15,9 @@ master (unreleased)
   `select_subclasses('child', 'child__grandchild')` would only ever get to the
   child class. Thanks Keryn Knight for report and proposed fix.
 
+* MonitorField now accepts a 'when' parameter. It will update only when the field 
+  changes to one of the values specified.
+
 
 1.5.0 (2013.08.29)
 ------------------

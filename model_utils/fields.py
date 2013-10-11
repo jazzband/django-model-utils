@@ -82,6 +82,10 @@ class MonitorField(models.DateTimeField):
             raise TypeError(
                 '%s requires a "monitor" argument' % self.__class__.__name__)
         self.monitor = monitor
+        when = kwargs.pop('when', None)
+        if when and not isinstance(when, list):
+            when = [when]
+        self.when = when
         super(MonitorField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -101,8 +105,9 @@ class MonitorField(models.DateTimeField):
         previous = getattr(model_instance, self.monitor_attname, None)
         current = self.get_monitored_value(model_instance)
         if previous != current:
-            setattr(model_instance, self.attname, value)
-            self._save_initial(model_instance.__class__, model_instance)
+            if not self.when or current in self.when:
+                setattr(model_instance, self.attname, value)
+                self._save_initial(model_instance.__class__, model_instance)
         return super(MonitorField, self).pre_save(model_instance, add)
 
 
