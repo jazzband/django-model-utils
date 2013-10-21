@@ -27,6 +27,8 @@ class InheritanceManagerTestParent(models.Model):
     normal_field = models.TextField()
     objects = InheritanceManager()
 
+    def __unicode__(self):
+        return unicode(self.pk)
 
     def __str__(self):
         return "%s(%s)" % (
@@ -39,6 +41,7 @@ class InheritanceManagerTestParent(models.Model):
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
+    objects = InheritanceManager()
 
 
 class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
@@ -52,7 +55,6 @@ class InheritanceManagerTestGrandChild1_2(InheritanceManagerTestChild1):
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
-    pass
 
 
 
