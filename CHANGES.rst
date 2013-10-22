@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Can pass model subclasses, rather than strings, into
+  `select_subclasses()`. Thanks Keryn Knight. Merge of GH-79.
+
 * Deepcopying a `Choices` instance no longer fails with infinite recursion in
   `getattr`. Thanks Leden. Merge of GH-75.
 
@@ -21,7 +24,7 @@ master (unreleased)
   `select_subclasses('child', 'child__grandchild')` would only ever get to the
   child class. Thanks Keryn Knight for report and proposed fix.
 
-* MonitorField now accepts a 'when' parameter. It will update only when the field 
+* MonitorField now accepts a 'when' parameter. It will update only when the field
   changes to one of the values specified.
 
 
