@@ -16,8 +16,8 @@ except ImportError: # Django < 1.5
 class InheritanceQuerySet(QuerySet):
     def select_subclasses(self, *subclasses):
         levels = self._get_maximum_depth()
-        calculated_subclasses = self._get_subclasses_recurse(self.model,
-                                                             levels=levels)
+        calculated_subclasses = self._get_subclasses_recurse(
+            self.model, levels=levels)
         # if none were passed in, we can just short circuit and select all
         if not subclasses:
             subclasses = calculated_subclasses
@@ -31,23 +31,25 @@ class InheritanceQuerySet(QuerySet):
                     continue
 
                 if not isinstance(subclass, string_types):
-                    subclass = self._get_ancestors_path(subclass,
-                                                        levels=levels)
+                    subclass = self._get_ancestors_path(
+                        subclass, levels=levels)
 
                 if subclass in calculated_subclasses:
                     verified_subclasses.append(subclass)
                 else:
-                    raise ValueError('%r is not in the discovered subclasses, '
-                                     'tried: %s' % (subclass,
-                                                    ', '.join(calculated_subclasses),
-                                                    ))
+                    raise ValueError(
+                        '%r is not in the discovered subclasses, tried: %s' % (
+                            subclass, ', '.join(calculated_subclasses))
+                        )
             subclasses = verified_subclasses
 
         # workaround https://code.djangoproject.com/ticket/16855
-        field_dict = self.query.select_related
+        previous_select_related = self.query.select_related
         new_qs = self.select_related(*subclasses)
-        if isinstance(new_qs.query.select_related, dict) and isinstance(field_dict, dict):
-            new_qs.query.select_related.update(field_dict)
+        previous_is_dict = isinstance(previous_select_related, dict)
+        new_is_dict = isinstance(new_qs.query.select_related, dict)
+        if previous_is_dict and new_is_dict:
+            new_qs.query.select_related.update(previous_select_related)
         new_qs.subclasses = subclasses
         return new_qs
 
@@ -96,9 +98,11 @@ class InheritanceQuerySet(QuerySet):
         recursively, returning a `list` of strings representing the
         relations for select_related
         """
-        rels = [rel for rel in model._meta.get_all_related_objects()
-                if isinstance(rel.field, OneToOneField)
-                and issubclass(rel.field.model, model)]
+        rels = [
+            rel for rel in model._meta.get_all_related_objects()
+            if isinstance(rel.field, OneToOneField)
+            and issubclass(rel.field.model, model)
+            ]
         subclasses = []
         if levels:
             levels -= 1
@@ -128,7 +132,8 @@ class InheritanceQuerySet(QuerySet):
         while parent is not None:
             ancestry.insert(0, parent.related.var_name)
             if levels or levels is None:
-                parent = parent.related.parent_model._meta.get_ancestor_link(self.model)
+                parent = parent.related.parent_model._meta.get_ancestor_link(
+                    self.model)
             else:
                 parent = None
         return LOOKUP_SEP.join(ancestry)
