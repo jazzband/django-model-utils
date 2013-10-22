@@ -589,6 +589,17 @@ class InheritanceManagerTests(TestCase):
             set(self.get_manager().select_subclasses()), children)
 
 
+    def test_select_subclasses_invalid_relation(self):
+        """
+        If an invalid relation string is provided, we can provide the user
+        with a list which is valid, rather than just have the select_related()
+        raise an AttributeError further in.
+        """
+        regex = '^.+? is not in the discovered subclasses, tried:.+$'
+        with self.assertRaisesRegexp(ValueError, regex):
+            self.get_manager().select_subclasses('user')
+
+
     def test_select_specific_subclasses(self):
         children = set([
                 self.child1,
@@ -660,6 +671,206 @@ class InheritanceManagerTests(TestCase):
                 "inheritancemanagertestchild1").select_subclasses(
                 "inheritancemanagertestchild2").get(pk=self.child1.pk)
             obj.inheritancemanagertestchild1
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_version_determining_any_depth(self):
+        self.assertIsNone(self.get_manager().all()._get_maximum_depth())
+
+
+    @skipUnless(django.VERSION < (1, 6, 0), "test only applies to Django < 1.6")
+    def test_version_determining_only_child_depth(self):
+        self.assertEqual(1, self.get_manager().all()._get_maximum_depth())
+
+
+class InheritanceManagerUsingModelsTests(TestCase):
+
+    def setUp(self):
+        self.parent1 = InheritanceManagerTestParent.objects.create()
+        self.child1 = InheritanceManagerTestChild1.objects.create()
+        self.child2 = InheritanceManagerTestChild2.objects.create()
+        self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
+        self.grandchild1_2 = InheritanceManagerTestGrandChild1_2.objects.create()
+
+
+    def test_select_subclass_by_child_model(self):
+        """
+        Confirm that passing a child model works the same as passing the
+        select_related manually
+        """
+        objs = InheritanceManagerTestParent.objects.select_subclasses(
+            "inheritancemanagertestchild1").order_by('pk')
+        objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
+            InheritanceManagerTestChild1).order_by('pk')
+        self.assertEqual(objs.subclasses, objsmodels.subclasses)
+        self.assertEqual(list(objs), list(objsmodels))
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_select_subclass_by_grandchild_model(self):
+        """
+        Confirm that passing a grandchild model works the same as passing the
+        select_related manually
+        """
+        objs = InheritanceManagerTestParent.objects.select_subclasses(
+            "inheritancemanagertestchild1__inheritancemanagertestgrandchild1")\
+            .order_by('pk')
+        objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
+            InheritanceManagerTestGrandChild1).order_by('pk')
+        self.assertEqual(objs.subclasses, objsmodels.subclasses)
+        self.assertEqual(list(objs), list(objsmodels))
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_selecting_all_subclasses_specifically_grandchildren(self):
+        """
+        A bare select_subclasses() should achieve the same results as doing
+        select_subclasses and specifying all possible subclasses.
+        This test checks grandchildren, so only works on 1.6>=
+        """
+        objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
+        objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
+            InheritanceManagerTestChild1, InheritanceManagerTestChild2,
+            InheritanceManagerTestGrandChild1,
+            InheritanceManagerTestGrandChild1_2).order_by('pk')
+        self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
+        self.assertEqual(list(objs), list(objsmodels))
+
+
+    def test_selecting_all_subclasses_specifically_children(self):
+        """
+        A bare select_subclasses() should achieve the same results as doing
+        select_subclasses and specifying all possible subclasses.
+
+        Note: This is sort of the same test as
+        `test_selecting_all_subclasses_specifically_grandchildren` but it
+        specifically switches what models are used because that happens
+        behind the scenes in a bare select_subclasses(), so we need to
+        emulate it.
+        """
+        objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
+
+        if django.VERSION >= (1, 6, 0):
+            models = (InheritanceManagerTestChild1, InheritanceManagerTestChild2,
+                      InheritanceManagerTestGrandChild1,
+                      InheritanceManagerTestGrandChild1_2)
+        else:
+            models = (InheritanceManagerTestChild1, InheritanceManagerTestChild2)
+
+        objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
+            *models).order_by('pk')
+        # order shouldn't matter, I don't think, as long as the resulting
+        # queryset (when cast to a list) is the same.
+        self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
+        self.assertEqual(list(objs), list(objsmodels))
+
+
+    def test_select_subclass_just_self(self):
+        """
+        Passing in the same model as the manager/queryset is bound against
+        (ie: the root parent) should have no effect on the result set.
+        """
+        objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
+            InheritanceManagerTestParent).order_by('pk')
+        self.assertEqual([], objsmodels.subclasses)
+        self.assertEqual(list(objsmodels), [
+            InheritanceManagerTestParent(pk=self.parent1.pk),
+            InheritanceManagerTestParent(pk=self.child1.pk),
+            InheritanceManagerTestParent(pk=self.child2.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
+        ])
+
+
+    def test_select_subclass_invalid_related_model(self):
+        """
+        Confirming that giving a stupid model doesn't work.
+        """
+        from django.contrib.auth.models import User
+        regex = '^.+? is not a subclass of .+$'
+        with self.assertRaisesRegexp(ValueError, regex):
+            InheritanceManagerTestParent.objects.select_subclasses(
+                User).order_by('pk')
+
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_mixing_strings_and_classes_with_grandchildren(self):
+        """
+        Given arguments consisting of both strings and model classes,
+        ensure the right resolutions take place, accounting for the extra
+        depth (grandchildren etc) 1.6> allows.
+        """
+        objs = InheritanceManagerTestParent.objects.select_subclasses(
+            "inheritancemanagertestchild2",
+            InheritanceManagerTestGrandChild1_2).order_by('pk')
+        expecting = ['inheritancemanagertestchild1__inheritancemanagertestgrandchild1_2',
+                     'inheritancemanagertestchild2']
+        self.assertEqual(set(objs.subclasses), set(expecting))
+        expecting2 = [
+            InheritanceManagerTestParent(pk=self.parent1.pk),
+            InheritanceManagerTestParent(pk=self.child1.pk),
+            InheritanceManagerTestChild2(pk=self.child2.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1.pk),
+            InheritanceManagerTestGrandChild1_2(pk=self.grandchild1_2.pk),
+        ]
+        self.assertEqual(list(objs), expecting2)
+
+
+    def test_mixing_strings_and_classes_with_children(self):
+        """
+        Given arguments consisting of both strings and model classes,
+        ensure the right resolutions take place, walking down as far as
+        children.
+        """
+        objs = InheritanceManagerTestParent.objects.select_subclasses(
+            "inheritancemanagertestchild2",
+            InheritanceManagerTestChild1).order_by('pk')
+        expecting = ['inheritancemanagertestchild1',
+                     'inheritancemanagertestchild2']
+
+        self.assertEqual(set(objs.subclasses), set(expecting))
+        expecting2 = [
+            InheritanceManagerTestParent(pk=self.parent1.pk),
+            InheritanceManagerTestChild1(pk=self.child1.pk),
+            InheritanceManagerTestChild2(pk=self.child2.pk),
+            InheritanceManagerTestChild1(pk=self.grandchild1.pk),
+            InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
+        ]
+        self.assertEqual(list(objs), expecting2)
+
+
+    def test_duplications(self):
+        """
+        Check that even if the same thing is provided as a string and a model
+        that the right results are retrieved.
+        """
+        # mixing strings and models which evaluate to the same thing is fine.
+        objs = InheritanceManagerTestParent.objects.select_subclasses(
+            "inheritancemanagertestchild2",
+            InheritanceManagerTestChild2).order_by('pk')
+        self.assertEqual(list(objs), [
+            InheritanceManagerTestParent(pk=self.parent1.pk),
+            InheritanceManagerTestParent(pk=self.child1.pk),
+            InheritanceManagerTestChild2(pk=self.child2.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
+        ])
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_child_doesnt_accidentally_get_parent(self):
+        """
+        Given a Child model which also has an InheritanceManager,
+        none of the returned objects should be Parent objects.
+        """
+        objs = InheritanceManagerTestChild1.objects.select_subclasses(
+                InheritanceManagerTestGrandChild1).order_by('pk')
+        self.assertEqual([
+            InheritanceManagerTestChild1(pk=self.child1.pk),
+            InheritanceManagerTestGrandChild1(pk=self.grandchild1.pk),
+            InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
+        ], list(objs))
 
 
 

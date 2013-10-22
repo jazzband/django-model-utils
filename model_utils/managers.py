@@ -7,20 +7,42 @@ from django.core.exceptions import ObjectDoesNotExist
 
 try:
     from django.db.models.constants import LOOKUP_SEP
+    from django.utils.six import string_types
 except ImportError: # Django < 1.5
     from django.db.models.sql.constants import LOOKUP_SEP
-
+    string_types = (basestring,)
 
 
 class InheritanceQuerySet(QuerySet):
     def select_subclasses(self, *subclasses):
+        levels = self._get_maximum_depth()
+        calculated_subclasses = self._get_subclasses_recurse(self.model,
+                                                             levels=levels)
+        # if none were passed in, we can just short circuit and select all
         if not subclasses:
-            # only recurse one level on Django < 1.6 to avoid triggering
-            # https://code.djangoproject.com/ticket/16572
-            levels = None
-            if django.VERSION < (1, 6, 0):
-                levels = 1
-            subclasses = self._get_subclasses_recurse(self.model, levels=levels)
+            subclasses = calculated_subclasses
+        else:
+            verified_subclasses = []
+            for subclass in subclasses:
+                # special case for passing in the same model as the queryset
+                # is bound against. Rather than raise an error later, we know
+                # we can allow this through.
+                if subclass is self.model:
+                    continue
+
+                if not isinstance(subclass, string_types):
+                    subclass = self._get_ancestors_path(subclass,
+                                                        levels=levels)
+
+                if subclass in calculated_subclasses:
+                    verified_subclasses.append(subclass)
+                else:
+                    raise ValueError('%r is not in the discovered subclasses, '
+                                     'tried: %s' % (subclass,
+                                                    ', '.join(calculated_subclasses),
+                                                    ))
+            subclasses = verified_subclasses
+
         # workaround https://code.djangoproject.com/ticket/16855
         field_dict = self.query.select_related
         new_qs = self.select_related(*subclasses)
@@ -69,9 +91,14 @@ class InheritanceQuerySet(QuerySet):
 
 
     def _get_subclasses_recurse(self, model, levels=None):
+        """
+        Given a Model class, find all related objects, exploring children
+        recursively, returning a `list` of strings representing the
+        relations for select_related
+        """
         rels = [rel for rel in model._meta.get_all_related_objects()
-                      if isinstance(rel.field, OneToOneField)
-                      and issubclass(rel.field.model, model)]
+                if isinstance(rel.field, OneToOneField)
+                and issubclass(rel.field.model, model)]
         subclasses = []
         if levels:
             levels -= 1
@@ -82,6 +109,29 @@ class InheritanceQuerySet(QuerySet):
                     subclasses.append(rel.var_name + LOOKUP_SEP + subclass)
             subclasses.append(rel.var_name)
         return subclasses
+
+
+    def _get_ancestors_path(self, model, levels=None):
+        """
+        Serves as an opposite to _get_subclasses_recurse, instead walking from
+        the Model class up the Model's ancestry and constructing the desired
+        select_related string backwards.
+        """
+        if not issubclass(model, self.model):
+            raise ValueError("%r is not a subclass of %r" % (model, self.model))
+
+        ancestry = []
+        # should be a OneToOneField or None
+        parent = model._meta.get_ancestor_link(self.model)
+        if levels:
+            levels -= 1
+        while parent is not None:
+            ancestry.insert(0, parent.related.var_name)
+            if levels or levels is None:
+                parent = parent.related.parent_model._meta.get_ancestor_link(self.model)
+            else:
+                parent = None
+        return LOOKUP_SEP.join(ancestry)
 
 
     def _get_sub_obj_recurse(self, obj, s):
@@ -98,6 +148,18 @@ class InheritanceQuerySet(QuerySet):
 
     def get_subclass(self, *args, **kwargs):
         return self.select_subclasses().get(*args, **kwargs)
+
+    def _get_maximum_depth(self):
+        """
+        Under Django versions < 1.6, to avoid triggering
+        https://code.djangoproject.com/ticket/16572 we can only look
+        as far as children.
+        """
+        levels = None
+        if django.VERSION < (1, 6, 0):
+            levels = 1
+        return levels
+
 
 
 class InheritanceManager(models.Manager):

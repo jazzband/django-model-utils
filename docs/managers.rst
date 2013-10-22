@@ -51,6 +51,27 @@ be returned as their actual type, you can pass subclass names to
     nearby_places = Place.objects.select_subclasses("restaurant")
     # restaurants will be Restaurant instances, bars will still be Place instances
 
+    nearby_places = Place.objects.select_subclasses("restaurant", "bar")
+    # all Places will be converted to Restaurant and Bar instances.
+
+It is also possible to use the subclasses themselves as arguments to
+``select_subclasses``, leaving it to calculate the relationship for you:
+
+.. code-block:: python
+
+    nearby_places = Place.objects.select_subclasses(Restaurant)
+    # restaurants will be Restaurant instances, bars will still be Place instances
+
+    nearby_places = Place.objects.select_subclasses(Restaurant, Bar)
+    # all Places will be converted to Restaurant and Bar instances.
+
+It is even possible to mix and match the two:
+
+.. code-block:: python
+
+    nearby_places = Place.objects.select_subclasses(Restaurant, "bar")
+    # all Places will be converted to Restaurant and Bar instances.
+
 ``InheritanceManager`` also provides a subclass-fetching alternative to the
 ``get()`` method:
 
