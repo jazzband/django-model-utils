@@ -27,7 +27,8 @@ from model_utils.tests.models import (
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled)
+    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
+    InheritanceManagerTestChild3)
 
 
 class GetExcerptTests(TestCase):
@@ -683,6 +684,55 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(1, self.get_manager().all()._get_maximum_depth())
 
 
+    @skipUnless(django.VERSION < (1, 6, 0), "test only applies to Django < 1.6")
+    def test_manually_specifying_parent_fk_only_children(self):
+        """
+        given a Model which inherits from another Model, but also declares
+        the OneToOne link manually using `related_name` and `parent_link`,
+        ensure that the relation names and subclasses are obtained correctly.
+        """
+        child3 = InheritanceManagerTestChild3.objects.create()
+        results = InheritanceManagerTestParent.objects.all().select_subclasses()
+
+        expected_objs = [self.child1, self.child2,
+                         InheritanceManagerTestChild1(pk=3),
+                         InheritanceManagerTestChild1(pk=4), child3]
+        self.assertEqual(list(results), expected_objs)
+
+        expected_related_names = [
+            'inheritancemanagertestchild1',
+            'inheritancemanagertestchild2',
+            'manual_onetoone',  # this was set via parent_link & related_name
+        ]
+        self.assertEqual(set(results.subclasses),
+                         set(expected_related_names))
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_manually_specifying_parent_fk_including_grandchildren(self):
+        """
+        given a Model which inherits from another Model, but also declares
+        the OneToOne link manually using `related_name` and `parent_link`,
+        ensure that the relation names and subclasses are obtained correctly.
+        """
+        child3 = InheritanceManagerTestChild3.objects.create()
+        results = InheritanceManagerTestParent.objects.all().select_subclasses()
+
+        expected_objs = [self.child1, self.child2, self.grandchild1,
+                         self.grandchild1_2, child3]
+        self.assertEqual(list(results), expected_objs)
+
+        expected_related_names = [
+            'inheritancemanagertestchild1__inheritancemanagertestgrandchild1',
+            'inheritancemanagertestchild1__inheritancemanagertestgrandchild1_2',
+            'inheritancemanagertestchild1',
+            'inheritancemanagertestchild2',
+            'manual_onetoone',  # this was set via parent_link & related_name
+        ]
+        self.assertEqual(set(results.subclasses),
+                         set(expected_related_names))
+
+
+
 class InheritanceManagerUsingModelsTests(TestCase):
 
     def setUp(self):
@@ -871,6 +921,29 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestGrandChild1(pk=self.grandchild1.pk),
             InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
         ], list(objs))
+
+
+    def test_manually_specifying_parent_fk_only_specific_child(self):
+        """
+        given a Model which inherits from another Model, but also declares
+        the OneToOne link manually using `related_name` and `parent_link`,
+        ensure that the relation names and subclasses are obtained correctly.
+        """
+        child3 = InheritanceManagerTestChild3.objects.create()
+        results = InheritanceManagerTestParent.objects.all().select_subclasses(
+            InheritanceManagerTestChild3)
+
+        expected_objs = [InheritanceManagerTestParent(pk=1),
+                         InheritanceManagerTestParent(pk=2),
+                         InheritanceManagerTestParent(pk=3),
+                         InheritanceManagerTestParent(pk=4),
+                         InheritanceManagerTestParent(pk=5),
+                         child3]
+        self.assertEqual(list(results), expected_objs)
+
+        expected_related_names = ['manual_onetoone']
+        self.assertEqual(set(results.subclasses),
+                         set(expected_related_names))
 
 
 
