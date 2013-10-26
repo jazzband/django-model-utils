@@ -781,6 +781,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
         objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
             InheritanceManagerTestChild1, InheritanceManagerTestChild2,
+            InheritanceManagerTestChild3,
             InheritanceManagerTestGrandChild1,
             InheritanceManagerTestGrandChild1_2).order_by('pk')
         self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
@@ -801,11 +802,15 @@ class InheritanceManagerUsingModelsTests(TestCase):
         objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
 
         if django.VERSION >= (1, 6, 0):
-            models = (InheritanceManagerTestChild1, InheritanceManagerTestChild2,
+            models = (InheritanceManagerTestChild1,
+                      InheritanceManagerTestChild2,
+                      InheritanceManagerTestChild3,
                       InheritanceManagerTestGrandChild1,
                       InheritanceManagerTestGrandChild1_2)
         else:
-            models = (InheritanceManagerTestChild1, InheritanceManagerTestChild2)
+            models = (InheritanceManagerTestChild1,
+                      InheritanceManagerTestChild2,
+                      InheritanceManagerTestChild3)
 
         objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
             *models).order_by('pk')
