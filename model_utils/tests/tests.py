@@ -28,7 +28,8 @@ from model_utils.tests.models import (
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3, StatusFieldChoicesName)
+    InheritanceManagerTestChild3, StatusFieldChoicesName,
+    StatusManagerPythonIdentifiers)
 
 
 class GetExcerptTests(TestCase):
@@ -1136,6 +1137,23 @@ class StatusManagerAddedTests(TestCase):
                     ('deleted', 'deleted'),
                     )
                 active = models.BooleanField()
+
+
+    def test_three_tuples_use_python_identifier_for_manager(self):
+        """
+        If the STATUS is a Choices object using the 3-value form (db,
+        python identifier, human-readable form), make sure the python
+        attribute names are used as the QueryManager instances.
+        """
+        self.assertTrue(isinstance(StatusManagerPythonIdentifiers.is_active, QueryManager))
+        self.assertTrue(isinstance(StatusManagerPythonIdentifiers.was_deleted, QueryManager))
+        self.assertTrue(isinstance(StatusManagerPythonIdentifiers.currently_on_hold, QueryManager))
+        with self.assertRaises(AttributeError):
+            manager = StatusManagerPythonIdentifiers.active
+        with self.assertRaises(AttributeError):
+            manager = StatusManagerPythonIdentifiers.deleted
+        with self.assertRaises(AttributeError):
+            manager = StatusManagerPythonIdentifiers.on_hold
 
 
 

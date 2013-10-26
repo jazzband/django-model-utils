@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from model_utils.managers import QueryManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
     StatusField, MonitorField
-
+from model_utils.choices import Choices
 
 class TimeStampedModel(models.Model):
     """
@@ -58,7 +58,13 @@ def add_status_query_managers(sender, **kwargs):
     """
     if not issubclass(sender, StatusModel):
         return
-    for value, name in getattr(sender, 'STATUS', ()):
+    status_choices = getattr(sender, 'STATUS', ())
+    # if we're working with Choices rather than a 2-tuple, inspect and replace
+    # the expected data with the identifier_map, which is a dictionary
+    # that maps the python attrs to values.
+    if isinstance(status_choices, Choices):
+        status_choices = tuple(status_choices._identifier_map.items())
+    for value, name in status_choices:
         try:
             sender._meta.get_field(name)
             raise ImproperlyConfigured("StatusModel: Model '%s' has a field "

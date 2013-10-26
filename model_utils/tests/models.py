@@ -126,6 +126,14 @@ class StatusManagerAdded(StatusModel):
     )
 
 
+class StatusManagerPythonIdentifiers(StatusModel):
+    STATUS = Choices(
+        ("active", 'is_active', _("active")),
+        ("deleted", 'was_deleted', _("deleted")),
+        ("on_hold", 'currently_on_hold', _("on hold")),
+    )
+
+
 
 class Post(models.Model):
     published = models.BooleanField()
