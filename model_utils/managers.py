@@ -110,8 +110,8 @@ class InheritanceQuerySet(QuerySet):
             if levels or levels is None:
                 for subclass in self._get_subclasses_recurse(
                         rel.field.model, levels=levels):
-                    subclasses.append(rel.var_name + LOOKUP_SEP + subclass)
-            subclasses.append(rel.var_name)
+                    subclasses.append(rel.get_accessor_name() + LOOKUP_SEP + subclass)
+            subclasses.append(rel.get_accessor_name())
         return subclasses
 
 
@@ -130,7 +130,7 @@ class InheritanceQuerySet(QuerySet):
         if levels:
             levels -= 1
         while parent is not None:
-            ancestry.insert(0, parent.related.var_name)
+            ancestry.insert(0, parent.related.get_accessor_name())
             if levels or levels is None:
                 parent = parent.related.parent_model._meta.get_ancestor_link(
                     self.model)
