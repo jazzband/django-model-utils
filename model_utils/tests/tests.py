@@ -695,8 +695,9 @@ class InheritanceManagerTests(TestCase):
         results = InheritanceManagerTestParent.objects.all().select_subclasses()
 
         expected_objs = [self.child1, self.child2,
-                         InheritanceManagerTestChild1(pk=3),
-                         InheritanceManagerTestChild1(pk=4), child3]
+                         InheritanceManagerTestChild1(pk=self.grandchild1.pk),
+                         InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
+                         child3]
         self.assertEqual(list(results), expected_objs)
 
         expected_related_names = [
@@ -706,6 +707,7 @@ class InheritanceManagerTests(TestCase):
         ]
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
+
 
     @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_manually_specifying_parent_fk_including_grandchildren(self):
@@ -731,6 +733,25 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
 
+
+    def test_manually_specifying_parent_fk_single_subclass(self):
+        """
+        Using a string related_name when the relation is manually defined
+        instead of implicit should still work in the same way.
+        """
+        related_name = 'manual_onetoone'
+        child3 = InheritanceManagerTestChild3.objects.create()
+        results = InheritanceManagerTestParent.objects.all().select_subclasses(related_name)
+
+        expected_objs = [InheritanceManagerTestParent(pk=self.child1.pk),
+                         InheritanceManagerTestParent(pk=self.child2.pk),
+                         InheritanceManagerTestParent(pk=self.grandchild1.pk),
+                         InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
+                         child3]
+        self.assertEqual(list(results), expected_objs)
+        expected_related_names = [related_name]
+        self.assertEqual(set(results.subclasses),
+                         set(expected_related_names))
 
 
 class InheritanceManagerUsingModelsTests(TestCase):
@@ -938,11 +959,11 @@ class InheritanceManagerUsingModelsTests(TestCase):
         results = InheritanceManagerTestParent.objects.all().select_subclasses(
             InheritanceManagerTestChild3)
 
-        expected_objs = [InheritanceManagerTestParent(pk=1),
-                         InheritanceManagerTestParent(pk=2),
-                         InheritanceManagerTestParent(pk=3),
-                         InheritanceManagerTestParent(pk=4),
-                         InheritanceManagerTestParent(pk=5),
+        expected_objs = [InheritanceManagerTestParent(pk=self.parent1.pk),
+                         InheritanceManagerTestParent(pk=self.child1.pk),
+                         InheritanceManagerTestParent(pk=self.child2.pk),
+                         InheritanceManagerTestParent(pk=self.grandchild1.pk),
+                         InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
                          child3]
         self.assertEqual(list(results), expected_objs)
 
