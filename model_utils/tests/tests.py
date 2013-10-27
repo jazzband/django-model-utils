@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 import pickle
 try:
-    from unittest import skipUnless
+    from unittest import skipUnless, expectedFailure
 except ImportError: # Python 2.6
-    from django.utils.unittest import skipUnless
+    from django.utils.unittest import skipUnless, expectedFailure
 
 import django
 from django.db import models
@@ -28,7 +28,8 @@ from model_utils.tests.models import (
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3, StatusFieldChoicesName)
+    InheritanceManagerTestChild3, StatusFieldChoicesName, 
+    InheritanceManagerBackwardsRelation)
 
 
 class GetExcerptTests(TestCase):
@@ -1028,6 +1029,39 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         qs = InheritanceManagerTestParent.objects.annotate(
             test_count=models.Count('id')).select_subclasses()
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
+
+
+    @expectedFailure
+    def test_select_related_query_count_via_reverse_relation(self):
+        """
+        When doing select_subclasses and select_related together, and the
+        select_related references a reverse relation to the Parent model,
+        trying to access the attribute on any of the downcast Child instances
+        should not result in another query if possible
+        """
+        related_obj = InheritanceManagerBackwardsRelation.objects.create(
+            relation=self.child1)
+
+        with self.assertNumQueries(1):
+            pks = (self.child1.pk, self.child2.pk)
+            qs = list(InheritanceManagerTestParent.objects.select_related(
+                      'backwards_relation').select_subclasses(
+                      'inheritancemanagertestchild1').filter(pk__in=pks)
+                      .order_by('pk'))
+
+            # make sure we're not relying on implicit ordering accidentally.
+            self.assertIsInstance(qs[0], InheritanceManagerTestChild1)
+            self.assertEqual(qs[0].pk, self.child1.pk)
+
+            # accessing the 'backwards_relation' attribute of each item
+            # the child1 instance *should* have a relation, the child2
+            # should not.
+            self.assertEqual(qs[0].backwards_relation, related_obj)
+            with self.assertRaises(
+                InheritanceManagerBackwardsRelation.DoesNotExist):
+                    qs[1].backwards_relation
+
+
 
 
 

@@ -68,6 +68,11 @@ class InheritanceManagerTestChild3(InheritanceManagerTestParent):
         parent_link=True)
 
 
+class InheritanceManagerBackwardsRelation(models.Model):
+    relation = models.OneToOneField(
+        InheritanceManagerTestParent, related_name='backwards_relation')
+
+
 class TimeStamp(TimeStampedModel):
     pass
 
