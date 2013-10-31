@@ -666,6 +666,41 @@ class InheritanceManagerTests(TestCase):
             self.child1)
 
 
+    def test_get_subclass_only_specified_child_for_grandchild(self):
+        """
+        Test ability to ask for only certain subclass types
+        """
+        qs = self.get_manager().select_subclasses(
+                'inheritancemanagertestchild1')
+        downcast_obj = qs.get_subclass(pk=self.grandchild1.pk)
+        self.assertEqual(
+                downcast_obj, InheritanceManagerTestChild1(pk=self.grandchild1.pk))
+
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_get_subclass_only_specified_grandchild(self):
+        """
+        Test ability to ask for only certain subclass type, in this case,
+        asking for a grandchild
+        """
+        qs = self.get_manager().select_subclasses(
+                'inheritancemanagertestchild1__inheritancemanagertestgrandchild1')
+        downcast_obj = qs.get_subclass(pk=self.grandchild1.pk)
+        self.assertEqual(downcast_obj, self.grandchild1)
+
+
+    def test_get_subclass_unrelated_instance(self):
+        """
+        Asking for only specific subclasses and calling get_subclass should
+        leave the instance as the parent
+        """
+        qs = self.get_manager().select_subclasses(
+                'inheritancemanagertestchild1')
+        downcast_obj = qs.get_subclass(pk=self.child2.pk)
+        self.assertEqual(
+                downcast_obj, InheritanceManagerTestParent(pk=self.child2.pk))
+
+
     def test_prior_select_related(self):
         with self.assertNumQueries(1):
             obj = self.get_manager().select_related(
