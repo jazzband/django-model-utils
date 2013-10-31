@@ -152,7 +152,15 @@ class InheritanceQuerySet(QuerySet):
             return node
 
     def get_subclass(self, *args, **kwargs):
-        return self.select_subclasses().get(*args, **kwargs)
+        """
+        Downcast the Parent model into a subclass instance, as far as
+        possible, allowing for only downcasting to certain subclasses
+        if required
+        """
+        if getattr(self, 'subclasses', False):
+            return self.get(*args, **kwargs)
+        else:
+            return self.select_subclasses().get(*args, **kwargs)
 
     def _get_maximum_depth(self):
         """
