@@ -8,9 +8,10 @@ StatusField
 
 A simple convenience for giving a model a set of "states."
 ``StatusField`` is a ``CharField`` subclass that expects to find a
-``STATUS`` class attribute on its model, and uses that as its
-``choices``. Also sets a default ``max_length`` of 100, and sets its
-default value to the first item in the ``STATUS`` choices:
+class attribute called ``STATUS`` on its model or you can pass
+``choices_name`` to use a different attribute name, and uses that as
+its ``choices``. Also sets a default ``max_length`` of 100, and sets
+its default value to the first item in the ``STATUS`` choices:
 
 .. code-block:: python
 
@@ -24,6 +25,18 @@ default value to the first item in the ``STATUS`` choices:
 
 (The ``STATUS`` class attribute does not have to be a :ref:`Choices`
 instance, it can be an ordinary list of two-tuples).
+
+Using a different name for the model's choices class attribute
+
+.. code-block:: python
+
+    from model_utils.fields import StatusField
+    from model_utils import Choices
+
+    class Article(models.Model):
+        ANOTHER_CHOICES = Choices('draft', 'published')
+        # ...
+        another_field = StatusField(choices_name='ANOTHER_CHOICES')
 
 ``StatusField`` does not set ``db_index=True`` automatically; if you
 expect to frequently filter on your status field (and it will have

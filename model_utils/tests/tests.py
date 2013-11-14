@@ -28,7 +28,7 @@ from model_utils.tests.models import (
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3)
+    InheritanceManagerTestChild3, StatusFieldChoicesName)
 
 
 class GetExcerptTests(TestCase):
@@ -258,6 +258,9 @@ class StatusFieldTests(TestCase):
     def test_get_status_display(self):
         instance = StatusFieldDefaultFilled()
         self.assertEqual(instance.get_status_display(), "Yes")
+
+    def test_choices_name(self):
+        StatusFieldChoicesName()
 
 
 class ChoicesTests(TestCase):
