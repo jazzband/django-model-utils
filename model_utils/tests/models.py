@@ -352,3 +352,8 @@ class StatusFieldDefaultFilled(models.Model):
 class StatusFieldDefaultNotFilled(models.Model):
     STATUS = Choices((0, "no", "No"), (1, "yes", "Yes"))
     status = StatusField()
+
+
+class StatusFieldChoicesName(models.Model):
+    NAMED_STATUS = Choices((0, "no", "No"), (1, "yes", "Yes"))
+    status = StatusField(choices_name='NAMED_STATUS')

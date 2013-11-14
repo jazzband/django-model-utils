@@ -5,6 +5,8 @@ from django.conf import settings
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
+DEFAULT_CHOICES_NAME = 'STATUS'
+
 
 class AutoCreatedField(models.DateTimeField):
     """
@@ -48,16 +50,17 @@ class StatusField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 100)
         self.check_for_status = not kwargs.pop('no_check_for_status', False)
+        self.choices_name = kwargs.pop('choices_name', DEFAULT_CHOICES_NAME)
         super(StatusField, self).__init__(*args, **kwargs)
 
     def prepare_class(self, sender, **kwargs):
         if not sender._meta.abstract and self.check_for_status:
-            assert hasattr(sender, 'STATUS'), \
-                "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
-                % sender.__name__
-            self._choices = sender.STATUS
+            assert hasattr(sender, self.choices_name), \
+                "To use StatusField, the model '%s' must have a %s choices class attribute." \
+                % (sender.__name__, self.choices_name)
+            self._choices = getattr(sender, self.choices_name)
             if not self.has_default():
-                self.default = tuple(sender.STATUS)[0][0]  # set first as default
+                self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
 
     def contribute_to_class(self, cls, name):
         models.signals.class_prepared.connect(self.prepare_class, sender=cls)
