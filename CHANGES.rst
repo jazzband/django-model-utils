@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Can pass `choices_name` to `StatusField` to use a different name for
+  choices class attribute. ``STATUS`` is used by default.
+
 * Can pass model subclasses, rather than strings, into
   `select_subclasses()`. Thanks Keryn Knight. Merge of GH-79.
 
