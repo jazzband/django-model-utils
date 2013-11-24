@@ -4,6 +4,12 @@ CHANGES
 master (unreleased)
 -------------------
 
+* ``PassThroughManager`` now has support for seeing exposed methods via
+  ``dir``, allowing `IPython`_ tab completion to be useful. Merge of GH-104,
+  fixes GH-55.
+
+.. _IPython: http://ipython.org/
+
 
 2.0.3 (2014.03.19)
 -------------------
