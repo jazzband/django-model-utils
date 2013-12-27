@@ -10,6 +10,13 @@ manager that returns only objects for whom the current date-time lies
 within their time range.
 
 
+TimeStampedModel
+----------------
+
+This abstract base class just provides self-updating ``created`` and
+``modified`` fields on any model that inherits from it.
+
+
 StatusModel
 -----------
 
