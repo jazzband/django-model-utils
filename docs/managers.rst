@@ -94,13 +94,6 @@ it's safe to use as your default manager for the model.
 .. _Django bug #16572: https://code.djangoproject.com/ticket/16572
 
 
-TimeStampedModel
-----------------
-
-This abstract base class just provides self-updating ``created`` and
-``modified`` fields on any model that inherits from it.
-
-
 .. _QueryManager:
 
 QueryManager
