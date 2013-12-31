@@ -173,6 +173,8 @@ class InheritanceManager(models.Manager):
     def get_queryset(self):
         return InheritanceQuerySet(self.model)
 
+    get_query_set = get_queryset
+
     def select_subclasses(self, *subclasses):
         return self.get_queryset().select_subclasses(*subclasses)
 
@@ -196,10 +198,15 @@ class QueryManager(models.Manager):
         return self
 
     def get_queryset(self):
-        qs = super(QueryManager, self).get_queryset().filter(self._q)
+        try:
+            qs = super(QueryManager, self).get_queryset().filter(self._q)
+        except AttributeError:
+            qs = super(QueryManager, self).get_query_set().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs
+
+    get_query_set = get_queryset
 
 
 class PassThroughManager(models.Manager):
@@ -235,10 +242,15 @@ class PassThroughManager(models.Manager):
         return getattr(self.get_queryset(), name)
 
     def get_queryset(self):
-        qs = super(PassThroughManager, self).get_queryset()
+        try:
+            qs = super(PassThroughManager, self).get_queryset()
+        except AttributeError:
+            qs = super(PassThroughManager, self).get_query_set()
         if self._queryset_cls is not None:
             qs = qs._clone(klass=self._queryset_cls)
         return qs
+
+    get_query_set = get_queryset
 
     @classmethod
     def for_queryset_class(cls, queryset_cls):
@@ -253,6 +265,8 @@ def create_pass_through_manager_for_queryset_class(base, queryset_cls):
         def get_queryset(self):
             qs = super(_PassThroughManager, self).get_queryset()
             return qs._clone(klass=queryset_cls)
+
+        get_query_set = get_queryset
 
         def __reduce__(self):
             # our pickling support breaks for subclasses (e.g. RelatedManager)
