@@ -191,12 +191,13 @@ class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
 
 
 class FeaturedManager(models.Manager):
-    def get_query_set(self):
+    def get_queryset(self):
         kwargs = {}
         if hasattr(self, "_db"):
             kwargs["using"] = self._db
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
+    get_query_set = get_queryset
 
 
 class DudeQuerySet(models.query.QuerySet):
@@ -215,8 +216,10 @@ class DudeQuerySet(models.query.QuerySet):
 
 
 class AbidingManager(PassThroughManager):
-    def get_query_set(self):
+    def get_queryset(self):
         return DudeQuerySet(self.model).abiding()
+
+    get_query_set = get_queryset
 
     def get_stats(self):
         return {
@@ -243,8 +246,10 @@ class Car(models.Model):
 
 
 class SpotManager(PassThroughManager):
-    def get_query_set(self):
-        return super(SpotManager, self).get_query_set().filter(secret=False)
+    def get_queryset(self):
+        return super(SpotManager, self).get_queryset().filter(secret=False)
+
+    get_query_set = get_queryset
 
 
 class SpotQuerySet(models.query.QuerySet):

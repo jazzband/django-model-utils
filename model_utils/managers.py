@@ -170,14 +170,16 @@ class InheritanceQuerySet(QuerySet):
 class InheritanceManager(models.Manager):
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         return InheritanceQuerySet(self.model)
 
+    get_query_set = get_queryset
+
     def select_subclasses(self, *subclasses):
-        return self.get_query_set().select_subclasses(*subclasses)
+        return self.get_queryset().select_subclasses(*subclasses)
 
     def get_subclass(self, *args, **kwargs):
-        return self.get_query_set().get_subclass(*args, **kwargs)
+        return self.get_queryset().get_subclass(*args, **kwargs)
 
 
 class QueryManager(models.Manager):
@@ -195,18 +197,23 @@ class QueryManager(models.Manager):
         self._order_by = args
         return self
 
-    def get_query_set(self):
-        qs = super(QueryManager, self).get_query_set().filter(self._q)
+    def get_queryset(self):
+        try:
+            qs = super(QueryManager, self).get_queryset().filter(self._q)
+        except AttributeError:
+            qs = super(QueryManager, self).get_query_set().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs
+
+    get_query_set = get_queryset
 
 
 class PassThroughManager(models.Manager):
     """
     Inherit from this Manager to enable you to call any methods from your
     custom QuerySet class from your manager. Simply define your QuerySet
-    class, and return an instance of it from your manager's `get_query_set`
+    class, and return an instance of it from your manager's `get_queryset`
     method.
 
     Alternately, if you don't need any extra methods on your manager that
@@ -232,13 +239,18 @@ class PassThroughManager(models.Manager):
     def __getattr__(self, name):
         if name in self._deny_methods:
             raise AttributeError(name)
-        return getattr(self.get_query_set(), name)
+        return getattr(self.get_queryset(), name)
 
-    def get_query_set(self):
-        qs = super(PassThroughManager, self).get_query_set()
+    def get_queryset(self):
+        try:
+            qs = super(PassThroughManager, self).get_queryset()
+        except AttributeError:
+            qs = super(PassThroughManager, self).get_query_set()
         if self._queryset_cls is not None:
             qs = qs._clone(klass=self._queryset_cls)
         return qs
+
+    get_query_set = get_queryset
 
     @classmethod
     def for_queryset_class(cls, queryset_cls):
@@ -250,9 +262,11 @@ def create_pass_through_manager_for_queryset_class(base, queryset_cls):
         def __init__(self):
             return super(_PassThroughManager, self).__init__()
 
-        def get_query_set(self):
-            qs = super(_PassThroughManager, self).get_query_set()
+        def get_queryset(self):
+            qs = super(_PassThroughManager, self).get_queryset()
             return qs._clone(klass=queryset_cls)
+
+        get_query_set = get_queryset
 
         def __reduce__(self):
             # our pickling support breaks for subclasses (e.g. RelatedManager)
