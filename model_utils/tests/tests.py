@@ -1132,8 +1132,8 @@ class StatusManagerAddedTests(TestCase):
         with self.assertRaises(ImproperlyConfigured):
             class ErrorModel(StatusModel):
                 STATUS = (
-                    ('active', 'active'),
-                    ('deleted', 'deleted'),
+                    ('active', 'Is Active'),
+                    ('deleted', 'Is Deleted'),
                     )
                 active = models.BooleanField()
 
