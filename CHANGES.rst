@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fixed bug with checking for field name conflicts for added query managers on
+  `StatusModel`.
+
 * Can pass `choices_name` to `StatusField` to use a different name for
   choices class attribute. ``STATUS`` is used by default.
 

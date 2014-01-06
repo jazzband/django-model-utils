@@ -58,13 +58,13 @@ def add_status_query_managers(sender, **kwargs):
     """
     if not issubclass(sender, StatusModel):
         return
-    for value, name in getattr(sender, 'STATUS', ()):
+    for value, display in getattr(sender, 'STATUS', ()):
         try:
-            sender._meta.get_field(name)
+            sender._meta.get_field(value)
             raise ImproperlyConfigured("StatusModel: Model '%s' has a field "
                                        "named '%s' which conflicts with a "
                                        "status of the same name."
-                                       % (sender.__name__, name))
+                                       % (sender.__name__, value))
         except FieldDoesNotExist:
             pass
         sender.add_to_class(value, QueryManager(status=value))

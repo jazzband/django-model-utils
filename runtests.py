@@ -3,26 +3,31 @@
 import os, sys
 
 from django.conf import settings
+import django
 
 
-if not settings.configured:
-    settings_dict = dict(
-        INSTALLED_APPS=(
-            'django.contrib.contenttypes',
-            'model_utils',
-            'model_utils.tests',
-            ),
-        DATABASES={
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3"
-                }
-            },
-        )
-
-    settings.configure(**settings_dict)
+DEFAULT_SETTINGS = dict(
+    INSTALLED_APPS=(
+        'django.contrib.contenttypes',
+        'model_utils',
+        'model_utils.tests',
+        ),
+    DATABASES={
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3"
+            }
+        },
+    )
 
 
 def runtests(*test_args):
+    if not settings.configured:
+        settings.configure(**DEFAULT_SETTINGS)
+
+    # Compatibility with Django 1.7's stricter initialization
+    if hasattr(django, 'setup'):
+        django.setup()
+
     if not test_args:
         test_args = ['tests']
 
