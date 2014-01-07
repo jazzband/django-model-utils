@@ -268,19 +268,4 @@ def create_pass_through_manager_for_queryset_class(base, queryset_cls):
 
         get_query_set = get_queryset
 
-        def __reduce__(self):
-            # our pickling support breaks for subclasses (e.g. RelatedManager)
-            if self.__class__ is not _PassThroughManager:
-                return super(_PassThroughManager, self).__reduce__()
-            return (
-                unpickle_pass_through_manager_for_queryset_class,
-                (base, queryset_cls),
-                self.__dict__,
-                )
-
     return _PassThroughManager
-
-
-def unpickle_pass_through_manager_for_queryset_class(base, queryset_cls):
-    cls = create_pass_through_manager_for_queryset_class(base, queryset_cls)
-    return cls.__new__(cls)
