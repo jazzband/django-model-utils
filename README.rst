@@ -11,8 +11,8 @@ django-model-utils
 
 Django model mixins and utilities.
 
-``django-model-utils`` supports `Django`_ 1.4.2 and later on Python 2.6, 2.7,
-3.2, and 3.3.
+``django-model-utils`` supports `Django`_ 1.4.10 and later on Python 2.6, 2.7,
+3.2, 3.3 and 3.4.
 
 .. _Django: http://www.djangoproject.com/
 
