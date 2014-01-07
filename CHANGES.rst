@@ -1,8 +1,15 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.0 (2014.01.06)
+----------------
+
+* BACKWARDS-INCOMPATIBLE: Indexing into a ``Choices`` instance now translates
+  database representations to human-readable choice names, rather than simply
+  indexing into an array of choice tuples. (Indexing into ``Choices`` was
+  previously not documented.) If you have code that is relying on indexing or
+  slicing ``Choices``, the simplest workaround is to change e.g. ``STATUS[1:]``
+  to ``list(STATUS)[1:]``.
 
 * Fixed bug with checking for field name conflicts for added query managers on
   `StatusModel`.
@@ -18,13 +25,6 @@ master (unreleased)
 
 * `get_subclass()` method is now available on both managers and
   querysets. Thanks Travis Swicegood. Merge of GH-82.
-
-* BACKWARDS-INCOMPATIBLE: Indexing into a ``Choices`` instance now translates
-  database representations to human-readable choice names, rather than simply
-  indexing into an array of choice tuples. (Indexing into ``Choices`` was
-  previously not documented.) If you have code that is relying on indexing or
-  slicing ``Choices``, the simplest workaround is to change e.g. ``STATUS[1:]``
-  to ``list(STATUS)[1:]``.
 
 * Fix bug in `InheritanceManager` with grandchild classes on Django 1.6+;
   `select_subclasses('child', 'child__grandchild')` would only ever get to the
