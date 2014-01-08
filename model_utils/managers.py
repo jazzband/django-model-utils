@@ -210,7 +210,7 @@ class QueryManager(models.Manager):
     get_query_set = get_queryset
 
 
-class PassThroughManagerMixin(object):
+class PassThroughMixin(object):
     """
     A mixin that allow you to add functionality to a Manager
     enabling you to call custom QuerySet methods from your manager. 
@@ -222,7 +222,7 @@ class PassThroughManagerMixin(object):
 
     def __init__(self, queryset_cls=None):
         self._queryset_cls = queryset_cls
-        super(PassThroughManagerMixin, self).__init__()
+        super(PassThroughMixin, self).__init__()
 
     def __getattr__(self, name):
         if name in self._deny_methods:
@@ -231,9 +231,9 @@ class PassThroughManagerMixin(object):
 
     def get_queryset(self):
         try:
-            qs = super(PassThroughManagerMixin, self).get_queryset()
+            qs = super(PassThroughMixin, self).get_queryset()
         except AttributeError:
-            qs = super(PassThroughManagerMixin, self).get_query_set()
+            qs = super(PassThroughMixin, self).get_query_set()
         if self._queryset_cls is not None:
             qs = qs._clone(klass=self._queryset_cls)
         return qs
