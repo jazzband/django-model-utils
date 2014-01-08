@@ -284,7 +284,7 @@ class PassThroughGeoManager(PassThroughMixin, geomodels.GeoManager):
             return self.filter(point__within=geom)
 
     class Location(models.Model):
-        objects = GeoPassThroughManager.for_queryset_class(LocationQuerySet)()
+        objects = PassThroughGeoManager.for_queryset_class(LocationQuerySet)()
 
     """
     pass
