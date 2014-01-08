@@ -267,7 +267,7 @@ class PassThroughManager(PassThroughMixin, models.Manager):
     """
     pass
 
-class GeoPassThroughManager(PassThroughMixin, geomodels.GeoManager):
+class PassThroughGeoManager(PassThroughMixin, geomodels.GeoManager):
     """
     For use with GeoDjango's GeoManager to enable spatial lookups.
     Inherit from this Manager to enable you to call any methods from your
