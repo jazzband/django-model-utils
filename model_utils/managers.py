@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import django
 from django.db import models
+from django.contrib.gis.db import models as geomodels
 from django.db.models.fields.related import OneToOneField
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
@@ -209,7 +210,43 @@ class QueryManager(models.Manager):
     get_query_set = get_queryset
 
 
-class PassThroughManager(models.Manager):
+class PassThroughManagerMixin(object):
+    """
+    A mixin that allow you to add functionality to a Manager
+    enabling you to call custom QuerySet methods from your manager. 
+    """
+
+    # pickling causes recursion errors
+    _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
+                     '__getnewargs__', '__copy__', '__deepcopy__', '_db']
+
+    def __init__(self, queryset_cls=None):
+        self._queryset_cls = queryset_cls
+        super(PassThroughManagerMixin, self).__init__()
+
+    def __getattr__(self, name):
+        if name in self._deny_methods:
+            raise AttributeError(name)
+        return getattr(self.get_queryset(), name)
+
+    def get_queryset(self):
+        try:
+            qs = super(PassThroughManagerMixin, self).get_queryset()
+        except AttributeError:
+            qs = super(PassThroughManagerMixin, self).get_query_set()
+        if self._queryset_cls is not None:
+            qs = qs._clone(klass=self._queryset_cls)
+        return qs
+
+    get_query_set = get_queryset
+
+    @classmethod
+    def for_queryset_class(cls, queryset_cls):
+        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
+
+
+
+class PassThroughManager(PassThroughMixin, models.Manager):
     """
     Inherit from this Manager to enable you to call any methods from your
     custom QuerySet class from your manager. Simply define your QuerySet
@@ -228,33 +265,29 @@ class PassThroughManager(models.Manager):
         objects = PassThroughManager.for_queryset_class(PostQuerySet)()
 
     """
-    # pickling causes recursion errors
-    _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
-                     '__getnewargs__', '__copy__', '__deepcopy__', '_db']
+    pass
 
-    def __init__(self, queryset_cls=None):
-        self._queryset_cls = queryset_cls
-        super(PassThroughManager, self).__init__()
+class GeoPassThroughManager(PassThroughMixin, geomodels.GeoManager):
+    """
+    For use with GeoDjango's GeoManager to enable spatial lookups.
+    Inherit from this Manager to enable you to call any methods from your
+    custom GeoQuerySet class from your manager. Simply define your GeoQuerySet
+    class, and return an instance of it from your manager's `get_queryset`
+    method.
 
-    def __getattr__(self, name):
-        if name in self._deny_methods:
-            raise AttributeError(name)
-        return getattr(self.get_queryset(), name)
+    Alternately, if you don't need any extra methods on your manager that
+    aren't on your GeoQuerySet, then just pass your GeoQuerySet class to the
+    ``for_queryset_class`` class method.
 
-    def get_queryset(self):
-        try:
-            qs = super(PassThroughManager, self).get_queryset()
-        except AttributeError:
-            qs = super(PassThroughManager, self).get_query_set()
-        if self._queryset_cls is not None:
-            qs = qs._clone(klass=self._queryset_cls)
-        return qs
+    class LocationQuerySet(GeoQuerySet):
+        def within_boundary(self):
+            return self.filter(point__within=geom)
 
-    get_query_set = get_queryset
+    class Location(models.Model):
+        objects = GeoPassThroughManager.for_queryset_class(LocationQuerySet)()
 
-    @classmethod
-    def for_queryset_class(cls, queryset_cls):
-        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
+    """
+    pass
 
 
 def create_pass_through_manager_for_queryset_class(base, queryset_cls):
