@@ -168,8 +168,6 @@ class InheritanceMixin(object):
 class InheritanceManagerMixin(object):
     use_for_related_fields = True
 
-    get_query_set = get_queryset
-
     def select_subclasses(self, *subclasses):
         return self.get_queryset().select_subclasses(*subclasses)
 
@@ -183,6 +181,8 @@ class InheritanceQuerySet(InheritanceMixin, QuerySet):
 class InheritanceManager(InheritanceManagerMixin, models.Manager):
     def get_queryset(self):
         return InheritanceQuerySet(self.model)
+    
+    get_query_set = get_queryset
 
 
 class QueryMixin(object):
@@ -242,8 +242,6 @@ class PassThroughMixin(object):
             qs = qs._clone(klass=self._queryset_cls)
         return qs
 
-    get_query_set = get_queryset
-
     @classmethod
     def for_queryset_class(cls, queryset_cls):
         return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
@@ -269,7 +267,8 @@ class PassThroughManager(PassThroughMixin, models.Manager):
         objects = PassThroughManager.for_queryset_class(PostQuerySet)()
 
     """
-    pass
+    get_query_set = get_queryset
+
 
 
 def create_pass_through_manager_for_queryset_class(base, queryset_cls):
