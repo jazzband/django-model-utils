@@ -176,9 +176,9 @@ directly on the manager:
 Mixins
 ------
 
-Each of the above  manager classes has a corresponding mixin that can be
-used to add functionality to any manager. For example, to create a GeoDjango
-GeoManager that includes 'pass through' functionality, you can write the
+Each of the above manager classes has a corresponding mixin that can be used to
+add functionality to any manager. For example, to create a GeoDjango
+``GeoManager`` that includes "pass through" functionality, you can write the
 following code:
 
 .. code-block:: python
@@ -206,7 +206,9 @@ following code:
     Location.objects.public()
     Location.objects.within_boundary(geom=geom)
     Location.objects.within_boundary(geom=geom).public()
-    
-    
-Now you have a 'pass through manager' that can also take advantage of GeoDjango's spatial lookups. You can similarly add
-additonal functionality to any manager by composing that manager with InheritanceManagerMixin or QueryManagerMixin. 
+
+
+Now you have a "pass through manager" that can also take advantage of
+GeoDjango's spatial lookups. You can similarly add additional functionality to
+any manager by composing that manager with ``InheritanceManagerMixin`` or
+``QueryManagerMixin``.
