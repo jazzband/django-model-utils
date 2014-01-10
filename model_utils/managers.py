@@ -13,7 +13,7 @@ except ImportError: # Django < 1.5
     string_types = (basestring,)
 
 
-class InheritanceQuerySet(QuerySet):
+class InheritanceQuerySetMixin(object):
     def select_subclasses(self, *subclasses):
         levels = self._get_maximum_depth()
         calculated_subclasses = self._get_subclasses_recurse(
@@ -58,17 +58,17 @@ class InheritanceQuerySet(QuerySet):
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
-        return super(InheritanceQuerySet, self)._clone(klass, setup, **kwargs)
+        return super(InheritanceQuerySetMixin, self)._clone(klass, setup, **kwargs)
 
 
     def annotate(self, *args, **kwargs):
-        qset = super(InheritanceQuerySet, self).annotate(*args, **kwargs)
+        qset = super(InheritanceQuerySetMixin, self).annotate(*args, **kwargs)
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
 
 
     def iterator(self):
-        iter = super(InheritanceQuerySet, self).iterator()
+        iter = super(InheritanceQuerySetMixin, self).iterator()
         if getattr(self, 'subclasses', False):
             # sort the subclass names longest first,
             # so with 'a' and 'a__b' it goes as deep as possible
@@ -165,14 +165,12 @@ class InheritanceQuerySet(QuerySet):
             levels = 1
         return levels
 
-
-
-class InheritanceManager(models.Manager):
+class InheritanceManagerMixin(object):
     use_for_related_fields = True
 
     def get_queryset(self):
         return InheritanceQuerySet(self.model)
-
+        
     get_query_set = get_queryset
 
     def select_subclasses(self, *subclasses):
@@ -182,7 +180,14 @@ class InheritanceManager(models.Manager):
         return self.get_queryset().get_subclass(*args, **kwargs)
 
 
-class QueryManager(models.Manager):
+class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
+    pass
+
+class InheritanceManager(InheritanceManagerMixin, models.Manager):
+    pass
+
+
+class QueryManagerMixin(object):
     use_for_related_fields = True
 
     def __init__(self, *args, **kwargs):
@@ -191,7 +196,7 @@ class QueryManager(models.Manager):
         else:
             self._q = models.Q(**kwargs)
         self._order_by = None
-        super(QueryManager, self).__init__()
+        super(QueryManagerMixin, self).__init__()
 
     def order_by(self, *args):
         self._order_by = args
@@ -199,9 +204,9 @@ class QueryManager(models.Manager):
 
     def get_queryset(self):
         try:
-            qs = super(QueryManager, self).get_queryset().filter(self._q)
+            qs = super(QueryManagerMixin, self).get_queryset().filter(self._q)
         except AttributeError:
-            qs = super(QueryManager, self).get_query_set().filter(self._q)
+            qs = super(QueryManagerMixin, self).get_query_set().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs
@@ -209,7 +214,45 @@ class QueryManager(models.Manager):
     get_query_set = get_queryset
 
 
-class PassThroughManager(models.Manager):
+class QueryManager(QueryManagerMixin, models.Manager):
+    pass
+
+
+class PassThroughManagerMixin(object):
+    """
+    A mixin that enables you to call custom QuerySet methods from your manager. 
+    """
+
+    # pickling causes recursion errors
+    _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
+                     '__getnewargs__', '__copy__', '__deepcopy__', '_db']
+
+    def __init__(self, queryset_cls=None):
+        self._queryset_cls = queryset_cls
+        super(PassThroughManagerMixin, self).__init__()
+
+    def __getattr__(self, name):
+        if name in self._deny_methods:
+            raise AttributeError(name)
+        return getattr(self.get_queryset(), name)
+
+    def get_queryset(self):
+        try:
+            qs = super(PassThroughManagerMixin, self).get_queryset()
+        except AttributeError:
+            qs = super(PassThroughManagerMixin, self).get_query_set()
+        if self._queryset_cls is not None:
+            qs = qs._clone(klass=self._queryset_cls)
+        return qs
+        
+    get_query_set = get_queryset
+
+    @classmethod
+    def for_queryset_class(cls, queryset_cls):
+        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
+
+
+class PassThroughManager(PassThroughManagerMixin, models.Manager):
     """
     Inherit from this Manager to enable you to call any methods from your
     custom QuerySet class from your manager. Simply define your QuerySet
@@ -228,33 +271,7 @@ class PassThroughManager(models.Manager):
         objects = PassThroughManager.for_queryset_class(PostQuerySet)()
 
     """
-    # pickling causes recursion errors
-    _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
-                     '__getnewargs__', '__copy__', '__deepcopy__', '_db']
-
-    def __init__(self, queryset_cls=None):
-        self._queryset_cls = queryset_cls
-        super(PassThroughManager, self).__init__()
-
-    def __getattr__(self, name):
-        if name in self._deny_methods:
-            raise AttributeError(name)
-        return getattr(self.get_queryset(), name)
-
-    def get_queryset(self):
-        try:
-            qs = super(PassThroughManager, self).get_queryset()
-        except AttributeError:
-            qs = super(PassThroughManager, self).get_query_set()
-        if self._queryset_cls is not None:
-            qs = qs._clone(klass=self._queryset_cls)
-        return qs
-
-    get_query_set = get_queryset
-
-    @classmethod
-    def for_queryset_class(cls, queryset_cls):
-        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
+    pass
 
 
 def create_pass_through_manager_for_queryset_class(base, queryset_cls):
