@@ -204,7 +204,7 @@ following code:
         objects = PassThroughGeoManager.for_queryset_class(LocationQuerySet)()
 
     Location.objects.public()
-    Location.object.within_boundary(geom=geom)
+    Location.objects.within_boundary(geom=geom)
     Location.objects.within_boundary(geom=geom).public()
     
     
