@@ -206,3 +206,7 @@ following code:
     Location.objects.public()
     Location.object.within_boundary(geom=geom)
     Location.objects.within_boundary(geom=geom).public()
+    
+    
+Now you have a 'pass through manager' that can also take advantage of GeoDjango's spatial lookups. You can similarly add
+additonal functionality to any manager by composing that manager with InheritanceManagerMixin or QueryManagerMixin. 
