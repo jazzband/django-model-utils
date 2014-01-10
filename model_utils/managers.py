@@ -196,7 +196,7 @@ class QueryManagerMixin(object):
         else:
             self._q = models.Q(**kwargs)
         self._order_by = None
-        super(QueryMixin, self).__init__()
+        super(QueryManagerMixin, self).__init__()
 
     def order_by(self, *args):
         self._order_by = args
@@ -220,8 +220,7 @@ class QueryManager(QueryManagerMixin, models.Manager):
 
 class PassThroughManagerMixin(object):
     """
-    A mixin that allow you to add functionality to a Manager
-    enabling you to call custom QuerySet methods from your manager. 
+    A mixin that enables you to call custom QuerySet methods from your manager. 
     """
 
     # pickling causes recursion errors
