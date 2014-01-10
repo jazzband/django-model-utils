@@ -170,7 +170,7 @@ class InheritanceManagerMixin(object):
 
     def get_queryset(self):
         return InheritanceQuerySet(self.model)
-        
+
     get_query_set = get_queryset
 
     def select_subclasses(self, *subclasses):
@@ -220,7 +220,7 @@ class QueryManager(QueryManagerMixin, models.Manager):
 
 class PassThroughManagerMixin(object):
     """
-    A mixin that enables you to call custom QuerySet methods from your manager. 
+    A mixin that enables you to call custom QuerySet methods from your manager.
     """
 
     # pickling causes recursion errors
@@ -244,7 +244,7 @@ class PassThroughManagerMixin(object):
         if self._queryset_cls is not None:
             qs = qs._clone(klass=self._queryset_cls)
         return qs
-        
+
     get_query_set = get_queryset
 
     @classmethod
