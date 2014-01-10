@@ -3,6 +3,7 @@ Alex Orange <crazycasta@gmail.com>
 Andy Freeland <andy@andyfreeland.net>
 Carl Meyer <carl@dirtcircle.com>
 Donald Stufft <donald.stufft@gmail.com>
+Douglas Meehan <dmeehan@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
 Felipe Prenholato <philipe.rp@gmail.com>
 Gregor Müllegger <gregor@muellegger.de>

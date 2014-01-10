@@ -172,3 +172,37 @@ directly on the manager:
 
     Post.objects.published()
     Post.objects.by_author(user=request.user).unpublished()
+
+Mixins
+------
+
+Each of the above  manager classes has a corresponding mixin that can be
+used to add functionality to any manager. For example, to create a GeoDjango
+GeoManager that includes 'pass through' functionality, you can write the
+following code:
+
+.. code-block:: python
+
+    from django.contrib.gis.db import models
+    from django.contrib.gis.db.models.query import GeoQuerySet
+
+    from model_utils.managers import PassThroughManagerMixin
+
+    class PassThroughGeoManager(PassThroughManagerMixin, models.GeoManager):
+        pass
+
+    class LocationQuerySet(GeoQuerySet):
+        def within_boundary(self, geom):
+            return self.filter(point__within=geom)
+
+        def public(self):
+            return self.filter(public=True)
+
+    class Location(models.Model):
+        point  = models.PointField()
+        public = models.BooleanField(default=True)
+        objects = PassThroughGeoManager.for_queryset_class(LocationQuerySet)()
+
+    Location.objects.public()
+    Location.object.within_boundary(geom=geom)
+    Location.objects.within_boundary(geom=geom).public()
