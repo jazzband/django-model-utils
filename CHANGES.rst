@@ -4,6 +4,12 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Added ``InheritanceManagerMixin``, ``InheritanceQuerySetMixin``,
+  ``PassThroughManagerMixin``, and ``QueryManagerMixin`` to allow composing
+  their functionality with other custom manager/queryset subclasses (e.g. those
+  in GeoDjango). Thanks Douglas Meehan!
+
+
 2.0 (2014.01.06)
 ----------------
 
