@@ -976,7 +976,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
     def test_extras_descend(self):
         """
-        Ensure that when extra(select=) is passed the values appear on sub-classes.
+        Ensure that extra(select=) values are copied onto sub-classes.
         """
         results = InheritanceManagerTestParent.objects.select_subclasses().extra(
             select={'foo': 'id + 1'}
