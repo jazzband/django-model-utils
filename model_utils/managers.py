@@ -70,7 +70,7 @@ class InheritanceQuerySet(QuerySet):
     def iterator(self):
         iter = super(InheritanceQuerySet, self).iterator()
         if getattr(self, 'subclasses', False):
-            extras = self.query.extra_select.keys()
+            extras = self.query.extra.keys()
             # sort the subclass names longest first,
             # so with 'a' and 'a__b' it goes as deep as possible
             subclasses = sorted(self.subclasses, key=len, reverse=True)
