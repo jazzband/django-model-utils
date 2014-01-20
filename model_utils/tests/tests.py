@@ -1235,6 +1235,11 @@ class CreatePassThroughManagerTests(TestCase):
         Spot.objects.create(
             name='The Crib', owner=self.dude, closed=True, secure=True,
             secret=False)
+        duder = Dude.objects.create(name='Duder', abides=False, has_rug=False)
+        Spot.objects.create(
+            name='Another Crib', owner=duder, closed=True, secure=True,
+            secret=False)
+        self.assertEqual(self.dude.spots_owned.all().closed().count(), 1)
         self.assertEqual(self.dude.spots_owned.closed().count(), 1)
 
     def test_related_queryset_pickling(self):
