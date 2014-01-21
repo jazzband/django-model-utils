@@ -36,6 +36,8 @@ master (unreleased)
 * MonitorField now accepts a 'when' parameter. It will update only when the field
   changes to one of the values specified.
 
+* Improve `InheritanceManager` so any attributes added by using extra(select)
+  will be propagated onto children.
 
 1.5.0 (2013.08.29)
 ------------------
