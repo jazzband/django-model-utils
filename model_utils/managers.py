@@ -70,6 +70,7 @@ class InheritanceQuerySetMixin(object):
     def iterator(self):
         iter = super(InheritanceQuerySetMixin, self).iterator()
         if getattr(self, 'subclasses', False):
+            extras = tuple(self.query.extra.keys())
             # sort the subclass names longest first,
             # so with 'a' and 'a__b' it goes as deep as possible
             subclasses = sorted(self.subclasses, key=len, reverse=True)
@@ -85,6 +86,9 @@ class InheritanceQuerySetMixin(object):
                 if getattr(self, '_annotated', False):
                     for k in self._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
+
+                for k in extras:
+                    setattr(sub_obj, k, getattr(obj, k))
 
                 yield sub_obj
         else:

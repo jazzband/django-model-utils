@@ -25,3 +25,4 @@ Travis Swicegood <travis@domain51.com>
 Trey Hunner <trey@treyhunner.com>
 zyegfryed
 Filipe Ximenes <filipeximenes@gmail.com>
+Curtis Maloney <curtis@tinbrain.net>

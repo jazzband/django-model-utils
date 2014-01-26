@@ -974,6 +974,14 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
 
+    def test_extras_descend(self):
+        """
+        Ensure that extra(select=) values are copied onto sub-classes.
+        """
+        results = InheritanceManagerTestParent.objects.select_subclasses().extra(
+            select={'foo': 'id + 1'}
+        )
+        self.assertTrue(all(result.foo == (result.id + 1) for result in results))
 
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
