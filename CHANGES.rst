@@ -9,6 +9,9 @@ master (unreleased)
   their functionality with other custom manager/queryset subclasses (e.g. those
   in GeoDjango). Thanks Douglas Meehan!
 
+* Improve `InheritanceManager` so any attributes added by using extra(select)
+  will be propagated onto children.
+
 
 2.0 (2014.01.06)
 ----------------
@@ -42,8 +45,6 @@ master (unreleased)
 * MonitorField now accepts a 'when' parameter. It will update only when the field
   changes to one of the values specified.
 
-* Improve `InheritanceManager` so any attributes added by using extra(select)
-  will be propagated onto children.
 
 1.5.0 (2013.08.29)
 ------------------
