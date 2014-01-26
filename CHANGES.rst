@@ -4,13 +4,17 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix issue with attempt to access ``__slots__`` when copying
+  ``PassThroughManager``. Thanks Patryk Zawadzki. Merge of GH-105.
+
+* Improve ``InheritanceManager`` so any attributes added by using extra(select)
+  will be propagated onto children. Thanks Curtis Maloney. Merge of GH-101,
+  fixes GH-34.
+
 * Added ``InheritanceManagerMixin``, ``InheritanceQuerySetMixin``,
   ``PassThroughManagerMixin``, and ``QueryManagerMixin`` to allow composing
   their functionality with other custom manager/queryset subclasses (e.g. those
   in GeoDjango). Thanks Douglas Meehan!
-
-* Improve `InheritanceManager` so any attributes added by using extra(select)
-  will be propagated onto children.
 
 
 2.0 (2014.01.06)

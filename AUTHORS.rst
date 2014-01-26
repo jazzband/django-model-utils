@@ -3,6 +3,7 @@ Alex Orange <crazycasta@gmail.com>
 Andy Freeland <andy@andyfreeland.net>
 Carl Meyer <carl@dirtcircle.com>
 Curtis Maloney <curtis@tinbrain.net>
+Den Lesnov
 Donald Stufft <donald.stufft@gmail.com>
 Douglas Meehan <dmeehan@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
@@ -15,8 +16,8 @@ Jannis Leidel <jannis@leidel.info>
 Javier García Sogo <jgsogo@gmail.com>
 Jeff Elmore <jeffelmore.org>
 Keryn Knight <kerynknight.com>
-Den Lesnov
 Mikhail Silonov <silonov.pro>
+Patryk Zawadzki <patrys@room-303.com>
 Paul McLanahan <paul@mclanahan.net>
 Rinat Shigapov <rinatshigapov@gmail.com>
 Ryan Kaskel <dev@ryankaskel.com>
