@@ -229,7 +229,8 @@ class PassThroughManagerMixin(object):
 
     # pickling causes recursion errors
     _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
-                     '__getnewargs__', '__copy__', '__deepcopy__', '_db']
+                     '__getnewargs__', '__copy__', '__deepcopy__', '_db',
+                     '__slots__']
 
     def __init__(self, queryset_cls=None):
         self._queryset_cls = queryset_cls
