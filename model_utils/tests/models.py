@@ -128,8 +128,8 @@ class StatusManagerAdded(StatusModel):
 
 
 class Post(models.Model):
-    published = models.BooleanField()
-    confirmed = models.BooleanField()
+    published = models.BooleanField(default=False)
+    confirmed = models.BooleanField(default=False)
     order = models.IntegerField()
 
     objects = models.Manager()
