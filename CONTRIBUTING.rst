@@ -20,12 +20,12 @@ When creating a pull request, try to:
 
 - Write tests if applicable
 - Note important changes in the `CHANGES`_ file
-- Update the `README`_ file if needed
+- Update the documentation if needed
 - Add yourself to the `AUTHORS`_ file
 
 .. _AUTHORS: AUTHORS.rst
 .. _CHANGES: CHANGES.rst
-.. _README: README.rst
+
 
 Testing
 -------
