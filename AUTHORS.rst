@@ -2,10 +2,12 @@ Alejandro Varas <alej0varas@gmail.com>
 Alex Orange <crazycasta@gmail.com>
 Andy Freeland <andy@andyfreeland.net>
 Carl Meyer <carl@dirtcircle.com>
+Curtis Maloney <curtis@tinbrain.net>
 Donald Stufft <donald.stufft@gmail.com>
 Douglas Meehan <dmeehan@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
 Felipe Prenholato <philipe.rp@gmail.com>
+Filipe Ximenes <filipeximenes@gmail.com>
 Gregor Müllegger <gregor@muellegger.de>
 ivirabyan
 James Oakley <jfunk@funktronics.ca>
@@ -24,5 +26,3 @@ Tony Aldridge <zaragopha@hotmail.com>
 Travis Swicegood <travis@domain51.com>
 Trey Hunner <trey@treyhunner.com>
 zyegfryed
-Filipe Ximenes <filipeximenes@gmail.com>
-Curtis Maloney <curtis@tinbrain.net>
