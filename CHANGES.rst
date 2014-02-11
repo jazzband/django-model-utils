@@ -1,8 +1,11 @@
 CHANGES
 =======
 
-master (unreleased)
+2.0.1 (unreleased)
 -------------------
+
+* Fix dependency to be on "Django" rather than "django", which plays better
+  with static PyPI mirrors. Thanks Travis Swicegood.
 
 * Fix issue with attempt to access ``__slots__`` when copying
   ``PassThroughManager``. Thanks Patryk Zawadzki. Merge of GH-105.
