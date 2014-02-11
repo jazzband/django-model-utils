@@ -1,7 +1,11 @@
 CHANGES
 =======
 
-2.0.1 (unreleased)
+master (unreleased)
+-------------------
+
+
+2.0.1 (2014.02.11)
 -------------------
 
 * Fix dependency to be on "Django" rather than "django", which plays better
