@@ -106,6 +106,7 @@ class InheritanceQuerySetMixin(object):
             rel for rel in model._meta.get_all_related_objects()
             if isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
+            and model is not rel.field.model
             ]
         subclasses = []
         if levels:
