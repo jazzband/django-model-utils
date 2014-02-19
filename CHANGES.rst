@@ -1,8 +1,14 @@
 CHANGES
 =======
 
-master (unreleased)
+2.0.2 (2014.02.19)
 -------------------
+
+* ASCII-fold all non-ASCII characters in changelog. Apologies to those whose
+  names are mangled by this change. It seems that distutils makes it impossible
+  to handle non-ASCII content reliably under Python 3 in a setup.py
+  long_description, when the system encoding may be ASCII. Thanks Simone Dalla
+  for the report. Fixes GH-113.
 
 
 2.0.1 (2014.02.11)
@@ -145,7 +151,7 @@ master (unreleased)
 
 - Added ``__len__`` method to ``Choices``. Thanks Ryan Kaskel and James Oakley.
 
-- Fixed ``InheritanceQuerySet`` on Django 1.5. Thanks Javier García Sogo.
+- Fixed ``InheritanceQuerySet`` on Django 1.5. Thanks Javier Garcia Sogo.
 
 1.1.0 (2012.04.13)
 ------------------
@@ -195,7 +201,7 @@ master (unreleased)
   for Django 1.2+. Thanks Jeff Elmore.
 
 - added InheritanceCastManager and InheritanceCastQuerySet, to allow bulk
-  casting of a queryset to child types.  Thanks Gregor Müllegger.
+  casting of a queryset to child types.  Thanks Gregor Muellegger.
 
 0.5.0 (2010.09.24)
 ------------------
