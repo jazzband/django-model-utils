@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix ``InheritanceManager`` with self-referential FK; avoid infinite
+  recursion. Thanks rsenkbeil. Merge of GH-114.
+
 2.0.2 (2014.02.19)
 -------------------
 
