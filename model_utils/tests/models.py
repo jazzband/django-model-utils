@@ -25,6 +25,7 @@ class InheritanceManagerTestParent(models.Model):
     related = models.ForeignKey(
         InheritanceManagerTestRelated, related_name="imtests", null=True)
     normal_field = models.TextField()
+    related_self = models.OneToOneField("self", related_name="imtests_self", null=True)
     objects = InheritanceManager()
 
     def __unicode__(self):
