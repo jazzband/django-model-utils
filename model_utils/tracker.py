@@ -81,8 +81,13 @@ class FieldInstanceTracker(object):
             if isinstance(field_obj, DeferredAttribute):
                 self.deferred_fields.append(field)
 
+                # Django 1.4
+                model = None
+                if hasattr(field_obj, 'model_ref'):
+                    model = field_obj.model_ref()
+
                 field_tracker = DeferredAttributeTracker(
-                    field_obj.field_name, None)
+                    field_obj.field_name, model)
                 setattr(self.instance.__class__, field, field_tracker)
 
 
