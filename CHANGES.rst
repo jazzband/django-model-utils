@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix ``FieldTracker`` with deferred model attributes. Thanks Michael van
+  Tellingen. Merge of GH-115.
+
 * Fix ``InheritanceManager`` with self-referential FK; avoid infinite
   recursion. Thanks rsenkbeil. Merge of GH-114.
 
