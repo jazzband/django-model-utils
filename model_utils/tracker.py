@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from django.db import models
 from django.core.exceptions import FieldError
+from django.db.models.query_utils import DeferredAttribute
 
 
 class FieldInstanceTracker(object):
@@ -11,6 +12,7 @@ class FieldInstanceTracker(object):
         self.instance = instance
         self.fields = fields
         self.field_map = field_map
+        self.init_deferred_fields()
 
     def get_field_value(self, field):
         return getattr(self.instance, self.field_map[field])
@@ -30,7 +32,14 @@ class FieldInstanceTracker(object):
     def current(self, fields=None):
         """Returns dict of current values for all tracked fields"""
         if fields is None:
-            fields = self.fields
+            if self.deferred_fields:
+                fields = [
+                    field for field in self.fields
+                    if field not in self.deferred_fields
+                ]
+            else:
+                fields = self.fields
+
         return dict((f, self.get_field_value(f)) for f in fields)
 
     def has_changed(self, field):
@@ -51,6 +60,35 @@ class FieldInstanceTracker(object):
             for field in self.fields
             if self.has_changed(field)
         )
+
+    def init_deferred_fields(self):
+        self.deferred_fields = []
+        if not self.instance._deferred:
+            return
+
+        class DeferredAttributeTracker(DeferredAttribute):
+            def __get__(field, instance, owner):
+                data = instance.__dict__
+                if data.get(field.field_name, field) is field:
+                    self.deferred_fields.remove(field.field_name)
+                    value = super(DeferredAttributeTracker, field).__get__(
+                        instance, owner)
+                    self.saved_data[field.field_name] = deepcopy(value)
+                return data[field.field_name]
+
+        for field in self.fields:
+            field_obj = self.instance.__class__.__dict__.get(field)
+            if isinstance(field_obj, DeferredAttribute):
+                self.deferred_fields.append(field)
+
+                # Django 1.4
+                model = None
+                if hasattr(field_obj, 'model_ref'):
+                    model = field_obj.model_ref()
+
+                field_tracker = DeferredAttributeTracker(
+                    field_obj.field_name, model)
+                setattr(self.instance.__class__, field, field_tracker)
 
 
 class FieldTracker(object):

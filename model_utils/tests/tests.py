@@ -1432,6 +1432,24 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertEqual(in_db.number, self.instance.number)
         self.assertEqual(in_db.mutable, self.instance.mutable)
 
+    def test_with_deferred(self):
+        self.instance.name = 'new age'
+        self.instance.number = 1
+        self.instance.save()
+        item = list(self.tracked_class.objects.only('name').all())[0]
+        self.assertTrue(item.tracker.deferred_fields)
+
+        self.assertEqual(item.tracker.previous('number'), None)
+        self.assertTrue('number' in item.tracker.deferred_fields)
+
+        self.assertEqual(item.number, 1)
+        self.assertTrue('number' not in item.tracker.deferred_fields)
+        self.assertEqual(item.tracker.previous('number'), 1)
+        self.assertFalse(item.tracker.has_changed('number'))
+
+        item.number = 2
+        self.assertTrue(item.tracker.has_changed('number'))
+
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
                                    FieldTrackerCommonTests):
