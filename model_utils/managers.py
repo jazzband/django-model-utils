@@ -282,8 +282,8 @@ class PassThroughManager(PassThroughManagerMixin, models.Manager):
 
 def create_pass_through_manager_for_queryset_class(base, queryset_cls):
     class _PassThroughManager(base):
-        def __init__(self):
-            return super(_PassThroughManager, self).__init__()
+        def __init__(self, *args, **kwargs):
+            return super(_PassThroughManager, self).__init__(*args, **kwargs)
 
         def get_queryset(self):
             qs = super(_PassThroughManager, self).get_queryset()
