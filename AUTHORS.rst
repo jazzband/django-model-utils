@@ -16,6 +16,7 @@ Jannis Leidel <jannis@leidel.info>
 Javier García Sogo <jgsogo@gmail.com>
 Jeff Elmore <jeffelmore.org>
 Keryn Knight <kerynknight.com>
+Matthew Schinckel <matt@schinckel.net>
 Michael van Tellingen <michaelvantellingen@gmail.com>
 Mikhail Silonov <silonov.pro>
 Patryk Zawadzki <patrys@room-303.com>

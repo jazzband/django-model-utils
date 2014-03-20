@@ -4,6 +4,11 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix ``get_query_set`` vs ``get_queryset`` in ``PassThroughManager`` for
+  Django <1.6. Fixes issues with related managers not filtering by relation
+  properly. Thanks whop, Bojan Mihelac, Daniel Shapiro, and Matthew Schinckel
+  for the report; Matthew for the fix. Merge of GH-121.
+
 * Fix ``FieldTracker`` with deferred model attributes. Thanks Michael van
   Tellingen. Merge of GH-115.
 
