@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-master (unreleased)
+2.0.3 (2014.03.19)
 -------------------
 
 * Fix ``get_query_set`` vs ``get_queryset`` in ``PassThroughManager`` for
