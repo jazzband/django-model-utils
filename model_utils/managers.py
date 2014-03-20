@@ -240,6 +240,8 @@ class PassThroughManagerMixin(object):
     def __getattr__(self, name):
         if name in self._deny_methods:
             raise AttributeError(name)
+        if django.VERSION < (1, 6, 0):
+            return getattr(self.get_query_set(), name)
         return getattr(self.get_queryset(), name)
 
     def get_queryset(self):

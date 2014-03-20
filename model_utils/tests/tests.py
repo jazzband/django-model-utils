@@ -1238,11 +1238,18 @@ class PassThroughManagerTests(TestCase):
 class CreatePassThroughManagerTests(TestCase):
     def setUp(self):
         self.dude = Dude.objects.create(name='El Duderino')
+        self.other_dude = Dude.objects.create(name='Das Dude')
 
     def test_reverse_manager(self):
         Spot.objects.create(
             name='The Crib', owner=self.dude, closed=True, secure=True,
             secret=False)
+        self.assertEqual(self.dude.spots_owned.closed().count(), 1)
+        Spot.objects.create(
+            name='The Crux', owner=self.other_dude, closed=True, secure=True,
+            secret=False
+        )
+        self.assertEqual(self.dude.spots_owned.closed().all().count(), 1)
         self.assertEqual(self.dude.spots_owned.closed().count(), 1)
 
     def test_related_queryset_pickling(self):
