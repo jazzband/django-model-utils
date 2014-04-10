@@ -1,6 +1,7 @@
 Alejandro Varas <alej0varas@gmail.com>
 Alex Orange <crazycasta@gmail.com>
 Andy Freeland <andy@andyfreeland.net>
+Björn Andersson <ba@sanitarium.se>
 Carl Meyer <carl@dirtcircle.com>
 Curtis Maloney <curtis@tinbrain.net>
 Den Lesnov

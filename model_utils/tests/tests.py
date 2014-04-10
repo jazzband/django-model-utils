@@ -17,7 +17,8 @@ from django.test import TestCase
 from model_utils import Choices, FieldTracker
 from model_utils.fields import get_excerpt, MonitorField, StatusField
 from model_utils.managers import QueryManager
-from model_utils.models import StatusModel, TimeFramedModel
+from model_utils.models import (StatusModel, TimeFramedModel,
+                                random_filename)
 from model_utils.tests.models import (
     InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
     InheritanceManagerTestGrandChild1_2,
@@ -1871,3 +1872,48 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.name2 = 'test'
         self.assertEqual(self.tracker.previous('name2'), None)
         self.assertTrue(self.tracker.has_changed('name2'))
+
+
+class RandomFilenameFactoryTest(TestCase):
+    def setUp(self):
+        self.random = lambda _: 'HELLO-IR-UUID'
+        self.random_name = random_filename(
+            'test_dir',
+            self.random
+        )
+
+    def test_upload_directory_should_be_configurable(self):
+        random_name = random_filename('new-directory/', self.random)
+        self.assertEqual(random_name(None, 'hello.jpeg'),
+                         'new-directory/HELLO-IR-UUID.jpeg')
+
+    def test_should_return_a_random_name(self):
+        self.assertEqual(self.random_name(None, 'hello.jpeg'),
+                         'test_dir/HELLO-IR-UUID.jpeg')
+
+    def test_should_use_the_current_extension_from_passed_in_filename(self):
+        self.assertEqual(self.random_name(None, 'foo.bar'),
+                         'test_dir/HELLO-IR-UUID.bar')
+
+    def test_should_work_with_no_file_extension(self):
+        self.assertEqual(self.random_name(None, 'hello'),
+                         'test_dir/HELLO-IR-UUID')
+
+    def test_allow_the_random_function_to_be_replaced(self):
+        random_name = random_filename('test_dir', lambda _: 'UNIQUE')
+        self.assertEqual(random_name(None, 'hello.jpeg'),
+                         'test_dir/UNIQUE.jpeg')
+
+    def test_random_function_takes_the_filename_as_an_argument(self):
+        random_name = random_filename(
+            'test_dir',
+            lambda f: 'UNIQUE-{0}'.format(f)
+        )
+        self.assertEqual(random_name(None, 'hello.jpeg'),
+                         'test_dir/UNIQUE-hello.jpeg.jpeg')
+
+    def test_default_random_function_accepts_parameter(self):
+        random_name = random_filename('test_dir')
+        filename = random_name(None, 'hello.jpeg')
+        self.assertTrue(filename.startswith('test_dir/'))
+        self.assertTrue(filename.endswith('.jpeg'))

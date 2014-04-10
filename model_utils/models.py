@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from os import path
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -92,3 +93,32 @@ def add_timeframed_query_manager(sender, **kwargs):
 
 models.signals.class_prepared.connect(add_status_query_managers)
 models.signals.class_prepared.connect(add_timeframed_query_manager)
+
+
+def random_filename(directory='', random_function=None):
+    """Returns a function that generates random filenames for file
+    uploads. The new filename keeps the extension from the original
+    upload.
+
+    The default ``random_function`` is uuid.uuid4 which also will
+    ensure that the filename is reasonably unique.
+
+    Args:
+      directory: The directory the file should be uploaded to. Default: ''
+      random_function: A function that takes a filename as an argument
+        to generate a unique filename. The file extension will be added
+        to the value returned from this function. Default: uuid.uuid4
+
+    Returns: a function that can be used with Django's ``FileField``.
+
+    """
+    if not random_function:
+        from uuid import uuid4
+        random_function = lambda _: uuid4()
+
+    def random_name(instance, filename):
+        return path.join(directory,
+                         '{0}{1}'.format(random_function(filename),
+                                         path.splitext(filename)[1]))
+
+    return random_name
