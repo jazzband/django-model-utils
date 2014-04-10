@@ -4,6 +4,8 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Add ``random_function`` to models, a factory used with ``FileField``.
+
 
 2.0.3 (2014.03.19)
 -------------------
@@ -240,4 +242,3 @@ master (unreleased)
 -----
 
 * Added ``QueryManager``
-

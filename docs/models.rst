@@ -47,3 +47,37 @@ returns objects with that status only:
 
     # this query will only return published articles:
     Article.published.all()
+
+
+random_filename
+---------------
+
+A factory for random filenames to be used with the ``FileField``'s
+``upload_to`` parameter.
+
+The extension from the uploaded file is taken and used for the newly
+generated filename.
+
+``random_filename`` can take two arguments:
+
+``directory``:
+    The directory the uploaded file should be placed in. Defaults is blank.
+``random_function``:
+    A function that takes one argument, filename, and returns a random/unique
+    representation of that filename.
+    Default is ``uuid.uuid4``.
+
+
+An example filename: `assets/270ef3e7-2105-4986-a8fb-6ef715273211.png`.
+
+
+.. code-block:: python
+
+   from django.db import models
+
+   from model_utils.models import random_filename
+
+
+   class Asset(models.Model):
+       name = models.CharField(max_length=50)
+       file = models.FileField(upload_to=random_filename('assets/'))
