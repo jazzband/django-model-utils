@@ -19,7 +19,7 @@ DEFAULT_SETTINGS = dict(
     )
 
 
-def runtests(*test_args):
+def runtests():
     if not settings.configured:
         settings.configure(**DEFAULT_SETTINGS)
 
@@ -27,14 +27,19 @@ def runtests(*test_args):
     if hasattr(django, 'setup'):
         django.setup()
 
-    if not test_args:
-        test_args = ['tests']
-
     parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)
 
-    from django.test.simple import DjangoTestSuiteRunner
-    failures = DjangoTestSuiteRunner(
+    try:
+        from django.test.runner import DiscoverRunner
+        runner_class = DiscoverRunner
+        test_args = ['model_utils.tests']
+    except ImportError:
+        from django.test.simple import DjangoTestSuiteRunner
+        runner_class = DjangoTestSuiteRunner
+        test_args = ['tests']
+
+    failures = runner_class(
         verbosity=1, interactive=True, failfast=False).run_tests(test_args)
     sys.exit(failures)
 
