@@ -1235,6 +1235,40 @@ class PassThroughManagerTests(TestCase):
         self.assertFalse(hasattr(dude.cars_owned, 'by_name'))
 
 
+    def test_using_dir(self):
+        # make sure introspecing via dir() doesn't actually cause queries,
+        # just as a sanity check.
+        with self.assertNumQueries(0):
+            querysets_to_dir = (
+                Dude.objects,
+                Dude.objects.by_name('Duder'),
+                Dude.objects.all().by_name('Duder'),
+                Dude.abiders,
+                Dude.abiders.rug_positive(),
+                Dude.abiders.all().rug_positive()
+            )
+            for qs in querysets_to_dir:
+                self.assertTrue('by_name' in dir(qs))
+                self.assertTrue('abiding' in dir(qs))
+                self.assertTrue('rug_positive' in dir(qs))
+                self.assertTrue('rug_negative' in dir(qs))
+                # some standard qs methods
+                self.assertTrue('count' in dir(qs))
+                self.assertTrue('order_by' in dir(qs))
+                self.assertTrue('select_related' in dir(qs))
+                # make sure it's been de-duplicated
+                self.assertEqual(1, dir(qs).count('distinct'))
+
+            # manager only method.
+            self.assertTrue('get_stats' in dir(Dude.abiders))
+            # manager only method shouldn't appear on the non AbidingManager
+            self.assertFalse('get_stats' in dir(Dude.objects))
+            # standard manager methods
+            self.assertTrue('get_query_set' in dir(Dude.abiders))
+            self.assertTrue('contribute_to_class' in dir(Dude.abiders))
+
+
+
 class CreatePassThroughManagerTests(TestCase):
     def setUp(self):
         self.dude = Dude.objects.create(name='El Duderino')

@@ -244,6 +244,20 @@ class PassThroughManagerMixin(object):
             return getattr(self.get_query_set(), name)
         return getattr(self.get_queryset(), name)
 
+    def __dir__(self):
+        """
+        Allow introspection via dir() and ipythonesque tab-discovery.
+
+        We do dir(type(self)) because to do dir(self) would be a recursion
+        error.
+        We call dir(self.get_query_set()) because it is possible that the
+        queryset returned by get_query_set() is interesting, even if
+        self._queryset_cls is None.
+        """
+        my_values = frozenset(dir(type(self)))
+        my_values |= frozenset(dir(self.get_query_set()))
+        return list(my_values)
+
     def get_queryset(self):
         try:
             qs = super(PassThroughManagerMixin, self).get_queryset()
