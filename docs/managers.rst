@@ -212,3 +212,10 @@ Now you have a "pass through manager" that can also take advantage of
 GeoDjango's spatial lookups. You can similarly add additional functionality to
 any manager by composing that manager with ``InheritanceManagerMixin`` or
 ``QueryManagerMixin``.
+
+(Note that any manager class using ``InheritanceManagerMixin`` must return a
+``QuerySet`` class using ``InheritanceQuerySetMixin`` from its ``get_queryset``
+method. This means that if composing ``InheritanceManagerMixin`` and
+``PassThroughManagerMixin``, the ``QuerySet`` class passed to
+``PassThroughManager.for_queryset_class`` must inherit
+``InheritanceQuerySetMixin``.)
