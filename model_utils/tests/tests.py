@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 import pickle
 try:
-    from unittest import skipUnless, expectedFailure
+    from unittest import skipUnless
 except ImportError: # Python 2.6
-    from django.utils.unittest import skipUnless, expectedFailure
+    from django.utils.unittest import skipUnless
 
 import django
 from django.db import models
@@ -1031,7 +1031,6 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
 
 
-    @expectedFailure
     def test_select_related_query_count_via_reverse_relation(self):
         """
         When doing select_subclasses and select_related together, and the
