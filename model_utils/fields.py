@@ -113,6 +113,14 @@ class MonitorField(models.DateTimeField):
                 self._save_initial(model_instance.__class__, model_instance)
         return super(MonitorField, self).pre_save(model_instance, add)
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(MonitorField, self).deconstruct()
+        if self.monitor is not None:
+            kwargs['monitor'] = self.monitor
+        if self.when is not None:
+            kwargs['when'] = self.when
+        return name, path, args, kwargs
+
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 
