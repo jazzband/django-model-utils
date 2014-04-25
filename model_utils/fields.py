@@ -70,6 +70,11 @@ class StatusField(models.CharField):
         self._choices = [(0, 'dummy')]
         super(StatusField, self).contribute_to_class(cls, name)
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(StatusField, self).deconstruct()
+        kwargs['no_check_for_status'] = self.check_for_status
+        return name, path, args, kwargs
+
 
 class MonitorField(models.DateTimeField):
     """
