@@ -72,7 +72,7 @@ class StatusField(models.CharField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(StatusField, self).deconstruct()
-        kwargs['no_check_for_status'] = self.check_for_status
+        kwargs['no_check_for_status'] = True
         return name, path, args, kwargs
 
 
