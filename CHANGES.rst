@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Add support for Django's built-in migrations to ``MonitorField`` and
+  ``StatusField``.
+
 * ``PassThroughManager`` now has support for seeing exposed methods via
   ``dir``, allowing `IPython`_ tab completion to be useful. Merge of GH-104,
   fixes GH-55.

@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.six import text_type
 from django.core.exceptions import ImproperlyConfigured, FieldError
+from django.core.management import call_command
 from django.test import TestCase
 
 from model_utils import Choices, FieldTracker
@@ -29,6 +30,12 @@ from model_utils.tests.models import (
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
     InheritanceManagerTestChild3, StatusFieldChoicesName)
+
+
+class MigrationsTests(TestCase):
+    @skipUnless(django.VERSION >= (1, 7, 0), "test only applies to Django 1.7+")
+    def test_makemigrations(self):
+        call_command('makemigrations', dry_run=True)
 
 
 class GetExcerptTests(TestCase):

@@ -7,3 +7,4 @@ Django-*.egg
 *.pyc
 htmlcov/
 docs/_build/
+.idea/

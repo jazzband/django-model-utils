@@ -22,6 +22,7 @@ Mikhail Silonov <silonov.pro>
 Patryk Zawadzki <patrys@room-303.com>
 Paul McLanahan <paul@mclanahan.net>
 Rinat Shigapov <rinatshigapov@gmail.com>
+Rodney Folz <rodney@rodneyfolz.com>
 rsenkbeil <github.com/rsenkbeil>
 Ryan Kaskel <dev@ryankaskel.com>
 Simon Meers <simon@simonmeers.com>
