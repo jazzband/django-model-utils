@@ -11,6 +11,10 @@ master (unreleased)
   ``dir``, allowing `IPython`_ tab completion to be useful. Merge of GH-104,
   fixes GH-55.
 
+* Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slinták
+  for the report.  Thanks Matthew Schinckel for the fix.  Merge of GH-130,
+  fixes GH-83.
+
 .. _IPython: http://ipython.org/
 
 
