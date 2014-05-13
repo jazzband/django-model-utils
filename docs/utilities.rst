@@ -210,3 +210,16 @@ An example using the model specified above:
     >>> a.body = 'First post!'
     >>> a.title_tracker.changed()
     {'title': None}
+
+
+Checking changes using signals
+------------------------------
+
+The field tracker methods may also be used in ``pre_save`` and ``post_save``
+signal handlers to identify field changes on model save.
+
+.. NOTE::
+
+    Due to the implementation of ``FieldTracker``, ``post_save`` signal
+    handlers relying on field tracker methods should only be registered after
+    model creation.
