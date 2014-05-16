@@ -990,6 +990,13 @@ class InheritanceManagerUsingModelsTests(TestCase):
         )
         self.assertTrue(all(result.foo == (result.id + 1) for result in results))
 
+    def test_limit_to_specific_subclass(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
+        results = InheritanceManagerTestParent.objects.select_subclasses().instance_of(InheritanceManagerTestChild3)
+        
+        self.assertEqual(1, len(results))
+        self.assertEqual([child3], list(results))
+
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def setUp(self):
