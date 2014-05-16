@@ -170,6 +170,14 @@ class InheritanceQuerySetMixin(object):
             levels = 1
         return levels
 
+    def instance_of(self, model):
+        parent_field = model._meta.parents.values()[0].attname
+        query = '"%s"."%s" IS NOT NULL' % (
+            model._meta.db_table, 
+            parent_field
+        )
+        return self.extra(where=[query])
+
 class InheritanceManagerMixin(object):
     use_for_related_fields = True
 
@@ -184,6 +192,8 @@ class InheritanceManagerMixin(object):
     def get_subclass(self, *args, **kwargs):
         return self.get_queryset().get_subclass(*args, **kwargs)
 
+    def instance_of(self, model):
+        return self.get_queryset().instance_of(model)
 
 class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
     pass
