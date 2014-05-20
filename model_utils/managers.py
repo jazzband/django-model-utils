@@ -170,7 +170,22 @@ class InheritanceQuerySetMixin(object):
             levels = 1
         return levels
 
-    def instance_of(self, model):
+    def instance_of(self, *models):
+        # If we aren't already selecting the subclasess, we need
+        # to in order to get this to work.
+        
+        where_queries = []
+        for model in models:
+            where_queries.append('(' + ' AND '.join([
+                '"%s"."%s" IS NOT NULL' % (
+                    model._meta.db_table,
+                    field.attname
+                ) for field in model._meta.parents.values()
+            ]) + ')')
+        
+        return self.extra(where=[' OR '.join(where_queries)])
+        
+        # We need to get the 
         parent_field = model._meta.parents.values()[0].attname
         query = '"%s"."%s" IS NOT NULL' % (
             model._meta.db_table, 

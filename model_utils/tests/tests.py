@@ -994,9 +994,28 @@ class InheritanceManagerUsingModelsTests(TestCase):
         child3 = InheritanceManagerTestChild3.objects.create()
         results = InheritanceManagerTestParent.objects.select_subclasses().instance_of(InheritanceManagerTestChild3)
         
-        self.assertEqual(1, len(results))
         self.assertEqual([child3], list(results))
+    
+    def test_limit_to_specific_grandchild_class(self):
+        grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
+        results = InheritanceManagerTestParent.objects.select_subclasses().instance_of(InheritanceManagerTestGrandChild1)
 
+        self.assertEqual([grandchild1], list(results))
+    
+    def test_limit_to_child_fetches_grandchildren(self):
+        children = InheritanceManagerTestChild1.objects.select_subclasses().all()
+        
+        results = InheritanceManagerTestParent.objects.select_subclasses().instance_of(InheritanceManagerTestChild1)
+        
+        self.assertEqual(set(children), set(results))
+    
+    def test_selecting_multiple_instance_classes(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
+        grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
+        
+        results = InheritanceManagerTestParent.objects.select_subclasses().instance_of(InheritanceManagerTestChild3, InheritanceManagerTestGrandChild1)
+        
+        self.assertEqual(set([child3, grandchild1]), set(results))
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def setUp(self):
