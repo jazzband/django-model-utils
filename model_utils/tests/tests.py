@@ -1036,7 +1036,14 @@ class InheritanceManagerUsingModelsTests(TestCase):
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3, InheritanceManagerTestGrandChild1).select_subclasses()
         
         self.assertEqual(set([child3, grandchild1]), set(results))
+    
+    def test_select_subclasses_interaction_with_instance_of(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
         
+        results = InheritanceManagerTestParent.objects.select_subclasses(InheritanceManagerTestChild1).instance_of(InheritanceManagerTestChild3)
+        
+        self.assertEqual(set([child3]), set(results))
+    
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def setUp(self):
