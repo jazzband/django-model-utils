@@ -28,7 +28,7 @@ from model_utils.tests.models import (
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3, StatusFieldChoicesName, 
+    InheritanceManagerTestChild3, StatusFieldChoicesName,
     InheritanceManagerBackwardsRelation)
 
 
@@ -1056,11 +1056,14 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
             # the child1 instance *should* have a relation, the child2
             # should not.
             self.assertEqual(qs[0].backwards_relation, related_obj)
-            with self.assertRaises(
-                InheritanceManagerBackwardsRelation.DoesNotExist):
-                    qs[1].backwards_relation
-
-
+            if django.VERSION >= (1, 5, 0):
+                with self.assertRaises(
+                    InheritanceManagerBackwardsRelation.DoesNotExist):
+                        qs[1].backwards_relation
+            else:
+                # Django 1.4 caches `None` instead of raising `DoesNotExist`
+                # (see https://code.djangoproject.com/ticket/13839)
+                self.assertIsNone(qs[1].backwards_relation)
 
 
 
