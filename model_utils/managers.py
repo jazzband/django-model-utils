@@ -171,6 +171,9 @@ class InheritanceQuerySetMixin(object):
         return levels
 
     def instance_of(self, *models):
+        """
+        Fetch only objects that are instances of the provided model(s).
+        """
         # If we aren't already selecting the subclasess, we need
         # to in order to get this to work.
         
@@ -190,7 +193,7 @@ class InheritanceQuerySetMixin(object):
                 ) for field in model._meta.parents.values()
             ]) + ')')
         
-        return self.extra(where=[' OR '.join(where_queries)])
+        return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
 
 class InheritanceManagerMixin(object):
     use_for_related_fields = True
@@ -206,8 +209,8 @@ class InheritanceManagerMixin(object):
     def get_subclass(self, *args, **kwargs):
         return self.get_queryset().get_subclass(*args, **kwargs)
 
-    def instance_of(self, model):
-        return self.get_queryset().instance_of(model)
+    def instance_of(self, *models):
+        return self.get_queryset().instance_of(*models)
 
 class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
     pass
