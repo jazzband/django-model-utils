@@ -174,24 +174,23 @@ class InheritanceQuerySetMixin(object):
         # If we aren't already selecting the subclasess, we need
         # to in order to get this to work.
         
+        # How can we tell if we are not selecting subclasses?
+        
+        # Is it safe to just apply .select_subclasses(*models)?
+        
+        # Due to https://code.djangoproject.com/ticket/16572, we
+        # can't really do this for anything other than children (ie,
+        # no grandchildren+).
         where_queries = []
         for model in models:
             where_queries.append('(' + ' AND '.join([
                 '"%s"."%s" IS NOT NULL' % (
                     model._meta.db_table,
-                    field.attname
+                    field.attname, # Should this be something else?
                 ) for field in model._meta.parents.values()
             ]) + ')')
         
         return self.extra(where=[' OR '.join(where_queries)])
-        
-        # We need to get the 
-        parent_field = model._meta.parents.values()[0].attname
-        query = '"%s"."%s" IS NOT NULL' % (
-            model._meta.db_table, 
-            parent_field
-        )
-        return self.extra(where=[query])
 
 class InheritanceManagerMixin(object):
     use_for_related_fields = True
