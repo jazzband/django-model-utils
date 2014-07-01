@@ -30,8 +30,14 @@ class AutoLastModifiedField(AutoCreatedField):
 
     """
     def pre_save(self, model_instance, add):
-        value = now()
-        setattr(model_instance, self.attname, value)
+        if add and hasattr(model_instance, self.attname):
+            # when creating an instance and the modified date is set
+            # don't change the value, assume the developer wants that
+            # control.
+            value = getattr(model_instance, self.attname)
+        else:
+            value = now()
+            setattr(model_instance, self.attname, value)
         return value
 
 
