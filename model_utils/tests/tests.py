@@ -1051,6 +1051,70 @@ class TimeStampedModelTests(TestCase):
         t1.save()
         self.assertTrue(t2.modified < t1.modified)
 
+    def test_overriding_created_via_object_creation(self):
+        """
+        Setting the created date when first creating an object
+        should be permissable.
+        """
+        different_date = datetime.today() - timedelta(weeks=52)
+        t1 = TimeStamp.objects.create(created=different_date)
+        self.assertEqual(t1.created, different_date)
+        self.assertNotEqual(t1.modified, different_date)
+
+
+    def test_overriding_modified_via_object_creation(self):
+        """
+        Setting the modified date explicitly should be possible when
+        first creating an object, but not thereafter.
+        """
+        different_date = datetime.today() - timedelta(weeks=52)
+        t1 = TimeStamp.objects.create(modified=different_date)
+        self.assertEqual(t1.modified, different_date)
+        self.assertNotEqual(t1.created, different_date)
+
+    def test_overriding_created_after_object_created(self):
+        """
+        The created date may be changed post-create
+        """
+        t1 = TimeStamp.objects.create()
+        different_date = datetime.today() - timedelta(weeks=52)
+        t1.created = different_date
+        t1.save()
+        self.assertEqual(t1.created, different_date)
+
+    def test_overriding_modified_after_object_created(self):
+        """
+        The modified date should always be updated when the object
+        is saved, regardless of attempts to change it.
+        """
+        t1 = TimeStamp.objects.create()
+        different_date = datetime.today() - timedelta(weeks=52)
+        t1.modified = different_date
+        t1.save()
+        self.assertNotEqual(t1.modified, different_date)
+
+    def test_overrides_using_save(self):
+        """
+        The first time an object is saved, allow modification of both
+        created and modified fields.
+        After that, only created may be modified manually.
+        """
+        t1 = TimeStamp()
+        different_date = datetime.today() - timedelta(weeks=52)
+        t1.created = different_date
+        t1.modified = different_date
+        t1.save()
+        self.assertEqual(t1.created, different_date)
+        self.assertEqual(t1.modified, different_date)
+        different_date2 = datetime.today() - timedelta(weeks=26)
+        t1.created = different_date2
+        t1.modified = different_date2
+        t1.save()
+        self.assertEqual(t1.created, different_date2)
+        self.assertNotEqual(t1.modified, different_date2)
+        self.assertNotEqual(t1.modified, different_date)
+
+
 
 
 class TimeFramedModelTests(TestCase):
