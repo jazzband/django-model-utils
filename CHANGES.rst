@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.1.0 (2014.07.25)
+------------------
 
 * Add support for Django's built-in migrations to ``MonitorField`` and
   ``StatusField``.
