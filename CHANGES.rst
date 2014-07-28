@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-2.1.x (unreleased)
+2.1.1 (2014.07.28)
 ------------------
 
 * ASCII-fold all non-ASCII characters in changelog; again. Argh. Apologies to
