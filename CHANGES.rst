@@ -4,6 +4,13 @@ CHANGES
 master (unreleased)
 -------------------
 
+* ASCII-fold all non-ASCII characters in changelog; again. Argh. Apologies to
+  those whose names are mangled by this change. It seems that distutils makes
+  it impossible to handle non-ASCII content reliably under Python 3 in a
+  setup.py long_description, when the system encoding may be ASCII. Thanks
+  Brian May for the report. Fixes GH-141.
+
+
 2.1.0 (2014.07.25)
 ------------------
 
@@ -14,7 +21,7 @@ master (unreleased)
   ``dir``, allowing `IPython`_ tab completion to be useful. Merge of GH-104,
   fixes GH-55.
 
-* Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slinták
+* Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slintak
   for the report.  Thanks Matthew Schinckel for the fix.  Merge of GH-130,
   fixes GH-83.
 
