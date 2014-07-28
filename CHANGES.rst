@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+2.1.1 (2014.07.28)
+------------------
+
 * ASCII-fold all non-ASCII characters in changelog; again. Argh. Apologies to
   those whose names are mangled by this change. It seems that distutils makes
   it impossible to handle non-ASCII content reliably under Python 3 in a
