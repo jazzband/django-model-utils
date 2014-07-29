@@ -115,7 +115,7 @@ class Choices(object):
 
 
     def __getitem__(self, key):
-        return self._display_map[key]
+        return self._doubles[key]
 
 
     def __add__(self, other):
