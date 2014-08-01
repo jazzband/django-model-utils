@@ -1497,9 +1497,6 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
 
         item.number = 2
         self.assertTrue(item.tracker.has_changed('number'))
-    
-    def test_can_pickle_objects(self):
-        pickle.dumps(self.instance)
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
