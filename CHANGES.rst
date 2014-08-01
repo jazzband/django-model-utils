@@ -1,8 +1,15 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.2 (2014.07.31)
+----------------
+
+* Revert GH-130, restoring ability to access ``FieldTracker`` changes in
+  overridden ``save`` methods or ``post_save`` handlers. This reopens GH-83
+  (inability to pickle models with ``FieldTracker``) until a solution can be
+  found that doesn't break behavior otherwise. Thanks Brian May for the
+  report. Fixes GH-143.
+
 
 2.1.1 (2014.07.28)
 ------------------
