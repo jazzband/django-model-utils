@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.dispatch import Signal
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -277,6 +278,20 @@ class Tracked(models.Model):
     mutable = MutableField()
 
     tracker = FieldTracker()
+
+
+tracked_save_method_called = Signal()
+
+
+class TrackedSave(models.Model):
+    name = models.CharField(max_length=20)
+
+    tracker = FieldTracker(fields=['name'])
+
+    def save(self, *args, **kwargs):
+        instance = super(TrackedSave, self).save(*args, **kwargs)
+        tracked_save_method_called.send(self.__class__, instance=self)
+        return instance
 
 
 class TrackedFK(models.Model):

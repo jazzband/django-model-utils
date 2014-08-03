@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 import pickle
 try:
@@ -28,8 +29,9 @@ from model_utils.tests.models import (
     TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3, StatusFieldChoicesName)
+    InheritedTracked, TrackedSave, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
+    InheritanceManagerTestChild3, StatusFieldChoicesName,
+    tracked_save_method_called)
 
 
 class MigrationsTests(TestCase):
@@ -1764,6 +1766,58 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
         self.assertChanged(fk=self.old_fk.id)
         self.assertPrevious(fk=self.old_fk.id)
         self.assertCurrent(fk=self.instance.fk_id)
+
+
+class SaveMethodOverridingTests(FieldTrackerTestCase):
+
+    tracked_class = TrackedSave
+
+    def setUp(self):
+        self.instance = self.tracked_class()
+        self.tracker = self.instance.tracker
+
+    @staticmethod
+    @contextmanager
+    def save_assert(func, **kwargs):
+        """Context manager to inject code into save method with a signal."""
+        def receiver(**signal_kwargs):
+            func(**kwargs)
+        tracked_save_method_called.connect(receiver, weak=False)
+        try:
+            yield
+        finally:
+            tracked_save_method_called.disconnect(receiver, weak=False)
+
+    def test_has_changed(self):
+        with self.save_assert(self.assertHasChanged, name=True):
+            self.update_instance(name='retro')
+            self.update_instance(name='new age')
+        with self.save_assert(self.assertHasChanged, name=False):
+            self.update_instance(name='new age')
+
+    def test_post_save_previous(self):
+        with self.save_assert(self.assertPrevious, name=None):
+            self.update_instance(name='retro')
+        with self.save_assert(self.assertPrevious, name='retro'):
+            self.update_instance(name='retro')
+        with self.save_assert(self.assertPrevious, name='retro'):
+            self.update_instance(name='new age')
+
+    def test_post_save_changed(self):
+        with self.save_assert(self.assertChanged, name=None):
+            self.update_instance(name='retro')
+        with self.save_assert(self.assertChanged):
+            self.update_instance(name='retro')
+        with self.save_assert(self.assertChanged, name='retro'):
+            self.update_instance(name='new age')
+
+    def test_post_save_current(self):
+        with self.save_assert(self.assertCurrent, name='retro'):
+            self.update_instance(name='retro')
+        with self.save_assert(self.assertCurrent, name='retro'):
+            self.update_instance(name='retro')
+        with self.save_assert(self.assertCurrent, name='new age'):
+            self.update_instance(name='new age')
 
 
 class InheritedFieldTrackerTests(FieldTrackerTests):
