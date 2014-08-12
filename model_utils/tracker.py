@@ -70,10 +70,14 @@ class FieldInstanceTracker(object):
             def __get__(field, instance, owner):
                 data = instance.__dict__
                 if data.get(field.field_name, field) is field:
-                    self.deferred_fields.remove(field.field_name)
-                    value = super(DeferredAttributeTracker, field).__get__(
-                        instance, owner)
-                    self.saved_data[field.field_name] = deepcopy(value)
+                    if field.field_name in self.deferred_fields:
+                        self.deferred_fields.remove(field.field_name)
+                        value = super(DeferredAttributeTracker, field).__get__(
+                            instance, owner)
+                        self.saved_data[field.field_name] = deepcopy(value)
+                    else:
+                        return super(DeferredAttributeTracker, field).__get__(
+                            instance, owner)
                 return data[field.field_name]
 
         for field in self.fields:
