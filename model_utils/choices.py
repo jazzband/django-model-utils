@@ -115,6 +115,11 @@ class Choices(object):
 
 
     def __getitem__(self, key):
+        if isinstance(key, int):
+            try:
+                return self._display_map[key]
+            except KeyError:
+                return self._display_map.items()[key]
         return self._display_map[key]
 
 
