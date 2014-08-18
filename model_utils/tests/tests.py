@@ -342,6 +342,13 @@ class ChoicesTests(TestCase):
                     ],
                 )
 
+    def test_get_with_int_from_double(self):
+        c = Choices(('a', 'A'), ('b', 'B'))
+        self.assertEqual(
+            c[0],
+            ('a', 'A')
+        )
+
 
 class LabelChoicesTests(ChoicesTests):
     def setUp(self):
