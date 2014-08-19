@@ -1485,18 +1485,32 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.number = 1
         self.instance.save()
         item = list(self.tracked_class.objects.only('name').all())[0]
-        self.assertTrue(item.tracker.deferred_fields)
+        self.assertTrue(item._deferred_fields)
 
         self.assertEqual(item.tracker.previous('number'), None)
-        self.assertTrue('number' in item.tracker.deferred_fields)
+        self.assertTrue('number' in item._deferred_fields)
 
         self.assertEqual(item.number, 1)
-        self.assertTrue('number' not in item.tracker.deferred_fields)
+        self.assertTrue('number' not in item._deferred_fields)
         self.assertEqual(item.tracker.previous('number'), 1)
         self.assertFalse(item.tracker.has_changed('number'))
 
         item.number = 2
         self.assertTrue(item.tracker.has_changed('number'))
+
+
+class FieldTrackerMultipleInstancesTests(TestCase):
+
+    def test_with_deferred_fields_access_multiple(self):
+        instances = [
+            Tracked.objects.create(pk=1, name='foo', number=1),
+            Tracked.objects.create(pk=2, name='bar', number=2)
+        ]
+
+        queryset = Tracked.objects.only('id')
+
+        for instance in queryset:
+            name = instance.name
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
