@@ -1,6 +1,7 @@
 Alejandro Varas <alej0varas@gmail.com>
 Alex Orange <crazycasta@gmail.com>
 Andy Freeland <andy@andyfreeland.net>
+Bram Boogaard <b.boogaard@auto-interactive.nl>
 Carl Meyer <carl@dirtcircle.com>
 Curtis Maloney <curtis@tinbrain.net>
 Den Lesnov

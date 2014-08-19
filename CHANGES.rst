@@ -1,3 +1,8 @@
+* Keep track of deferred fields on model instance instead of on
+FieldInstanceTracker instance. Accessing deferred fields for multiple instances
+of a model from the same queryset fails in current release.
+
+
 CHANGES
 =======
 
