@@ -120,8 +120,7 @@ class MonitorField(models.DateTimeField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(MonitorField, self).deconstruct()
-        if self.monitor is not None:
-            kwargs['monitor'] = self.monitor
+        kwargs['monitor'] = self.monitor
         if self.when is not None:
             kwargs['when'] = self.when
         return name, path, args, kwargs
