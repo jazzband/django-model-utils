@@ -5,8 +5,9 @@ master (unreleased)
 -------------------
 
 * Keep track of deferred fields on model instance instead of on
-FieldInstanceTracker instance. Accessing deferred fields for multiple instances
-of a model from the same queryset fails in current release.
+  FieldInstanceTracker instance. Fixes accessing deferred fields for multiple
+  instances of a model from the same queryset. Thanks Bram Boogaard. Merge of
+  GH-151.
 
 
 2.2 (2014.07.31)
