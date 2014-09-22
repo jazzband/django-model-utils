@@ -32,10 +32,10 @@ class FieldInstanceTracker(object):
     def current(self, fields=None):
         """Returns dict of current values for all tracked fields"""
         if fields is None:
-            if self.deferred_fields:
+            if self.instance._deferred_fields:
                 fields = [
                     field for field in self.fields
-                    if field not in self.deferred_fields
+                    if field not in self.instance._deferred_fields
                 ]
             else:
                 fields = self.fields
@@ -62,7 +62,7 @@ class FieldInstanceTracker(object):
         )
 
     def init_deferred_fields(self):
-        self.deferred_fields = []
+        self.instance._deferred_fields = []
         if not self.instance._deferred:
             return
 
@@ -70,7 +70,7 @@ class FieldInstanceTracker(object):
             def __get__(field, instance, owner):
                 data = instance.__dict__
                 if data.get(field.field_name, field) is field:
-                    self.deferred_fields.remove(field.field_name)
+                    instance._deferred_fields.remove(field.field_name)
                     value = super(DeferredAttributeTracker, field).__get__(
                         instance, owner)
                     self.saved_data[field.field_name] = deepcopy(value)
@@ -79,7 +79,7 @@ class FieldInstanceTracker(object):
         for field in self.fields:
             field_obj = self.instance.__class__.__dict__.get(field)
             if isinstance(field_obj, DeferredAttribute):
-                self.deferred_fields.append(field)
+                self.instance._deferred_fields.append(field)
 
                 # Django 1.4
                 model = None
