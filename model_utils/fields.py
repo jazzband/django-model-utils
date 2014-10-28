@@ -229,6 +229,10 @@ class SplitField(models.TextField):
         except AttributeError:
             return value
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(SplitField, self).deconstruct()
+        kwargs['no_excerpt_field'] = self.add_excerpt_field
+        return name, path, args, kwargs
 
 # allow South to handle these fields smoothly
 try:
