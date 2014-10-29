@@ -9,6 +9,9 @@ master (unreleased)
   instances of a model from the same queryset. Thanks Bram Boogaard. Merge of
   GH-151.
 
+* Fix Django 1.7 migrations compatibility for SplitField. Thanks ad-m. Merge of
+  GH-157; fixes GH-156.
+
 
 2.2 (2014.07.31)
 ----------------
