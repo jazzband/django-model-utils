@@ -8,7 +8,7 @@ python:
 
 env:
   - DJANGO=Django==1.4.18 SOUTH=1
-  - DJANGO=Django==1.5.5 SOUTH=1
+  - DJANGO=Django==1.5.12 SOUTH=1
   - DJANGO=Django==1.6.1 SOUTH=1
   - DJANGO=https://github.com/django/django/tarball/master SOUTH=1
 
@@ -31,6 +31,6 @@ matrix:
      env: DJANGO=Django==1.4.18 SOUTH=1
   include:
    - python: 2.7
-     env: DJANGO=Django==1.5.5 SOUTH=0
+     env: DJANGO=Django==1.5.12 SOUTH=0
 
 after_success: coveralls
