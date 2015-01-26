@@ -7,7 +7,7 @@ python:
   - 3.3
 
 env:
-  - DJANGO=Django==1.4.10 SOUTH=1
+  - DJANGO=Django==1.4.18 SOUTH=1
   - DJANGO=Django==1.5.5 SOUTH=1
   - DJANGO=Django==1.6.1 SOUTH=1
   - DJANGO=https://github.com/django/django/tarball/master SOUTH=1
@@ -26,9 +26,9 @@ matrix:
    - python: 2.6
      env: DJANGO=https://github.com/django/django/tarball/master SOUTH=1
    - python: 3.2
-     env: DJANGO=Django==1.4.10 SOUTH=1
+     env: DJANGO=Django==1.4.18 SOUTH=1
    - python: 3.3
-     env: DJANGO=Django==1.4.10 SOUTH=1
+     env: DJANGO=Django==1.4.18 SOUTH=1
   include:
    - python: 2.7
      env: DJANGO=Django==1.5.5 SOUTH=0
