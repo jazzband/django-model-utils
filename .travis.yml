@@ -32,6 +32,9 @@ script:
 
 matrix:
   allow_failures:
+    - env: TOXENV=py27-django18
+    - env: TOXENV=py32-django18
+    - env: TOXENV=py33-django18
     - env: TOXENV=py27-django_trunk
     - env: TOXENV=py32-django_trunk
     - env: TOXENV=py33-django_trunk
