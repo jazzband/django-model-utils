@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 try:
     from django.db.models.constants import LOOKUP_SEP
     from django.utils.six import string_types
-except ImportError: # Django < 1.5
+except ImportError:  # Django < 1.5
     from django.db.models.sql.constants import LOOKUP_SEP
     string_types = (basestring,)
 
@@ -53,19 +53,17 @@ class InheritanceQuerySetMixin(object):
         new_qs.subclasses = subclasses
         return new_qs
 
-
     def _clone(self, klass=None, setup=False, **kwargs):
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
-        return super(InheritanceQuerySetMixin, self)._clone(klass, setup, **kwargs)
-
+        return super(InheritanceQuerySetMixin, self)._clone(
+            klass, setup, **kwargs)
 
     def annotate(self, *args, **kwargs):
         qset = super(InheritanceQuerySetMixin, self).annotate(*args, **kwargs)
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
-
 
     def iterator(self):
         iter = super(InheritanceQuerySetMixin, self).iterator()
@@ -95,7 +93,6 @@ class InheritanceQuerySetMixin(object):
             for obj in iter:
                 yield obj
 
-
     def _get_subclasses_recurse(self, model, levels=None):
         """
         Given a Model class, find all related objects, exploring children
@@ -115,10 +112,10 @@ class InheritanceQuerySetMixin(object):
             if levels or levels is None:
                 for subclass in self._get_subclasses_recurse(
                         rel.field.model, levels=levels):
-                    subclasses.append(rel.get_accessor_name() + LOOKUP_SEP + subclass)
+                    subclasses.append(
+                        rel.get_accessor_name() + LOOKUP_SEP + subclass)
             subclasses.append(rel.get_accessor_name())
         return subclasses
-
 
     def _get_ancestors_path(self, model, levels=None):
         """
@@ -127,22 +124,26 @@ class InheritanceQuerySetMixin(object):
         select_related string backwards.
         """
         if not issubclass(model, self.model):
-            raise ValueError("%r is not a subclass of %r" % (model, self.model))
+            raise ValueError(
+                "%r is not a subclass of %r" % (model, self.model))
 
         ancestry = []
         # should be a OneToOneField or None
-        parent = model._meta.get_ancestor_link(self.model)
+        parent_link = model._meta.get_ancestor_link(self.model)
         if levels:
             levels -= 1
-        while parent is not None:
-            ancestry.insert(0, parent.related.get_accessor_name())
+        while parent_link is not None:
+            ancestry.insert(0, parent_link.related.get_accessor_name())
             if levels or levels is None:
-                parent = parent.related.parent_model._meta.get_ancestor_link(
+                if django.VERSION < (1, 8):
+                    parent_model = parent_link.related.parent_model
+                else:
+                    parent_model = parent_link.related.model
+                parent_link = parent_model._meta.get_ancestor_link(
                     self.model)
             else:
-                parent = None
+                parent_link = None
         return LOOKUP_SEP.join(ancestry)
-
 
     def _get_sub_obj_recurse(self, obj, s):
         rel, _, s = s.partition(LOOKUP_SEP)
@@ -170,6 +171,7 @@ class InheritanceQuerySetMixin(object):
             levels = 1
         return levels
 
+
 class InheritanceManagerMixin(object):
     use_for_related_fields = True
 
@@ -187,6 +189,7 @@ class InheritanceManagerMixin(object):
 
 class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
     pass
+
 
 class InheritanceManager(InheritanceManagerMixin, models.Manager):
     pass
@@ -271,7 +274,8 @@ class PassThroughManagerMixin(object):
 
     @classmethod
     def for_queryset_class(cls, queryset_cls):
-        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
+        return create_pass_through_manager_for_queryset_class(
+            cls, queryset_cls)
 
 
 class PassThroughManager(PassThroughManagerMixin, models.Manager):
