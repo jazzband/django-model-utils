@@ -6,6 +6,7 @@ Bram Boogaard <b.boogaard@auto-interactive.nl>
 Carl Meyer <carl@dirtcircle.com>
 Curtis Maloney <curtis@tinbrain.net>
 Den Lesnov
+Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
 Donald Stufft <donald.stufft@gmail.com>
 Douglas Meehan <dmeehan@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
