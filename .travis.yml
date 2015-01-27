@@ -23,6 +23,9 @@ env:
   - TOXENV=py33-django17
   - TOXENV=py33-django18
   - TOXENV=py33-django_trunk
+  - TOXENV=py34-django17
+  - TOXENV=py34-django18
+  - TOXENV=py34-django_trunk
 
 install:
   - pip install --upgrade pip setuptools tox virtualenv coveralls
@@ -35,8 +38,10 @@ matrix:
     - env: TOXENV=py27-django18
     - env: TOXENV=py32-django18
     - env: TOXENV=py33-django18
+    - env: TOXENV=py34-django18
     - env: TOXENV=py27-django_trunk
     - env: TOXENV=py32-django_trunk
     - env: TOXENV=py33-django_trunk
+    - env: TOXENV=py34-django_trunk
 
 after_success: coveralls
