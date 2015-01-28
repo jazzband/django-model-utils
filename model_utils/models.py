@@ -94,4 +94,4 @@ models.signals.class_prepared.connect(add_timeframed_query_manager)
 
 
 def _field_exists(model_class, field_name):
-    return field_name in {f.attname for f in model_class._meta.local_fields}
+    return field_name in [f.attname for f in model_class._meta.local_fields]
