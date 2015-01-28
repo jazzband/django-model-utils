@@ -94,18 +94,4 @@ models.signals.class_prepared.connect(add_timeframed_query_manager)
 
 
 def _field_exists(model_class, field_name):
-    if hasattr(model_class._meta, '_get_fields'):
-        # Django 1.8+
-        field_exists = bool([
-            f for f in model_class._meta._get_fields(reverse=False)
-            if f.name == field_name
-        ])
-    else:
-        # Django 1.7 and previous
-        try:
-            model_class._meta.get_field(field_name)
-        except FieldDoesNotExist:
-            field_exists = False
-        else:
-            field_exists = True
-    return field_exists
+    return field_name in {f.attname for f in model_class._meta.local_fields}
