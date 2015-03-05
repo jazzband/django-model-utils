@@ -258,7 +258,7 @@ class PassThroughManagerMixin(object):
         self._queryset_cls is None.
         """
         my_values = frozenset(dir(type(self)))
-        my_values |= frozenset(dir(self.get_query_set()))
+        my_values |= frozenset(dir(self.get_queryset()))
         return list(my_values)
 
     def get_queryset(self):
