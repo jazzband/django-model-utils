@@ -1241,6 +1241,8 @@ class PassThroughManagerTests(TestCase):
         Car.objects.create(name='Ford', owner=dude)
         self.assertFalse(hasattr(dude.cars_owned, 'by_name'))
 
+    def test_appcacheerror(self):
+        self.assertRaises(AttributeError, lambda:Dude.objects.appcache_error)
 
     def test_using_dir(self):
         # make sure introspecing via dir() doesn't actually cause queries,
@@ -1313,6 +1315,7 @@ class CreatePassThroughManagerTests(TestCase):
 
     def test_related_manager_create(self):
         self.dude.spots_owned.create(name='The Crib', closed=True, secure=True)
+
 
 
 class FieldTrackerTestCase(TestCase):

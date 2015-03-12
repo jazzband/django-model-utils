@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.core.exceptions import AppRegistryNotReady
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -214,7 +215,9 @@ class DudeQuerySet(models.query.QuerySet):
     def by_name(self, name):
         return self.filter(name__iexact=name)
 
-
+    @property
+    def appcache_error(self):
+        raise AppRegistryNotReady()
 
 class AbidingManager(PassThroughManager):
     def get_queryset(self):
