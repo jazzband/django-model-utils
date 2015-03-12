@@ -3,7 +3,7 @@ import django
 from django.db import models
 from django.db.models.fields.related import OneToOneField
 from django.db.models.query import QuerySet
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, AppRegistryNotReady
 
 try:
     from django.db.models.constants import LOOKUP_SEP
@@ -245,7 +245,10 @@ class PassThroughManagerMixin(object):
             raise AttributeError(name)
         if django.VERSION < (1, 6, 0):
             return getattr(self.get_query_set(), name)
-        return getattr(self.get_queryset(), name)
+        try:
+            return getattr(self.get_queryset(), name)
+        except AppRegistryNotReady:
+            raise AttributeError(name)
 
     def __dir__(self):
         """
