@@ -6,7 +6,7 @@ django-model-utils
    :target: http://travis-ci.org/carljm/django-model-utils
 .. image:: https://coveralls.io/repos/carljm/django-model-utils/badge.png?branch=master
    :target: https://coveralls.io/r/carljm/django-model-utils
-.. image:: https://pypip.in/v/django-model-utils/badge.png
+.. image:: https://img.shields.io/pypi/v/django-model-utils.svg
    :target: https://crate.io/packages/django-model-utils
 
 Django model mixins and utilities.
