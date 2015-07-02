@@ -24,6 +24,7 @@ Michael van Tellingen <michaelvantellingen@gmail.com>
 Mikhail Silonov <silonov.pro>
 Patryk Zawadzki <patrys@room-303.com>
 Paul McLanahan <paul@mclanahan.net>
+Philipp Steinhardt <steinhardt@myvision.de>
 Rinat Shigapov <rinatshigapov@gmail.com>
 Rodney Folz <rodney@rodneyfolz.com>
 rsenkbeil <github.com/rsenkbeil>
