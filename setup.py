@@ -85,7 +85,6 @@ setup(
     tests_require=["Django>=1.4.2"],
     test_suite='runtests.runtests',
     setup_requires=['Django>=1.4.2'],
-    include_package_data=True,
     package_data = {
         'model_utils': ['locale/*/LC_MESSAGES/django.po','locale/*/LC_MESSAGES/django.mo'],
     },
