@@ -1,11 +1,10 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# This file is distributed under the same license as the django-model-utils package.
 #
+# Translators:
+# Philipp Steinhardt <steinhardt@myvision.de>, 2015.
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: django-model-utils\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-01 10:03+0200\n"
 "PO-Revision-Date: 2015-07-01 10:12+0200\n"
@@ -14,9 +13,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: \n"
+"Last-Translator: Philipp Steinhardt <steinhardt@myvision.de>\n"
 "Language-Team: \n"
-"X-Generator: Poedit 1.8.2\n"
 
 #: .\models.py:20
 msgid "created"
