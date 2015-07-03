@@ -8,3 +8,4 @@ Django-*.egg
 htmlcov/
 docs/_build/
 .idea/
+*.mo

@@ -1,5 +1,8 @@
 from os.path import join
 from setuptools import setup, find_packages
+from setuptools.command.install_lib import install_lib as _install_lib
+from distutils.command.build import build as _build
+from distutils.cmd import Command
 
 
 long_description = (open('README.rst').read() +
@@ -13,6 +16,46 @@ def get_version():
             if line.startswith('__version__ ='):
                 return line.split('=')[1].strip().strip('"\'')
 
+
+class compile_translations(Command):
+    """command tries to compile messages via django compilemessages, does not 
+       interrupt setup if gettext is not installed"""
+
+    description = 'compile message catalogs to MO files via django compilemessages'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import os
+        import sys
+        
+        from django.core.management import execute_from_command_line, CommandError
+        
+        curdir = os.getcwd()
+        os.chdir(os.path.realpath('model_utils'))
+        
+        try:
+            execute_from_command_line(['django-admin', 'compilemessages'])
+        except CommandError:
+            # raised if gettext pkg is not installed
+            pass
+        finally:
+            os.chdir(curdir)
+
+
+class build(_build):
+    sub_commands = [('compile_translations', None)] + _build.sub_commands
+
+
+class install_lib(_install_lib):
+    def run(self):
+        self.run_command('compile_translations')
+        _install_lib.run(self)
 
 setup(
     name='django-model-utils',
@@ -40,5 +83,11 @@ setup(
     ],
     zip_safe=False,
     tests_require=["Django>=1.4.2"],
-    test_suite='runtests.runtests'
+    test_suite='runtests.runtests',
+    setup_requires=['Django>=1.4.2'],
+    package_data = {
+        'model_utils': ['locale/*/LC_MESSAGES/django.po','locale/*/LC_MESSAGES/django.mo'],
+    },
+    cmdclass={'build': build, 'install_lib': install_lib,
+              'compile_translations': compile_translations}
 )

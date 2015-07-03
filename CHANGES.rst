@@ -11,6 +11,8 @@ master (unreleased)
 
 * Fix Django 1.7 migrations compatibility for SplitField. Thanks ad-m. Merge of
   GH-157; fixes GH-156.
+  
+* Add German translations.
 
 
 2.2 (2014.07.31)
