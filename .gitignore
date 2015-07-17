@@ -9,3 +9,4 @@ htmlcov/
 docs/_build/
 .idea/
 *.mo
+.eggs/
