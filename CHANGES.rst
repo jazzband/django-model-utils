@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.3 (2015.07.17)
+----------------
 
 * Keep track of deferred fields on model instance instead of on
   FieldInstanceTracker instance. Fixes accessing deferred fields for multiple
