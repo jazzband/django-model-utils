@@ -1,4 +1,5 @@
 from os.path import join
+from sys import version_info
 from setuptools import setup, find_packages
 from setuptools.command.install_lib import install_lib as _install_lib
 from distutils.command.build import build as _build
@@ -8,6 +9,11 @@ from distutils.cmd import Command
 long_description = (open('README.rst').read() +
                     open('CHANGES.rst').read() +
                     open('TODO.rst').read())
+
+
+setup_requires = ['Django>=1.4.2']
+if version_info[:2] == (2, 6):
+    setup_requires = ['Django>=1.4.2,<1.7']
 
 
 def get_version():
@@ -84,7 +90,7 @@ setup(
     zip_safe=False,
     tests_require=["Django>=1.4.2"],
     test_suite='runtests.runtests',
-    setup_requires=['Django>=1.4.2'],
+    setup_requires=setup_requires,
     package_data = {
         'model_utils': ['locale/*/LC_MESSAGES/django.po','locale/*/LC_MESSAGES/django.mo'],
     },
