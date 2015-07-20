@@ -22,9 +22,11 @@ When creating a pull request, try to:
 - Note important changes in the `CHANGES`_ file
 - Update the documentation if needed
 - Add yourself to the `AUTHORS`_ file
-- If you have added or changed translation strings, update translations 
-  of languages you are able to do so. Also mention that translations need
-  to be updated in your pull request and commit message.
+- If you have added or changed translated strings, run ``make messages`` to
+  update the ``.po`` translation files, and update translations for any
+  languages you know. Then run ``make compilemessages`` to compile the ``.mo``
+  files. If your pull request leaves some translations incomplete, please
+  mention that in the pull request and commit message.
 
 .. _AUTHORS: AUTHORS.rst
 .. _CHANGES: CHANGES.rst
@@ -37,7 +39,7 @@ If you are able to provide translations for a new language or to update an
 existing translation file, make sure to run makemessages beforehand::
 
     python django-admin.py makemessages -l ISO_LANGUAGE_CODE
-    
+
 This command will collect all translation strings from the source directory
 and create or update the translation file for the given language. Now open the
 translation file (.po) with a text-editor and start editing.
