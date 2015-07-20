@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Remove all translation-related automation in `setup.py`. Fixes GH-178 and
+  GH-179. Thanks Joe Weiss, Matt Molyneaux, and others for the reports.
+
 
 2.3 (2015.07.17)
 ----------------
