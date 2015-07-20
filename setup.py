@@ -2,7 +2,7 @@ from os.path import join
 from setuptools import setup, find_packages
 from setuptools.command.install_lib import install_lib as _install_lib
 from distutils.command.build import build as _build
-from distutils.cmd import Command
+from distutils.core import Command
 
 
 long_description = (open('README.rst').read() +
@@ -34,16 +34,16 @@ class compile_translations(Command):
         import os
         import sys
         
-        from django.core.management import execute_from_command_line, CommandError
+        from django.core.management import call_command, CommandError
         
         curdir = os.getcwd()
         os.chdir(os.path.realpath('model_utils'))
         
         try:
-            execute_from_command_line(['django-admin', 'compilemessages'])
-        except CommandError:
-            # raised if gettext pkg is not installed
-            pass
+            call_command('compilemessages')
+        except CommandError as e:
+            # raised if gettext is not installed
+            self.warn('unable to compile message catalogs: {}'.format(e))
         finally:
             os.chdir(curdir)
 
