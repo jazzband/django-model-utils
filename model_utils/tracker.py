@@ -45,7 +45,10 @@ class FieldInstanceTracker(object):
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
         if field in self.fields:
-            return self.previous(field) != self.get_field_value(field)
+            try:
+                return self.previous(field) != self.get_field_value(field)
+            except TypeError:
+                return True
         else:
             raise FieldError('field "%s" not tracked' % field)
 
@@ -172,8 +175,16 @@ class ModelInstanceTracker(FieldInstanceTracker):
             return {}
         saved = self.saved_data.items()
         current = self.current()
-        return dict((k, v) for k, v in saved if v != current[k])
-
+        dict = {}
+        for k, v in saved:
+            try:
+                if v != current[k]:
+                    dict.update({k:v})
+            except TypeError:
+                dict.update({k:v})
+        return dict        
+            #return dict((k, v) for k, v in saved if v != current[k])
+        
 
 class ModelTracker(FieldTracker):
     tracker_class = ModelInstanceTracker

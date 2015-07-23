@@ -274,6 +274,7 @@ class Spot(models.Model):
 class Tracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
+    date = models.DateTimeField(blank=True,null=True)
     mutable = MutableField()
 
     tracker = FieldTracker()
@@ -319,6 +320,7 @@ class InheritedTracked(Tracked):
 class ModelTracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
+    date = models.DateTimeField(blank=True,null=True)
     mutable = MutableField()
 
     tracker = ModelTracker()

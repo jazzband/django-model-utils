@@ -5,7 +5,6 @@ import os, sys
 from django.conf import settings
 import django
 
-
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
         'model_utils',
@@ -13,10 +12,12 @@ DEFAULT_SETTINGS = dict(
         ),
     DATABASES={
         "default": {
-            "ENGINE": "django.db.backends.sqlite3"
+            "ENGINE": "django.db.backends.sqlite3",
+            
             }
         },
     SILENCED_SYSTEM_CHECKS=["1_7.W001"],
+    USE_TZ=True,
     )
 
 
@@ -28,6 +29,8 @@ def runtests():
     if hasattr(django, 'setup'):
         django.setup()
 
+    USE_TZ = True
+    
     parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)
 
