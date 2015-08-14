@@ -126,6 +126,33 @@ class MonitorField(models.DateTimeField):
         return name, path, args, kwargs
 
 
+class PersistentMonitorField(MonitorField):
+    """
+    Like MonitorField, but once the timestamp for the first change is recorded
+    it is never set again
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('default', now())
+        super(PersistentMonitorField, self).__init__(*args, **kwargs)
+
+    def pre_save(self, model_instance, add):
+        value = now()
+        previous = getattr(model_instance, self.monitor_attname, None)
+        current = self.get_monitored_value(model_instance)
+        if previous != current:
+            monitor_initial = self.get_default()
+            monitor_current = getattr(
+                model_instance, self.attname, monitor_initial)
+            # if this field's timestamp is still the default we record the 
+            # current time value. It will only ever be the default value on
+            # the first save, hence the next timestamp value is persistent
+            if (monitor_current == monitor_initial
+                    and (self.when is None or current in self.when)):
+                setattr(model_instance, self.attname, value)
+                self._save_initial(model_instance.__class__, model_instance)
+        return super(MonitorField, self).pre_save(model_instance, add)
+
+
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 
 # the number of paragraphs after which to split if no marker
