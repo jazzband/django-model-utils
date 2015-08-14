@@ -16,7 +16,7 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from model_utils import Choices, FieldTracker
-from model_utils.fields import get_excerpt, MonitorField, StatusField
+from model_utils.fields import get_excerpt, MonitorField, StatusField, PersistentMonitorField
 from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
 from model_utils.tests.models import (
@@ -29,7 +29,8 @@ from model_utils.tests.models import (
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3, StatusFieldChoicesName)
+    InheritanceManagerTestChild3, StatusFieldChoicesName, 
+    PersistentMonitored, PersistentMonitorWhen, PersistentMonitorWhenEmpty)
 
 
 class MigrationsTests(TestCase):
@@ -241,6 +242,131 @@ class MonitorWhenEmptyFieldTests(TestCase):
 
 
     def test_save_changed_to_Maria(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+
+class PersistentMonitorFieldTests(TestCase):
+    def setUp(self):
+        self.instance = PersistentMonitored(name='Charlie')
+        self.created = self.instance.name_changed
+
+
+    def test_save_no_change(self):
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.assertTrue(self.instance.name_changed > self.created)
+
+
+    def test_double_save(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        changed = self.instance.name_changed
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, changed)
+
+
+    def test_double_change(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        changed = self.instance.name_changed
+        self.instance.name = 'Different Jose'
+        self.instance.save()
+        # self.instance.name_changed should still be equal to variable
+        # "changed", despite the name field being changed again
+        self.assertEqual(self.instance.name_changed, changed)
+
+
+    def test_no_monitor_arg(self):
+        with self.assertRaises(TypeError):
+            PersistentMonitorField()
+
+
+
+class PersistentMonitorWhenFieldTests(TestCase):
+    """
+    Will record changes only when name is 'Jose' or 'Maria'
+    """
+    def setUp(self):
+        self.instance = PersistentMonitorWhen(name='Charlie')
+        self.created = self.instance.name_changed
+
+
+    def test_save_no_change(self):
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_save_changed_to_Jose(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        self.assertTrue(self.instance.name_changed > self.created)
+
+
+    def test_save_changed_to_Maria(self):
+        self.instance.name = 'Maria'
+        self.instance.save()
+        self.assertTrue(self.instance.name_changed > self.created)
+
+
+    def test_save_changed_to_Pedro(self):
+        self.instance.name = 'Pedro'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_double_save(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        changed = self.instance.name_changed
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, changed)
+
+
+    def test_triple_change(self):
+        self.instance.name = 'Pedro'
+        self.instance.save()
+        changed = self.instance.name_changed
+        # No update expected to name_change because the name is Pedro
+        self.assertEqual(self.instance.name_changed, self.created)
+        self.instance.name = 'Jose'
+        self.instance.save()
+        changed = self.instance.name_changed
+        self.instance.name = 'Maria'
+        self.instance.save()
+        # self.instance.name_changed should still be equal to variable
+        # "changed", despite the name field being changed again
+        self.assertEqual(self.instance.name_changed, changed)
+
+
+
+class PersistentMonitorWhenEmptyFieldTests(TestCase):
+    """
+    Monitor should never be updated if when is an empty list.
+    """
+    def setUp(self):
+        self.instance = PersistentMonitorWhenEmpty(name='Charlie')
+        self.created = self.instance.name_changed
+
+
+    def test_double_save_no_change(self):
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
+
+
+    def test_double_save_changed(self):
+        self.instance.name = 'Jose'
+        self.instance.save()
+        self.assertEqual(self.instance.name_changed, self.created)
         self.instance.name = 'Maria'
         self.instance.save()
         self.assertEqual(self.instance.name_changed, self.created)

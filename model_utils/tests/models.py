@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.tracker import FieldTracker, ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
-from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.fields import SplitField, MonitorField, StatusField, PersistentMonitorField
 from model_utils.tests.fields import MutableField
 from model_utils import Choices
 
@@ -98,6 +98,24 @@ class MonitorWhen(models.Model):
 class MonitorWhenEmpty(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name", when=[])
+
+
+
+class PersistentMonitored(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = PersistentMonitorField(monitor="name")
+
+
+
+class PersistentMonitorWhen(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = PersistentMonitorField(monitor="name", when=["Jose", "Maria"])
+
+
+
+class PersistentMonitorWhenEmpty(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = PersistentMonitorField(monitor="name", when=[])
 
 
 
