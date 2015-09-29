@@ -59,6 +59,7 @@ class StatusField(models.CharField):
                 "To use StatusField, the model '%s' must have a %s choices class attribute." \
                 % (sender.__name__, self.choices_name)
             self._choices = getattr(sender, self.choices_name)
+            self.choices = self._choices  # django 1.9
             if not self.has_default():
                 self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
 
@@ -68,6 +69,7 @@ class StatusField(models.CharField):
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
         self._choices = [(0, 'dummy')]
+        self.choices = self._choices  # django 1.9
         super(StatusField, self).contribute_to_class(cls, name)
 
     def deconstruct(self):
