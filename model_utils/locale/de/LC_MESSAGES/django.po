@@ -1,0 +1,53 @@
+# This file is distributed under the same license as the django-model-utils package.
+#
+# Translators:
+# Philipp Steinhardt <steinhardt@myvision.de>, 2015.
+msgid ""
+msgstr ""
+"Project-Id-Version: django-model-utils\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-20 10:17-0600\n"
+"PO-Revision-Date: 2015-07-01 10:12+0200\n"
+"Last-Translator: Philipp Steinhardt <steinhardt@myvision.de>\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models.py:20
+msgid "created"
+msgstr "erstellt"
+
+#: models.py:21
+msgid "modified"
+msgstr "bearbeitet"
+
+#: models.py:33
+msgid "start"
+msgstr "Beginn"
+
+#: models.py:34
+msgid "end"
+msgstr "Ende"
+
+#: models.py:49
+msgid "status"
+msgstr "Status"
+
+#: models.py:50
+msgid "status changed"
+msgstr "Status geändert"
+
+#: tests/models.py:106 tests/models.py:115 tests/models.py:124
+msgid "active"
+msgstr "aktiv"
+
+#: tests/models.py:107 tests/models.py:116 tests/models.py:125
+msgid "deleted"
+msgstr "gelöscht"
+
+#: tests/models.py:108 tests/models.py:117 tests/models.py:126
+msgid "on hold"
+msgstr "wartend"

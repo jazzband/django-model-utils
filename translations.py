@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import os, sys
+import os
+import sys
 
 from django.conf import settings
 import django
@@ -20,7 +21,7 @@ DEFAULT_SETTINGS = dict(
     )
 
 
-def runtests():
+def run(command):
     if not settings.configured:
         settings.configure(**DEFAULT_SETTINGS)
 
@@ -29,21 +30,16 @@ def runtests():
         django.setup()
 
     parent = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, parent)
+    appdir = os.path.join(parent, 'model_utils')
+    os.chdir(appdir)
 
-    try:
-        from django.test.runner import DiscoverRunner
-        runner_class = DiscoverRunner
-        test_args = ['model_utils.tests']
-    except ImportError:
-        from django.test.simple import DjangoTestSuiteRunner
-        runner_class = DjangoTestSuiteRunner
-        test_args = ['tests']
+    from django.core.management import call_command
 
-    failures = runner_class(
-        verbosity=1, interactive=True, failfast=False).run_tests(test_args)
-    sys.exit(failures)
+    call_command('%smessages' % command)
 
 
 if __name__ == '__main__':
-    runtests()
+    if (len(sys.argv)) < 2 or (sys.argv[1] not in {'make', 'compile'}):
+        print("Run `translations.py make` or `translations.py compile`.")
+        sys.exit(1)
+    run(sys.argv[1])

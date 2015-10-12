@@ -1,15 +1,11 @@
-from datetime import datetime
+from __future__ import unicode_literals
 
 from django.db import models
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.timezone import now
 
-from model_utils import Choices
-
-
-try:
-    from django.utils.timezone import now as now
-except ImportError:
-    now = datetime.now
+DEFAULT_CHOICES_NAME = 'STATUS'
 
 
 class AutoCreatedField(models.DateTimeField):
@@ -54,16 +50,30 @@ class StatusField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 100)
         self.check_for_status = not kwargs.pop('no_check_for_status', False)
+        self.choices_name = kwargs.pop('choices_name', DEFAULT_CHOICES_NAME)
         super(StatusField, self).__init__(*args, **kwargs)
 
+    def prepare_class(self, sender, **kwargs):
+        if not sender._meta.abstract and self.check_for_status:
+            assert hasattr(sender, self.choices_name), \
+                "To use StatusField, the model '%s' must have a %s choices class attribute." \
+                % (sender.__name__, self.choices_name)
+            self._choices = getattr(sender, self.choices_name)
+            if not self.has_default():
+                self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
+
     def contribute_to_class(self, cls, name):
-        if not cls._meta.abstract and self.check_for_status:
-            assert hasattr(cls, 'STATUS'), \
-                "To use StatusField, the model '%s' must have a STATUS choices class attribute." \
-                % cls.__name__
-            setattr(self, '_choices', cls.STATUS)
-            setattr(self, 'default', tuple(cls.STATUS)[0][0]) # sets first as default
+        models.signals.class_prepared.connect(self.prepare_class, sender=cls)
+        # we don't set the real choices until class_prepared (so we can rely on
+        # the STATUS class attr being available), but we need to set some dummy
+        # choices now so the super method will add the get_FOO_display method
+        self._choices = [(0, 'dummy')]
         super(StatusField, self).contribute_to_class(cls, name)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(StatusField, self).deconstruct()
+        kwargs['no_check_for_status'] = True
+        return name, path, args, kwargs
 
 
 class MonitorField(models.DateTimeField):
@@ -80,6 +90,10 @@ class MonitorField(models.DateTimeField):
             raise TypeError(
                 '%s requires a "monitor" argument' % self.__class__.__name__)
         self.monitor = monitor
+        when = kwargs.pop('when', None)
+        if when is not None:
+            when = set(when)
+        self.when = when
         super(MonitorField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -99,9 +113,17 @@ class MonitorField(models.DateTimeField):
         previous = getattr(model_instance, self.monitor_attname, None)
         current = self.get_monitored_value(model_instance)
         if previous != current:
-            setattr(model_instance, self.attname, value)
-            self._save_initial(model_instance.__class__, model_instance)
+            if self.when is None or current in self.when:
+                setattr(model_instance, self.attname, value)
+                self._save_initial(model_instance.__class__, model_instance)
         return super(MonitorField, self).pre_save(model_instance, add)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(MonitorField, self).deconstruct()
+        kwargs['monitor'] = self.monitor
+        if self.when is not None:
+            kwargs['when'] = self.when
+        return name, path, args, kwargs
 
 
 SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
@@ -126,6 +148,7 @@ def get_excerpt(content):
 
     return '\n'.join(default_excerpt)
 
+@python_2_unicode_compatible
 class SplitText(object):
     def __init__(self, instance, field_name, excerpt_field_name):
         # instead of storing actual values store a reference to the instance
@@ -151,8 +174,7 @@ class SplitText(object):
         return self.excerpt.strip() != self.content.strip()
     has_more = property(_get_has_more)
 
-    # allows display via templates without .content necessary
-    def __unicode__(self):
+    def __str__(self):
         return self.content
 
 class SplitDescriptor(object):
@@ -207,6 +229,10 @@ class SplitField(models.TextField):
         except AttributeError:
             return value
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(SplitField, self).deconstruct()
+        kwargs['no_excerpt_field'] = True
+        return name, path, args, kwargs
 
 # allow South to handle these fields smoothly
 try:

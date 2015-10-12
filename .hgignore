@@ -4,3 +4,4 @@
 ^\.coverage$
 ^\.tox/
 ^Django.*\.egg$
+^htmlcov/

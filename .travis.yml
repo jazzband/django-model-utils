@@ -1,0 +1,43 @@
+language: python
+
+python: 2.7
+
+env:
+  - TOXENV=py26-django14
+  - TOXENV=py26-django15
+  - TOXENV=py26-django16
+  - TOXENV=py27-django14
+  - TOXENV=py27-django15
+  - TOXENV=py27-django15_nosouth
+  - TOXENV=py27-django16
+  - TOXENV=py27-django17
+  - TOXENV=py27-django18
+  - TOXENV=py27-django_trunk
+  - TOXENV=py32-django15
+  - TOXENV=py32-django16
+  - TOXENV=py32-django17
+  - TOXENV=py32-django18
+  - TOXENV=py32-django_trunk
+  - TOXENV=py33-django15
+  - TOXENV=py33-django16
+  - TOXENV=py33-django17
+  - TOXENV=py33-django18
+  - TOXENV=py33-django_trunk
+  - TOXENV=py34-django17
+  - TOXENV=py34-django18
+  - TOXENV=py34-django_trunk
+
+install:
+  - pip install --upgrade pip setuptools tox virtualenv coveralls
+
+script:
+  - tox
+
+matrix:
+  allow_failures:
+    - env: TOXENV=py27-django_trunk
+    - env: TOXENV=py32-django_trunk
+    - env: TOXENV=py33-django_trunk
+    - env: TOXENV=py34-django_trunk
+
+after_success: coveralls
