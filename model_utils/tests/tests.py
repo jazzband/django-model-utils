@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 try:
     from unittest import skipIf, skipUnless
 except ImportError: # Python 2.6
-    from django.utils.unittest import skipIf, skipUnless
+    from django.utils.unittest import skipUnless
 
 import django
 from django.db import models
@@ -867,17 +867,14 @@ class InheritanceManagerUsingModelsTests(TestCase):
         ])
 
 
-    @skipIf(
-        django.VERSION == (1, 9, 0, 'beta', 1), "Something shonky in 1.9b1 when using Auth like this")
     def test_select_subclass_invalid_related_model(self):
         """
         Confirming that giving a stupid model doesn't work.
         """
-        from django.contrib.auth.models import User
         regex = '^.+? is not a subclass of .+$'
         with self.assertRaisesRegexp(ValueError, regex):
             InheritanceManagerTestParent.objects.select_subclasses(
-                User).order_by('pk')
+                TimeFrame).order_by('pk')
 
 
 
