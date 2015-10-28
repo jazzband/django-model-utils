@@ -28,9 +28,6 @@ env:
   - TOXENV=py34-django18
   - TOXENV=py34-django19
   - TOXENV=py34-django_trunk
-  - TOXENV=py35-django18
-  - TOXENV=py35-django19
-  - TOXENV=py35-django_trunk
 
 install:
   - pip install --upgrade pip setuptools tox virtualenv coveralls
