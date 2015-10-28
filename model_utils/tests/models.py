@@ -204,7 +204,7 @@ class FeaturedManager(models.Manager):
 class Tracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
-    mutable = MutableField()
+    mutable = MutableField(default=None)
 
     tracker = FieldTracker()
 
@@ -249,7 +249,7 @@ class InheritedTracked(Tracked):
 class ModelTracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
-    mutable = MutableField()
+    mutable = MutableField(default=None)
 
     tracker = ModelTracker()
 
