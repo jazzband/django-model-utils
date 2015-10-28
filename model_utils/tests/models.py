@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
 from model_utils.tracker import FieldTracker, ModelTracker
-from model_utils.managers import QueryManager, InheritanceManager, PassThroughManager
+from model_utils.managers import QueryManager, InheritanceManager
 from model_utils.fields import SplitField, MonitorField, StatusField
 from model_utils.tests.fields import MutableField
 from model_utils import Choices
@@ -199,76 +199,6 @@ class FeaturedManager(models.Manager):
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
     get_query_set = get_queryset
-
-
-class DudeQuerySet(models.query.QuerySet):
-    def abiding(self):
-        return self.filter(abides=True)
-
-    def rug_positive(self):
-        return self.filter(has_rug=True)
-
-    def rug_negative(self):
-        return self.filter(has_rug=False)
-
-    def by_name(self, name):
-        return self.filter(name__iexact=name)
-
-
-
-class AbidingManager(PassThroughManager):
-    def get_queryset(self):
-        return DudeQuerySet(self.model).abiding()
-
-    get_query_set = get_queryset
-
-    def get_stats(self):
-        return {
-            "abiding_count": self.count(),
-            "rug_count": self.rug_positive().count(),
-        }
-
-
-
-class Dude(models.Model):
-    abides = models.BooleanField(default=True)
-    name = models.CharField(max_length=20)
-    has_rug = models.BooleanField(default=False)
-
-    objects = PassThroughManager(DudeQuerySet)
-    abiders = AbidingManager()
-
-
-class Car(models.Model):
-    name = models.CharField(max_length=20)
-    owner = models.ForeignKey(Dude, related_name='cars_owned')
-
-    objects = PassThroughManager(DudeQuerySet)
-
-
-class SpotManager(PassThroughManager):
-    def get_queryset(self):
-        return super(SpotManager, self).get_queryset().filter(secret=False)
-
-    get_query_set = get_queryset
-
-
-class SpotQuerySet(models.query.QuerySet):
-    def closed(self):
-        return self.filter(closed=True)
-
-    def secured(self):
-        return self.filter(secure=True)
-
-
-class Spot(models.Model):
-    name = models.CharField(max_length=20)
-    secure = models.BooleanField(default=True)
-    closed = models.BooleanField(default=False)
-    secret = models.BooleanField(default=False)
-    owner = models.ForeignKey(Dude, related_name='spots_owned')
-
-    objects = SpotManager.for_queryset_class(SpotQuerySet)()
 
 
 class Tracked(models.Model):
