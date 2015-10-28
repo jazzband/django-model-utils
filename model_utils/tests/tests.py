@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
 try:
-    from unittest import skipIf, skipUnless
+    from unittest import skipUnless
 except ImportError: # Python 2.6
     from django.utils.unittest import skipUnless
 
@@ -1391,15 +1391,13 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
 class FieldTrackerMultipleInstancesTests(TestCase):
 
     def test_with_deferred_fields_access_multiple(self):
-        instances = [
-            Tracked.objects.create(pk=1, name='foo', number=1),
-            Tracked.objects.create(pk=2, name='bar', number=2)
-        ]
+        Tracked.objects.create(pk=1, name='foo', number=1)
+        Tracked.objects.create(pk=2, name='bar', number=2)
 
         queryset = Tracked.objects.only('id')
 
         for instance in queryset:
-            name = instance.name
+            instance.name
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
