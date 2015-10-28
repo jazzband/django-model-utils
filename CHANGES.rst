@@ -4,6 +4,8 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Add support for Django 1.9. Drop support for Django 1.6 and earlier.
+
 2.3.1 (2015-07-20)
 ------------------
 

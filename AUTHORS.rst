@@ -16,6 +16,7 @@ Gregor Müllegger <gregor@muellegger.de>
 ivirabyan
 James Oakley <jfunk@funktronics.ca>
 Jannis Leidel <jannis@leidel.info>
+Jarek Glowacki <github.com/jarekwg>
 Javier García Sogo <jgsogo@gmail.com>
 Jeff Elmore <jeffelmore.org>
 Keryn Knight <kerynknight.com>
