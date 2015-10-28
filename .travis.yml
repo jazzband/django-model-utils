@@ -12,6 +12,7 @@ env:
   - TOXENV=py27-django16
   - TOXENV=py27-django17
   - TOXENV=py27-django18
+  - TOXENV=py27-django19
   - TOXENV=py27-django_trunk
   - TOXENV=py32-django15
   - TOXENV=py32-django16
@@ -25,6 +26,7 @@ env:
   - TOXENV=py33-django_trunk
   - TOXENV=py34-django17
   - TOXENV=py34-django18
+  - TOXENV=py34-django19
   - TOXENV=py34-django_trunk
 
 install:

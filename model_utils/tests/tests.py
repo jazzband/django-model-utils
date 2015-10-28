@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
-import pickle
 try:
     from unittest import skipUnless
 except ImportError: # Python 2.6
@@ -25,7 +24,7 @@ from model_utils.tests.models import (
     InheritanceManagerTestParent, InheritanceManagerTestChild1,
     InheritanceManagerTestChild2, TimeStamp, Post, Article, Status,
     StatusPlainTuple, TimeFrame, Monitored, MonitorWhen, MonitorWhenEmpty, StatusManagerAdded,
-    TimeFrameManagerAdded, Dude, SplitFieldAbstractParent, Car, Spot,
+    TimeFrameManagerAdded, SplitFieldAbstractParent,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
@@ -872,11 +871,10 @@ class InheritanceManagerUsingModelsTests(TestCase):
         """
         Confirming that giving a stupid model doesn't work.
         """
-        from django.contrib.auth.models import User
         regex = '^.+? is not a subclass of .+$'
         with self.assertRaisesRegexp(ValueError, regex):
             InheritanceManagerTestParent.objects.select_subclasses(
-                User).order_by('pk')
+                TimeFrame).order_by('pk')
 
 
 
@@ -1206,115 +1204,6 @@ class SouthFreezingTests(TestCase):
         self.assertEqual(kwargs['no_check_for_status'], 'True')
 
 
-
-class PassThroughManagerTests(TestCase):
-    def setUp(self):
-        Dude.objects.create(name='The Dude', abides=True, has_rug=False)
-        Dude.objects.create(name='His Dudeness', abides=False, has_rug=True)
-        Dude.objects.create(name='Duder', abides=False, has_rug=False)
-        Dude.objects.create(name='El Duderino', abides=True, has_rug=True)
-
-
-    def test_chaining(self):
-        self.assertEqual(Dude.objects.by_name('Duder').count(), 1)
-        self.assertEqual(Dude.objects.all().by_name('Duder').count(), 1)
-        self.assertEqual(Dude.abiders.rug_positive().count(), 1)
-        self.assertEqual(Dude.abiders.all().rug_positive().count(), 1)
-
-
-    def test_manager_only_methods(self):
-        stats = Dude.abiders.get_stats()
-        self.assertEqual(stats['rug_count'], 1)
-        with self.assertRaises(AttributeError):
-            Dude.abiders.all().get_stats()
-
-
-    def test_queryset_pickling(self):
-        qs = Dude.objects.all()
-        saltyqs = pickle.dumps(qs)
-        unqs = pickle.loads(saltyqs)
-        self.assertEqual(unqs.by_name('The Dude').count(), 1)
-
-
-    def test_queryset_not_available_on_related_manager(self):
-        dude = Dude.objects.by_name('Duder').get()
-        Car.objects.create(name='Ford', owner=dude)
-        self.assertFalse(hasattr(dude.cars_owned, 'by_name'))
-
-
-    def test_using_dir(self):
-        # make sure introspecing via dir() doesn't actually cause queries,
-        # just as a sanity check.
-        with self.assertNumQueries(0):
-            querysets_to_dir = (
-                Dude.objects,
-                Dude.objects.by_name('Duder'),
-                Dude.objects.all().by_name('Duder'),
-                Dude.abiders,
-                Dude.abiders.rug_positive(),
-                Dude.abiders.all().rug_positive()
-            )
-            for qs in querysets_to_dir:
-                self.assertTrue('by_name' in dir(qs))
-                self.assertTrue('abiding' in dir(qs))
-                self.assertTrue('rug_positive' in dir(qs))
-                self.assertTrue('rug_negative' in dir(qs))
-                # some standard qs methods
-                self.assertTrue('count' in dir(qs))
-                self.assertTrue('order_by' in dir(qs))
-                self.assertTrue('select_related' in dir(qs))
-                # make sure it's been de-duplicated
-                self.assertEqual(1, dir(qs).count('distinct'))
-
-            # manager only method.
-            self.assertTrue('get_stats' in dir(Dude.abiders))
-            # manager only method shouldn't appear on the non AbidingManager
-            self.assertFalse('get_stats' in dir(Dude.objects))
-            # standard manager methods
-            self.assertTrue('get_query_set' in dir(Dude.abiders))
-            self.assertTrue('contribute_to_class' in dir(Dude.abiders))
-
-
-
-class CreatePassThroughManagerTests(TestCase):
-    def setUp(self):
-        self.dude = Dude.objects.create(name='El Duderino')
-        self.other_dude = Dude.objects.create(name='Das Dude')
-
-    def test_reverse_manager(self):
-        Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True,
-            secret=False)
-        self.assertEqual(self.dude.spots_owned.closed().count(), 1)
-        Spot.objects.create(
-            name='The Crux', owner=self.other_dude, closed=True, secure=True,
-            secret=False
-        )
-        self.assertEqual(self.dude.spots_owned.closed().all().count(), 1)
-        self.assertEqual(self.dude.spots_owned.closed().count(), 1)
-
-    def test_related_queryset_pickling(self):
-        Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True,
-            secret=False)
-        qs = self.dude.spots_owned.closed()
-        pickled_qs = pickle.dumps(qs)
-        unpickled_qs = pickle.loads(pickled_qs)
-        self.assertEqual(unpickled_qs.secured().count(), 1)
-
-    def test_related_queryset_superclass_method(self):
-        Spot.objects.create(
-            name='The Crib', owner=self.dude, closed=True, secure=True,
-            secret=False)
-        Spot.objects.create(
-            name='The Secret Crib', owner=self.dude, closed=False, secure=True,
-            secret=True)
-        self.assertEqual(self.dude.spots_owned.count(), 1)
-
-    def test_related_manager_create(self):
-        self.dude.spots_owned.create(name='The Crib', closed=True, secure=True)
-
-
 class FieldTrackerTestCase(TestCase):
 
     tracker = None
@@ -1502,15 +1391,13 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
 class FieldTrackerMultipleInstancesTests(TestCase):
 
     def test_with_deferred_fields_access_multiple(self):
-        instances = [
-            Tracked.objects.create(pk=1, name='foo', number=1),
-            Tracked.objects.create(pk=2, name='bar', number=2)
-        ]
+        Tracked.objects.create(pk=1, name='foo', number=1)
+        Tracked.objects.create(pk=2, name='bar', number=2)
 
         queryset = Tracked.objects.only('id')
 
         for instance in queryset:
-            name = instance.name
+            instance.name
 
 
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
