@@ -763,6 +763,11 @@ class InheritanceManagerTests(TestCase):
                          set(expected_related_names))
 
 
+    def test_filter_on_values_queryset(self):
+        queryset = InheritanceManagerTestChild1.objects.values('id').filter(pk=self.child1.pk)
+        self.assertEqual(list(queryset), [{'id': self.child1.pk}])
+
+
 class InheritanceManagerUsingModelsTests(TestCase):
 
     def setUp(self):
