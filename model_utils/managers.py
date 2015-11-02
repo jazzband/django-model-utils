@@ -53,10 +53,13 @@ class InheritanceQuerySetMixin(object):
         new_qs.subclasses = subclasses
         return new_qs
 
-    def _clone(self, **kwargs):
+    def _clone(self, klass=None, setup=False, **kwargs):
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
+        if django.VERSION < (1, 9):
+            kwargs['klass'] = klass
+            kwargs['setup'] = setup
         return super(InheritanceQuerySetMixin, self)._clone(**kwargs)
 
     def annotate(self, *args, **kwargs):
