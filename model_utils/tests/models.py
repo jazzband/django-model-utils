@@ -29,7 +29,7 @@ class InheritanceManagerTestParent(models.Model):
     objects = InheritanceManager()
 
     def __unicode__(self):
-        return unicode(self.pk)
+        return self.pk
 
     def __str__(self):
         return "%s(%s)" % (

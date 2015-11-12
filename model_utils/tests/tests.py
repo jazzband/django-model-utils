@@ -18,6 +18,7 @@ from model_utils import Choices, FieldTracker
 from model_utils.fields import get_excerpt, MonitorField, StatusField
 from model_utils.managers import QueryManager
 from model_utils.models import StatusModel, TimeFramedModel
+from model_utils.tests.forms import ModelChoiceForm
 from model_utils.tests.models import (
     InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
     InheritanceManagerTestGrandChild1_2,
@@ -1818,3 +1819,19 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.name2 = 'test'
         self.assertEqual(self.tracker.previous('name2'), None)
         self.assertTrue(self.tracker.has_changed('name2'))
+
+
+class InheritanceManagerFormTests(TestCase):
+
+    def setUp(self):
+        self.child1 = InheritanceManagerTestChild1.objects.create()
+        self.child2 = InheritanceManagerTestChild2.objects.create()
+        self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
+
+    def get_manager(self):
+        return InheritanceManagerTestParent.objects
+
+    def test_form_field_return_all_items(self):
+        form = ModelChoiceForm(queryset=self.get_manager())
+        choices = [item for item in form.fields['items'].choices]
+        self.assertEqual(len(choices), 3)
