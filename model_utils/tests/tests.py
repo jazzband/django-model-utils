@@ -1828,8 +1828,10 @@ class InheritanceManagerFormTests(TestCase):
         self.child2 = InheritanceManagerTestChild2.objects.create()
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
 
+    def get_manager(self):
+        return InheritanceManagerTestParent.objects
+
     def test_form_field_return_all_items(self):
-        form = ModelChoiceForm(
-            queryset=InheritanceManagerTestParent.objects)
+        form = ModelChoiceForm(queryset=self.get_manager())
         choices = [item for item in form.fields['items'].choices]
         self.assertEqual(len(choices), 3)
