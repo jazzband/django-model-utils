@@ -175,6 +175,7 @@ class InheritanceQuerySetMixin(object):
 
 
 class InheritanceManagerMixin(object):
+    _prefetch_related_lookups = []
     use_for_related_fields = True
 
     def get_queryset(self):
