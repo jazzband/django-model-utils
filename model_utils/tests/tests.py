@@ -1831,5 +1831,5 @@ class InheritanceManagerFormTests(TestCase):
     def test_form_field_return_all_items(self):
         form = ModelChoiceForm(
             queryset=InheritanceManagerTestParent.objects)
-        choices = [item[0] for item in form.fields['items'].choices]
+        choices = [item for item in form.fields['items'].choices]
         self.assertEqual(len(choices), 3)
