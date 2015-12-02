@@ -1,26 +1,26 @@
 Contributing
 ============
 
-Below is a list of tips for submitting issues and pull requests.  These are
-suggestions and not requirements.
+Below is a list of tips for submitting issues and pull requests.
 
 Submitting Issues
 -----------------
 
-Issues are often easier to reproduce/resolve when they have:
+Issues are easier to reproduce/resolve when they have:
 
 - A pull request with a failing test demonstrating the issue
 - A code example that produces the issue consistently
 - A traceback (when applicable)
 
+
 Pull Requests
 -------------
 
-When creating a pull request, try to:
+When creating a pull request:
 
-- Write tests if applicable
-- Note important changes in the `CHANGES`_ file
-- Update the documentation if needed
+- Write tests
+- Note user-facing changes in the `CHANGES`_ file
+- Update the documentation
 - Add yourself to the `AUTHORS`_ file
 - If you have added or changed translated strings, run ``make messages`` to
   update the ``.po`` translation files, and update translations for any
@@ -46,6 +46,7 @@ translation file (.po) with a text-editor and start editing.
 After you finished editing add yourself to the list of translators.
 If you have created a new translation, make sure to copy the header from one
 of the existing translation files.
+
 
 Testing
 -------
