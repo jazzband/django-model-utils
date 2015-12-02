@@ -10,7 +10,7 @@ master (unreleased)
 * Remove `PassThroughManager`. Use Django's built-in `QuerySet.as_manager()`
   and/or `Manager.from_queryset()` utilities instead.
 
-* Add support for Django 1.9. Drop support for Django 1.6 and earlier.
+* Add support for Django 1.9.
 
 
 2.3.1 (2015-07-20)
