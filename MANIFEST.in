@@ -4,4 +4,4 @@ include LICENSE.txt
 include MANIFEST.in
 include README.rst
 include TODO.rst
-locale/*/LC_MESSAGES/django.po
+recursive-include locale django.po
