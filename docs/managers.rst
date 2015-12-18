@@ -128,50 +128,9 @@ not required).
 PassThroughManager
 ------------------
 
-A common "gotcha" when defining methods on a custom manager class is that those
-same methods are not automatically also available on the QuerySets returned by
-that manager, so are not "chainable". This can be counterintuitive, as most of
-the public QuerySet API is mirrored on managers. It is possible to create a
-custom Manager that returns QuerySets that have the same additional methods,
-but this requires boilerplate code. The ``PassThroughManager`` class
-(`contributed by Paul McLanahan`_) removes this boilerplate.
-
-.. _contributed by Paul McLanahan: http://paulm.us/post/3717466639/passthroughmanager-for-django
-
-To use ``PassThroughManager``, rather than defining a custom manager with
-additional methods, define a custom ``QuerySet`` subclass with the additional
-methods you want, and pass that ``QuerySet`` subclass to the
-``PassThroughManager.for_queryset_class()`` class method. The returned
-``PassThroughManager`` subclass will always return instances of your custom
-``QuerySet``, and you can also call methods of your custom ``QuerySet``
-directly on the manager:
-
-.. code-block:: python
-
-    from datetime import datetime
-    from django.db import models
-    from django.db.models.query import QuerySet
-    from model_utils.managers import PassThroughManager
-
-    class PostQuerySet(QuerySet):
-        def by_author(self, user):
-            return self.filter(user=user)
-
-        def published(self):
-            return self.filter(published__lte=datetime.now())
-
-        def unpublished(self):
-            return self.filter(published__gte=datetime.now())
-
-
-    class Post(models.Model):
-        user = models.ForeignKey(User)
-        published = models.DateTimeField()
-
-        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
-
-    Post.objects.published()
-    Post.objects.by_author(user=request.user).unpublished()
+`PassThroughManager` was removed in django-model-utils 2.4. Use Django's
+built-in `QuerySet.as_manager()` and/or `Manager.from_queryset()` utilities
+instead.
 
 Mixins
 ------
