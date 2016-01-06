@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import django
 from django.db import models
-from django.db.models.fields.related import OneToOneField
+from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -102,8 +102,9 @@ class InheritanceQuerySetMixin(object):
         relations for select_related
         """
         rels = [
-            rel for rel in model._meta.get_all_related_objects()
-            if isinstance(rel.field, OneToOneField)
+            rel for rel in model._meta.get_fields()
+            if isinstance(rel, OneToOneRel)
+            and isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
             and model is not rel.field.model
             ]
