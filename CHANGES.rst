@@ -6,6 +6,9 @@ master (unreleased)
 
 * Drop support for Python 3.2.
 
+* Add support for Django 1.10.
+
+
 2.4 (2015-12-03)
 ----------------
 
