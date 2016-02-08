@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import django
 from django.db import models
-from django.db.models.fields.related import OneToOneField
+from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -101,12 +101,20 @@ class InheritanceQuerySetMixin(object):
         recursively, returning a `list` of strings representing the
         relations for select_related
         """
+        if django.VERSION < (1, 8):
+            related_objects = model._meta.get_all_related_objects()
+        else:
+            related_objects = [
+                f for f in model._meta.get_fields()
+                if isinstance(f, OneToOneRel)]
+
         rels = [
-            rel for rel in model._meta.get_all_related_objects()
+            rel for rel in related_objects
             if isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
             and model is not rel.field.model
             ]
+
         subclasses = []
         if levels:
             levels -= 1
@@ -135,12 +143,16 @@ class InheritanceQuerySetMixin(object):
         if levels:
             levels -= 1
         while parent_link is not None:
-            ancestry.insert(0, parent_link.related.get_accessor_name())
+            if django.VERSION < (1, 8):
+                related = parent_link.related
+            else:
+                related = parent_link.rel
+            ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 if django.VERSION < (1, 8):
-                    parent_model = parent_link.related.parent_model
+                    parent_model = related.parent_model
                 else:
-                    parent_model = parent_link.related.model
+                    parent_model = related.model
                 parent_link = parent_model._meta.get_ancestor_link(
                     self.model)
             else:
