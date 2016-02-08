@@ -8,17 +8,16 @@ env:
   - TOXENV=py26-django16
   - TOXENV=py27-django14
   - TOXENV=py27-django19
+  - TOXENV=py27-django_trunk
   - TOXENV=py27-django15_nosouth
   - TOXENV=py27-django15
   - TOXENV=py27-django16
   - TOXENV=py27-django17
   - TOXENV=py27-django18
-  - TOXENV=py27-django_trunk
   - TOXENV=py33-django15
   - TOXENV=py33-django16
   - TOXENV=py33-django17
   - TOXENV=py33-django18
-  - TOXENV=py33-django_trunk
   - TOXENV=py34-django17
   - TOXENV=py34-django18
   - TOXENV=py34-django19
@@ -36,7 +35,6 @@ script:
 matrix:
   allow_failures:
     - env: TOXENV=py27-django_trunk
-    - env: TOXENV=py33-django_trunk
     - env: TOXENV=py34-django_trunk
     - env: TOXENV=py35-django_trunk
 
