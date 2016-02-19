@@ -5,7 +5,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
-from model_utils.tracker import FieldTracker, ModelTracker
+from model_utils.tracker import FieldTracker, ModelTracker, FieldTrackerSignal
 from model_utils.managers import QueryManager, InheritanceManager
 from model_utils.fields import SplitField, MonitorField, StatusField
 from model_utils.tests.fields import MutableField
@@ -207,6 +207,14 @@ class Tracked(models.Model):
     mutable = MutableField(default=None)
 
     tracker = FieldTracker()
+
+
+class TrackedSignal(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+    mutable = MutableField(default=None)
+
+    tracker = FieldTrackerSignal()
 
 
 class TrackedFK(models.Model):

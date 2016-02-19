@@ -5,6 +5,10 @@ from copy import deepcopy
 from django.db import models
 from django.core.exceptions import FieldError
 from django.db.models.query_utils import DeferredAttribute
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_save
+
+from signals import field_tracker_presave, field_tracker_postsave
 
 
 class FieldInstanceTracker(object):
@@ -153,6 +157,72 @@ class FieldTracker(object):
             return self
         else:
             return getattr(instance, self.attname)
+
+
+class FieldTrackerSignal(FieldTracker):
+
+    def __init__(self, fields=None):
+        super(FieldTrackerSignal, self).__init__(fields)
+
+    def patch_save(self, inst):
+        original_save = inst.save
+
+        def save(**kwargs):
+            data = [None]  # [changed]
+
+            # Emit custom presave signal if attributes
+            # we are interested in have changed
+            @receiver(pre_save, sender=inst.__class__)
+            def tracked_instance_presave(instance, **kwargs):
+                if instance is not inst:
+                    # This check is needed in the unlikely case that
+                    # a reference to this tracked_instance_presave
+                    # is leaked because of which it is still in scope
+                    # when a second instance of the same tracked class
+                    # is saved() causing multiple nested versions of this
+                    # function to run.
+                    return
+
+                changed = getattr(instance, self.attname).changed() or None
+
+                data[0] = changed
+
+                if changed:
+                    field_tracker_presave.send(sender=instance.__class__,
+                                               instance=instance,
+                                               changed=changed)
+
+            # Emit custom postsave signal if new instance or
+            # attributes we are interested in have changed
+            @receiver(post_save, sender=inst.__class__)
+            def tracked_instance_postsave(instance, created, **kwargs):
+                if instance is not inst:
+                    return
+
+                changed, = data
+
+                if changed:
+                    field_tracker_postsave.send(sender=instance.__class__,
+                                                created=created,
+                                                instance=instance,
+                                                changed=changed)
+
+            ret = original_save(**kwargs)
+            update_fields = kwargs.get('update_fields')
+            if not update_fields and update_fields is not None:  # () or []
+                fields = update_fields
+            elif update_fields is None:
+                fields = None
+            else:
+                fields = (
+                    field for field in update_fields if
+                    field in self.fields
+                )
+            getattr(inst, self.attname).set_saved_fields(
+                fields=fields
+            )
+            return ret
+        inst.save = save
 
 
 class ModelInstanceTracker(FieldInstanceTracker):

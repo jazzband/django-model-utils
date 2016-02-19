@@ -13,6 +13,7 @@ from django.utils.six import text_type
 from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.core.management import call_command
 from django.test import TestCase
+from django.dispatch import receiver
 
 from model_utils import Choices, FieldTracker
 from model_utils.fields import get_excerpt, MonitorField, StatusField
@@ -26,9 +27,10 @@ from model_utils.tests.models import (
     StatusPlainTuple, TimeFrame, Monitored, MonitorWhen, MonitorWhenEmpty, StatusManagerAdded,
     TimeFrameManagerAdded, SplitFieldAbstractParent,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
+    Tracked, TrackedSignal, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
     InheritanceManagerTestChild3, StatusFieldChoicesName)
+from model_utils.signals import field_tracker_presave, field_tracker_postsave
 
 
 class MigrationsTests(TestCase):
@@ -1236,9 +1238,11 @@ class FieldTrackerTestCase(TestCase):
         self.assertEqual(tracker.current(), kwargs)
 
     def update_instance(self, **kwargs):
+        instance = kwargs.pop('instance', self.instance)
+
         for field, value in kwargs.items():
-            setattr(self.instance, field, value)
-        self.instance.save()
+            setattr(instance, field, value)
+        instance.save()
 
 
 class FieldTrackerCommonTests(object):
@@ -1680,6 +1684,137 @@ class InheritedFieldTrackerTests(FieldTrackerTests):
         self.name2 = 'test'
         self.assertEqual(self.tracker.previous('name2'), None)
         self.assertRaises(FieldError, self.tracker.has_changed, 'name2')
+
+
+class FieldTrackerSignalTests(FieldTrackerTestCase):
+    tracked_class = TrackedSignal
+
+    def setUp(self):
+        self.instance = self.tracked_class()
+        self.tracker = self.instance.tracker
+
+    def test_post_save_one_instance(self):
+        receivers_called = [False, False]
+
+        @receiver(field_tracker_presave, sender=self.tracked_class)
+        def tracked_instance_custom_presave(sender, **kwargs):
+            receivers_called[0] = True
+            self.assertEqual(kwargs["instance"], self.instance)
+            self.assertEqual(kwargs["changed"], {"name": None, "number": None, "mutable": None})
+
+        @receiver(field_tracker_postsave, sender=self.tracked_class)
+        def tracked_instance_custom_postsave(sender, **kwargs):
+            receivers_called[1] = True
+            self.assertEqual(kwargs["instance"], self.instance)
+            self.assertEqual(kwargs["changed"], {"name": None, "number": None, "mutable": None})
+            self.assertEqual(kwargs["created"], True)
+
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
+
+        self.assertEqual(receivers_called, [True, True])
+
+    def test_post_save_update_instance(self):
+        receivers_called = [False, False]
+
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
+
+        @receiver(field_tracker_presave, sender=self.tracked_class)
+        def tracked_instance_custom_presave(sender, **kwargs):
+            receivers_called[0] = True
+            self.assertEqual(kwargs["instance"], self.instance)
+            self.assertEqual(kwargs["changed"], {"name": "retro", "number": 4, "mutable": [1, 2, 3]})
+
+        @receiver(field_tracker_postsave, sender=self.tracked_class)
+        def tracked_instance_custom_postsave(sender, **kwargs):
+            receivers_called[1] = True
+            self.assertEqual(kwargs["instance"], self.instance)
+            self.assertEqual(kwargs["changed"], {"name": "retro", "number": 4, "mutable": [1, 2, 3]})
+            self.assertEqual(kwargs["created"], False)
+
+        self.update_instance(name='petro', number=5, mutable=[9, 1, 6])
+
+        self.assertEqual(receivers_called, [True, True])
+
+    def test_create_multiple_instance(self):
+        receivers_called_obj1 = [False, False]
+        receivers_called_obj2 = [False, False]
+
+        @receiver(field_tracker_presave, sender=self.tracked_class)
+        def tracked_instance_custom_presave(sender, **kwargs):
+            if kwargs["instance"] is instance1:
+                self.assertEqual(receivers_called_obj1[0], False)
+                receivers_called_obj1[0] = True
+                self.assertEqual(kwargs["changed"], {"name": None, "number": None})
+
+            elif kwargs["instance"] is instance2:
+                self.assertEqual(receivers_called_obj2[0], False)
+                receivers_called_obj2[0] = True
+                self.assertEqual(kwargs["changed"], {"name": None, "number": None})
+
+        @receiver(field_tracker_postsave, sender=self.tracked_class)
+        def tracked_instance_custom_postsave(sender, **kwargs):
+            if kwargs["instance"] is instance1:
+                self.assertEqual(receivers_called_obj1[1], False)
+                receivers_called_obj1[1] = True
+                self.assertEqual(kwargs["changed"], {"name": None, "number": None})
+                self.assertEqual(kwargs["created"], True)
+
+            elif kwargs["instance"] is instance2:
+                self.assertEqual(receivers_called_obj2[1], False)
+                receivers_called_obj2[1] = True
+                self.assertEqual(kwargs["changed"], {"name": None, "number": None})
+                self.assertEqual(kwargs["created"], True)
+
+        instance1 = self.tracked_class(name="foo", number=1)
+        instance1.save()
+
+        instance2 = self.tracked_class(name="bar", number=2)
+        instance2.save()
+
+        self.assertEqual(receivers_called_obj1, [True, True])
+        self.assertEqual(receivers_called_obj2, [True, True])
+
+    def test_update_multiple_instance(self):
+        receivers_called_obj1 = [False, False]
+        receivers_called_obj2 = [False, False]
+
+        instance1 = self.tracked_class(name="foo", number=1)
+        instance1.save()
+
+        instance2 = self.tracked_class(name="bar", number=2)
+        instance2.save()
+
+        @receiver(field_tracker_presave, sender=self.tracked_class)
+        def tracked_instance_custom_presave(sender, **kwargs):
+            if kwargs["instance"] is instance1:
+                self.assertEqual(receivers_called_obj1[0], False)
+                receivers_called_obj1[0] = True
+                self.assertEqual(kwargs["changed"], {"name": "foo"})
+
+            elif kwargs["instance"] is instance2:
+                self.assertEqual(receivers_called_obj2[0], False)
+                receivers_called_obj2[0] = True
+                self.assertEqual(kwargs["changed"], {"name": "bar"})
+
+        @receiver(field_tracker_postsave, sender=self.tracked_class)
+        def tracked_instance_custom_postsave(sender, **kwargs):
+            if kwargs["instance"] is instance1:
+                self.assertEqual(receivers_called_obj1[1], False)
+                receivers_called_obj1[1] = True
+                self.assertEqual(kwargs["changed"], {"name": "foo"})
+                self.assertEqual(kwargs["created"], False)
+
+            elif kwargs["instance"] is instance2:
+                self.assertEqual(receivers_called_obj2[1], False)
+                receivers_called_obj2[1] = True
+                self.assertEqual(kwargs["changed"], {"name": "bar"})
+                self.assertEqual(kwargs["created"], False)
+
+        self.update_instance(instance=instance1, name="baz")
+        self.update_instance(instance=instance2, name="boom")
+
+        self.assertEqual(receivers_called_obj1, [True, True])
+        self.assertEqual(receivers_called_obj2, [True, True])
 
 
 class ModelTrackerTests(FieldTrackerTests):
