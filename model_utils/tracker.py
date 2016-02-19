@@ -8,7 +8,7 @@ from django.db.models.query_utils import DeferredAttribute
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 
-from signals import field_tracker_presave, field_tracker_postsave
+from model_utils.signals import field_tracker_presave, field_tracker_postsave
 
 
 class FieldInstanceTracker(object):
