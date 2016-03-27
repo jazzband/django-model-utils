@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
+from unittest import skipUnless
+
 import django
 from django.db import models
 from django.test import TestCase
 
-from model_utils.tests.helpers import skipUnless
 from model_utils.tests.models import (InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
                                       InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
                                       InheritanceManagerTestChild1,
@@ -34,12 +35,8 @@ class InheritanceManagerTests(TestCase):
 
     def test_select_all_subclasses(self):
         children = set([self.child1, self.child2])
-        if django.VERSION >= (1, 6, 0):
-            children.add(self.grandchild1)
-            children.add(self.grandchild1_2)
-        else:
-            children.add(InheritanceManagerTestChild1(pk=self.grandchild1.pk))
-            children.add(InheritanceManagerTestChild1(pk=self.grandchild1_2.pk))
+        children.add(self.grandchild1)
+        children.add(self.grandchild1_2)
         self.assertEqual(
             set(self.get_manager().select_subclasses()), children)
 
@@ -68,7 +65,6 @@ class InheritanceManagerTests(TestCase):
             children,
         )
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_select_specific_grandchildren(self):
         children = set([
             InheritanceManagerTestParent(pk=self.child1.pk),
@@ -85,7 +81,6 @@ class InheritanceManagerTests(TestCase):
             children,
         )
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_children_and_grandchildren(self):
         children = set([
             self.child1,
@@ -120,39 +115,9 @@ class InheritanceManagerTests(TestCase):
                 "inheritancemanagertestchild2").get(pk=self.child1.pk)
             obj.inheritancemanagertestchild1
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_version_determining_any_depth(self):
         self.assertIsNone(self.get_manager().all()._get_maximum_depth())
 
-    @skipUnless(django.VERSION < (1, 6, 0), "test only applies to Django < 1.6")
-    def test_version_determining_only_child_depth(self):
-        self.assertEqual(1, self.get_manager().all()._get_maximum_depth())
-
-    @skipUnless(django.VERSION < (1, 6, 0), "test only applies to Django < 1.6")
-    def test_manually_specifying_parent_fk_only_children(self):
-        """
-        given a Model which inherits from another Model, but also declares
-        the OneToOne link manually using `related_name` and `parent_link`,
-        ensure that the relation names and subclasses are obtained correctly.
-        """
-        child3 = InheritanceManagerTestChild3.objects.create()
-        results = InheritanceManagerTestParent.objects.all().select_subclasses()
-
-        expected_objs = [self.child1, self.child2,
-                         InheritanceManagerTestChild1(pk=self.grandchild1.pk),
-                         InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
-                         child3]
-        self.assertEqual(list(results), expected_objs)
-
-        expected_related_names = [
-            'inheritancemanagertestchild1',
-            'inheritancemanagertestchild2',
-            'manual_onetoone',  # this was set via parent_link & related_name
-        ]
-        self.assertEqual(set(results.subclasses),
-                         set(expected_related_names))
-
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_manually_specifying_parent_fk_including_grandchildren(self):
         """
         given a Model which inherits from another Model, but also declares
@@ -267,7 +232,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(objs.subclasses, objsmodels.subclasses)
         self.assertEqual(list(objs), list(objsmodels))
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_select_subclass_by_grandchild_model(self):
         """
         Confirm that passing a grandchild model works the same as passing the
@@ -281,7 +245,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(objs.subclasses, objsmodels.subclasses)
         self.assertEqual(list(objs), list(objsmodels))
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_selecting_all_subclasses_specifically_grandchildren(self):
         """
         A bare select_subclasses() should achieve the same results as doing
@@ -310,16 +273,11 @@ class InheritanceManagerUsingModelsTests(TestCase):
         """
         objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
 
-        if django.VERSION >= (1, 6, 0):
-            models = (InheritanceManagerTestChild1,
-                      InheritanceManagerTestChild2,
-                      InheritanceManagerTestChild3,
-                      InheritanceManagerTestGrandChild1,
-                      InheritanceManagerTestGrandChild1_2)
-        else:
-            models = (InheritanceManagerTestChild1,
-                      InheritanceManagerTestChild2,
-                      InheritanceManagerTestChild3)
+        models = (InheritanceManagerTestChild1,
+                  InheritanceManagerTestChild2,
+                  InheritanceManagerTestChild3,
+                  InheritanceManagerTestGrandChild1,
+                  InheritanceManagerTestGrandChild1_2)
 
         objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
             *models).order_by('pk')
@@ -353,7 +311,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestParent.objects.select_subclasses(
                 TimeFrame).order_by('pk')
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_mixing_strings_and_classes_with_grandchildren(self):
         """
         Given arguments consisting of both strings and model classes,
@@ -414,7 +371,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
         ])
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_child_doesnt_accidentally_get_parent(self):
         """
         Given a Child model which also has an InheritanceManager,

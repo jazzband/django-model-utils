@@ -1,11 +1,12 @@
 from __future__ import unicode_literals
 
+from unittest import skipUnless
+
 import django
 from django.core.exceptions import FieldError
 from django.test import TestCase
 
 from model_utils import FieldTracker
-from model_utils.tests.helpers import skipUnless
 from model_utils.tests.models import (
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, TrackedFileField,
@@ -97,15 +98,14 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertPrevious(name=None, number=None, mutable=None)
         self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
         self.assertChanged(name=None, number=None, mutable=None)
-        # Django 1.4 doesn't have update_fields
-        if django.VERSION >= (1, 5, 0):
-            self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True, mutable=True)
-            self.assertPrevious(name=None, number=None, mutable=None)
-            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
-            self.assertChanged(name=None, number=None, mutable=None)
-            with self.assertRaises(ValueError):
-                self.instance.save(update_fields=['number'])
+
+        self.instance.save(update_fields=[])
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertChanged(name=None, number=None, mutable=None)
+        with self.assertRaises(ValueError):
+            self.instance.save(update_fields=['number'])
 
     def test_post_save_has_changed(self):
         self.update_instance(name='retro', number=4, mutable=[1,2,3])
@@ -153,8 +153,6 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.save()
         self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1,4,3])
 
-    @skipUnless(
-        django.VERSION >= (1, 5, 0), "Django 1.4 doesn't have update_fields")
     def test_update_fields(self):
         self.update_instance(name='retro', number=4, mutable=[1,2,3])
         self.assertChanged()
@@ -280,8 +278,6 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
         self.instance.save()
         self.assertCurrent(name='new age')
 
-    @skipUnless(
-        django.VERSION >= (1, 5, 0), "Django 1.4 doesn't have update_fields")
     def test_update_fields(self):
         self.update_instance(name='retro', number=4)
         self.assertChanged()
@@ -622,15 +618,14 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertPrevious(name=None, number=None, mutable=None)
         self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
         self.assertChanged()
-        # Django 1.4 doesn't have update_fields
-        if django.VERSION >= (1, 5, 0):
-            self.instance.save(update_fields=[])
-            self.assertHasChanged(name=True, number=True, mutable=True)
-            self.assertPrevious(name=None, number=None, mutable=None)
-            self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
-            self.assertChanged()
-            with self.assertRaises(ValueError):
-                self.instance.save(update_fields=['number'])
+
+        self.instance.save(update_fields=[])
+        self.assertHasChanged(name=True, number=True, mutable=True)
+        self.assertPrevious(name=None, number=None, mutable=None)
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertChanged()
+        with self.assertRaises(ValueError):
+            self.instance.save(update_fields=['number'])
 
     def test_pre_save_has_changed(self):
         self.assertHasChanged(name=True, number=True)

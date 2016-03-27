@@ -241,30 +241,3 @@ class SplitField(models.TextField):
         name, path, args, kwargs = super(SplitField, self).deconstruct()
         kwargs['no_excerpt_field'] = True
         return name, path, args, kwargs
-
-# allow South to handle these fields smoothly
-try:
-    from south.modelsinspector import add_introspection_rules
-    # For a normal MarkupField, the add_excerpt_field attribute is
-    # always True, which means no_excerpt_field arg will always be
-    # True in a frozen MarkupField, which is what we want.
-    add_introspection_rules(rules=[
-        (
-            (SplitField,),
-            [],
-            {'no_excerpt_field': ('add_excerpt_field', {})}
-        ),
-        (
-            (MonitorField,),
-            [],
-            {'monitor': ('monitor', {})}
-        ),
-        (
-            (StatusField,),
-            [],
-            {'no_check_for_status': ('check_for_status', {})}
-        ),
-    ], patterns=['model_utils\.fields\.'])
-except ImportError:
-    pass
-

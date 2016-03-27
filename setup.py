@@ -30,7 +30,7 @@ setup(
     author_email='carl@oddbird.net',
     url='https://github.com/carljm/django-model-utils/',
     packages=find_packages(),
-    install_requires=['Django>=1.4.2'],
+    install_requires=['Django>=1.8'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
@@ -47,7 +47,7 @@ setup(
         'Framework :: Django',
     ],
     zip_safe=False,
-    tests_require=["Django>=1.4.2"],
+    tests_require=['Django>=1.8'],
     test_suite='runtests.runtests',
     package_data={
         'model_utils': [

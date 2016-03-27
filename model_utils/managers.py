@@ -5,12 +5,8 @@ from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 
-try:
-    from django.db.models.constants import LOOKUP_SEP
-    from django.utils.six import string_types
-except ImportError:  # Django < 1.5
-    from django.db.models.sql.constants import LOOKUP_SEP
-    string_types = (basestring,)
+from django.db.models.constants import LOOKUP_SEP
+from django.utils.six import string_types
 
 
 class InheritanceQuerySetMixin(object):
