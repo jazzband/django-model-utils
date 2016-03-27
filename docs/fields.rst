@@ -66,7 +66,7 @@ field changes:
 (A ``MonitorField`` can monitor any type of field for changes, not only a
 ``StatusField``.)
 
-If a list is passed to the ``when`` parameter, the field will only 
+If a list is passed to the ``when`` parameter, the field will only
 update when it matches one of the specified values:
 
 .. code-block:: python
@@ -124,7 +124,7 @@ without having to access ``content`` directly.
 
 Assuming the ``Article`` model above:
 
-.. code-block:: pycon
+.. code-block:: python
 
     >>> a = Article.objects.all()[0]
     >>> a.body.content
@@ -154,3 +154,29 @@ If no marker is found in the content, the first two paragraphs (where
 paragraphs are blocks of text separated by a blank line) are taken to
 be the excerpt. This number can be customized by setting the
 ``SPLIT_DEFAULT_PARAGRAPHS`` setting.
+
+
+CICharField & CIEmailField
+--------------------------
+
+Case-insensitive variants of ``CharField`` and ``EmailField``. When combined
+with a unique constraint, values that only vary in case will be considered
+to be duplicate. e.g.,
+
+.. code-block:: python
+
+    class User(models.Model):
+        email = models.CIEmailField(unique=True)
+
+    >>> User.objects.create(email='joe@example.com')
+    <CIPerson: CIPerson object>
+    >>> User.objects.create(email='JOE@example.com')
+        ...
+    django.db.utils.IntegrityError: UNIQUE constraint failed: tests_ciperson.email
+
+A ``CIText`` field mixin has also been provided that will alter the ``db_type``
+of a model field.
+
+.. note::
+
+    Supported database backends only include ``postgresql`` and ``sqlite3``.
