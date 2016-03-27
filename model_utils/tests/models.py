@@ -28,9 +28,12 @@ class InheritanceManagerTestParent(models.Model):
     # FileField is just a handy descriptor-using field. Refs #6.
     non_related_field_using_descriptor = models.FileField(upload_to="test")
     related = models.ForeignKey(
-        InheritanceManagerTestRelated, related_name="imtests", null=True)
+        InheritanceManagerTestRelated, related_name="imtests", null=True,
+        on_delete=models.CASCADE)
     normal_field = models.TextField()
-    related_self = models.OneToOneField("self", related_name="imtests_self", null=True)
+    related_self = models.OneToOneField(
+        "self", related_name="imtests_self", null=True,
+        on_delete=models.CASCADE)
     objects = InheritanceManager()
 
     def __unicode__(self):
@@ -65,7 +68,7 @@ class InheritanceManagerTestChild2(InheritanceManagerTestParent):
 class InheritanceManagerTestChild3(InheritanceManagerTestParent):
     parent_ptr = models.OneToOneField(
         InheritanceManagerTestParent, related_name='manual_onetoone',
-        parent_link=True)
+        parent_link=True, on_delete=models.CASCADE)
 
 
 class TimeStamp(TimeStampedModel):
@@ -219,7 +222,7 @@ class Tracked(models.Model):
 
 
 class TrackedFK(models.Model):
-    fk = models.ForeignKey('Tracked')
+    fk = models.ForeignKey('Tracked', on_delete=models.CASCADE)
 
     tracker = FieldTracker()
     custom_tracker = FieldTracker(fields=['fk_id'])
@@ -275,7 +278,7 @@ class ModelTracked(models.Model):
 
 
 class ModelTrackedFK(models.Model):
-    fk = models.ForeignKey('ModelTracked')
+    fk = models.ForeignKey('ModelTracked', on_delete=models.CASCADE)
 
     tracker = ModelTracker()
     custom_tracker = ModelTracker(fields=['fk_id'])

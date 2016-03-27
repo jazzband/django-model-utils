@@ -228,7 +228,7 @@ class SplitField(models.TextField):
         return value.content
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         return value.content
 
     def get_prep_value(self, value):

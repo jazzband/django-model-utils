@@ -139,10 +139,10 @@ class InheritanceQuerySetMixin(object):
         if levels:
             levels -= 1
         while parent_link is not None:
-            if django.VERSION < (1, 8):
-                related = parent_link.related
-            else:
+            if django.VERSION < (1, 9):
                 related = parent_link.rel
+            else:
+                related = parent_link.remote_field
             ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 if django.VERSION < (1, 8):
