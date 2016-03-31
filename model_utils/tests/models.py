@@ -246,6 +246,11 @@ class InheritedTracked(Tracked):
     name2 = models.CharField(max_length=20)
 
 
+class InheritedTrackedFK(TrackedFK):
+    custom_tracker = FieldTracker(fields=['fk_id'])
+    custom_tracker_without_id = FieldTracker(fields=['fk'])
+
+
 class ModelTracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()

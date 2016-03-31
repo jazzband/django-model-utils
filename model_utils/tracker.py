@@ -101,7 +101,7 @@ class FieldTracker(object):
     def get_field_map(self, cls):
         """Returns dict mapping fields names to model attribute names"""
         field_map = dict((field, field) for field in self.fields)
-        all_fields = dict((f.name, f.attname) for f in cls._meta.local_fields)
+        all_fields = dict((f.name, f.attname) for f in cls._meta.fields)
         field_map.update(**dict((k, v) for (k, v) in all_fields.items()
                                 if k in field_map))
         return field_map
@@ -113,7 +113,7 @@ class FieldTracker(object):
 
     def finalize_class(self, sender, **kwargs):
         if self.fields is None:
-            self.fields = (field.attname for field in sender._meta.local_fields)
+            self.fields = (field.attname for field in sender._meta.fields)
         self.fields = set(self.fields)
         self.field_map = self.get_field_map(sender)
         models.signals.post_init.connect(self.initialize_tracker)
