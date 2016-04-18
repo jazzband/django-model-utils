@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.5 (2016-04-18)
+----------------
 
 * Drop support for Python 3.2.
 
