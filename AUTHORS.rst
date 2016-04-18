@@ -22,6 +22,7 @@ Jeff Elmore <jeffelmore.org>
 Keryn Knight <kerynknight.com>
 Matthew Schinckel <matt@schinckel.net>
 Michael van Tellingen <michaelvantellingen@gmail.com>
+Mike Bryant <mike@mikebryant.me.uk>
 Mikhail Silonov <silonov.pro>
 Patryk Zawadzki <patrys@room-303.com>
 Paul McLanahan <paul@mclanahan.net>

@@ -8,6 +8,9 @@ master (unreleased)
 
 * Add support for Django 1.10.
 
+* Track foreign keys on parent models properly when a tracker
+  is defined on a child model. Fixes GH-214.
+
 
 2.4 (2015-12-03)
 ----------------

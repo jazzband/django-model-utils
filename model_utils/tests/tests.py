@@ -26,7 +26,7 @@ from model_utils.tests.models import (
     StatusPlainTuple, TimeFrame, Monitored, MonitorWhen, MonitorWhenEmpty, StatusManagerAdded,
     TimeFrameManagerAdded, SplitFieldAbstractParent,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
-    Tracked, TrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
+    Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
     InheritanceManagerTestChild3, StatusFieldChoicesName)
 
@@ -1680,6 +1680,11 @@ class InheritedFieldTrackerTests(FieldTrackerTests):
         self.name2 = 'test'
         self.assertEqual(self.tracker.previous('name2'), None)
         self.assertRaises(FieldError, self.tracker.has_changed, 'name2')
+
+
+class FieldTrackerInheritedForeignKeyTests(FieldTrackerForeignKeyTests):
+
+    tracked_class = InheritedTrackedFK
 
 
 class ModelTrackerTests(FieldTrackerTests):
