@@ -161,6 +161,12 @@ class InheritanceQuerySetMixin(object):
 
     def _get_sub_obj_recurse(self, obj, s):
         rel, _, s = s.partition(LOOKUP_SEP)
+
+        # Django 1.9: If a primitive type gets passed to this recursive function,
+        # return None as non-models are not part of inheritance.
+        if not isinstance(obj, models.Model):
+            return None
+
         try:
             node = getattr(obj, rel)
         except ObjectDoesNotExist:

@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix `InheritanceQuerySet` raising an `AttributeError` exception
+  under Django 1.9.
+
 
 2.5 (2016-04-18)
 ----------------

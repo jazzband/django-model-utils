@@ -768,6 +768,54 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(list(queryset), [{'id': self.child1.pk}])
 
 
+    @skipUnless(django.VERSION >= (1, 9, 0), "test only applies to Django 1.9+")
+    def test_dj19_values_list_on_select_subclasses(self):
+        """
+        Using `select_subclasses` in conjunction with `values_list()` raised an
+        exception in `_get_sub_obj_recurse()` because the result of `values_list()`
+        is either a `tuple` or primitive objects if `flat=True` is specified,
+        because no type checking was done prior to fetching child nodes.
+
+        Django versions below 1.9 are not affected by this bug.
+        """
+
+        # Querysets are cast to lists to force immediate evaluation.
+        # No exceptions must be thrown.
+
+        # No argument to select_subclasses
+        objs_1 = list(
+            self.get_manager().
+            select_subclasses().
+            values_list('id')
+        )
+
+        # String argument to select_subclasses
+        objs_2 = list(
+            self.get_manager().
+            select_subclasses(
+                "inheritancemanagertestchild2"
+            ).
+            values_list('id')
+        )
+
+        # String argument to select_subclasses
+        objs_3 = list(
+            self.get_manager().
+            select_subclasses(
+                InheritanceManagerTestChild2
+            ).
+            values_list('id')
+        )
+
+        assert all((
+            isinstance(objs_1, list),
+            isinstance(objs_2, list),
+            isinstance(objs_3, list),
+        ))
+
+        assert objs_1 == objs_2 == objs_3
+
+
 class InheritanceManagerUsingModelsTests(TestCase):
 
     def setUp(self):
