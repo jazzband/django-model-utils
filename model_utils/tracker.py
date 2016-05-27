@@ -63,7 +63,7 @@ class FieldInstanceTracker(object):
 
     def init_deferred_fields(self):
         self.instance._deferred_fields = []
-        if not self.instance._deferred:
+        if hasattr(self.instance, '_deferred') and not self.instance._deferred:
             return
 
         class DeferredAttributeTracker(DeferredAttribute):
