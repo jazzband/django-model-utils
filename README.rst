@@ -24,7 +24,7 @@ This app is available on `PyPI`_.
 Getting Help
 ============
 
-Documentation for django-model-utils is available at https://django-model-utils.readthedocs.org/
+Documentation for django-model-utils is available at https://django-model-utils.readthedocs.io/
 
 
 Contributing
