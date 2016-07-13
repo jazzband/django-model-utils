@@ -153,7 +153,7 @@ Returns ``None`` when the model instance isn't saved yet.
 
 has_changed
 ~~~~~~~~~~~
-Returns ``True`` if the given field has changed since the last save:
+Returns ``True`` if the given field has changed since the last save. The ``has_changed`` method expects a single field:
 
 .. code-block:: pycon
 
