@@ -170,9 +170,9 @@ The ``has_changed`` method expects a single field. To check multiple fields:
 
     >>> a = Post.objects.create(title='First Post', description='First Description')
     >>> a.title = 'Welcome'
-    >>> any(a.tracker.has_changed(field) for field in ('title', 'description')):
+    >>> any(a.tracker.has_changed(field) for field in ('title', 'description'))
     True
-    >>> all(a.tracker.has_changed(field) for field in ('title', 'description')):
+    >>> all(a.tracker.has_changed(field) for field in ('title', 'description'))
     False
 
 The ``has_changed`` method relies on ``previous`` to determine whether a
