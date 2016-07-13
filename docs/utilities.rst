@@ -153,7 +153,7 @@ Returns ``None`` when the model instance isn't saved yet.
 
 has_changed
 ~~~~~~~~~~~
-Returns ``True`` if the given field has changed since the last save:
+Returns ``True`` if the given field has changed since the last save. The ``has_changed`` method expects a single field:
 
 .. code-block:: pycon
 
@@ -162,17 +162,6 @@ Returns ``True`` if the given field has changed since the last save:
     >>> a.tracker.has_changed('title')
     True
     >>> a.tracker.has_changed('body')
-    False
-
-The ``has_changed`` method expects a single field. To check multiple fields:
-
-.. code-block:: pycon
-
-    >>> a = Post.objects.create(title='First Post', description='First Description')
-    >>> a.title = 'Welcome'
-    >>> any(a.tracker.has_changed(field) for field in ('title', 'description'))
-    True
-    >>> all(a.tracker.has_changed(field) for field in ('title', 'description'))
     False
 
 The ``has_changed`` method relies on ``previous`` to determine whether a
