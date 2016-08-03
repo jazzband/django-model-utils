@@ -1,25 +1,28 @@
 CHANGES
 =======
 
-master (unreleased)
+2.5.1 (2016.08.03)
 -------------------
 
-* Fix `InheritanceQuerySet` raising an `AttributeError` exception
+* Fix `InheritanceQuerySet` raising an `AttributeError` exception
   under Django 1.9.
 
+* Django 1.10 support regressed with changes between pre-alpha and final
+  release; 1.10 currently not supported.
 
-2.5 (2016-04-18)
+
+2.5 (2016.04.18)
 ----------------
 
 * Drop support for Python 3.2.
 
-* Add support for Django 1.10.
+* Add support for Django 1.10 pre-alpha.
 
 * Track foreign keys on parent models properly when a tracker
   is defined on a child model. Fixes GH-214.
 
 
-2.4 (2015-12-03)
+2.4 (2015.12.03)
 ----------------
 
 * Remove `PassThroughManager`. Use Django's built-in `QuerySet.as_manager()`
