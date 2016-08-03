@@ -1,8 +1,12 @@
 CHANGES
 =======
 
-2.5.1 (2016.08.03)
+master (unreleased)
 -------------------
+
+
+2.5.1 (2016.08.03)
+------------------
 
 * Fix `InheritanceQuerySet` raising an `AttributeError` exception
   under Django 1.9.
