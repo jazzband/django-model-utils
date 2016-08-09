@@ -1,8 +1,10 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.5.2 (2016.08.09)
+------------------
+
+* Include `runtests.py` in sdist.
 
 
 2.5.1 (2016.08.03)
