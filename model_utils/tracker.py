@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 from copy import deepcopy
 
-from django.db import models
+import django
 from django.core.exceptions import FieldError
+from django.db import models
 from django.db.models.query_utils import DeferredAttribute
 
 
@@ -62,7 +63,7 @@ class FieldInstanceTracker(object):
         )
 
     def init_deferred_fields(self):
-        self.instance._deferred_fields = []
+        self.instance._deferred_fields = set()
         if hasattr(self.instance, '_deferred') and not self.instance._deferred:
             return
 
@@ -76,19 +77,38 @@ class FieldInstanceTracker(object):
                     self.saved_data[field.field_name] = deepcopy(value)
                 return data[field.field_name]
 
-        for field in self.fields:
-            field_obj = self.instance.__class__.__dict__.get(field)
-            if isinstance(field_obj, DeferredAttribute):
-                self.instance._deferred_fields.append(field)
-
-                # Django 1.4
-                model = None
-                if hasattr(field_obj, 'model_ref'):
-                    model = field_obj.model_ref()
-
+        if django.VERSION >= (1, 8):
+            self.instance._deferred_fields = self.instance.get_deferred_fields()
+            for field in self.instance._deferred_fields:
+                if django.VERSION >= (1, 10):
+                    # Seems like a dj110 bug; have to consult the __dict__ of each
+                    # parent class to find the desired field.
+                    # TODO: Check if parents are being traversed in the correct order.
+                    combined_dict = {}
+                    for klass in self.instance.__class__._meta.get_parent_list():
+                        combined_dict.update(klass.__dict__)
+                    combined_dict.update(self.instance.__class__.__dict__)
+                    field_obj = combined_dict.get(field)
+                else:
+                    field_obj = self.instance.__class__.__dict__.get(field)
                 field_tracker = DeferredAttributeTracker(
-                    field_obj.field_name, model)
+                    field_obj.field_name, None)
                 setattr(self.instance.__class__, field, field_tracker)
+        else:
+            for field in self.fields:
+                field_obj = self.instance.__class__.__dict__.get(field)
+                if isinstance(field_obj, DeferredAttribute):
+                    self.instance._deferred_fields.add(field)
+
+                    # Django 1.4
+                    if django.VERSION >= (1, 5):
+                        model = None
+                    else:
+                        model = field_obj.model_ref()
+
+                    field_tracker = DeferredAttributeTracker(
+                        field_obj.field_name, model)
+                    setattr(self.instance.__class__, field, field_tracker)
 
 
 class FieldTracker(object):
