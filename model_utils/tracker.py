@@ -69,6 +69,8 @@ class FieldInstanceTracker(object):
 
         class DeferredAttributeTracker(DeferredAttribute):
             def __get__(field, instance, owner):
+                if instance is None:
+                    return field
                 data = instance.__dict__
                 if data.get(field.field_name, field) is field:
                     instance._deferred_fields.remove(field.field_name)
@@ -81,14 +83,7 @@ class FieldInstanceTracker(object):
             self.instance._deferred_fields = self.instance.get_deferred_fields()
             for field in self.instance._deferred_fields:
                 if django.VERSION >= (1, 10):
-                    # Seems like a dj110 bug; have to consult the __dict__ of each
-                    # parent class to find the desired field.
-                    # TODO: Check if parents are being traversed in the correct order.
-                    combined_dict = {}
-                    for klass in self.instance.__class__._meta.get_parent_list():
-                        combined_dict.update(klass.__dict__)
-                    combined_dict.update(self.instance.__class__.__dict__)
-                    field_obj = combined_dict.get(field)
+                    field_obj = getattr(self.instance.__class__, field)
                 else:
                     field_obj = self.instance.__class__.__dict__.get(field)
                 field_tracker = DeferredAttributeTracker(
