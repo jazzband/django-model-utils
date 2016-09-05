@@ -242,6 +242,12 @@ class TrackedMultiple(models.Model):
     number_tracker = FieldTracker(fields=['number'])
 
 
+class TrackedFileField(models.Model):
+    some_file = models.FileField(upload_to='test_location')
+
+    tracker = FieldTracker()
+
+
 class InheritedTracked(Tracked):
     name2 = models.CharField(max_length=20)
 
@@ -280,6 +286,7 @@ class ModelTrackedMultiple(models.Model):
 
     name_tracker = ModelTracker(fields=['name'])
     number_tracker = ModelTracker(fields=['number'])
+
 
 class InheritedModelTracked(ModelTracked):
     name2 = models.CharField(max_length=20)

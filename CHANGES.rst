@@ -4,6 +4,8 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix issue with field tracker and deferred FileField for Django 1.10.
+
 
 2.5.2 (2016.08.09)
 ------------------

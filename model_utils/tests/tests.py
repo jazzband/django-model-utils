@@ -27,7 +27,7 @@ from model_utils.tests.models import (
     TimeFrameManagerAdded, SplitFieldAbstractParent,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
+    InheritedTracked, TrackedFileField, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
     InheritanceManagerTestChild3, StatusFieldChoicesName)
 
 
@@ -1733,6 +1733,110 @@ class InheritedFieldTrackerTests(FieldTrackerTests):
 class FieldTrackerInheritedForeignKeyTests(FieldTrackerForeignKeyTests):
 
     tracked_class = InheritedTrackedFK
+
+
+class FieldTrackerFileFieldTests(FieldTrackerTestCase):
+
+    tracked_class = TrackedFileField
+
+    def setUp(self):
+        self.instance = self.tracked_class()
+        self.tracker = self.instance.tracker
+        self.some_file = 'something.txt'
+        self.another_file = 'another.txt'
+
+    def test_pre_save_changed(self):
+        self.assertChanged(some_file=None)
+        self.instance.some_file = self.some_file
+        self.assertChanged(some_file=None)
+
+    def test_pre_save_has_changed(self):
+        self.assertHasChanged(some_file=True)
+        self.instance.some_file = self.some_file
+        self.assertHasChanged(some_file=True)
+
+    def test_pre_save_previous(self):
+        self.assertPrevious(some_file=None)
+        self.instance.some_file = self.some_file
+        self.assertPrevious(some_file=None)
+
+    def test_post_save_changed(self):
+        self.update_instance(some_file=self.some_file)
+        self.assertChanged()
+        previous_file = self.instance.some_file
+        self.instance.some_file = self.another_file
+        self.assertChanged(some_file=previous_file)
+        # test deferred file field
+        deferred_instance = self.tracked_class.objects.defer('some_file')[0]
+        deferred_instance.some_file  # access field to fetch from database
+        self.assertChanged(tracker=deferred_instance.tracker)
+
+        previous_file = deferred_instance.some_file
+        deferred_instance.some_file = self.another_file
+        self.assertChanged(
+            tracker=deferred_instance.tracker,
+            some_file=previous_file,
+        )
+
+    def test_post_save_has_changed(self):
+        self.update_instance(some_file=self.some_file)
+        self.assertHasChanged(some_file=False)
+        self.instance.some_file = self.another_file
+        self.assertHasChanged(some_file=True)
+
+        # test deferred file field
+        deferred_instance = self.tracked_class.objects.defer('some_file')[0]
+        deferred_instance.some_file  # access field to fetch from database
+        self.assertHasChanged(
+            tracker=deferred_instance.tracker,
+            some_file=False,
+        )
+
+        deferred_instance.some_file = self.another_file
+        self.assertHasChanged(
+            tracker=deferred_instance.tracker,
+            some_file=True,
+        )
+
+    def test_post_save_previous(self):
+        self.update_instance(some_file=self.some_file)
+        previous_file = self.instance.some_file
+        self.instance.some_file = self.another_file
+        self.assertPrevious(some_file=previous_file)
+
+        # test deferred file field
+        deferred_instance = self.tracked_class.objects.defer('some_file')[0]
+        deferred_instance.some_file  # access field to fetch from database
+        self.assertPrevious(
+            tracker=deferred_instance.tracker,
+            some_file=previous_file,
+        )
+
+        deferred_instance.some_file = self.another_file
+        self.assertPrevious(
+            tracker=deferred_instance.tracker,
+            some_file=previous_file,
+        )
+
+    def test_current(self):
+        self.assertCurrent(some_file=self.instance.some_file, id=None)
+        self.instance.some_file = self.some_file
+        self.assertCurrent(some_file=self.instance.some_file, id=None)
+
+        # test deferred file field
+        self.instance.save()
+        deferred_instance = self.tracked_class.objects.defer('some_file')[0]
+        deferred_instance.some_file  # access field to fetch from database
+        self.assertCurrent(
+            some_file=self.instance.some_file,
+            id=self.instance.id,
+        )
+
+        self.instance.some_file = self.another_file
+        self.assertCurrent(
+            some_file=self.instance.some_file,
+            id=self.instance.id,
+        )
 
 
 class ModelTrackerTests(FieldTrackerTests):
