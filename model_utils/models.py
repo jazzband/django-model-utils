@@ -10,7 +10,7 @@ if django.VERSION >= (1, 9, 0):
 else:
     from django.utils.timezone import now
 
-from model_utils.managers import QueryManager
+from model_utils.managers import QueryManager, SoftDeletableManager
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
     StatusField, MonitorField
 
@@ -99,3 +99,25 @@ models.signals.class_prepared.connect(add_timeframed_query_manager)
 
 def _field_exists(model_class, field_name):
     return field_name in [f.attname for f in model_class._meta.local_fields]
+
+
+class SoftDeletableModel(models.Model):
+    """
+    An abstract base class model with a ``is_removed`` field that
+    marks entries that are not going to be used anymore, but are
+    kept in db for any reason.
+    Default manager returns only not-removed entries.
+    """
+    is_removed = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+    objects = SoftDeletableManager()
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        Soft delete object (set its ``is_removed`` field to True)
+        """
+        self.is_removed = True
+        self.save()

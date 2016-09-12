@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Added `SoftDeletableModel` abstract class, its manageer
+  `SoftDeletableManager` and queryset `SoftDeletableQuerySet`.
+
 * Fix issue with field tracker and deferred FileField for Django 1.10.
 
 

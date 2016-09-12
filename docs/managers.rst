@@ -132,6 +132,14 @@ PassThroughManager
 built-in `QuerySet.as_manager()` and/or `Manager.from_queryset()` utilities
 instead.
 
+
+SoftDeletableManager
+--------------------
+
+Returns only model instances that have the ``is_removed`` field set
+to False. Uses ``SoftDeletableQuerySet``, which ensures model instances
+won't be removed in bulk, but they will be marked as removed instead.
+
 Mixins
 ------
 
