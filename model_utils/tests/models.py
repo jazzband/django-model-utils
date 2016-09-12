@@ -4,7 +4,12 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from model_utils.models import TimeStampedModel, StatusModel, TimeFramedModel
+from model_utils.models import (
+    SoftDeletableModel,
+    StatusModel,
+    TimeFramedModel,
+    TimeStampedModel,
+)
 from model_utils.tracker import FieldTracker, ModelTracker
 from model_utils.managers import QueryManager, InheritanceManager
 from model_utils.fields import SplitField, MonitorField, StatusField
@@ -305,3 +310,13 @@ class StatusFieldDefaultNotFilled(models.Model):
 class StatusFieldChoicesName(models.Model):
     NAMED_STATUS = Choices((0, "no", "No"), (1, "yes", "Yes"))
     status = StatusField(choices_name='NAMED_STATUS')
+
+
+class SoftDeletable(SoftDeletableModel):
+    """
+    Test model with additional manager for full access to model
+    instances.
+    """
+    name = models.CharField(max_length=20)
+
+    all_objects = models.Manager()

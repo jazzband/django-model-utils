@@ -40,3 +40,4 @@ Travis Swicegood <travis@domain51.com>
 Trey Hunner <trey@treyhunner.com>
 Karl Wan Nan Wo <karl.wnw@gmail.com>
 zyegfryed
+Radosław Jan Ganczarek <radoslaw@ganczarek.in>

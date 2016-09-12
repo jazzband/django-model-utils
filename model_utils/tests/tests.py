@@ -28,7 +28,8 @@ from model_utils.tests.models import (
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, TrackedFileField, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    InheritanceManagerTestChild3, StatusFieldChoicesName)
+    InheritanceManagerTestChild3, StatusFieldChoicesName,
+    SoftDeletable)
 
 
 class MigrationsTests(TestCase):
@@ -1975,3 +1976,31 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.name2 = 'test'
         self.assertEqual(self.tracker.previous('name2'), None)
         self.assertTrue(self.tracker.has_changed('name2'))
+
+
+class SoftDeletableModelTests(TestCase):
+
+    def test_can_only_see_not_removed_entries(self):
+        SoftDeletable.objects.create(name='a', is_removed=True)
+        SoftDeletable.objects.create(name='b', is_removed=False)
+
+        queryset = SoftDeletable.objects.all()
+
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset[0].name, 'b')
+
+    def test_instance_cannot_be_fully_deleted(self):
+        instance = SoftDeletable.objects.create(name='a')
+
+        instance.delete()
+
+        self.assertEqual(SoftDeletable.objects.count(), 0)
+        self.assertEqual(SoftDeletable.all_objects.count(), 1)
+
+    def test_instance_cannot_be_fully_deleted_via_queryset(self):
+        SoftDeletable.objects.create(name='a')
+
+        SoftDeletable.objects.all().delete()
+
+        self.assertEqual(SoftDeletable.objects.count(), 0)
+        self.assertEqual(SoftDeletable.all_objects.count(), 1)
