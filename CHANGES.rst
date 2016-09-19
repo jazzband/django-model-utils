@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.6 (2016.09.19)
+----------------
 
 * Added `SoftDeletableModel` abstract class, its manageer
   `SoftDeletableManager` and queryset `SoftDeletableQuerySet`.
