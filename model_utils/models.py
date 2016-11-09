@@ -120,4 +120,4 @@ class SoftDeletableModel(models.Model):
         Soft delete object (set its ``is_removed`` field to True)
         """
         self.is_removed = True
-        self.save()
+        self.save(using=using)

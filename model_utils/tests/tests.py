@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+
 try:
     from unittest import skipUnless
 except ImportError: # Python 2.6
@@ -9,6 +10,7 @@ except ImportError: # Python 2.6
 import django
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
+from django.db.utils import ConnectionDoesNotExist
 from django.utils.six import text_type
 from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.core.management import call_command
@@ -2004,3 +2006,8 @@ class SoftDeletableModelTests(TestCase):
 
         self.assertEqual(SoftDeletable.objects.count(), 0)
         self.assertEqual(SoftDeletable.all_objects.count(), 1)
+
+    def test_delete_instance_no_connection(self):
+        obj = SoftDeletable.objects.create(name='a')
+
+        self.assertRaises(ConnectionDoesNotExist, obj.delete, using='other')
