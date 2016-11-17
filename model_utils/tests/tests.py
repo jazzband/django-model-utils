@@ -2011,3 +2011,16 @@ class SoftDeletableModelTests(TestCase):
         obj = SoftDeletable.objects.create(name='a')
 
         self.assertRaises(ConnectionDoesNotExist, obj.delete, using='other')
+
+    def test_instance_purge(self):
+        instance = SoftDeletable.objects.create(name='a')
+
+        instance.purge_from_db()
+
+        self.assertEqual(SoftDeletable.objects.count(), 0)
+        self.assertEqual(SoftDeletable.all_objects.count(), 0)
+
+    def test_instance_purge_no_connection(self):
+        instance = SoftDeletable.objects.create(name='a')
+
+        self.assertRaises(ConnectionDoesNotExist, instance.purge_from_db, using='other')

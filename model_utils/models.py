@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
 import django
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ImproperlyConfigured
 if django.VERSION >= (1, 9, 0):
     from django.db.models.functions import Now
     now = Now()
@@ -121,3 +121,13 @@ class SoftDeletableModel(models.Model):
         """
         self.is_removed = True
         self.save(using=using)
+
+    def purge_from_db(self, using=None, keep_parents=False):
+        """
+        Actually purge the entry from the database
+        """
+        del_kwargs = {'using': using}
+        # keep_parents option is new in Django 1.9
+        if django.VERSION >= (1, 9, 0):
+            del_kwargs['keep_parents'] = keep_parents
+        super(SoftDeletableModel, self).delete(**del_kwargs)
