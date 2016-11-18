@@ -114,7 +114,7 @@ class MonitorField(models.DateTimeField):
             # Fix related to issue #241 to avoid recursive error on double monitor fields
             return
         setattr(instance, self.monitor_attname,
-            self.get_monitored_value(instance))
+                self.get_monitored_value(instance))
 
     def pre_save(self, model_instance, add):
         value = now()
