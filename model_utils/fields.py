@@ -110,8 +110,11 @@ class MonitorField(models.DateTimeField):
         return getattr(instance, self.monitor)
 
     def _save_initial(self, sender, instance, **kwargs):
+        if self.monitor in instance.get_deferred_fields():
+            # Fix related to issue #241 to avoid recursive error on double monitor fields
+            return
         setattr(instance, self.monitor_attname,
-                self.get_monitored_value(instance))
+            self.get_monitored_value(instance))
 
     def pre_save(self, model_instance, add):
         value = now()
