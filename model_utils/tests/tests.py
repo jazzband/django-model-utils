@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
 
+from freezegun import freeze_time
+
 try:
     from unittest import skipUnless
 except ImportError: # Python 2.6
@@ -260,6 +262,13 @@ class MonitorDoubleFieldTests(TestCase):
     def test_recursion_error_with_defer(self):
         # Only monitored fields passed to defer() are failing
         list(DoubleMonitored.objects.defer('name'))
+
+    def test_monitor_still_works_with_deferred_fields_filtered_out_of_save_initial(self):
+        obj = DoubleMonitored.objects.defer('name').get(name='Charlie')
+        with freeze_time("2016-12-01"):
+            obj.name = 'Charlie2'
+            obj.save()
+        self.assertEqual(obj.name_changed, datetime(2016, 12, 1))
 
 
 class StatusFieldTests(TestCase):
