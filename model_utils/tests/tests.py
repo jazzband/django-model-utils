@@ -7,6 +7,8 @@ try:
 except ImportError: # Python 2.6
     from django.utils.unittest import skipUnless
 
+from freezegun import freeze_time
+
 import django
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
@@ -152,8 +154,9 @@ class SplitFieldTests(TestCase):
 
 class MonitorFieldTests(TestCase):
     def setUp(self):
-        self.instance = Monitored(name='Charlie')
-        self.created = self.instance.name_changed
+        with freeze_time(datetime(2016, 1, 1, 10, 0, 0)):
+            self.instance = Monitored(name='Charlie')
+            self.created = self.instance.name_changed
 
 
     def test_save_no_change(self):
@@ -162,9 +165,10 @@ class MonitorFieldTests(TestCase):
 
 
     def test_save_changed(self):
-        self.instance.name = 'Maria'
-        self.instance.save()
-        self.assertTrue(self.instance.name_changed > self.created)
+        with freeze_time(datetime(2016, 1, 1, 12, 0, 0)):
+            self.instance.name = 'Maria'
+            self.instance.save()
+        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0))
 
 
     def test_double_save(self):
@@ -186,8 +190,9 @@ class MonitorWhenFieldTests(TestCase):
     Will record changes only when name is 'Jose' or 'Maria'
     """
     def setUp(self):
-        self.instance = MonitorWhen(name='Charlie')
-        self.created = self.instance.name_changed
+        with freeze_time(datetime(2016, 1, 1, 10, 0, 0)):
+            self.instance = MonitorWhen(name='Charlie')
+            self.created = self.instance.name_changed
 
 
     def test_save_no_change(self):
@@ -196,15 +201,17 @@ class MonitorWhenFieldTests(TestCase):
 
 
     def test_save_changed_to_Jose(self):
-        self.instance.name = 'Jose'
-        self.instance.save()
-        self.assertTrue(self.instance.name_changed > self.created)
+        with freeze_time(datetime(2016, 1, 1, 12, 0, 0)):
+            self.instance.name = 'Jose'
+            self.instance.save()
+        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0))
 
 
     def test_save_changed_to_Maria(self):
-        self.instance.name = 'Maria'
-        self.instance.save()
-        self.assertTrue(self.instance.name_changed > self.created)
+        with freeze_time(datetime(2016, 1, 1, 12, 0, 0)):
+            self.instance.name = 'Maria'
+            self.instance.save()
+        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0))
 
 
     def test_save_changed_to_Pedro(self):
@@ -1094,16 +1101,19 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
 
 class TimeStampedModelTests(TestCase):
     def test_created(self):
-        t1 = TimeStamp.objects.create()
-        t2 = TimeStamp.objects.create()
-        self.assertTrue(t2.created > t1.created)
+        with freeze_time(datetime(2016, 1, 1)):
+            t1 = TimeStamp.objects.create()
+        self.assertEqual(t1.created, datetime(2016, 1, 1))
 
 
     def test_modified(self):
-        t1 = TimeStamp.objects.create()
-        t2 = TimeStamp.objects.create()
-        t1.save()
-        self.assertTrue(t2.modified < t1.modified)
+        with freeze_time(datetime(2016, 1, 1)):
+            t1 = TimeStamp.objects.create()
+
+        with freeze_time(datetime(2016, 1, 2)):
+            t1.save()
+
+        self.assertEqual(t1.modified, datetime(2016, 1, 2))
 
 
 
@@ -1159,9 +1169,11 @@ class StatusModelTests(TestCase):
 
 
     def test_created(self):
-        c1 = self.model.objects.create()
+        with freeze_time(datetime(2016, 1, 1)):
+            c1 = self.model.objects.create()
+        self.assertTrue(c1.status_changed, datetime(2016, 1, 1))
+
         c2 = self.model.objects.create()
-        self.assertTrue(c2.status_changed > c1.status_changed)
         self.assertEqual(self.model.active.count(), 2)
         self.assertEqual(self.model.deleted.count(), 0)
 
