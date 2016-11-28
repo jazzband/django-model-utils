@@ -115,19 +115,13 @@ class SoftDeletableModel(models.Model):
 
     objects = SoftDeletableManager()
 
-    def delete(self, using=None, keep_parents=False):
+    def delete(self, using=None, soft=True, *args, **kwargs):
         """
-        Soft delete object (set its ``is_removed`` field to True)
+        Soft delete object (set its ``is_removed`` field to True).
+        Actually delete object if setting ``soft`` to False.
         """
-        self.is_removed = True
-        self.save(using=using)
-
-    def purge_from_db(self, using=None, keep_parents=False):
-        """
-        Actually purge the entry from the database
-        """
-        del_kwargs = {'using': using}
-        # keep_parents option is new in Django 1.9
-        if django.VERSION >= (1, 9, 0):
-            del_kwargs['keep_parents'] = keep_parents
-        super(SoftDeletableModel, self).delete(**del_kwargs)
+        if soft:
+            self.is_removed = True
+            self.save(using=using)
+        else:
+            return super(SoftDeletableModel, self).delete(using=using, *args, **kwargs)

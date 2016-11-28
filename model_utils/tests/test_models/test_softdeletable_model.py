@@ -40,7 +40,7 @@ class SoftDeletableModelTests(TestCase):
     def test_instance_purge(self):
         instance = SoftDeletable.objects.create(name='a')
 
-        instance.purge_from_db()
+        instance.delete(soft=False)
 
         self.assertEqual(SoftDeletable.objects.count(), 0)
         self.assertEqual(SoftDeletable.all_objects.count(), 0)
@@ -48,4 +48,5 @@ class SoftDeletableModelTests(TestCase):
     def test_instance_purge_no_connection(self):
         instance = SoftDeletable.objects.create(name='a')
 
-        self.assertRaises(ConnectionDoesNotExist, instance.purge_from_db, using='other')
+        self.assertRaises(ConnectionDoesNotExist, instance.delete,
+                          using='other', soft=False)
