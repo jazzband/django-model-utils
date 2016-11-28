@@ -105,6 +105,12 @@ class MonitorWhenEmpty(models.Model):
     name_changed = MonitorField(monitor="name", when=[])
 
 
+class DoubleMonitored(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name")
+    name2 = models.CharField(max_length=25)
+    name_changed2 = MonitorField(monitor="name2")
+
 
 class Status(StatusModel):
     STATUS = Choices(

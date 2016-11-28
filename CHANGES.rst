@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
+on Django 1.10+. Thanks Romain Garrigues. Merge of #242, fixes #241.
+
 
 2.6 (2016.09.19)
 ----------------

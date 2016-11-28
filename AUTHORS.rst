@@ -31,6 +31,7 @@ Paul McLanahan <paul@mclanahan.net>
 Philipp Steinhardt <steinhardt@myvision.de>
 Rinat Shigapov <rinatshigapov@gmail.com>
 Rodney Folz <rodney@rodneyfolz.com>
+Romain Garrigues <github.com/romgar>
 rsenkbeil <github.com/rsenkbeil>
 Ryan Kaskel <dev@ryankaskel.com>
 Simon Meers <simon@simonmeers.com>
