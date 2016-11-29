@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
 import django
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ImproperlyConfigured
 if django.VERSION >= (1, 9, 0):
     from django.db.models.functions import Now
     now = Now()
@@ -115,9 +115,13 @@ class SoftDeletableModel(models.Model):
 
     objects = SoftDeletableManager()
 
-    def delete(self, using=None, keep_parents=False):
+    def delete(self, using=None, soft=True, *args, **kwargs):
         """
-        Soft delete object (set its ``is_removed`` field to True)
+        Soft delete object (set its ``is_removed`` field to True).
+        Actually delete object if setting ``soft`` to False.
         """
-        self.is_removed = True
-        self.save(using=using)
+        if soft:
+            self.is_removed = True
+            self.save(using=using)
+        else:
+            return super(SoftDeletableModel, self).delete(using=using, *args, **kwargs)
