@@ -5,7 +5,11 @@ master (unreleased)
 -------------------
 
 * Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
-on Django 1.10+. Thanks Romain Garrigues. Merge of #242, fixes #241.
+  on Django 1.10+. Thanks Romain Garrigues. Merge of #242, fixes #241.
+* Fix issue #249 when extending `Manager` and `QuerySet` classes to add custom
+  methods.
+* Add mixins for `SoftDeletableQuerySet` and `SoftDeletableManager`, as stated
+  in the the documentation.
 
 
 2.6 (2016.09.19)
