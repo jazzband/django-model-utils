@@ -247,7 +247,7 @@ class QueryManager(QueryManagerMixin, models.Manager):
     pass
 
 
-class SoftDeletableQuerySet(QuerySet):
+class SoftDeletableQuerySetMixin(object):
     """
     QuerySet for SoftDeletableModel. Instead of removing instance sets
     its ``is_removed`` field to True.
@@ -261,7 +261,11 @@ class SoftDeletableQuerySet(QuerySet):
         self.update(is_removed=True)
 
 
-class SoftDeletableManager(models.Manager):
+class SoftDeletableQuerySet(SoftDeletableQuerySetMixin, QuerySet):
+    pass
+
+
+class SoftDeletableManagerMixin(object):
     """
     Manager that limits the queryset by default to show only not removed
     instances of model.
@@ -280,3 +284,7 @@ class SoftDeletableManager(models.Manager):
         return self._queryset_class(**kwargs).filter(is_removed=False)
 
     get_query_set = get_queryset
+
+
+class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):
+    pass
