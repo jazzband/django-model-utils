@@ -6,7 +6,7 @@ master (unreleased)
 
 * Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
   on Django 1.10+. Thanks Romain Garrigues. Merge of GH-242, fixes GH-241.
-* Fix `InheritanceManager` and `SoftDeletableManager` to respect `
+* Fix `InheritanceManager` and `SoftDeletableManager` to respect
   `self._queryset_class` instead of hardcoding the queryset class. Merge of
   GH-250, fixes GH-249.
 * Add mixins for `SoftDeletableQuerySet` and `SoftDeletableManager`, as stated
