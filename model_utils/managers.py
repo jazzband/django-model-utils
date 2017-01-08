@@ -192,11 +192,16 @@ class InheritanceQuerySetMixin(object):
         return levels
 
 
+class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
+    pass
+
+
 class InheritanceManagerMixin(object):
     use_for_related_fields = True
+    _queryset_class = InheritanceQuerySet
 
     def get_queryset(self):
-        return InheritanceQuerySet(self.model)
+        return self._queryset_class(self.model)
 
     get_query_set = get_queryset
 
@@ -205,10 +210,6 @@ class InheritanceManagerMixin(object):
 
     def get_subclass(self, *args, **kwargs):
         return self.get_queryset().get_subclass(*args, **kwargs)
-
-
-class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
-    pass
 
 
 class InheritanceManager(InheritanceManagerMixin, models.Manager):
@@ -246,7 +247,7 @@ class QueryManager(QueryManagerMixin, models.Manager):
     pass
 
 
-class SoftDeletableQuerySet(QuerySet):
+class SoftDeletableQuerySetMixin(object):
     """
     QuerySet for SoftDeletableModel. Instead of removing instance sets
     its ``is_removed`` field to True.
@@ -260,7 +261,11 @@ class SoftDeletableQuerySet(QuerySet):
         self.update(is_removed=True)
 
 
-class SoftDeletableManager(models.Manager):
+class SoftDeletableQuerySet(SoftDeletableQuerySetMixin, QuerySet):
+    pass
+
+
+class SoftDeletableManagerMixin(object):
     """
     Manager that limits the queryset by default to show only not removed
     instances of model.
@@ -275,6 +280,10 @@ class SoftDeletableManager(models.Manager):
         if hasattr(self, '_hints'):
             kwargs['hints'] = self._hints
 
-        return SoftDeletableQuerySet(**kwargs).filter(is_removed=False)
+        return self._queryset_class(**kwargs).filter(is_removed=False)
 
     get_query_set = get_queryset
+
+
+class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):
+    pass

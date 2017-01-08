@@ -4,23 +4,22 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from model_utils import Choices
+from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.managers import QueryManager, InheritanceManager
 from model_utils.models import (
     SoftDeletableModel,
     StatusModel,
     TimeFramedModel,
     TimeStampedModel,
 )
-from model_utils.tracker import FieldTracker, ModelTracker
-from model_utils.managers import QueryManager, InheritanceManager
-from model_utils.fields import SplitField, MonitorField, StatusField
 from model_utils.tests.fields import MutableField
-from model_utils import Choices
-
+from model_utils.tests.managers import CustomSoftDeleteManager
+from model_utils.tracker import FieldTracker, ModelTracker
 
 
 class InheritanceManagerTestRelated(models.Model):
     pass
-
 
 
 @python_2_unicode_compatible
@@ -40,8 +39,7 @@ class InheritanceManagerTestParent(models.Model):
         return "%s(%s)" % (
             self.__class__.__name__[len('InheritanceManagerTest'):],
             self.pk,
-            )
-
+        )
 
 
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
@@ -50,21 +48,17 @@ class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     objects = InheritanceManager()
 
 
-
 class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
     text_field = models.TextField()
-
 
 
 class InheritanceManagerTestGrandChild1_2(InheritanceManagerTestChild1):
     text_field = models.TextField()
 
 
-
 class InheritanceManagerTestChild2(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
-
 
 
 class InheritanceManagerTestChild3(InheritanceManagerTestParent):
@@ -77,15 +71,12 @@ class TimeStamp(TimeStampedModel):
     pass
 
 
-
 class TimeFrame(TimeFramedModel):
     pass
 
 
-
 class TimeFrameManagerAdded(TimeFramedModel):
     pass
-
 
 
 class Monitored(models.Model):
@@ -93,11 +84,9 @@ class Monitored(models.Model):
     name_changed = MonitorField(monitor="name")
 
 
-
 class MonitorWhen(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name", when=["Jose", "Maria"])
-
 
 
 class MonitorWhenEmpty(models.Model):
@@ -120,7 +109,6 @@ class Status(StatusModel):
     )
 
 
-
 class StatusPlainTuple(StatusModel):
     STATUS = (
         ("active", _("active")),
@@ -129,14 +117,12 @@ class StatusPlainTuple(StatusModel):
     )
 
 
-
 class StatusManagerAdded(StatusModel):
     STATUS = (
         ("active", _("active")),
         ("deleted", _("deleted")),
         ("on_hold", _("on hold")),
     )
-
 
 
 class Post(models.Model):
@@ -154,20 +140,16 @@ class Post(models.Model):
         ordering = ("order",)
 
 
-
 class Article(models.Model):
     title = models.CharField(max_length=50)
     body = SplitField()
 
 
-
 class SplitFieldAbstractParent(models.Model):
     content = SplitField()
 
-
     class Meta:
         abstract = True
-
 
 
 class NoRendered(models.Model):
@@ -179,11 +161,9 @@ class NoRendered(models.Model):
     body = SplitField(no_excerpt_field=True)
 
 
-
 class AuthorMixin(object):
     def by_author(self, name):
         return self.filter(author=name)
-
 
 
 class PublishedMixin(object):
@@ -191,15 +171,12 @@ class PublishedMixin(object):
         return self.filter(published=True)
 
 
-
 def unpublished(self):
     return self.filter(published=False)
 
 
-
 class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
     pass
-
 
 
 class FeaturedManager(models.Manager):
@@ -326,3 +303,9 @@ class SoftDeletable(SoftDeletableModel):
     name = models.CharField(max_length=20)
 
     all_objects = models.Manager()
+
+
+class CustomSoftDelete(SoftDeletableModel):
+    is_read = models.BooleanField(default=False)
+
+    objects = CustomSoftDeleteManager()
