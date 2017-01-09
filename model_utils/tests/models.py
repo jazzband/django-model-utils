@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Manager
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -126,10 +126,8 @@ class StatusManagerAdded(StatusModel):
     )
 
 
-class StatusCustomQuerySet(QuerySet):
-    def active_or_deleted(self):
-        statuses = ['active', 'deleted']
-        return self.filter(status__in=statuses)
+class StatusCustomManager(Manager):
+    pass
 
 
 class AbstractStatusCustomManager(StatusModel):
@@ -138,7 +136,7 @@ class AbstractStatusCustomManager(StatusModel):
         ("second_choice", _("Second choice")),
     )
 
-    objects = StatusCustomQuerySet.as_manager()
+    objects = StatusCustomManager()
 
     class Meta:
         abstract = True
