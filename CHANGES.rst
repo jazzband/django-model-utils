@@ -11,6 +11,10 @@ master (unreleased)
   GH-250, fixes GH-249.
 * Add mixins for `SoftDeletableQuerySet` and `SoftDeletableManager`, as stated
   in the the documentation.
+* Fix `SoftDeletableModel.delete()` to use the correct database connection.
+  Merge of GH-239.
+* Added boolean keyword argument `soft` to `SoftDeletableModel.delete()` that
+  revert to default behavior when set to `False`. Merge of GH-240.
 
 
 2.6 (2016.09.19)
