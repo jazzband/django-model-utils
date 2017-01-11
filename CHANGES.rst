@@ -19,6 +19,7 @@ master (unreleased)
   when using abstract models that redefine `objects` manager. Merge of GH-253,
   fixes GH-251.
 
+
 2.6 (2016.09.19)
 ----------------
 
