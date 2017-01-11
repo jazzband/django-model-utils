@@ -64,6 +64,11 @@ def add_status_query_managers(sender, **kwargs):
     """
     if not issubclass(sender, StatusModel):
         return
+
+    if django.VERSION >= (1, 10):
+        # First, get current manager name...
+        default_manager = sender._meta.default_manager
+
     for value, display in getattr(sender, 'STATUS', ()):
         if _field_exists(sender, value):
             raise ImproperlyConfigured(
@@ -72,6 +77,10 @@ def add_status_query_managers(sender, **kwargs):
                 % (sender.__name__, value)
             )
         sender.add_to_class(value, QueryManager(status=value))
+
+    if django.VERSION >= (1, 10):
+        # ...then, put it back, as add_to_class is modifying the default manager!
+        sender._meta.default_manager_name = default_manager.name
 
 
 def add_timeframed_query_manager(sender, **kwargs):
