@@ -15,7 +15,9 @@ master (unreleased)
   Merge of GH-239.
 * Added boolean keyword argument `soft` to `SoftDeletableModel.delete()` that
   revert to default behavior when set to `False`. Merge of GH-240.
-
+* Enforced default manager in `StatusModel` to avoid manager order issues
+  when using abstract models that redefine `objects` manager. Merge of GH-253,
+  fixes GH-251.
 
 2.6 (2016.09.19)
 ----------------
