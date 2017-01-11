@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+2.6.1 (2017.01.11)
+------------------
 
 * Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
   on Django 1.10+. Thanks Romain Garrigues. Merge of GH-242, fixes GH-241.
