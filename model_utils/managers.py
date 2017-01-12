@@ -199,8 +199,6 @@ class InheritanceManagerMixin(object):
     def get_queryset(self):
         return self._queryset_class(self.model)
 
-    get_query_set = get_queryset
-
     def select_subclasses(self, *subclasses):
         return self.get_queryset().select_subclasses(*subclasses)
 
@@ -228,15 +226,10 @@ class QueryManagerMixin(object):
         return self
 
     def get_queryset(self):
-        try:
-            qs = super(QueryManagerMixin, self).get_queryset().filter(self._q)
-        except AttributeError:
-            qs = super(QueryManagerMixin, self).get_query_set().filter(self._q)
+        qs = super(QueryManagerMixin, self).get_queryset().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs
-
-    get_query_set = get_queryset
 
 
 class QueryManager(QueryManagerMixin, models.Manager):
@@ -277,8 +270,6 @@ class SoftDeletableManagerMixin(object):
             kwargs['hints'] = self._hints
 
         return self._queryset_class(**kwargs).filter(is_removed=False)
-
-    get_query_set = get_queryset
 
 
 class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):

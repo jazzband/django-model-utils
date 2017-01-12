@@ -210,8 +210,6 @@ class FeaturedManager(models.Manager):
             kwargs["using"] = self._db
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
-    get_query_set = get_queryset
-
 
 class Tracked(models.Model):
     name = models.CharField(max_length=20)
