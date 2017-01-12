@@ -5,12 +5,8 @@ from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
 
-try:
-    from django.db.models.constants import LOOKUP_SEP
-    from django.utils.six import string_types
-except ImportError:  # Django < 1.5
-    from django.db.models.sql.constants import LOOKUP_SEP
-    string_types = (basestring,)
+from django.db.models.constants import LOOKUP_SEP
+from django.utils.six import string_types
 
 
 class InheritanceQuerySetMixin(object):
@@ -143,10 +139,10 @@ class InheritanceQuerySetMixin(object):
         if levels:
             levels -= 1
         while parent_link is not None:
-            if django.VERSION < (1, 8):
-                related = parent_link.related
-            else:
+            if django.VERSION < (1, 9):
                 related = parent_link.rel
+            else:
+                related = parent_link.remote_field
             ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 if django.VERSION < (1, 8):
