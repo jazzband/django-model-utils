@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.db import models
+from django.db import models, transaction
 from django.template.defaultfilters import slugify
 from django.db import IntegrityError
 from django.utils.translation import ugettext_lazy as _
@@ -71,8 +71,9 @@ class TitleSlugModel(TitleModel):
         tries = self.SLUG_MAX_RETRIES
         while True:
             try:
-                super(TitleSlugModel, self).save(*args, **kwargs)
-                break
+                with transaction.atomic():
+                    super(TitleSlugModel, self).save(*args, **kwargs)
+                    break
             except IntegrityError, e:
                 if tries == 0:
                     raise
