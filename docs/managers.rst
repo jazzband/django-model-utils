@@ -117,15 +117,6 @@ set the ordering of the ``QuerySet`` returned by the ``QueryManager``
 by chaining a call to ``.order_by()`` on the ``QueryManager`` (this is
 not required).
 
-
-PassThroughManager
-------------------
-
-`PassThroughManager` was removed in django-model-utils 2.4. Use Django's
-built-in `QuerySet.as_manager()` and/or `Manager.from_queryset()` utilities
-instead.
-
-
 SoftDeletableManager
 --------------------
 
@@ -138,7 +129,7 @@ Mixins
 
 Each of the above manager classes has a corresponding mixin that can be used to
 add functionality to any manager. For example, to create a GeoDjango
-``GeoManager`` that includes "pass through" functionality, you can write the
+``GeoManager`` that includes "soft deletable" functionality, you can write the
 following code:
 
 .. code-block:: python
@@ -146,36 +137,24 @@ following code:
     from django.contrib.gis.db import models
     from django.contrib.gis.db.models.query import GeoQuerySet
 
-    from model_utils.managers import PassThroughManagerMixin
+    from model_utils.managers import SoftDeletableManagerMixin
 
-    class PassThroughGeoManager(PassThroughManagerMixin, models.GeoManager):
+    class SoftDeletableGeoManager(SoftDeletableManagerMixin, models.GeoManager):
         pass
 
-    class LocationQuerySet(GeoQuerySet):
-        def within_boundary(self, geom):
-            return self.filter(point__within=geom)
-
-        def public(self):
-            return self.filter(public=True)
-
-    class Location(models.Model):
-        point  = models.PointField()
+    class Location(SoftDeletableModel):
         public = models.BooleanField(default=True)
-        objects = PassThroughGeoManager.for_queryset_class(LocationQuerySet)()
+        objects = SoftDeletableGeoManager()
 
-    Location.objects.public()
-    Location.objects.within_boundary(geom=geom)
-    Location.objects.within_boundary(geom=geom).public()
+    # This delete will be a "soft" delete
+    Location.objects.delete()
 
 
-Now you have a "pass through manager" that can also take advantage of
+Now you have a "soft delete manager" that can also take advantage of
 GeoDjango's spatial lookups. You can similarly add additional functionality to
 any manager by composing that manager with ``InheritanceManagerMixin`` or
 ``QueryManagerMixin``.
 
 (Note that any manager class using ``InheritanceManagerMixin`` must return a
 ``QuerySet`` class using ``InheritanceQuerySetMixin`` from its ``get_queryset``
-method. This means that if composing ``InheritanceManagerMixin`` and
-``PassThroughManagerMixin``, the ``QuerySet`` class passed to
-``PassThroughManager.for_queryset_class`` must inherit
-``InheritanceQuerySetMixin``.)
+method.)
