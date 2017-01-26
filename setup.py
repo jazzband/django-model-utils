@@ -24,6 +24,7 @@ def get_version(root_path):
 setup(
     name='django-model-utils',
     version=get_version(HERE),
+    license="BSD",
     description='Django model mixins and utilities',
     long_description=long_description,
     author='Carl Meyer',
