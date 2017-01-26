@@ -128,33 +128,8 @@ Mixins
 ------
 
 Each of the above manager classes has a corresponding mixin that can be used to
-add functionality to any manager. For example, to create a GeoDjango
-``GeoManager`` that includes "soft deletable" functionality, you can write the
-following code:
+add functionality to any manager.
 
-.. code-block:: python
-
-    from django.contrib.gis.db import models
-    from django.contrib.gis.db.models.query import GeoQuerySet
-
-    from model_utils.managers import SoftDeletableManagerMixin
-
-    class SoftDeletableGeoManager(SoftDeletableManagerMixin, models.GeoManager):
-        pass
-
-    class Location(SoftDeletableModel):
-        public = models.BooleanField(default=True)
-        objects = SoftDeletableGeoManager()
-
-    # This delete will be a "soft" delete
-    Location.objects.delete()
-
-
-Now you have a "soft delete manager" that can also take advantage of
-GeoDjango's spatial lookups. You can similarly add additional functionality to
-any manager by composing that manager with ``InheritanceManagerMixin`` or
-``QueryManagerMixin``.
-
-(Note that any manager class using ``InheritanceManagerMixin`` must return a
+Note that any manager class using ``InheritanceManagerMixin`` must return a
 ``QuerySet`` class using ``InheritanceQuerySetMixin`` from its ``get_queryset``
-method.)
+method.
