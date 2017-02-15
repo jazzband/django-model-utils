@@ -7,7 +7,6 @@ env:
   - TOXENV=py27-django19
   - TOXENV=py27-django110
   - TOXENV=py27-django111
-  - TOXENV=py27-django_trunk
   - TOXENV=py33-django18
   - TOXENV=py34-django18
   - TOXENV=py34-django19
@@ -29,7 +28,6 @@ script:
 
 matrix:
   allow_failures:
-    - env: TOXENV=py27-django_trunk
     - env: TOXENV=py34-django_trunk
     - env: TOXENV=py35-django_trunk
     - env: TOXENV=py36-django111
