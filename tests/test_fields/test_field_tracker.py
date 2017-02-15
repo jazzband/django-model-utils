@@ -7,7 +7,7 @@ from django.core.exceptions import FieldError
 from django.test import TestCase
 
 from model_utils import FieldTracker
-from model_utils.tests.models import (
+from tests.models import (
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, TrackedFileField,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,

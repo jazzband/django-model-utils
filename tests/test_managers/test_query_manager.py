@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.test import TestCase
 
-from model_utils.tests.models import Post
+from tests.models import Post
 
 
 class QueryManagerTests(TestCase):

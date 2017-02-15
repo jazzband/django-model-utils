@@ -30,7 +30,7 @@ setup(
     author='Carl Meyer',
     author_email='carl@oddbird.net',
     url='https://github.com/carljm/django-model-utils/',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests*']),
     install_requires=['Django>=1.8'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -39,7 +39,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
@@ -49,7 +48,6 @@ setup(
     ],
     zip_safe=False,
     tests_require=['Django>=1.8'],
-    test_suite='runtests.runtests',
     package_data={
         'model_utils': [
             'locale/*/LC_MESSAGES/django.po','locale/*/LC_MESSAGES/django.mo'

@@ -6,7 +6,7 @@ import django
 from django.db import models
 from django.test import TestCase
 
-from model_utils.tests.models import (InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
+from tests.models import (InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
                                       InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
                                       InheritanceManagerTestChild1,
                                       InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3

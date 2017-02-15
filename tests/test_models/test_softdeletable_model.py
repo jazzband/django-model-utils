@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.db.utils import ConnectionDoesNotExist
 from django.test import TestCase
 
-from model_utils.tests.models import SoftDeletable
+from tests.models import SoftDeletable
 
 
 class SoftDeletableModelTests(TestCase):

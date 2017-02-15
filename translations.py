@@ -1,24 +1,22 @@
 #!/usr/bin/env python
-
 import os
 import sys
 
 from django.conf import settings
 import django
 
-
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
         'model_utils',
-        'model_utils.tests',
-        ),
+        'tests',
+    ),
     DATABASES={
         "default": {
             "ENGINE": "django.db.backends.sqlite3"
-            }
-        },
+        }
+    },
     SILENCED_SYSTEM_CHECKS=["1_7.W001"],
-    )
+)
 
 
 def run(command):

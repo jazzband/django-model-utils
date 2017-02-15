@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 from django.db import models
 from django.db.models import Manager
@@ -14,8 +14,8 @@ from model_utils.models import (
     TimeFramedModel,
     TimeStampedModel,
 )
-from model_utils.tests.fields import MutableField
-from model_utils.tests.managers import CustomSoftDeleteManager
+from tests.fields import MutableField
+from tests.managers import CustomSoftDeleteManager
 from model_utils.tracker import FieldTracker, ModelTracker
 
 

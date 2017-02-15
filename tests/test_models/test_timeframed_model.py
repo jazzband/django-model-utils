@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from model_utils.managers import QueryManager
 from model_utils.models import TimeFramedModel
-from model_utils.tests.models import TimeFrame, TimeFrameManagerAdded
+from tests.models import TimeFrame, TimeFrameManagerAdded
 
 
 class TimeFramedModelTests(TestCase):

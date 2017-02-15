@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from model_utils.managers import QueryManager
 from model_utils.models import StatusModel
-from model_utils.tests.models import StatusManagerAdded
+from tests.models import StatusManagerAdded
 
 
 class StatusManagerAddedTests(TestCase):
