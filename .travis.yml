@@ -30,9 +30,15 @@ matrix:
   include:
     - python: "3.6"
       env: TOXENV=py36-django111
+  exclude:
+    - python: "2.7"
+      env: TOXENV=py36-django111
   allow_failures:
     - env: TOXENV=py34-django_trunk
     - env: TOXENV=py35-django_trunk
+    - env: TOXENV=py27-django111
+    - env: TOXENV=py34-django111
+    - env: TOXENV=py35-django111
     - env: TOXENV=py36-django111
 
 after_success: coveralls
