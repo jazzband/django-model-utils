@@ -5,19 +5,18 @@ import os, sys
 from django.conf import settings
 import django
 
-
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
         'model_utils',
-        'model_utils.tests',
-        ),
+        'tests',
+    ),
     DATABASES={
         "default": {
             "ENGINE": "django.db.backends.sqlite3"
-            }
-        },
+        }
+    },
     SILENCED_SYSTEM_CHECKS=["1_7.W001"],
-    )
+)
 
 
 def runtests():
@@ -31,7 +30,7 @@ def runtests():
 
     from django.test.runner import DiscoverRunner
     runner_class = DiscoverRunner
-    test_args = ['model_utils.tests']
+    test_args = ['tests']
 
     failures = runner_class(
         verbosity=1, interactive=True, failfast=False).run_tests(test_args)

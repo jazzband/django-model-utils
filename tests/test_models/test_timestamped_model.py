@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 from django.test import TestCase
 
-from model_utils.tests.models import TimeStamp
+from tests.models import TimeStamp
 
 
 class TimeStampedModelTests(TestCase):

@@ -7,7 +7,7 @@ from freezegun import freeze_time
 from django.test import TestCase
 
 from model_utils.fields import MonitorField
-from model_utils.tests.models import Monitored, MonitorWhen, MonitorWhenEmpty, DoubleMonitored
+from tests.models import Monitored, MonitorWhen, MonitorWhenEmpty, DoubleMonitored
 
 
 class MonitorFieldTests(TestCase):

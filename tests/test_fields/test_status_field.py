@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.test import TestCase
 
 from model_utils.fields import StatusField
-from model_utils.tests.models import (
+from tests.models import (
     Article, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
     StatusFieldChoicesName,
     )

@@ -4,7 +4,7 @@ from freezegun import freeze_time
 
 from django.test.testcases import TestCase
 
-from model_utils.tests.models import Status, StatusPlainTuple, StatusCustomManager
+from tests.models import Status, StatusPlainTuple, StatusCustomManager
 
 
 class StatusModelTests(TestCase):

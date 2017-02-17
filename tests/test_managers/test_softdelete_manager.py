@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.test import TestCase
 
-from model_utils.tests.models import CustomSoftDelete
+from tests.models import CustomSoftDelete
 
 
 class CustomSoftDeleteManagerTests(TestCase):

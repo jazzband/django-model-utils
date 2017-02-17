@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.utils.six import text_type
 from django.test import TestCase
 
-from model_utils.tests.models import Article, SplitFieldAbstractParent
+from tests.models import Article, SplitFieldAbstractParent
 
 
 class SplitFieldTests(TestCase):
