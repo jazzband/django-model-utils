@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-master (unreleased)
--------------------
+3.0.0 (2017.04.13)
+------------------
 
 * Drop support for Python 2.6.
 * Drop support for Django 1.4, 1.5, 1.6, 1.7.
