@@ -7,6 +7,7 @@ master (unreleased)
 * Drop support for Python 2.6.
 * Drop support for Django 1.4, 1.5, 1.6, 1.7.
 * Exclude tests from the distribution, fixes GH-258.
+* Add support for Django 1.11 GH-269
 
 
 2.6.1 (2017.01.11)

@@ -3,13 +3,54 @@ import django
 from django.db import models
 from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
+try:
+    from django.db.models.query import BaseIterable, ModelIterable
+except ImportError:
+    # Django 1.8 does not have iterable classes
+    BaseIterable = object
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.constants import LOOKUP_SEP
 from django.utils.six import string_types
 
 
+class InheritanceIterable(BaseIterable):
+    def __iter__(self):
+        queryset = self.queryset
+        iter = ModelIterable(queryset)
+        if getattr(queryset, 'subclasses', False):
+            extras = tuple(queryset.query.extra.keys())
+            # sort the subclass names longest first,
+            # so with 'a' and 'a__b' it goes as deep as possible
+            subclasses = sorted(queryset.subclasses, key=len, reverse=True)
+            for obj in iter:
+                sub_obj = None
+                for s in subclasses:
+                    sub_obj = queryset._get_sub_obj_recurse(obj, s)
+                    if sub_obj:
+                        break
+                if not sub_obj:
+                    sub_obj = obj
+
+                if getattr(queryset, '_annotated', False):
+                    for k in queryset._annotated:
+                        setattr(sub_obj, k, getattr(obj, k))
+
+                for k in extras:
+                    setattr(sub_obj, k, getattr(obj, k))
+
+                yield sub_obj
+        else:
+            for obj in iter:
+                yield obj
+
+
 class InheritanceQuerySetMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(InheritanceQuerySetMixin, self).__init__(*args, **kwargs)
+        if django.VERSION > (1, 8):
+            self._iterable_class = InheritanceIterable
+
     def select_subclasses(self, *subclasses):
         levels = self._get_maximum_depth()
         calculated_subclasses = self._get_subclasses_recurse(
@@ -64,6 +105,7 @@ class InheritanceQuerySetMixin(object):
         return qset
 
     def iterator(self):
+        # Maintained for Django 1.8 compatability
         iter = super(InheritanceQuerySetMixin, self).iterator()
         if getattr(self, 'subclasses', False):
             extras = tuple(self.query.extra.keys())
