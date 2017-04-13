@@ -6,16 +6,19 @@ env:
   - TOXENV=py27-django18
   - TOXENV=py27-django19
   - TOXENV=py27-django110
-  - TOXENV=py27-django_trunk
+  - TOXENV=py27-django111
   - TOXENV=py33-django18
   - TOXENV=py34-django18
   - TOXENV=py34-django19
   - TOXENV=py34-django110
-  - TOXENV=py34-django_trunk
+  - TOXENV=py34-django111
   - TOXENV=py35-django18
   - TOXENV=py35-django19
   - TOXENV=py35-django110
+  - TOXENV=py35-django111
   - TOXENV=py35-django_trunk
+  - TOXENV=py36-django111
+  - TOXENV=py36-django_trunk
 
 install:
   - pip install --upgrade pip setuptools tox virtualenv coveralls
@@ -25,8 +28,7 @@ script:
 
 matrix:
   allow_failures:
-    - env: TOXENV=py27-django_trunk
-    - env: TOXENV=py34-django_trunk
     - env: TOXENV=py35-django_trunk
+    - env: TOXENV=py36-django_trunk
 
 after_success: coveralls
