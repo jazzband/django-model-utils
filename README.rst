@@ -2,6 +2,9 @@
 django-model-utils
 ==================
 
+.. image:: https://jazzband.co/static/img/badge.svg
+   :target: https://jazzband.co/
+   :alt: Jazzband
 .. image:: https://secure.travis-ci.org/jazzband/django-model-utils.png?branch=master
    :target: http://travis-ci.org/jazzband/django-model-utils
 .. image:: https://coveralls.io/repos/jazzband/django-model-utils/badge.png?branch=master
