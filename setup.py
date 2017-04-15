@@ -29,7 +29,8 @@ setup(
     long_description=long_description,
     author='Carl Meyer',
     author_email='carl@oddbird.net',
-    url='https://github.com/carljm/django-model-utils/',
+    maintainer='JazzBand',
+    url='https://github.com/jazzband/django-model-utils/',
     packages=find_packages(exclude=['tests*']),
     install_requires=['Django>=1.8'],
     classifiers=[

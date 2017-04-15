@@ -2,10 +2,10 @@
 django-model-utils
 ==================
 
-.. image:: https://secure.travis-ci.org/carljm/django-model-utils.png?branch=master
-   :target: http://travis-ci.org/carljm/django-model-utils
-.. image:: https://coveralls.io/repos/carljm/django-model-utils/badge.png?branch=master
-   :target: https://coveralls.io/r/carljm/django-model-utils
+.. image:: https://secure.travis-ci.org/jazzband/django-model-utils.png?branch=master
+   :target: http://travis-ci.org/jazzband/django-model-utils
+.. image:: https://coveralls.io/repos/jazzband/django-model-utils/badge.png?branch=master
+   :target: https://coveralls.io/r/jazzband/django-model-utils
 .. image:: https://img.shields.io/pypi/v/django-model-utils.svg
    :target: https://crate.io/packages/django-model-utils
 
@@ -33,6 +33,6 @@ Contributing
 Please file bugs and send pull requests to the `GitHub repository`_ and `issue
 tracker`_. See `CONTRIBUTING.rst`_ for details.
 
-.. _GitHub repository: https://github.com/carljm/django-model-utils/
-.. _issue tracker: https://github.com/carljm/django-model-utils/issues
-.. _CONTRIBUTING.rst: https://github.com/carljm/django-model-utils/blob/master/CONTRIBUTING.rst
+.. _GitHub repository: https://github.com/jazzband/django-model-utils/
+.. _issue tracker: https://github.com/jazzband/django-model-utils/issues
+.. _CONTRIBUTING.rst: https://github.com/jazzband/django-model-utils/blob/master/CONTRIBUTING.rst

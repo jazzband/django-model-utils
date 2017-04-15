@@ -49,7 +49,7 @@ class StatusModelPlainTupleTests(StatusModelTests):
 class StatusModelDefaultManagerTests(TestCase):
 
     def test_default_manager_is_not_status_model_generated_ones(self):
-        # Regression test for https://github.com/carljm/django-model-utils/issues/251
+        # Regression test for GH-251
         # The logic behind order for managers seems to have changed in Django 1.10
         # and affects default manager.
         # This code was previously failing because the first custom manager (which filters
