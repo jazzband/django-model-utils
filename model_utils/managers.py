@@ -7,14 +7,14 @@ try:
     from django.db.models.query import BaseIterable, ModelIterable
 except ImportError:
     # Django 1.8 does not have iterable classes
-    BaseIterable = object
+    BaseIterable, ModelIterable = object, object
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.constants import LOOKUP_SEP
 from django.utils.six import string_types
 
 
-class InheritanceIterable(BaseIterable):
+class InheritanceIterable(ModelIterable):
     def __iter__(self):
         queryset = self.queryset
         iter = ModelIterable(queryset)

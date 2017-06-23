@@ -15,6 +15,7 @@ Facundo Gaich <facugaich@gmail.com>
 Felipe Prenholato <philipe.rp@gmail.com>
 Filipe Ximenes <filipeximenes@gmail.com>
 Gregor Müllegger <gregor@muellegger.de>
+Hanley Hansen <hanleyhansen@gmail.com>
 ivirabyan
 James Oakley <jfunk@funktronics.ca>
 Jannis Leidel <jannis@leidel.info>
