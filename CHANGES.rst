@@ -3,6 +3,8 @@ CHANGES
 
 master (unreleased)
 -------------------
+* Update InheritanceIterable to inherit from
+  ModelIterable instead of BaseIterable, fixes GH-277.
 
 3.0.0 (2017.04.13)
 ------------------
