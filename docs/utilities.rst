@@ -212,6 +212,50 @@ An example using the model specified above:
     {'title': None}
 
 
+Tracking Foreign Key Fields
+---------------------------
+
+It should be noted that a generic FieldTracker tracks Foreign Keys by db_column name, rather than model field name, and would be accessed as follows:
+
+.. code-block:: python
+
+    from django.db import models
+    from model_utils import FieldTracker
+
+    class Parent(models.Model):
+        name = models.CharField(max_length=64)
+
+    class Child(models.Model):
+        name = models.CharField(max_length=64)
+        parent = models.ForeignKey(Parent)
+
+.. code-block:: pycon
+    
+    >>> p = Parent.objects.create(name='P')
+    >>> c = Child.objects.create(name='C', parent=p)
+    >>> c.tracker.has_changed('parent_id')
+    
+    
+To find the db_column names of your model (using the above example):
+
+.. code-block:: pycon
+
+    >>> for field in Child._meta.fields:
+            field.get_attname_column()
+    ('id', 'id')
+    ('name', 'name')
+    ('parent_id', 'parent_id')
+    
+
+The model field name *may* be used when tracking with a specific tracker:
+ 
+.. code-block:: python
+
+    specific_tracker = FieldTracker(fields=['parent'])
+
+But according to issue #195 this is not recommended for accessing Foreign Key Fields.
+
+
 Checking changes using signals
 ------------------------------
 
