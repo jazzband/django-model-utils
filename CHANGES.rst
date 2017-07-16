@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+* Fix excessive queries in `InheritanceManager` on Django 1.9/1.10, fixes GH-274.
+
+
 3.0.0 (2017.04.13)
 ------------------
 
