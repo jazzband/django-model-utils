@@ -117,6 +117,17 @@ class InheritanceManagerTests(TestCase):
                 "inheritancemanagertestchild2").get(pk=self.child1.pk)
             obj.inheritancemanagertestchild1
 
+    def test_select_subclass_num_queries(self):
+        with self.assertNumQueries(1):
+            objs = self.get_manager().select_subclasses(
+                "inheritancemanagertestchild1",
+                "inheritancemanagertestchild2",
+            )
+            list(objs)
+
+    def test_version_determining_any_depth(self):
+        self.assertIsNone(self.get_manager().all()._get_maximum_depth())
+
     def test_manually_specifying_parent_fk_including_grandchildren(self):
         """
         given a Model which inherits from another Model, but also declares
