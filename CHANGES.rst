@@ -43,6 +43,9 @@ CHANGES
 - Remove old travis script via GH-300
 - Fix codecov and switch to py.test #301
 
+* Fix excessive queries in `InheritanceManager` on Django 1.9/1.10, fixes GH-274.
+
+
 3.0.0 (2017.04.13)
 ------------------
 
