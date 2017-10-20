@@ -1,25 +1,5 @@
 language: python
 
-python: 2.7
-
-env:
-  - TOXENV=py27-django18
-  - TOXENV=py27-django19
-  - TOXENV=py27-django110
-  - TOXENV=py27-django111
-  - TOXENV=py33-django18
-  - TOXENV=py34-django18
-  - TOXENV=py34-django19
-  - TOXENV=py34-django110
-  - TOXENV=py34-django111
-  - TOXENV=py35-django18
-  - TOXENV=py35-django19
-  - TOXENV=py35-django110
-  - TOXENV=py35-django111
-  - TOXENV=py35-django_trunk
-  - TOXENV=py36-django111
-  - TOXENV=py36-django_trunk
-
 install:
   - pip install --upgrade pip setuptools tox virtualenv coveralls
 
@@ -27,6 +7,24 @@ script:
   - tox
 
 matrix:
+  include:
+    - { python: 2.7, env: TOXENV=py27-django18 }
+    - { python: 2.7, env: TOXENV=py27-django19 }
+    - { python: 2.7, env: TOXENV=py27-django110 }
+    - { python: 2.7, env: TOXENV=py27-django111 }
+    - { python: 3.3, env: TOXENV=py33-django18 }
+    - { python: 3.4, env: TOXENV=py34-django18 }
+    - { python: 3.4, env: TOXENV=py34-django19 }
+    - { python: 3.4, env: TOXENV=py34-django110 }
+    - { python: 3.4, env: TOXENV=py34-django111 }
+    - { python: 3.5, env: TOXENV=py35-django18 }
+    - { python: 3.5, env: TOXENV=py35-django19 }
+    - { python: 3.5, env: TOXENV=py35-django110 }
+    - { python: 3.5, env: TOXENV=py35-django111 }
+    - { python: 3.5, env: TOXENV=py35-django_trunk }
+    - { python: 3.6, env: TOXENV=py36-django111 }
+    - { python: 3.6, env: TOXENV=py36-django_trunk }
+
   allow_failures:
     - env: TOXENV=py35-django_trunk
     - env: TOXENV=py36-django111
