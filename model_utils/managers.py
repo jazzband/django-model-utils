@@ -247,7 +247,6 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
 
 
 class InheritanceManagerMixin(object):
-    use_for_related_fields = True
     _queryset_class = InheritanceQuerySet
 
     def get_queryset(self):
@@ -265,7 +264,6 @@ class InheritanceManager(InheritanceManagerMixin, models.Manager):
 
 
 class QueryManagerMixin(object):
-    use_for_related_fields = True
 
     def __init__(self, *args, **kwargs):
         if args:
