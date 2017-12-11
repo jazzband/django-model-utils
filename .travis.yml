@@ -55,6 +55,6 @@ install:
   - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then export PYVER=py35; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then export PYVER=py36; fi
 
-script: COMMAND='coverage run' tox -e$TOXENV
+script: tox -e$TOXENV -- --cov  # positional args ({posargs}) to pass into tox.ini
 
 after_success: codecov
