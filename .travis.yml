@@ -1,4 +1,5 @@
 language: python
+sudo: false
 
 matrix:
   fast_finish: true
@@ -48,12 +49,12 @@ matrix:
       env: TOXENV=py36-djangotrunk
 
 install:
-  - pip install --upgrade pip setuptools tox virtualenv coveralls
+  - pip install --upgrade pip setuptools tox virtualenv codecov
   - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export PYVER=py27; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then export PYVER=py34; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then export PYVER=py35; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then export PYVER=py36; fi
 
-script: COMMAND='coverage run' tox -e$TOXENV
+script: tox -e$TOXENV -- --cov  # positional args ({posargs}) to pass into tox.ini
 
-after_success: coveralls
+after_success: codecov
