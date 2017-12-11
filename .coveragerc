@@ -1,4 +1,7 @@
 [run]
 source = model_utils
 omit = model_utils/tests/*
+       .*
+       tests/*
+       */_*
 branch = 1
