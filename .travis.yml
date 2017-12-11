@@ -1,35 +1,59 @@
 language: python
 
-python: 2.7
-
-env:
-  - TOXENV=py27-django18
-  - TOXENV=py27-django19
-  - TOXENV=py27-django110
-  - TOXENV=py27-django111
-  - TOXENV=py33-django18
-  - TOXENV=py34-django18
-  - TOXENV=py34-django19
-  - TOXENV=py34-django110
-  - TOXENV=py34-django111
-  - TOXENV=py35-django18
-  - TOXENV=py35-django19
-  - TOXENV=py35-django110
-  - TOXENV=py35-django111
-  - TOXENV=py35-django_trunk
-  - TOXENV=py36-django111
-  - TOXENV=py36-django_trunk
+matrix:
+  fast_finish: true
+  include:
+    - python: 2.7
+      env: TOXENV=py27-django18
+    - python: 2.7
+      env: TOXENV=py27-django19
+    - python: 2.7
+      env: TOXENV=py27-django110
+    - python: 2.7
+      env: TOXENV=py27-django111
+    - python: 3.4
+      env: TOXENV=py34-django18
+    - python: 3.4
+      env: TOXENV=py34-django19
+    - python: 3.4
+      env: TOXENV=py34-django110
+    - python: 3.4
+      env: TOXENV=py34-django111
+    - python: 3.4
+      env: TOXENV=py34-django200
+    - python: 3.5
+      env: TOXENV=py35-django18
+    - python: 3.5
+      env: TOXENV=py35-django19
+    - python: 3.5
+      env: TOXENV=py35-django110
+    - python: 3.5
+      env: TOXENV=py35-django111
+    - python: 3.5
+      env: TOXENV=py35-django200
+    - python: 3.5
+      env: TOXENV=py35-djangotrunk
+    - python: 3.6
+      env: TOXENV=py36-django111
+    - python: 3.6
+      env: TOXENV=py36-django200
+    - python: 3.6
+      env: TOXENV=py36-djangotrunk
+  allow_failures:
+    - python: 3.5
+      env: TOXENV=py35-djangotrunk
+    - python: 3.6
+      env: TOXENV=py36-django111
+    - python: 3.6
+      env: TOXENV=py36-djangotrunk
 
 install:
   - pip install --upgrade pip setuptools tox virtualenv coveralls
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then export PYVER=py27; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then export PYVER=py34; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then export PYVER=py35; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then export PYVER=py36; fi
 
-script:
-  - tox
-
-matrix:
-  allow_failures:
-    - env: TOXENV=py35-django_trunk
-    - env: TOXENV=py36-django111
-    - env: TOXENV=py36-django_trunk
+script: COMMAND='coverage run' tox -e$TOXENV
 
 after_success: coveralls

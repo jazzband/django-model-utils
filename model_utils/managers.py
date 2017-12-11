@@ -90,13 +90,25 @@ class InheritanceQuerySetMixin(object):
         new_qs.subclasses = subclasses
         return new_qs
 
-    def _clone(self, klass=None, setup=False, **kwargs):
+    def _chain(self, **kwargs):
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
+
+        return super(InheritanceQuerySetMixin, self)._chain(**kwargs)
+
+    def _clone(self, klass=None, setup=False, **kwargs):
+        if django.VERSION >= (2, 0):
+            return super(InheritanceQuerySetMixin, self)._clone()
+
+        for name in ['subclasses', '_annotated']:
+            if hasattr(self, name):
+                kwargs[name] = getattr(self, name)
+
         if django.VERSION < (1, 9):
             kwargs['klass'] = klass
             kwargs['setup'] = setup
+
         return super(InheritanceQuerySetMixin, self)._clone(**kwargs)
 
     def annotate(self, *args, **kwargs):
@@ -235,7 +247,6 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
 
 
 class InheritanceManagerMixin(object):
-    use_for_related_fields = True
     _queryset_class = InheritanceQuerySet
 
     def get_queryset(self):
@@ -253,7 +264,6 @@ class InheritanceManager(InheritanceManagerMixin, models.Manager):
 
 
 class QueryManagerMixin(object):
-    use_for_related_fields = True
 
     def __init__(self, *args, **kwargs):
         if args:
