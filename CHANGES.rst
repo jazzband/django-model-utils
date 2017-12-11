@@ -4,6 +4,13 @@ CHANGES
 master (unreleased)
 -------------------
 
+3.1.0 (2017.12.11)
+------------------
+
+- Support for Django 2.0 via GH-298, fixes GH-297
+- Remove old travis script via GH-300
+- Fix codecov and switch to py.test #301
+
 3.0.0 (2017.04.13)
 ------------------
 
