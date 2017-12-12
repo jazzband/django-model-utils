@@ -7,8 +7,8 @@ django-model-utils
    :alt: Jazzband
 .. image:: https://travis-ci.org/jazzband/django-model-utils.svg?branch=master
    :target: https://travis-ci.org/jazzband/django-model-utils
-.. image:: https://coveralls.io/repos/github/jazzband/django-model-utils/badge.svg?branch=master
-   :target: https://coveralls.io/github/jazzband/django-model-utils?branch=master
+.. image:: https://codecov.io/gh/jazzband/django-model-utils/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/jazzband/django-model-utils
 .. image:: https://img.shields.io/pypi/v/django-model-utils.svg
    :target: https://pypi.python.org/pypi/django-model-utils
 
