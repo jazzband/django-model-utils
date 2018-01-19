@@ -14,6 +14,7 @@ Douglas Meehan <dmeehan@gmail.com>
 Facundo Gaich <facugaich@gmail.com>
 Felipe Prenholato <philipe.rp@gmail.com>
 Filipe Ximenes <filipeximenes@gmail.com>
+Germano Massullo <germano.massullo@gmail.com>
 Gregor Müllegger <gregor@muellegger.de>
 ivirabyan
 James Oakley <jfunk@funktronics.ca>
