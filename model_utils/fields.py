@@ -241,3 +241,23 @@ class SplitField(models.TextField):
         name, path, args, kwargs = super(SplitField, self).deconstruct()
         kwargs['no_excerpt_field'] = True
         return name, path, args, kwargs
+
+
+class CIText(object):
+
+    def db_type(self, connection):
+        engine = connection.settings_dict['ENGINE']
+
+        return {
+            'django.db.backends.postgresql_psycopg2': 'citext',
+            'django.db.backends.postgresql': 'citext',
+            'django.db.backends.sqlite3': 'text collate nocase',
+        }.get(engine, super(CIText, self).db_type(connection))
+
+
+class CICharField(CIText, models.CharField):
+    pass
+
+
+class CIEmailField(CIText, models.EmailField):
+    pass

@@ -6,7 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
-from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.fields import SplitField, MonitorField, StatusField, CICharField, CIEmailField
 from model_utils.managers import QueryManager, InheritanceManager
 from model_utils.models import (
     SoftDeletableModel,
@@ -331,3 +331,8 @@ class CustomSoftDelete(SoftDeletableModel):
     is_read = models.BooleanField(default=False)
 
     objects = CustomSoftDeleteManager()
+
+
+class CIPerson(models.Model):
+    name = CICharField(max_length=20)
+    email = CIEmailField(unique=True)
