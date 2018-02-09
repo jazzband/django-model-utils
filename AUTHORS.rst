@@ -42,3 +42,4 @@ Trey Hunner <trey@treyhunner.com>
 Karl Wan Nan Wo <karl.wnw@gmail.com>
 zyegfryed
 Radosław Jan Ganczarek <radoslaw@ganczarek.in>
+Jack Cushman <jcushman@law.harvard.edu>

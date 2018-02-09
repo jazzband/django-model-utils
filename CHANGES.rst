@@ -4,6 +4,9 @@ CHANGES
 master (unreleased)
 -------------------
 
+- Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
+  correct responses for deferred fields.
+
 3.1.1 (2017.12.17)
 ------------------
 
