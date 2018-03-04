@@ -102,6 +102,9 @@ class Choices(object):
     def __iter__(self):
         return iter(self._doubles)
 
+    def __reversed__(self):
+        return reversed(self._doubles)
+
     def __getattr__(self, attname):
         try:
             return self._identifier_map[attname]
