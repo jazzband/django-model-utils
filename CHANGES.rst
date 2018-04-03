@@ -3,6 +3,7 @@ CHANGES
 
 master (unreleased)
 -------------------
+- Fix handling of deferred attributes on Django 1.10+, fixes GH-278
 
 3.1.2 (2018.05.09)
 ------------------
