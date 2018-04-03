@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import django
 from django.test import TestCase
 
 from tests.models import ModelWithCustomDescriptor
@@ -30,9 +31,15 @@ class CustomDescriptorTests(TestCase):
     def test_deferred(self):
         instance = ModelWithCustomDescriptor.objects.only('id').get(
             pk=self.instance.pk)
-        self.assertIn('custom_field', instance.get_deferred_fields())
+        if django.VERSION >= (1, 10):
+            self.assertIn('custom_field', instance.get_deferred_fields())
+        else:
+            self.assertIn('custom_field', instance._deferred_fields)
         self.assertEqual(instance.custom_field, '1')
-        self.assertNotIn('custom_field', instance.get_deferred_fields())
+        if django.VERSION >= (1, 10):
+            self.assertNotIn('custom_field', instance.get_deferred_fields())
+        else:
+            self.assertNotIn('custom_field', instance._deferred_fields)
         self.assertEqual(instance.regular_field, 1)
         self.assertEqual(instance.tracked_custom_field, '1')
         self.assertEqual(instance.tracked_regular_field, 1)

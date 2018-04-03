@@ -181,13 +181,22 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.number = 1
         self.instance.save()
         item = list(self.tracked_class.objects.only('name').all())[0]
-        self.assertTrue(item._deferred_fields)
+        if django.VERSION >= (1, 10):
+            self.assertTrue(item.get_deferred_fields())
+        else:
+            self.assertTrue(item._deferred_fields)
 
         self.assertEqual(item.tracker.previous('number'), None)
-        self.assertTrue('number' in item._deferred_fields)
+        if django.VERSION >= (1, 10):
+            self.assertTrue('number' in item.get_deferred_fields())
+        else:
+            self.assertTrue('number' in item._deferred_fields)
 
         self.assertEqual(item.number, 1)
-        self.assertTrue('number' not in item._deferred_fields)
+        if django.VERSION >= (1, 10):
+            self.assertTrue('number' not in item.get_deferred_fields())
+        else:
+            self.assertTrue('number' not in item._deferred_fields)
         self.assertEqual(item.tracker.previous('number'), 1)
         self.assertFalse(item.tracker.has_changed('number'))
 
