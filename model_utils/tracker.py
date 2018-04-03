@@ -97,35 +97,19 @@ class FieldInstanceTracker(object):
             def _get_field_name(self):
                 return self.field.name
 
-        if django.VERSION >= (1, 8):
-            self.instance._deferred_fields = self.instance.get_deferred_fields()
-            for field in self.instance._deferred_fields:
-                if django.VERSION >= (1, 10):
-                    field_obj = getattr(self.instance.__class__, field)
-                else:
-                    field_obj = self.instance.__class__.__dict__.get(field)
-                if isinstance(field_obj, FileDescriptor):
-                    field_tracker = FileDescriptorTracker(field_obj.field)
-                    setattr(self.instance.__class__, field, field_tracker)
-                else:
-                    field_tracker = DeferredAttributeTracker(
-                        field_obj.field_name, None)
-                    setattr(self.instance.__class__, field, field_tracker)
-        else:
-            for field in self.fields:
+        self.instance._deferred_fields = self.instance.get_deferred_fields()
+        for field in self.instance._deferred_fields:
+            if django.VERSION >= (1, 10):
+                field_obj = getattr(self.instance.__class__, field)
+            else:
                 field_obj = self.instance.__class__.__dict__.get(field)
-                if isinstance(field_obj, DeferredAttribute):
-                    self.instance._deferred_fields.add(field)
-
-                    # Django 1.4
-                    if django.VERSION >= (1, 5):
-                        model = None
-                    else:
-                        model = field_obj.model_ref()
-
-                    field_tracker = DeferredAttributeTracker(
-                        field_obj.field_name, model)
-                    setattr(self.instance.__class__, field, field_tracker)
+            if isinstance(field_obj, FileDescriptor):
+                field_tracker = FileDescriptorTracker(field_obj.field)
+                setattr(self.instance.__class__, field, field_tracker)
+            else:
+                field_tracker = DeferredAttributeTracker(
+                    field_obj.field_name, None)
+                setattr(self.instance.__class__, field, field_tracker)
 
 
 class FieldTracker(object):

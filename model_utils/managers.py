@@ -48,11 +48,10 @@ class InheritanceIterable(ModelIterable):
 class InheritanceQuerySetMixin(object):
     def __init__(self, *args, **kwargs):
         super(InheritanceQuerySetMixin, self).__init__(*args, **kwargs)
-        if django.VERSION > (1, 8):
-            self._iterable_class = InheritanceIterable
+        self._iterable_class = InheritanceIterable
 
     def select_subclasses(self, *subclasses):
-        levels = self._get_maximum_depth()
+        levels = None
         calculated_subclasses = self._get_subclasses_recurse(
             self.model, levels=levels)
         # if none were passed in, we can just short circuit and select all
@@ -151,12 +150,9 @@ class InheritanceQuerySetMixin(object):
         recursively, returning a `list` of strings representing the
         relations for select_related
         """
-        if django.VERSION < (1, 8):
-            related_objects = model._meta.get_all_related_objects()
-        else:
-            related_objects = [
-                f for f in model._meta.get_fields()
-                if isinstance(f, OneToOneRel)]
+        related_objects = [
+            f for f in model._meta.get_fields()
+            if isinstance(f, OneToOneRel)]
 
         rels = [
             rel for rel in related_objects
@@ -199,10 +195,7 @@ class InheritanceQuerySetMixin(object):
                 related = parent_link.remote_field
             ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
-                if django.VERSION < (1, 8):
-                    parent_model = related.parent_model
-                else:
-                    parent_model = related.model
+                parent_model = related.model
                 parent_link = parent_model._meta.get_ancestor_link(
                     self.model)
             else:
@@ -229,17 +222,6 @@ class InheritanceQuerySetMixin(object):
 
     def get_subclass(self, *args, **kwargs):
         return self.select_subclasses().get(*args, **kwargs)
-
-    def _get_maximum_depth(self):
-        """
-        Under Django versions < 1.6, to avoid triggering
-        https://code.djangoproject.com/ticket/16572 we can only look
-        as far as children.
-        """
-        levels = None
-        if django.VERSION < (1, 6, 0):
-            levels = 1
-        return levels
 
 
 class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
