@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, absolute_import
 
 from django.db import models
+from django.db.models.query_utils import DeferredAttribute
 from django.db.models import Manager
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -331,3 +332,37 @@ class CustomSoftDelete(SoftDeletableModel):
     is_read = models.BooleanField(default=False)
 
     objects = CustomSoftDeleteManager()
+
+
+class StringyDescriptor(object):
+    """
+    Descriptor that returns a string version of the underlying integer value.
+    """
+    def __init__(self, name):
+        self.name = name
+
+    def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
+        if self.name in obj.get_deferred_fields():
+            # This queries the database, and sets the value on the instance.
+            DeferredAttribute(field_name=self.name, model=cls).__get__(obj, cls)
+        return str(obj.__dict__[self.name])
+
+    def __set__(self, obj, value):
+        obj.__dict__[self.name] = int(value)
+
+
+class CustomDescriptorField(models.IntegerField):
+    def contribute_to_class(self, cls, name, **kwargs):
+        super(CustomDescriptorField, self).contribute_to_class(cls, name, **kwargs)
+        setattr(cls, name, StringyDescriptor(name))
+
+
+class ModelWithCustomDescriptor(models.Model):
+    custom_field = CustomDescriptorField()
+    tracked_custom_field = CustomDescriptorField()
+    regular_field = models.IntegerField()
+    tracked_regular_field = models.IntegerField()
+
+    tracker = FieldTracker(fields=['tracked_custom_field', 'tracked_regular_field'])
