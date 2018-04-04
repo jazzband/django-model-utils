@@ -352,6 +352,9 @@ class StringyDescriptor(object):
     def __set__(self, obj, value):
         obj.__dict__[self.name] = int(value)
 
+    def __delete__(self, obj):
+        del obj.__dict__[self.name]
+
 
 class CustomDescriptorField(models.IntegerField):
     def contribute_to_class(self, cls, name, **kwargs):

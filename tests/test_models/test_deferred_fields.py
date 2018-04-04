@@ -58,3 +58,14 @@ class CustomDescriptorTests(TestCase):
         self.assertEqual(instance.regular_field, 1)
         self.assertEqual(instance.tracked_custom_field, '2')
         self.assertEqual(instance.tracked_regular_field, 2)
+
+        instance = ModelWithCustomDescriptor.objects.only('id').get(pk=instance.pk)
+        if django.VERSION >= (1, 10):
+            # This fails on 1.8 and 1.9, which is a bug in the deferred field
+            # implementation on those versions.
+            instance.tracked_custom_field = 3
+            self.assertEqual(instance.tracked_custom_field, '3')
+            self.assertTrue(instance.tracker.has_changed('tracked_custom_field'))
+            del instance.tracked_custom_field
+            self.assertEqual(instance.tracked_custom_field, '2')
+            self.assertFalse(instance.tracker.has_changed('tracked_custom_field'))
