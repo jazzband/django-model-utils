@@ -12,6 +12,9 @@ master (unreleased)
 * Update InheritanceIterable to inherit from
   ModelIterable instead of BaseIterable, fixes GH-277.
 
+- Update AutoLastModifiedField so that at instance creation it will
+  always be set equal to created to make querying easier. Fixes GH-254.
+
 3.1.1 (2017.12.17)
 ------------------
 

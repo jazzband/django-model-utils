@@ -46,3 +46,4 @@
 | Radosław Jan Ganczarek <radoslaw@ganczarek.in>
 | Lucas Wiman <lucas.wiman@gmail.com>
 | Jack Cushman <jcushman@law.harvard.edu>
+| Daniel Andrlik <daniel@andrlik.org>
