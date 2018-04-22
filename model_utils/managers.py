@@ -99,7 +99,10 @@ class InheritanceQuerySetMixin(object):
 
     def _clone(self, klass=None, setup=False, **kwargs):
         if django.VERSION >= (2, 0):
-            return super(InheritanceQuerySetMixin, self)._clone()
+            qs = super(InheritanceQuerySetMixin, self)._clone()
+            if hasattr(self, 'subclasses'):
+                qs.subclasses = self.subclasses
+            return qs
 
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
