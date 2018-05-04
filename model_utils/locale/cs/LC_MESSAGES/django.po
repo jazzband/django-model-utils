@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: django-model-utils\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: https://github.com/jazzband/django-model-utils/issues\n"
 "POT-Creation-Date: 2018-05-04 13:40+0200\n"
 "PO-Revision-Date: 2018-05-04 13:46+0200\n"
 "Language: cs\n"
