@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "Last-Translator: Václav Dohnal <vaclav.dohnal@gmail.com>\n"
-"Language-Team: \n"
+"Language-Team: N/A\n"
 "X-Generator: Poedit 2.0.7\n"
 
 #: .\models.py:24
