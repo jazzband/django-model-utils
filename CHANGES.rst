@@ -6,6 +6,9 @@ master (unreleased)
 * Update InheritanceIterable to inherit from
   ModelIterable instead of BaseIterable, fixes GH-277.
 
+* Add all_objects Manager for 'SoftDeletableModel' to include soft
+  deleted objects on queries as per issue GH-255
+
 3.1.1 (2017.12.17)
 ------------------
 
