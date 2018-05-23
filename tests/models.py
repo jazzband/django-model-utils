@@ -85,7 +85,7 @@ class TimeFrameManagerAdded(TimeFramedModel):
 
 class Monitored(models.Model):
     name = models.CharField(max_length=25)
-    name_changed = MonitorField(monitor="name")
+    name_changed = MonitorField(monitor="name", blank=True, null=True)
 
 
 class MonitorWhen(models.Model):
