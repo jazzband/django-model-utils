@@ -84,6 +84,10 @@ class FieldInstanceTracker(object):
         if django.VERSION < (1, 10):
             self.init_deferred_fields()
 
+    @property
+    def deferred_fields(self):
+        return self.instance._deferred_fields if django.VERSION < (1, 10) else self.instance.get_deferred_fields()
+
     def get_field_value(self, field):
         return getattr(self.instance, self.field_map[field])
 
@@ -102,7 +106,7 @@ class FieldInstanceTracker(object):
     def current(self, fields=None):
         """Returns dict of current values for all tracked fields"""
         if fields is None:
-            deferred_fields = self.instance._deferred_fields if django.VERSION < (1, 10) else self.instance.get_deferred_fields()
+            deferred_fields = self.deferred_fields
             if deferred_fields:
                 fields = [
                     field for field in self.fields
@@ -117,7 +121,7 @@ class FieldInstanceTracker(object):
         """Returns ``True`` if field has changed from currently saved value"""
         if field in self.fields:
             # deferred fields haven't changed
-            if field in self.instance._deferred_fields and field not in self.instance.__dict__:
+            if field in self.deferred_fields and field not in self.instance.__dict__:
                 return False
             return self.previous(field) != self.get_field_value(field)
         else:
@@ -127,7 +131,7 @@ class FieldInstanceTracker(object):
         """Returns currently saved value of given field"""
 
         # handle deferred fields that have not yet been loaded from the database
-        if self.instance.pk and field in self.instance._deferred_fields and field not in self.saved_data:
+        if self.instance.pk and field in self.deferred_fields and field not in self.saved_data:
 
             # if the field has not been assigned locally, simply fetch and un-defer the value
             if field not in self.instance.__dict__:
