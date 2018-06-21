@@ -180,18 +180,27 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.name = 'new age'
         self.instance.number = 1
         self.instance.save()
-        item = list(self.tracked_class.objects.only('name').all())[0]
+        item = self.tracked_class.objects.only('name').first()
         if django.VERSION >= (1, 10):
             self.assertTrue(item.get_deferred_fields())
         else:
             self.assertTrue(item._deferred_fields)
 
-        self.assertEqual(item.tracker.previous('number'), None)
-        if django.VERSION >= (1, 10):
-            self.assertTrue('number' in item.get_deferred_fields())
-        else:
-            self.assertTrue('number' in item._deferred_fields)
+        # has_changed() returns False for deferred fields, without un-deferring them.
+        # Use an if because ModelTracked doesn't support has_changed() in this case.
+        if self.tracked_class == Tracked:
+            self.assertEqual(item.tracker.previous('number'), None)
+            if django.VERSION >= (1, 10):
+                self.assertTrue('number' in item.get_deferred_fields())
+            else:
+                self.assertTrue('number' in item._deferred_fields)
 
+        # previous() un-defers field and returns value
+        self.assertEqual(item.tracker.previous('number'), 1)
+        self.assertTrue('number' not in item._deferred_fields)
+
+        # examining a deferred field un-defers it
+        item = self.tracked_class.objects.only('name').first()
         self.assertEqual(item.number, 1)
         if django.VERSION >= (1, 10):
             self.assertTrue('number' not in item.get_deferred_fields())
@@ -200,8 +209,35 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertEqual(item.tracker.previous('number'), 1)
         self.assertFalse(item.tracker.has_changed('number'))
 
+        # has_changed() returns correct values after deferred field is examined
+        self.assertFalse(item.tracker.has_changed('number'))
         item.number = 2
         self.assertTrue(item.tracker.has_changed('number'))
+
+        # previous() returns correct value after deferred field is examined
+        self.assertEqual(item.tracker.previous('number'), 1)
+
+        # assigning to a deferred field un-defers it
+        # Use an if because ModelTracked doesn't handle this case.
+        if self.tracked_class == Tracked:
+
+            item = self.tracked_class.objects.only('name').first()
+            item.number = 2
+
+            # _deferred_fields is not updated by assignment
+            self.assertTrue('number' in item._deferred_fields)
+
+            # previous() fetches correct value from database after deferred field is assigned
+            self.assertEqual(item.tracker.previous('number'), 1)
+
+            # database fetch of previous() value doesn't affect current value
+            self.assertEqual(item.number, 2)
+
+            # has_changed() returns correct values after deferred field is assigned
+            self.assertTrue(item.tracker.has_changed('number'))
+            item.number = 1
+            self.assertFalse(item.tracker.has_changed('number'))
+
 
 
 class FieldTrackerMultipleInstancesTests(TestCase):

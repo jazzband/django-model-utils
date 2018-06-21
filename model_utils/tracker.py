@@ -116,12 +116,31 @@ class FieldInstanceTracker(object):
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
         if field in self.fields:
+            # deferred fields haven't changed
+            if field in self.instance._deferred_fields and field not in self.instance.__dict__:
+                return False
             return self.previous(field) != self.get_field_value(field)
         else:
             raise FieldError('field "%s" not tracked' % field)
 
     def previous(self, field):
         """Returns currently saved value of given field"""
+
+        # handle deferred fields that have not yet been loaded from the database
+        if self.instance.pk and field in self.instance._deferred_fields and field not in self.saved_data:
+
+            # if the field has not been assigned locally, simply fetch and un-defer the value
+            if field not in self.instance.__dict__:
+                self.get_field_value(field)
+
+            # if the field has been assigned locally, store the local value, fetch the database value,
+            # store database value to saved_data, and restore the local value
+            else:
+                current_value = self.get_field_value(field)
+                self.instance.refresh_from_db(fields=[field])
+                self.saved_data[field] = deepcopy(self.get_field_value(field))
+                setattr(self.instance, self.field_map[field], current_value)
+
         return self.saved_data.get(field)
 
     def changed(self):

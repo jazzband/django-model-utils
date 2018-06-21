@@ -11,6 +11,9 @@ master (unreleased)
   ModelIterable instead of BaseIterable, fixes GH-277.
 
 
+- Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
+  correct responses for deferred fields.
+
 3.1.1 (2017.12.17)
 ------------------
 
