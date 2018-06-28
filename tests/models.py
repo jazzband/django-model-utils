@@ -1,5 +1,6 @@
 from __future__ import unicode_literals, absolute_import
 
+import django
 from django.db import models
 from django.db.models.query_utils import DeferredAttribute
 from django.db.models import Manager
@@ -346,7 +347,10 @@ class StringyDescriptor(object):
             return self
         if self.name in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
-            DeferredAttribute(field_name=self.name, model=cls).__get__(obj, cls)
+            if django.VERSION < (2, 1):
+                DeferredAttribute(field_name=self.name, model=cls).__get__(obj, cls)
+            else:
+                DeferredAttribute(field_name=self.name).__get__(obj, cls)
         return str(obj.__dict__[self.name])
 
     def __set__(self, obj, value):
