@@ -189,6 +189,7 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         # has_changed() returns False for deferred fields, without un-deferring them.
         # Use an if because ModelTracked doesn't support has_changed() in this case.
         if self.tracked_class == Tracked:
+            self.assertFalse(item.tracker.has_changed('number'))
             if django.VERSION >= (1, 10):
                 self.assertTrue('number' in item.get_deferred_fields())
             else:
