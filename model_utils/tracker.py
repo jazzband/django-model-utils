@@ -46,29 +46,40 @@ class DescriptorWrapper(object):
             tracker_instance.saved_data[self.field_name] = deepcopy(value)
         return value
 
+    def __set__(self, instance, value):
+        initialized = hasattr(instance, '_instance_intialized')
+        was_deferred = self.field_name in instance.get_deferred_fields()
+
+        # Sentinel attribute to detect whether we are already trying to
+        # set the attribute higher up the stack. This prevents infinite
+        # recursion when retrieving deferred values from the database.
+        recursion_sentinel_attname = '_setting_' + self.field_name
+        already_setting = hasattr(instance, recursion_sentinel_attname)
+
+        if initialized and was_deferred and not already_setting:
+            setattr(instance, recursion_sentinel_attname, True)
+            try:
+                # Retrieve the value to set the saved_data value.
+                # This will undefer the field
+                getattr(instance, self.field_name)
+            finally:
+                if already_setting:
+                    instance.__dict__.pop(recursion_sentinel_attname, None)
+        if hasattr(self.descriptor, '__set__'):
+            self.descriptor.__set__(instance, value)
+        else:
+            instance.__dict__[self.field_name] = value
+
     @staticmethod
     def cls_for_descriptor(descriptor):
-        has_set = hasattr(descriptor, '__set__')
         has_del = hasattr(descriptor, '__delete__')
         if has_del:
             return FullDescriptorWrapper
-        elif has_set:
-            return SettableDescriptorWrapper
         else:
             return DescriptorWrapper
 
 
-class SettableDescriptorWrapper(DescriptorWrapper):
-    """
-    Descriptor wrapper for descriptors with a __delete__ method.
-
-    This should not be used for descriptors
-    """
-    def __set__(self, instance, value):
-        return self.descriptor.__set__(instance, value)
-
-
-class FullDescriptorWrapper(SettableDescriptorWrapper):
+class FullDescriptorWrapper(DescriptorWrapper):
     """
     Wrapper for descriptors with all three descriptor methods.
     """
@@ -222,6 +233,7 @@ class FieldTracker(object):
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()
         self.patch_save(instance)
+        instance._instance_intialized = True
 
     def patch_save(self, instance):
         original_save = instance.save
