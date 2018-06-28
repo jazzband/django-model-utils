@@ -63,8 +63,7 @@ class DescriptorWrapper(object):
                 # This will undefer the field
                 getattr(instance, self.field_name)
             finally:
-                if already_setting:
-                    instance.__dict__.pop(recursion_sentinel_attname, None)
+                instance.__dict__.pop(recursion_sentinel_attname, None)
         if hasattr(self.descriptor, '__set__'):
             self.descriptor.__set__(instance, value)
         else:
