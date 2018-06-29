@@ -7,6 +7,7 @@ from django.core.exceptions import FieldError
 from django.test import TestCase
 
 from model_utils import FieldTracker
+from model_utils.tracker import DescriptorWrapper
 from tests.models import (
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, TrackedFileField,
@@ -191,6 +192,7 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         if self.tracked_class == Tracked:
             self.assertFalse(item.tracker.has_changed('number'))
             if django.VERSION >= (1, 10):
+                self.assertIsInstance(item.__class__.number, DescriptorWrapper)
                 self.assertTrue('number' in item.get_deferred_fields())
             else:
                 self.assertTrue('number' in item._deferred_fields)

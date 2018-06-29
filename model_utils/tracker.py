@@ -71,8 +71,7 @@ class DescriptorWrapper(object):
 
     @staticmethod
     def cls_for_descriptor(descriptor):
-        has_del = hasattr(descriptor, '__delete__')
-        if has_del:
+        if hasattr(descriptor, '__delete__'):
             return FullDescriptorWrapper
         else:
             return DescriptorWrapper
