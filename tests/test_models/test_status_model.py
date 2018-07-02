@@ -18,7 +18,7 @@ class StatusModelTests(TestCase):
             c1 = self.model.objects.create()
         self.assertTrue(c1.status_changed, datetime(2016, 1, 1))
 
-        c2 = self.model.objects.create()
+        self.model.objects.create()
         self.assertEqual(self.model.active.count(), 2)
         self.assertEqual(self.model.deleted.count(), 0)
 
