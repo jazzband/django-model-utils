@@ -150,6 +150,10 @@ Returns the value of the given field during the last save:
 
 Returns ``None`` when the model instance isn't saved yet.
 
+If a field is `deferred`_, calling ``previous()`` will load the previous value from the database.
+
+.. _deferred: https://docs.djangoproject.com/en/2.0/ref/models/querysets/#defer
+
 
 has_changed
 ~~~~~~~~~~~
@@ -167,6 +171,8 @@ Returns ``True`` if the given field has changed since the last save. The ``has_c
 The ``has_changed`` method relies on ``previous`` to determine whether a
 field's values has changed.
 
+If a field is `deferred`_ and has been assigned locally, calling ``has_changed()``
+will load the previous value from the database to perform the comparison.
 
 changed
 ~~~~~~~
