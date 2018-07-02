@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-from unittest import skipUnless
-
 import django
 from django.core.exceptions import FieldError
 from django.test import TestCase
