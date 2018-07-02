@@ -241,7 +241,6 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
             self.assertFalse(item.tracker.has_changed('number'))
 
 
-
 class FieldTrackerMultipleInstancesTests(TestCase):
 
     def test_with_deferred_fields_access_multiple(self):

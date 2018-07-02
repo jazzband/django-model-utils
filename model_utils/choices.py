@@ -57,14 +57,12 @@ class Choices(object):
 
         self._process(choices)
 
-
     def _store(self, triple, triple_collector, double_collector):
         self._identifier_map[triple[1]] = triple[0]
         self._display_map[triple[0]] = triple[2]
         self._db_values.add(triple[0])
         triple_collector.append(triple)
         double_collector.append((triple[0], triple[2]))
-
 
     def _process(self, choices, triple_collector=None, double_collector=None):
         if triple_collector is None:
@@ -98,14 +96,11 @@ class Choices(object):
             else:
                 store((choice, choice, choice))
 
-
     def __len__(self):
         return len(self._doubles)
 
-
     def __iter__(self):
         return iter(self._doubles)
-
 
     def __getattr__(self, attname):
         try:
@@ -113,10 +108,8 @@ class Choices(object):
         except KeyError:
             raise AttributeError(attname)
 
-
     def __getitem__(self, key):
         return self._display_map[key]
-
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
@@ -125,18 +118,15 @@ class Choices(object):
             other = list(other)
         return Choices(*(self._triples + other))
 
-
     def __radd__(self, other):
         # radd is never called for matching types, so we don't check here
         other = list(other)
         return Choices(*(other + self._triples))
 
-
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self._triples == other._triples
         return False
-
 
     def __repr__(self):
         return '%s(%s)' % (
@@ -144,10 +134,8 @@ class Choices(object):
             ', '.join(("%s" % repr(i) for i in self._triples))
             )
 
-
     def __contains__(self, item):
         return item in self._db_values
-
 
     def __deepcopy__(self, memo):
         return self.__class__(*copy.deepcopy(self._triples, memo))
