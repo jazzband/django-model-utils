@@ -235,6 +235,7 @@ class FieldTracker(object):
 
     def patch_save(self, instance):
         original_save = instance.save
+
         def save(**kwargs):
             ret = original_save(**kwargs)
             update_fields = kwargs.get('update_fields')
@@ -251,6 +252,7 @@ class FieldTracker(object):
                 fields=fields
             )
             return ret
+
         instance.save = save
 
     def __get__(self, instance, owner):
