@@ -75,7 +75,7 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None, number=None)
         self.instance.name = ''
         self.assertChanged(name=None, number=None)
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertChanged(name=None, number=None, mutable=None)
 
     def test_pre_save_has_changed(self):
@@ -84,7 +84,7 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.number = 7
         self.assertHasChanged(name=True, number=True)
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
 
     def test_first_save(self):
@@ -94,22 +94,22 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None)
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged(name=None, number=None, mutable=None)
 
         self.instance.save(update_fields=[])
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged(name=None, number=None, mutable=None)
         with self.assertRaises(ValueError):
             self.instance.save(update_fields=['number'])
 
     def test_post_save_has_changed(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertHasChanged(name=False, number=False, mutable=False)
         self.instance.name = 'new age'
         self.assertHasChanged(name=True, number=False)
@@ -121,14 +121,14 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertHasChanged(name=False, number=True, mutable=True)
 
     def test_post_save_previous(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.name = 'new age'
-        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.assertPrevious(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.mutable[1] = 4
-        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.assertPrevious(name='retro', number=4, mutable=[1, 2, 3])
 
     def test_post_save_changed(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.assertChanged(name='retro')
@@ -137,8 +137,8 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.name = 'retro'
         self.assertChanged(number=4)
         self.instance.mutable[1] = 4
-        self.assertChanged(number=4, mutable=[1,2,3])
-        self.instance.mutable = [1,2,3]
+        self.assertChanged(number=4, mutable=[1, 2, 3])
+        self.instance.mutable = [1, 2, 3]
         self.assertChanged(number=4)
 
     def test_current(self):
@@ -147,29 +147,29 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertCurrent(id=None, name='new age', number=None, mutable=None)
         self.instance.number = 8
         self.assertCurrent(id=None, name='new age', number=8, mutable=None)
-        self.instance.mutable = [1,2,3]
-        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,2,3])
+        self.instance.mutable = [1, 2, 3]
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1, 2, 3])
         self.instance.mutable[1] = 4
-        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,4,3])
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1, 4, 3])
         self.instance.save()
-        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1,4,3])
+        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1, 4, 3])
 
     def test_update_fields(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.instance.number = 8
-        self.instance.mutable = [4,5,6]
-        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
+        self.instance.mutable = [4, 5, 6]
+        self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.save(update_fields=[])
-        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
+        self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.save(update_fields=['name'])
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertNotEqual(in_db.number, self.instance.number)
-        self.assertChanged(number=4, mutable=[1,2,3])
+        self.assertChanged(number=4, mutable=[1, 2, 3])
         self.instance.save(update_fields=['number'])
-        self.assertChanged(mutable=[1,2,3])
+        self.assertChanged(mutable=[1, 2, 3])
         self.instance.save(update_fields=['mutable'])
         self.assertChanged()
         in_db = self.tracked_class.objects.get(id=self.instance.id)
@@ -649,7 +649,7 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = ''
         self.assertChanged()
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertChanged()
 
     def test_first_save(self):
@@ -659,16 +659,16 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged()
 
         self.instance.save(update_fields=[])
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged()
         with self.assertRaises(ValueError):
             self.instance.save(update_fields=['number'])
