@@ -92,7 +92,7 @@ class Choices(object):
                     raise ValueError(
                         "Choices can't take a list of length %s, only 2 or 3"
                         % len(choice)
-                        )
+                    )
             else:
                 store((choice, choice, choice))
 
@@ -132,7 +132,7 @@ class Choices(object):
         return '%s(%s)' % (
             self.__class__.__name__,
             ', '.join(("%s" % repr(i) for i in self._triples))
-            )
+        )
 
     def __contains__(self, item):
         return item in self._db_values
