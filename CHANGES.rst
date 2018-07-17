@@ -6,14 +6,13 @@ master (unreleased)
 - Fix handling of deferred attributes on Django 1.10+, fixes GH-278
 - Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
   correct responses for deferred fields.
+- Update AutoLastModifiedField so that at instance creation it will
+  always be set equal to created to make querying easier. Fixes GH-254.
 
 3.1.2 (2018.05.09)
 ------------------
 * Update InheritanceIterable to inherit from
   ModelIterable instead of BaseIterable, fixes GH-277.
-
-- Update AutoLastModifiedField so that at instance creation it will
-  always be set equal to created to make querying easier. Fixes GH-254.
 
 3.1.1 (2017.12.17)
 ------------------
