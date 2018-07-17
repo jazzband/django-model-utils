@@ -31,13 +31,12 @@ class AutoLastModifiedField(AutoCreatedField):
 
     """
     def pre_save(self, model_instance, add):
-        if (hasattr(model_instance, 'created') and
-            model_instance._meta.get_field('created').__class__ ==
-            AutoCreatedField and
-            not getattr(model_instance, 'pk')):  # noqa: E129
-            value = getattr(model_instance, 'created')
-        else:
-            value = now()
+        value = now()
+        if not model_instance.pk:
+            for field in model_instance._meta.get_fields():
+                if isinstance(field, AutoCreatedField):
+                    value = getattr(model_instance, field.name)
+                    break
         setattr(model_instance, self.attname, value)
         return value
 
