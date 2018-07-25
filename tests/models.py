@@ -38,9 +38,6 @@ class InheritanceManagerTestParent(models.Model):
         on_delete=models.CASCADE)
     objects = InheritanceManager()
 
-    def __unicode__(self):
-        return unicode(self.pk)
-
     def __str__(self):
         return "%s(%s)" % (
             self.__class__.__name__[len('InheritanceManagerTest'):],

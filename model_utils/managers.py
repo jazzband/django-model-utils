@@ -76,7 +76,7 @@ class InheritanceQuerySetMixin(object):
                     raise ValueError(
                         '%r is not in the discovered subclasses, tried: %s' % (
                             subclass, ', '.join(calculated_subclasses))
-                        )
+                    )
             subclasses = verified_subclasses
 
         # workaround https://code.djangoproject.com/ticket/16855
@@ -159,7 +159,7 @@ class InheritanceQuerySetMixin(object):
             if isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
             and model is not rel.field.model
-            ]
+        ]
 
         subclasses = []
         if levels:

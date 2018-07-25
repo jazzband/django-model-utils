@@ -6,11 +6,12 @@ import django
 from django.db import models
 from django.test import TestCase
 
-from tests.models import (InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
-                                      InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
-                                      InheritanceManagerTestChild1,
-                                      InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3
-                                      )
+from tests.models import (
+    InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
+    InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
+    InheritanceManagerTestChild1,
+    InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3
+)
 
 
 class InheritanceManagerTests(TestCase):
@@ -177,27 +178,26 @@ class InheritanceManagerTests(TestCase):
 
         # No argument to select_subclasses
         objs_1 = list(
-            self.get_manager().
-                select_subclasses().
-                values_list('id')
+            self.get_manager()
+                .select_subclasses()
+                .values_list('id')
         )
 
         # String argument to select_subclasses
         objs_2 = list(
-            self.get_manager().
-                select_subclasses(
+            self.get_manager()
+            .select_subclasses(
                 "inheritancemanagertestchild2"
-            ).
-                values_list('id')
+            )
+            .values_list('id')
         )
 
         # String argument to select_subclasses
         objs_3 = list(
-            self.get_manager().
-                select_subclasses(
+            self.get_manager()
+            .select_subclasses(
                 InheritanceManagerTestChild2
-            ).
-                values_list('id')
+            ).values_list('id')
         )
 
         assert all((

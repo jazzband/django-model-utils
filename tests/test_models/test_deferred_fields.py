@@ -24,7 +24,7 @@ class CustomDescriptorTests(TestCase):
         self.assertEqual(instance.custom_field, '2')
         self.assertEqual(instance.__dict__['custom_field'], 2)
         instance.save()
-        intance = ModelWithCustomDescriptor.objects.get(pk=instance.pk)
+        instance = ModelWithCustomDescriptor.objects.get(pk=instance.pk)
         self.assertEqual(instance.custom_field, '2')
         self.assertEqual(instance.__dict__['custom_field'], 2)
 

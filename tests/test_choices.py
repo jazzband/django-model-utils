@@ -79,7 +79,7 @@ class LabelChoicesTests(ChoicesTests):
             ('DRAFT', 'is draft'),
             ('PUBLISHED', 'is published'),
             ('DELETED', 'DELETED'))
-                         )
+        )
 
     def test_indexing(self):
         self.assertEqual(self.STATUS['PUBLISHED'], 'is published')
