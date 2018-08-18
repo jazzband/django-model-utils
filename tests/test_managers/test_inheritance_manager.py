@@ -451,3 +451,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         qs = InheritanceManagerTestParent.objects.annotate(
             test_count=models.Count('id')).select_subclasses()
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
+
+    def test_clone_when_inheritance_queryset_selects_subclasses_should_clone_them_too(self):
+        qs = InheritanceManagerTestParent.objects.select_subclasses()
+        self.assertEqual(qs.subclasses, qs._clone().subclasses)
