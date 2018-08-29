@@ -224,6 +224,13 @@ class FeaturedManager(models.Manager):
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
 
+class AbstractTracked(models.Model):
+    number = 1
+
+    class Meta:
+        abstract = True
+
+
 class Tracked(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
@@ -238,6 +245,14 @@ class TrackedFK(models.Model):
     tracker = FieldTracker()
     custom_tracker = FieldTracker(fields=['fk_id'])
     custom_tracker_without_id = FieldTracker(fields=['fk'])
+
+
+class TrackedAbstract(AbstractTracked):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+    mutable = MutableField(default=None)
+
+    tracker = FieldTracker()
 
 
 class TrackedNotDefault(models.Model):

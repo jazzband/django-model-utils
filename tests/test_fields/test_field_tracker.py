@@ -8,7 +8,7 @@ from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, TrackedFileField,
+    InheritedTracked, TrackedFileField, TrackedAbstract,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
 )
 
@@ -785,3 +785,8 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.name2 = 'test'
         self.assertEqual(self.tracker.previous('name2'), None)
         self.assertTrue(self.tracker.has_changed('name2'))
+
+
+class AbstractModelTrackerTests(FieldTrackerTestCase):
+
+    tracked_class = TrackedAbstract
