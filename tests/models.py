@@ -210,7 +210,14 @@ class FeaturedManager(models.Manager):
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
 
-class Tracked(models.Model):
+class TrackedAbstract(models.Model):
+    number = 1
+
+    class Meta:
+        abstract = True
+
+
+class Tracked(TrackedAbstract):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
     mutable = MutableField(default=None)
