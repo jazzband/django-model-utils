@@ -216,9 +216,10 @@ class FieldTracker(object):
         if django.VERSION >= (1, 10):
             for field_name in self.fields:
                 descriptor = getattr(sender, field_name)
-                wrapper_cls = DescriptorWrapper.cls_for_descriptor(descriptor)
-                wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
-                setattr(sender, field_name, wrapped_descriptor)
+                if isinstance(descriptor, DeferredAttribute):
+                    wrapper_cls = DescriptorWrapper.cls_for_descriptor(descriptor)
+                    wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
+                    setattr(sender, field_name, wrapped_descriptor)
         self.field_map = self.get_field_map(sender)
         models.signals.post_init.connect(self.initialize_tracker)
         self.model_class = sender
