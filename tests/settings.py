@@ -8,3 +8,9 @@ DATABASES = {
     }
 }
 SECRET_KEY = 'dummy'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.LocMemCache',
+    }
+}
