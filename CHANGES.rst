@@ -6,6 +6,7 @@ master (unreleased)
 - Fix handling of deferred attributes on Django 1.10+, fixes GH-278
 - Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
   correct responses for deferred fields.
+- Fix Model instance non picklable GH-330
 
 3.1.2 (2018.05.09)
 ------------------

@@ -207,6 +207,7 @@ class FieldTracker(object):
     def contribute_to_class(self, cls, name):
         self.name = name
         self.attname = '_%s' % name
+        self.patch_save(cls)
         models.signals.class_prepared.connect(self.finalize_class, sender=cls)
 
     def finalize_class(self, sender, **kwargs):
@@ -230,14 +231,13 @@ class FieldTracker(object):
         tracker = self.tracker_class(instance, self.fields, self.field_map)
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()
-        self.patch_save(instance)
         instance._instance_intialized = True
 
-    def patch_save(self, instance):
-        original_save = instance.save
+    def patch_save(self, model):
+        original_save = model.save
 
-        def save(**kwargs):
-            ret = original_save(**kwargs)
+        def save(instance, **kwargs):
+            ret = original_save(instance, **kwargs)
             update_fields = kwargs.get('update_fields')
             if not update_fields and update_fields is not None:  # () or []
                 fields = update_fields
@@ -253,7 +253,7 @@ class FieldTracker(object):
             )
             return ret
 
-        instance.save = save
+        model.save = save
 
     def __get__(self, instance, owner):
         if instance is None:
