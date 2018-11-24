@@ -1,11 +1,16 @@
+import os
+
 INSTALLED_APPS = (
     'model_utils',
     'tests',
 )
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3'
-    }
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.environ.get("DJANGO_DATABASE_NAME_POSTGRES", "modelutils"),
+        "USER": os.environ.get("DJANGO_DATABASE_USER_POSTGRES", 'postgres'),
+        "PASSWORD": os.environ.get("DJANGO_DATABASE_PASSWORD_POSTGRES", ""),
+    },
 }
 SECRET_KEY = 'dummy'
 
