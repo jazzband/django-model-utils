@@ -3,11 +3,7 @@ import django
 from django.db import models
 from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
-try:
-    from django.db.models.query import BaseIterable, ModelIterable
-except ImportError:
-    # Django 1.8 does not have iterable classes
-    BaseIterable, ModelIterable = object, object
+from django.db.models.query import ModelIterable
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.constants import LOOKUP_SEP
@@ -107,10 +103,6 @@ class InheritanceQuerySetMixin(object):
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
 
-        if django.VERSION < (1, 9):
-            kwargs['klass'] = klass
-            kwargs['setup'] = setup
-
         return super(InheritanceQuerySetMixin, self)._clone(**kwargs)
 
     def annotate(self, *args, **kwargs):
@@ -192,10 +184,7 @@ class InheritanceQuerySetMixin(object):
         if levels:
             levels -= 1
         while parent_link is not None:
-            if django.VERSION < (1, 9):
-                related = parent_link.rel
-            else:
-                related = parent_link.remote_field
+            related = parent_link.remote_field
             ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 parent_model = related.model
