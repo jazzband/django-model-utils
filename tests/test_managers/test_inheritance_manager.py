@@ -123,10 +123,16 @@ class InheritanceManagerTests(TestCase):
         ensure that the relation names and subclasses are obtained correctly.
         """
         child3 = InheritanceManagerTestChild3.objects.create()
-        results = InheritanceManagerTestParent.objects.all().select_subclasses()
+        qs = InheritanceManagerTestParent.objects.all()
+        results = qs.select_subclasses().order_by('pk')
 
-        expected_objs = [self.child1, self.child2, self.grandchild1,
-                         self.grandchild1_2, child3]
+        expected_objs = [
+            self.child1,
+            self.child2,
+            self.grandchild1,
+            self.grandchild1_2,
+            child3
+        ]
         self.assertEqual(list(results), expected_objs)
 
         expected_related_names = [
@@ -146,7 +152,8 @@ class InheritanceManagerTests(TestCase):
         """
         related_name = 'manual_onetoone'
         child3 = InheritanceManagerTestChild3.objects.create()
-        results = InheritanceManagerTestParent.objects.all().select_subclasses(related_name)
+        qs = InheritanceManagerTestParent.objects.all()
+        results = qs.select_subclasses(related_name).order_by('pk')
 
         expected_objs = [InheritanceManagerTestParent(pk=self.child1.pk),
                          InheritanceManagerTestParent(pk=self.child2.pk),
@@ -389,14 +396,16 @@ class InheritanceManagerUsingModelsTests(TestCase):
         """
         child3 = InheritanceManagerTestChild3.objects.create()
         results = InheritanceManagerTestParent.objects.all().select_subclasses(
-            InheritanceManagerTestChild3)
+            InheritanceManagerTestChild3).order_by('pk')
 
-        expected_objs = [InheritanceManagerTestParent(pk=self.parent1.pk),
-                         InheritanceManagerTestParent(pk=self.child1.pk),
-                         InheritanceManagerTestParent(pk=self.child2.pk),
-                         InheritanceManagerTestParent(pk=self.grandchild1.pk),
-                         InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
-                         child3]
+        expected_objs = [
+            InheritanceManagerTestParent(pk=self.parent1.pk),
+            InheritanceManagerTestParent(pk=self.child1.pk),
+            InheritanceManagerTestParent(pk=self.child2.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1.pk),
+            InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
+            child3
+        ]
         self.assertEqual(list(results), expected_objs)
 
         expected_related_names = ['manual_onetoone']

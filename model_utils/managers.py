@@ -3,15 +3,14 @@ import django
 from django.db import models
 from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
-try:
-    from django.db.models.query import BaseIterable, ModelIterable
-except ImportError:
-    # Django 1.8 does not have iterable classes
-    BaseIterable, ModelIterable = object, object
+from django.db.models.query import ModelIterable
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.constants import LOOKUP_SEP
 from django.utils.six import string_types
+
+from django.db import connection
+from django.db.models.sql.datastructures import Join
 
 
 class InheritanceIterable(ModelIterable):
@@ -104,10 +103,6 @@ class InheritanceQuerySetMixin(object):
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
 
-        if django.VERSION < (1, 9):
-            kwargs['klass'] = klass
-            kwargs['setup'] = setup
-
         return super(InheritanceQuerySetMixin, self)._clone(**kwargs)
 
     def annotate(self, *args, **kwargs):
@@ -189,10 +184,7 @@ class InheritanceQuerySetMixin(object):
         if levels:
             levels -= 1
         while parent_link is not None:
-            if django.VERSION < (1, 9):
-                related = parent_link.rel
-            else:
-                related = parent_link.remote_field
+            related = parent_link.remote_field
             ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 parent_model = related.model
@@ -307,4 +299,112 @@ class SoftDeletableManagerMixin(object):
 
 
 class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):
+    pass
+
+
+class JoinQueryset(models.QuerySet):
+
+    def get_quoted_query(self, query):
+        query, params = query.sql_with_params()
+
+        # Put additional quotes around string.
+        params = [
+            '\'{}\''.format(p)
+            if isinstance(p, str) else p
+            for p in params
+        ]
+
+        # Cast list of parameters to tuple because I got
+        # "not enough format characters" otherwise.
+        params = tuple(params)
+        return query % params
+
+    def join(self, qs=None):
+        '''
+        Join one queryset together with another using a temporary table. If
+        no queryset is used, it will use the current queryset and join that
+        to itself.
+
+        `Join` either uses the current queryset and effectively does a self-join to
+        create a new limited queryset OR it uses a querset given by the user.
+
+        The model of a given queryset needs to contain a valid foreign key to
+        the current queryset to perform a join. A new queryset is then created.
+        '''
+        to_field = 'id'
+
+        if qs:
+            fk = [
+                fk for fk in qs.model._meta.fields
+                if getattr(fk, 'related_model', None) == self.model
+            ]
+            fk = fk[0] if fk else None
+            model_set = '{}_set'.format(self.model.__name__.lower())
+            key = fk or getattr(qs.model, model_set, None)
+
+            if not key:
+                raise ValueError('QuerySet is not related to current model')
+
+            try:
+                fk_column = key.column
+            except AttributeError:
+                fk_column = 'id'
+                to_field = key.field.column
+
+            qs = qs.only(fk_column)
+            # if we give a qs we need to keep the model qs to not lose anything
+            new_qs = self
+        else:
+            fk_column = 'id'
+            qs = self.only(fk_column)
+            new_qs = self.model.objects.all()
+
+        TABLE_NAME = 'temp_stuff'
+        query = self.get_quoted_query(qs.query)
+        sql = '''
+            DROP TABLE IF EXISTS {table_name};
+            DROP INDEX IF EXISTS {table_name}_id;
+            CREATE TEMPORARY TABLE {table_name} AS {query};
+            CREATE INDEX {table_name}_{fk_column} ON {table_name} ({fk_column});
+        '''.format(table_name=TABLE_NAME, fk_column=fk_column, query=str(query))
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+
+        class TempModel(models.Model):
+            temp_key = models.ForeignKey(
+                self.model,
+                on_delete=models.DO_NOTHING,
+                db_column=fk_column,
+                to_field=to_field
+            )
+
+            class Meta:
+                managed = False
+                db_table = TABLE_NAME
+
+        conn = Join(
+            table_name=TempModel._meta.db_table,
+            parent_alias=new_qs.query.get_initial_alias(),
+            table_alias=None,
+            join_type='INNER JOIN',
+            join_field=self.model.tempmodel_set.rel,
+            nullable=False
+        )
+        new_qs.query.join(conn, reuse=None)
+        return new_qs
+
+
+class JoinManagerMixin(object):
+    """
+    Manager that adds a method join. This method allows you to join two
+    querysets together.
+    """
+    _queryset_class = JoinQueryset
+
+    def get_queryset(self):
+        return self._queryset_class(model=self.model, using=self._db)
+
+
+class JoinManager(JoinManagerMixin, models.Manager):
     pass

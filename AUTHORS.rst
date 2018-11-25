@@ -22,6 +22,7 @@
 | Jarek Glowacki <github.com/jarekwg>
 | Javier García Sogo <jgsogo@gmail.com>
 | Jeff Elmore <jeffelmore.org>
+| Jonathan Sundqvist <jonathan@argpar.se>
 | Keryn Knight <kerynknight.com>
 | Martey Dodoo <martey+django-model-utils@mobolic.com>
 | Matthew Schinckel <matt@schinckel.net>
