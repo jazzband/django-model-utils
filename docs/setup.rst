@@ -17,7 +17,7 @@ modify your ``INSTALLED_APPS`` setting.
 Dependencies
 ============
 
-``django-model-utils`` supports `Django`_ 1.8 through 2.0 (latest bugfix
-release in each series only) on Python 2.7, 3.3 (Django 1.8 only), 3.4 and 3.5.
+``django-model-utils`` supports `Django`_ 1.8 through 2.1 (latest bugfix
+release in each series only) on Python 2.7, 3.4, 3.5 and 3.6.
 
 .. _Django: http://www.djangoproject.com/

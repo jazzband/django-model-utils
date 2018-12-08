@@ -146,6 +146,7 @@ SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
 _excerpt_field_name = lambda name: '_%s_excerpt' % name
 
+
 def get_excerpt(content):
     excerpt = []
     default_excerpt = []
@@ -161,6 +162,7 @@ def get_excerpt(content):
 
     return '\n'.join(default_excerpt)
 
+
 @python_2_unicode_compatible
 class SplitText(object):
     def __init__(self, instance, field_name, excerpt_field_name):
@@ -171,11 +173,13 @@ class SplitText(object):
         self.excerpt_field_name = excerpt_field_name
 
     # content is read/write
-    def _get_content(self):
+    @property
+    def content(self):
         return self.instance.__dict__[self.field_name]
-    def _set_content(self, val):
+
+    @content.setter
+    def content(self, val):
         setattr(self.instance, self.field_name, val)
-    content = property(_get_content, _set_content)
 
     # excerpt is a read only property
     def _get_excerpt(self):
@@ -189,6 +193,7 @@ class SplitText(object):
 
     def __str__(self):
         return self.content
+
 
 class SplitDescriptor(object):
     def __init__(self, field):
@@ -209,6 +214,7 @@ class SplitDescriptor(object):
             setattr(obj, self.excerpt_field_name, value.excerpt)
         else:
             obj.__dict__[self.field.name] = value
+
 
 class SplitField(models.TextField):
     def __init__(self, *args, **kwargs):

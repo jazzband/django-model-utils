@@ -14,7 +14,7 @@ django-model-utils
 
 Django model mixins and utilities.
 
-``django-model-utils`` supports `Django`_ 1.8 to 2.0.
+``django-model-utils`` supports `Django`_ 1.8 to 2.1.
 
 .. _Django: http://www.djangoproject.com/
 
@@ -27,6 +27,15 @@ Getting Help
 
 Documentation for django-model-utils is available
 https://django-model-utils.readthedocs.io/
+
+
+Run tests
+---------
+
+.. code-block
+
+    pip install -e .
+    py.test
 
 Contributing
 ============
