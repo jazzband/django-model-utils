@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django
 from django.core.exceptions import FieldError
 from django.test import TestCase
-
+from django.core.cache import cache
 from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
@@ -638,6 +638,16 @@ class FieldTrackerFileFieldTests(FieldTrackerTestCase):
 class ModelTrackerTests(FieldTrackerTests):
 
     tracked_class = ModelTracked
+
+    def test_cache_compatible(self):
+        cache.set('key', self.instance)
+        instance = cache.get('key')
+        instance.number = 1
+        instance.name = 'cached'
+        instance.save()
+        self.assertChanged()
+        instance.number = 2
+        self.assertHasChanged(number=True)
 
     def test_pre_save_changed(self):
         self.assertChanged()

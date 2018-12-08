@@ -9,7 +9,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
 from model_utils.fields import SplitField, MonitorField, StatusField
-from model_utils.managers import QueryManager, InheritanceManager
+from model_utils.managers import (
+    QueryManager,
+    InheritanceManager,
+    JoinManagerMixin
+)
 from model_utils.models import (
     SoftDeletableModel,
     StatusModel,
@@ -370,3 +374,22 @@ class ModelWithCustomDescriptor(models.Model):
     tracked_regular_field = models.IntegerField()
 
     tracker = FieldTracker(fields=['tracked_custom_field', 'tracked_regular_field'])
+
+
+class JoinManager(JoinManagerMixin, models.Manager):
+    pass
+
+
+class BoxJoinModel(models.Model):
+    name = models.CharField(max_length=32)
+    objects = JoinManager()
+
+
+class JoinItemForeignKey(models.Model):
+    weight = models.IntegerField()
+    belonging = models.ForeignKey(
+        BoxJoinModel,
+        null=True,
+        on_delete=models.CASCADE
+    )
+    objects = JoinManager()
