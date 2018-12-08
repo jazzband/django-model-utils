@@ -6,6 +6,8 @@ master (unreleased)
 - Fix handling of deferred attributes on Django 1.10+, fixes GH-278
 - Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
   correct responses for deferred fields.
+- Update AutoLastModifiedField so that at instance creation it will
+  always be set equal to created to make querying easier. Fixes GH-254
 - Support `reversed` for all kinds of `Choices` objects, fixes GH-309
 - Fix Model instance non picklable GH-330
 

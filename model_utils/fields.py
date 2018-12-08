@@ -32,6 +32,11 @@ class AutoLastModifiedField(AutoCreatedField):
     """
     def pre_save(self, model_instance, add):
         value = now()
+        if not model_instance.pk:
+            for field in model_instance._meta.get_fields():
+                if isinstance(field, AutoCreatedField):
+                    value = getattr(model_instance, field.name)
+                    break
         setattr(model_instance, self.attname, value)
         return value
 
