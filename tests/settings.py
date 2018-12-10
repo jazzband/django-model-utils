@@ -10,6 +10,7 @@ DATABASES = {
         "NAME": os.environ.get("DJANGO_DATABASE_NAME_POSTGRES", "modelutils"),
         "USER": os.environ.get("DJANGO_DATABASE_USER_POSTGRES", 'postgres'),
         "PASSWORD": os.environ.get("DJANGO_DATABASE_PASSWORD_POSTGRES", ""),
+        "HOST": os.environ.get("DJANGO_DATABASE_HOST_POSTGRES", ""),
     },
 }
 SECRET_KEY = 'dummy'
