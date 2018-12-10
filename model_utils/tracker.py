@@ -236,8 +236,8 @@ class FieldTracker(object):
     def patch_save(self, model):
         original_save = model.save
 
-        def save(instance, **kwargs):
-            ret = original_save(instance, **kwargs)
+        def save(instance, *args, **kwargs):
+            ret = original_save(instance, *args, **kwargs)
             update_fields = kwargs.get('update_fields')
             if not update_fields and update_fields is not None:  # () or []
                 fields = update_fields
