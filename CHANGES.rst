@@ -10,6 +10,7 @@ master (unreleased)
   always be set equal to created to make querying easier. Fixes GH-254
 - Support `reversed` for all kinds of `Choices` objects, fixes GH-309
 - Fix Model instance non picklable GH-330
+- Fix patched `save` in FieldTracker
 
 3.1.2 (2018.05.09)
 ------------------
