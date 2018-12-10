@@ -85,6 +85,11 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
 
+    def test_save_with_args(self):
+        self.instance.number = 1
+        self.instance.save(False, False, None, None)
+        self.assertChanged()
+
     def test_first_save(self):
         self.assertHasChanged(name=True, number=False, mutable=False)
         self.assertPrevious(name=None, number=None, mutable=None)
