@@ -6,7 +6,7 @@ from model_utils.fields import StatusField
 from tests.models import (
     Article, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
     StatusFieldChoicesName,
-    )
+)
 
 
 class StatusFieldTests(TestCase):
