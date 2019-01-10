@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 
-from unittest import skipUnless
-
 import django
 from django.core.exceptions import FieldError
 from django.test import TestCase
-
+from django.core.cache import cache
 from model_utils import FieldTracker
+from model_utils.tracker import DescriptorWrapper
 from tests.models import (
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
     InheritedTracked, TrackedFileField,
@@ -74,7 +73,7 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None, number=None)
         self.instance.name = ''
         self.assertChanged(name=None, number=None)
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertChanged(name=None, number=None, mutable=None)
 
     def test_pre_save_has_changed(self):
@@ -83,8 +82,13 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.number = 7
         self.assertHasChanged(name=True, number=True)
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
+
+    def test_save_with_args(self):
+        self.instance.number = 1
+        self.instance.save(False, False, None, None)
+        self.assertChanged()
 
     def test_first_save(self):
         self.assertHasChanged(name=True, number=False, mutable=False)
@@ -93,22 +97,22 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertChanged(name=None)
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged(name=None, number=None, mutable=None)
 
         self.instance.save(update_fields=[])
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged(name=None, number=None, mutable=None)
         with self.assertRaises(ValueError):
             self.instance.save(update_fields=['number'])
 
     def test_post_save_has_changed(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertHasChanged(name=False, number=False, mutable=False)
         self.instance.name = 'new age'
         self.assertHasChanged(name=True, number=False)
@@ -120,14 +124,14 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertHasChanged(name=False, number=True, mutable=True)
 
     def test_post_save_previous(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.name = 'new age'
-        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.assertPrevious(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.mutable[1] = 4
-        self.assertPrevious(name='retro', number=4, mutable=[1,2,3])
+        self.assertPrevious(name='retro', number=4, mutable=[1, 2, 3])
 
     def test_post_save_changed(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.assertChanged(name='retro')
@@ -136,8 +140,8 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.name = 'retro'
         self.assertChanged(number=4)
         self.instance.mutable[1] = 4
-        self.assertChanged(number=4, mutable=[1,2,3])
-        self.instance.mutable = [1,2,3]
+        self.assertChanged(number=4, mutable=[1, 2, 3])
+        self.instance.mutable = [1, 2, 3]
         self.assertChanged(number=4)
 
     def test_current(self):
@@ -146,29 +150,29 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertCurrent(id=None, name='new age', number=None, mutable=None)
         self.instance.number = 8
         self.assertCurrent(id=None, name='new age', number=8, mutable=None)
-        self.instance.mutable = [1,2,3]
-        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,2,3])
+        self.instance.mutable = [1, 2, 3]
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1, 2, 3])
         self.instance.mutable[1] = 4
-        self.assertCurrent(id=None, name='new age', number=8, mutable=[1,4,3])
+        self.assertCurrent(id=None, name='new age', number=8, mutable=[1, 4, 3])
         self.instance.save()
-        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1,4,3])
+        self.assertCurrent(id=self.instance.id, name='new age', number=8, mutable=[1, 4, 3])
 
     def test_update_fields(self):
-        self.update_instance(name='retro', number=4, mutable=[1,2,3])
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertChanged()
         self.instance.name = 'new age'
         self.instance.number = 8
-        self.instance.mutable = [4,5,6]
-        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
+        self.instance.mutable = [4, 5, 6]
+        self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.save(update_fields=[])
-        self.assertChanged(name='retro', number=4, mutable=[1,2,3])
+        self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
         self.instance.save(update_fields=['name'])
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertNotEqual(in_db.number, self.instance.number)
-        self.assertChanged(number=4, mutable=[1,2,3])
+        self.assertChanged(number=4, mutable=[1, 2, 3])
         self.instance.save(update_fields=['number'])
-        self.assertChanged(mutable=[1,2,3])
+        self.assertChanged(mutable=[1, 2, 3])
         self.instance.save(update_fields=['mutable'])
         self.assertChanged()
         in_db = self.tracked_class.objects.get(id=self.instance.id)
@@ -180,19 +184,64 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.name = 'new age'
         self.instance.number = 1
         self.instance.save()
-        item = list(self.tracked_class.objects.only('name').all())[0]
-        self.assertTrue(item._deferred_fields)
+        item = self.tracked_class.objects.only('name').first()
+        if django.VERSION >= (1, 10):
+            self.assertTrue(item.get_deferred_fields())
+        else:
+            self.assertTrue(item._deferred_fields)
 
-        self.assertEqual(item.tracker.previous('number'), None)
-        self.assertTrue('number' in item._deferred_fields)
+        # has_changed() returns False for deferred fields, without un-deferring them.
+        # Use an if because ModelTracked doesn't support has_changed() in this case.
+        if self.tracked_class == Tracked:
+            self.assertFalse(item.tracker.has_changed('number'))
+            if django.VERSION >= (1, 10):
+                self.assertIsInstance(item.__class__.number, DescriptorWrapper)
+                self.assertTrue('number' in item.get_deferred_fields())
+            else:
+                self.assertTrue('number' in item._deferred_fields)
 
+        # previous() un-defers field and returns value
+        self.assertEqual(item.tracker.previous('number'), 1)
+        if django.VERSION >= (1, 10):
+            self.assertNotIn('number', item.get_deferred_fields())
+        else:
+            self.assertNotIn('number', item._deferred_fields)
+
+        # examining a deferred field un-defers it
+        item = self.tracked_class.objects.only('name').first()
         self.assertEqual(item.number, 1)
-        self.assertTrue('number' not in item._deferred_fields)
+        if django.VERSION >= (1, 10):
+            self.assertTrue('number' not in item.get_deferred_fields())
+        else:
+            self.assertTrue('number' not in item._deferred_fields)
         self.assertEqual(item.tracker.previous('number'), 1)
         self.assertFalse(item.tracker.has_changed('number'))
 
+        # has_changed() returns correct values after deferred field is examined
+        self.assertFalse(item.tracker.has_changed('number'))
         item.number = 2
         self.assertTrue(item.tracker.has_changed('number'))
+
+        # previous() returns correct value after deferred field is examined
+        self.assertEqual(item.tracker.previous('number'), 1)
+
+        # assigning to a deferred field un-defers it
+        # Use an if because ModelTracked doesn't handle this case.
+        if self.tracked_class == Tracked:
+
+            item = self.tracked_class.objects.only('name').first()
+            item.number = 2
+
+            # previous() fetches correct value from database after deferred field is assigned
+            self.assertEqual(item.tracker.previous('number'), 1)
+
+            # database fetch of previous() value doesn't affect current value
+            self.assertEqual(item.number, 2)
+
+            # has_changed() returns correct values after deferred field is assigned
+            self.assertTrue(item.tracker.has_changed('number'))
+            item.number = 1
+            self.assertFalse(item.tracker.has_changed('number'))
 
 
 class FieldTrackerMultipleInstancesTests(TestCase):
@@ -595,6 +644,16 @@ class ModelTrackerTests(FieldTrackerTests):
 
     tracked_class = ModelTracked
 
+    def test_cache_compatible(self):
+        cache.set('key', self.instance)
+        instance = cache.get('key')
+        instance.number = 1
+        instance.name = 'cached'
+        instance.save()
+        self.assertChanged()
+        instance.number = 2
+        self.assertHasChanged(number=True)
+
     def test_pre_save_changed(self):
         self.assertChanged()
         self.instance.name = 'new age'
@@ -603,7 +662,7 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = ''
         self.assertChanged()
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertChanged()
 
     def test_first_save(self):
@@ -613,16 +672,16 @@ class ModelTrackerTests(FieldTrackerTests):
         self.assertChanged()
         self.instance.name = 'retro'
         self.instance.number = 4
-        self.instance.mutable = [1,2,3]
+        self.instance.mutable = [1, 2, 3]
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged()
 
         self.instance.save(update_fields=[])
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
-        self.assertCurrent(name='retro', number=4, id=None, mutable=[1,2,3])
+        self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged()
         with self.assertRaises(ValueError):
             self.instance.save(update_fields=['number'])

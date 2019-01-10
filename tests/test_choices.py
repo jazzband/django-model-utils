@@ -16,7 +16,12 @@ class ChoicesTests(TestCase):
         self.assertEqual(self.STATUS['PUBLISHED'], 'PUBLISHED')
 
     def test_iteration(self):
-        self.assertEqual(tuple(self.STATUS), (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
+        self.assertEqual(tuple(self.STATUS),
+                         (('DRAFT', 'DRAFT'), ('PUBLISHED', 'PUBLISHED')))
+
+    def test_reversed(self):
+        self.assertEqual(tuple(reversed(self.STATUS)),
+                         (('PUBLISHED', 'PUBLISHED'), ('DRAFT', 'DRAFT')))
 
     def test_len(self):
         self.assertEqual(len(self.STATUS), 2)
@@ -78,8 +83,15 @@ class LabelChoicesTests(ChoicesTests):
         self.assertEqual(tuple(self.STATUS), (
             ('DRAFT', 'is draft'),
             ('PUBLISHED', 'is published'),
-            ('DELETED', 'DELETED'))
-                         )
+            ('DELETED', 'DELETED'),
+        ))
+
+    def test_reversed(self):
+        self.assertEqual(tuple(reversed(self.STATUS)), (
+            ('DELETED', 'DELETED'),
+            ('PUBLISHED', 'is published'),
+            ('DRAFT', 'is draft'),
+        ))
 
     def test_indexing(self):
         self.assertEqual(self.STATUS['PUBLISHED'], 'is published')
@@ -169,7 +181,15 @@ class IdentifierChoicesTests(ChoicesTests):
         self.assertEqual(tuple(self.STATUS), (
             (0, 'is draft'),
             (1, 'is published'),
-            (2, 'is deleted')))
+            (2, 'is deleted'),
+        ))
+
+    def test_reversed(self):
+        self.assertEqual(tuple(reversed(self.STATUS)), (
+            (2, 'is deleted'),
+            (1, 'is published'),
+            (0, 'is draft'),
+        ))
 
     def test_indexing(self):
         self.assertEqual(self.STATUS[1], 'is published')

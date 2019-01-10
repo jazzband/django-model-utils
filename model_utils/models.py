@@ -123,6 +123,7 @@ class SoftDeletableModel(models.Model):
         abstract = True
 
     objects = SoftDeletableManager()
+    all_objects = models.Manager()
 
     def delete(self, using=None, soft=True, *args, **kwargs):
         """
