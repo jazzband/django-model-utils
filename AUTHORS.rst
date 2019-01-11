@@ -15,6 +15,7 @@
 | Felipe Prenholato <philipe.rp@gmail.com>
 | Filipe Ximenes <filipeximenes@gmail.com>
 | Gregor Müllegger <gregor@muellegger.de>
+| Germano Massullo <germano.massullo@gmail.com>
 | Hanley Hansen <hanleyhansen@gmail.com>
 | ivirabyan
 | James Oakley <jfunk@funktronics.ca>
@@ -49,3 +50,4 @@
 | Jack Cushman <jcushman@law.harvard.edu>
 | Zach Cheung <kuroro.zhang@gmail.com>
 | Daniel Andrlik <daniel@andrlik.org>
+
