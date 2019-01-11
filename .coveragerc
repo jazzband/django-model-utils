@@ -1,5 +1,2 @@
 [run]
-source = model_utils
-omit = .*
-       tests/*
-       */_*
+include = model_utils/*.py

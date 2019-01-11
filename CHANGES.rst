@@ -7,11 +7,19 @@ master (unreleased)
 - Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
   correct responses for deferred fields.
 - Add Simplified Chinese translations.
+- Update AutoLastModifiedField so that at instance creation it will
+  always be set equal to created to make querying easier. Fixes GH-254
+- Support `reversed` for all kinds of `Choices` objects, fixes GH-309
+- Fix Model instance non picklable GH-330
+- Fix patched `save` in FieldTracker
 
 3.1.2 (2018.05.09)
 ------------------
 * Update InheritanceIterable to inherit from
   ModelIterable instead of BaseIterable, fixes GH-277.
+
+* Add all_objects Manager for 'SoftDeletableModel' to include soft
+  deleted objects on queries as per issue GH-255
 
 3.1.1 (2017.12.17)
 ------------------
