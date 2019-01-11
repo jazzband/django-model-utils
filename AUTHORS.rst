@@ -15,6 +15,7 @@
 | Felipe Prenholato <philipe.rp@gmail.com>
 | Filipe Ximenes <filipeximenes@gmail.com>
 | Gregor Müllegger <gregor@muellegger.de>
+| Germano Massullo <germano.massullo@gmail.com>
 | Hanley Hansen <hanleyhansen@gmail.com>
 | ivirabyan
 | James Oakley <jfunk@funktronics.ca>
