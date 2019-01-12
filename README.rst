@@ -7,15 +7,14 @@ django-model-utils
    :alt: Jazzband
 .. image:: https://travis-ci.org/jazzband/django-model-utils.svg?branch=master
    :target: https://travis-ci.org/jazzband/django-model-utils
-.. image:: https://coveralls.io/repos/github/jazzband/django-model-utils/badge.svg?branch=master
-   :target: https://coveralls.io/github/jazzband/django-model-utils?branch=master
+.. image:: https://codecov.io/gh/jazzband/django-model-utils/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/jazzband/django-model-utils
 .. image:: https://img.shields.io/pypi/v/django-model-utils.svg
    :target: https://pypi.python.org/pypi/django-model-utils
 
 Django model mixins and utilities.
 
-``django-model-utils`` supports `Django`_ 1.8 through 1.10 (latest bugfix
-release in each series only) on Python 2.7, 3.3 (Django 1.8 only), 3.4 and 3.5.
+``django-model-utils`` supports `Django`_ 1.8 to 2.1.
 
 .. _Django: http://www.djangoproject.com/
 
@@ -23,12 +22,20 @@ This app is available on `PyPI`_.
 
 .. _PyPI: https://pypi.python.org/pypi/django-model-utils/
 
-
 Getting Help
 ============
 
-Documentation for django-model-utils is available at https://django-model-utils.readthedocs.io/
+Documentation for django-model-utils is available
+https://django-model-utils.readthedocs.io/
 
+
+Run tests
+---------
+
+.. code-block
+
+    pip install -e .
+    py.test
 
 Contributing
 ============

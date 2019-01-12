@@ -1,4 +1,2 @@
 [run]
-source = model_utils
-omit = model_utils/tests/*
-branch = 1
+include = model_utils/*.py

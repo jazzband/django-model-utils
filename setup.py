@@ -21,6 +21,7 @@ def get_version(root_path):
             if line.startswith('__version__ ='):
                 return line.split('=')[1].strip().strip('"\'')
 
+
 setup(
     name='django-model-utils',
     version=get_version(HERE),
@@ -45,13 +46,19 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Django',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
     ],
     zip_safe=False,
     tests_require=['Django>=1.8'],
     package_data={
         'model_utils': [
-            'locale/*/LC_MESSAGES/django.po','locale/*/LC_MESSAGES/django.mo'
+            'locale/*/LC_MESSAGES/django.po', 'locale/*/LC_MESSAGES/django.mo'
         ],
     },
 )
