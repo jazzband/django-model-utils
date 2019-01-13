@@ -3,4 +3,6 @@ include CHANGES.rst
 include LICENSE.txt
 include MANIFEST.in
 include README.rst
-include model_utils/locale/de/LC_MESSAGES/django.po
+include TODO.rst
+recursive-include locale django.po
+include runtests.py
