@@ -12,6 +12,8 @@ master (unreleased)
 - Support `reversed` for all kinds of `Choices` objects, fixes GH-309
 - Fix Model instance non picklable GH-330
 - Fix patched `save` in FieldTracker
+- Upgrades test requirements (pytest, pytest-django, pytest-cov) and 
+  skips tox test with Python 3.5 and Django (trunk)
 
 3.1.2 (2018.05.09)
 ------------------
