@@ -159,7 +159,7 @@ be the excerpt. This number can be customized by setting the
 UUIDField
 ----------
 
-A ``UUIDField``subclass that provides an UUID field. You can 
+A ``UUIDField`` subclass that provides an UUID field. You can 
 add this field to any model definition. 
 
 With the param ``primary_key`` you can set if this field is the 
