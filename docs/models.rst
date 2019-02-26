@@ -64,7 +64,9 @@ This abstract base class provides ``id`` field on any model that inherits from i
 which will be the primary key.
 
 If you dont want to set ``id`` as primary key or change the field name, you can be override it 
-with our [UUIDField](https://github.com/jazzband/django-model-utils/blob/master/docs/fields.rst#uuidfield).
+with our `UUIDField`_ 
+
+(https://github.com/jazzband/django-model-utils/blob/master/docs/fields.rst#uuidfield).
 
 Also you can override the default uuid version. Versions 1,3,4 and 5 are now supported.
 
@@ -76,3 +78,6 @@ Also you can override the default uuid version. Versions 1,3,4 and 5 are now sup
     class MyAppModel(UUIDModel):
         pass
 
+
+
+.. _`UUIDField`: https://github.com/jazzband/django-model-utils/blob/master/docs/fields.rst#uuidfield
