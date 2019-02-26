@@ -4,10 +4,9 @@ import django
 import uuid
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
-
-from model_utils.exceptions import UUIDVersionException
 
 DEFAULT_CHOICES_NAME = 'STATUS'
 
@@ -152,7 +151,8 @@ SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
 
-def _excerpt_field_name(name): return '_%s_excerpt' % name
+def _excerpt_field_name(name):
+    return '_%s_excerpt' % name
 
 
 def get_excerpt(content):
@@ -281,7 +281,7 @@ class UUIDField(models.UUIDField):
 
         Raises
         ------
-        UUIDVersionException
+        ValidationError
             UUID version 2 is not supported.
         """
         kwargs.setdefault('primary_key', primary_key)
@@ -292,14 +292,14 @@ class UUIDField(models.UUIDField):
         elif version == 1:
             default = uuid.uuid1
         elif version == 2:
-            raise UUIDVersionException(
+            raise ValidationError(
                 'UUID version 2 is not supported.')
         elif version == 3:
             default = uuid.uuid3
         elif version == 5:
             default = uuid.uuid5
         else:
-            raise UUIDVersionException(
+            raise ValidationError(
                 'UUID version is not valid.')
 
         kwargs.setdefault('default', default)
