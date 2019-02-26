@@ -154,3 +154,29 @@ If no marker is found in the content, the first two paragraphs (where
 paragraphs are blocks of text separated by a blank line) are taken to
 be the excerpt. This number can be customized by setting the
 ``SPLIT_DEFAULT_PARAGRAPHS`` setting.
+
+
+UUIDField
+----------
+
+A ``UUIDField``subclass that provides an UUID field. You can 
+add this field to any model definition. 
+
+With the param ``primary_key`` you can set if this field is the 
+primary key for the model, default is True.
+
+Param ``version`` is an integer that set default UUID version. 
+Versions 1,3,4 and 5 are supported, default is 4.
+
+If ``editable`` is set to false the field will not be displayed in the admin 
+or any other ModelForm, default is False.
+
+
+.. code-block:: python
+
+    from django.db import models
+    from model_utils.fields import UUIDField
+
+    class MyAppModel(models.Model):
+        uuid = UUIDField(primary_key=True, version=4, editable=False)
+

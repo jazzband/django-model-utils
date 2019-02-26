@@ -4,15 +4,24 @@ import django
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from model_utils.fields import (
+    AutoCreatedField,
+    AutoLastModifiedField,
+    StatusField,
+    MonitorField,
+    UUIDField,
+)
+from model_utils.managers import (
+    QueryManager,
+    SoftDeletableManager,
+)
+
 if django.VERSION >= (1, 9, 0):
     from django.db.models.functions import Now
     now = Now()
 else:
     from django.utils.timezone import now
-
-from model_utils.managers import QueryManager, SoftDeletableManager
-from model_utils.fields import AutoCreatedField, AutoLastModifiedField, \
-    StatusField, MonitorField
 
 
 class TimeStampedModel(models.Model):
@@ -135,3 +144,18 @@ class SoftDeletableModel(models.Model):
             self.save(using=using)
         else:
             return super(SoftDeletableModel, self).delete(using=using, *args, **kwargs)
+
+
+class UUIDModel(models.Model):
+    """
+    This abstract base class provides id field on any model that inherits from it
+    which will be the primary key.
+    """
+    id = UUIDField(
+        primary_key=True,
+        version=4,
+        editable=False,
+    )
+
+    class Meta:
+        abstract = True
