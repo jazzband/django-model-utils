@@ -1,10 +1,18 @@
 from __future__ import unicode_literals
 
 import django
+try:
+    import uuid  # noqa
+    HAS_UUID = True
+except ImportError:
+    HAS_UUID = False
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
+
+from model_utils.exceptions import UUIDVersionException
 
 DEFAULT_CHOICES_NAME = 'STATUS'
 
@@ -17,6 +25,7 @@ class AutoCreatedField(models.DateTimeField):
     By default, sets editable=False, default=datetime.now.
 
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('editable', False)
         kwargs.setdefault('default', now)
@@ -30,6 +39,7 @@ class AutoLastModifiedField(AutoCreatedField):
     By default, sets editable=False and default=datetime.now.
 
     """
+
     def pre_save(self, model_instance, add):
         value = now()
         if not model_instance.pk:
@@ -53,6 +63,7 @@ class StatusField(models.CharField):
     Also features a ``no_check_for_status`` argument to make sure
     South can handle this field when it freezes a model.
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 100)
         self.check_for_status = not kwargs.pop('no_check_for_status', False)
@@ -93,6 +104,7 @@ class MonitorField(models.DateTimeField):
     changes.
 
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', now)
         monitor = kwargs.pop('monitor', None)
@@ -144,7 +156,8 @@ SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 # the number of paragraphs after which to split if no marker
 SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
-_excerpt_field_name = lambda name: '_%s_excerpt' % name
+
+def _excerpt_field_name(name): return '_%s_excerpt' % name
 
 
 def get_excerpt(content):
@@ -252,3 +265,48 @@ class SplitField(models.TextField):
         name, path, args, kwargs = super(SplitField, self).deconstruct()
         kwargs['no_excerpt_field'] = True
         return name, path, args, kwargs
+
+
+class UUIDField(models.UUIDField):
+    """
+    A field for storing universally unique identifiers. Uses Python’s UUID class.
+    """
+
+    def __init__(self, primary_key=True, version=4, editable=False, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        primary_key : bool
+            If True, this field is the primary key for the model.
+        version : int
+            An integer that set default UUID version.
+        editable : bool
+            If False, the field will not be displayed in the admin or any other ModelForm,
+            default is false.
+
+        Raises
+        ------
+        UUIDVersionException
+            UUID version 2 is not supported.
+        """
+        if not HAS_UUID:
+            raise ImproperlyConfigured("'uuid' module is required for UUIDField.")
+
+        kwargs.setdefault('primary_key', primary_key)
+        kwargs.setdefault('editable', editable)
+
+        if version == 4:
+            default = uuid.uuid4
+        elif version == 1:
+            default = uuid.uuid1
+        elif version == 2:
+            raise UUIDVersionException("UUID version 2 is not supported.")
+        elif version == 3:
+            default = uuid.uuid3
+        elif version == 5:
+            default = uuid.uuid5
+        else:
+            raise UUIDVersionException("UUID version %s is not valid." % version)
+
+        kwargs.setdefault('default', default)
+        super(UUIDField, self).__init__(*args, **kwargs)
