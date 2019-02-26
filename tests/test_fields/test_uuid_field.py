@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from model_utils.fields import UUIDField
-from model_utils.exceptions import UUIDVersionException
 
 
 class UUIDFieldTests(TestCase):
@@ -19,7 +19,7 @@ class UUIDFieldTests(TestCase):
         self.assertEqual(instance.default, uuid.uuid1)
 
     def test_uuid_version_2_error(self):
-        self.assertRaises(UUIDVersionException, UUIDField, 'version', 2)
+        self.assertRaises(ValidationError, UUIDField, 'version', 2)
 
     def test_uuid_version_3(self):
         instance = UUIDField(version=3)
