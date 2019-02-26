@@ -1,12 +1,22 @@
 from __future__ import unicode_literals
 
-from model_utils.managers import QueryManager, SoftDeletableManager
-from model_utils.fields import AutoCreatedField, AutoLastModifiedField, StatusField, MonitorField, UUIDField
-
 import django
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from model_utils.fields import (
+    AutoCreatedField,
+    AutoLastModifiedField,
+    StatusField,
+    MonitorField,
+    UUIDField,
+)
+from model_utils.managers import (
+    QueryManager,
+    SoftDeletableManager,
+)
+
 if django.VERSION >= (1, 9, 0):
     from django.db.models.functions import Now
     now = Now()
