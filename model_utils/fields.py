@@ -292,13 +292,15 @@ class UUIDField(models.UUIDField):
         elif version == 1:
             default = uuid.uuid1
         elif version == 2:
-            raise UUIDVersionException("UUID version 2 is not supported.")
+            raise UUIDVersionException(
+                'UUID version 2 is not supported.')
         elif version == 3:
             default = uuid.uuid3
         elif version == 5:
             default = uuid.uuid5
         else:
-            raise UUIDVersionException("UUID version %s is not valid." % version)
+            raise UUIDVersionException(
+                'UUID version is not valid.')
 
         kwargs.setdefault('default', default)
         super(UUIDField, self).__init__(*args, **kwargs)
