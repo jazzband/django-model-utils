@@ -1,14 +1,9 @@
 from __future__ import unicode_literals
 
 import django
-try:
-    import uuid  # noqa
-    HAS_UUID = True
-except ImportError:
-    HAS_UUID = False
+import uuid
 from django.db import models
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
@@ -289,9 +284,6 @@ class UUIDField(models.UUIDField):
         UUIDVersionException
             UUID version 2 is not supported.
         """
-        if not HAS_UUID:
-            raise ImproperlyConfigured("'uuid' module is required for UUIDField.")
-
         kwargs.setdefault('primary_key', primary_key)
         kwargs.setdefault('editable', editable)
 
