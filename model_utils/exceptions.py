@@ -1,0 +1,2 @@
+class UUIDVersionException(Exception):
+    pass
