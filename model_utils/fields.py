@@ -152,7 +152,7 @@ SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
 
-_excerpt_field_name = lambda name: '_%s_excerpt' % name
+def _excerpt_field_name(name): return '_%s_excerpt' % name
 
 
 def get_excerpt(content):
@@ -264,7 +264,7 @@ class SplitField(models.TextField):
 
 class UUIDField(models.UUIDField):
     """
-    A field for storing universally unique identifiers. Uses Python’s UUID class.
+    A field for storing universally unique identifiers. Use Python UUID class.
     """
 
     def __init__(self, primary_key=True, version=4, editable=False, *args, **kwargs):
