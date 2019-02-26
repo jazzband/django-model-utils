@@ -152,7 +152,7 @@ SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
 
-def _excerpt_field_name(name): return '_%s_excerpt' % name
+_excerpt_field_name = lambda name: '_%s_excerpt' % name
 
 
 def get_excerpt(content):
