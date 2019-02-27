@@ -284,23 +284,25 @@ class UUIDField(models.UUIDField):
         ValidationError
             UUID version 2 is not supported.
         """
-        kwargs.setdefault('primary_key', primary_key)
-        kwargs.setdefault('editable', editable)
-
-        if version == 4:
-            default = uuid.uuid4
-        elif version == 1:
-            default = uuid.uuid1
-        elif version == 2:
+        
+        if version == 2:
             raise ValidationError(
                 'UUID version 2 is not supported.')
-        elif version == 3:
-            default = uuid.uuid3
-        elif version == 5:
-            default = uuid.uuid5
-        else:
+            
+        if version < 1 or version > 5:
             raise ValidationError(
                 'UUID version is not valid.')
-
+            
+        if version == 1:
+            default = uuid.uuid1
+        elif version == 3:
+            default = uuid.uuid3
+        elif version == 4:
+            default = uuid.uuid4
+        elif version == 5:
+            default = uuid.uuid5  
+           
+        kwargs.setdefault('primary_key', primary_key)
+        kwargs.setdefault('editable', editable)
         kwargs.setdefault('default', default)
         super(UUIDField, self).__init__(*args, **kwargs)
