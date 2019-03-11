@@ -10,7 +10,8 @@ from tests.models import (
     InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
     InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
     InheritanceManagerTestChild1,
-    InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3
+    InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3,
+    InheritanceManagerTestChild4,
 )
 
 
@@ -141,6 +142,7 @@ class InheritanceManagerTests(TestCase):
             'inheritancemanagertestchild1',
             'inheritancemanagertestchild2',
             'manual_onetoone',  # this was set via parent_link & related_name
+            'child4_onetoone',
         ]
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
@@ -258,7 +260,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
         objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
             InheritanceManagerTestChild1, InheritanceManagerTestChild2,
-            InheritanceManagerTestChild3,
+            InheritanceManagerTestChild3, InheritanceManagerTestChild4,
             InheritanceManagerTestGrandChild1,
             InheritanceManagerTestGrandChild1_2).order_by('pk')
         self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
@@ -280,6 +282,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         models = (InheritanceManagerTestChild1,
                   InheritanceManagerTestChild2,
                   InheritanceManagerTestChild3,
+                  InheritanceManagerTestChild4,
                   InheritanceManagerTestGrandChild1,
                   InheritanceManagerTestGrandChild1_2)
 

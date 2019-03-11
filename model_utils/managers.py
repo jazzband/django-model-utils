@@ -158,6 +158,7 @@ class InheritanceQuerySetMixin(object):
             if isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
             and model is not rel.field.model
+            and rel.parent_link
         ]
 
         subclasses = []

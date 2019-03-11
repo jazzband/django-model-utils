@@ -73,6 +73,16 @@ class InheritanceManagerTestChild3(InheritanceManagerTestParent):
         InheritanceManagerTestParent, related_name='manual_onetoone',
         parent_link=True, on_delete=models.CASCADE)
 
+class InheritanceManagerTestChild4(InheritanceManagerTestParent):
+    other_onetoone = models.OneToOneField(
+        InheritanceManagerTestParent, related_name='non_inheritance_relation',
+        parent_link=False, on_delete=models.CASCADE)
+    # The following is needed because of that Django bug:
+    # https://code.djangoproject.com/ticket/29998
+    parent_ptr = models.OneToOneField(
+        InheritanceManagerTestParent, related_name='child4_onetoone',
+        parent_link=True, on_delete=models.CASCADE)
+
 
 class TimeStamp(TimeStampedModel):
     pass
