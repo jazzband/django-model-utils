@@ -33,6 +33,7 @@
 | Patryk Zawadzki <patrys@room-303.com>
 | Paul McLanahan <paul@mclanahan.net>
 | Philipp Steinhardt <steinhardt@myvision.de>
+| Remy Suen <remy.suen@gmail.com>
 | Rinat Shigapov <rinatshigapov@gmail.com>
 | Rodney Folz <rodney@rodneyfolz.com>
 | Romain Garrigues <github.com/romgar>
