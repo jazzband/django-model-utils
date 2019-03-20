@@ -3,6 +3,7 @@ CHANGES
 
 master (unreleased)
 -------------------
+- Update documentation to explain usage of `timeframed` model manager, fixes GH-118
 - Honor `OneToOneField.parent_link=False`.
 - Fix handling of deferred attributes on Django 1.10+, fixes GH-278
 - Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return

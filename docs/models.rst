@@ -5,10 +5,41 @@ TimeFramedModel
 ---------------
 
 An abstract base class for any model that expresses a time-range. Adds
-``start`` and ``end`` nullable DateTimeFields, and a ``timeframed``
-manager that returns only objects for whom the current date-time lies
-within their time range.
+``start`` and ``end`` nullable DateTimeFields, and provides a new
+``timeframed`` manager on the subclass whose queryset pre-filters results
+to only include those which have a ``start`` which is not in the future,
+and an ``end`` which is not in the past. If either ``start`` or ``end`` is
+``null``, the manager will include it.
 
+.. code-block:: python
+
+    from model_utils.models import TimeFramedModel
+    from datetime import datetime, timedelta
+    class Post(TimeFramedModel):
+        pass
+
+    p = Post()
+    p.start = datetime.utcnow() - timedelta(days=1)
+    p.end = datetime.utcnow() + timedelta(days=7)
+    p.save()
+
+    # this query will return the above Post instance:
+    Post.timeframed.all()
+
+    p.start = None
+    p.end = None
+    p.save()
+
+    # this query will also return the above Post instance, because
+    # the `start` and/or `end` are NULL.
+    Post.timeframed.all()
+
+    p.start = datetime.utcnow() + timedelta(days=7)
+    p.save()
+
+    # this query will NOT return our Post instance, because
+    # the start date is in the future.
+    Post.timeframed.all()
 
 TimeStampedModel
 ----------------
