@@ -32,3 +32,9 @@ class UUIDFieldTests(TestCase):
     def test_uuid_version_5(self):
         instance = UUIDField(version=5)
         self.assertEqual(instance.default, uuid.uuid5)
+
+    def test_uuid_version_bellow_min(self):
+        self.assertRaises(ValidationError, UUIDField, 'version', 0)
+
+    def test_uuid_version_above_max(self):
+        self.assertRaises(ValidationError, UUIDField, 'version', 6)
