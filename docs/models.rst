@@ -71,7 +71,6 @@ Also you can override the default uuid version. Versions 1,3,4 and 5 are now sup
 .. code-block:: python
 
     from model_utils.models import UUIDModel
-    from model_utils import Choices
 
     class MyAppModel(UUIDModel):
         pass
