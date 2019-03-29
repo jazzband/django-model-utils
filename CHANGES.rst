@@ -3,6 +3,7 @@ CHANGES
 
 master (unreleased)
 -------------------
+- Catch `AttributeError` for deferred abstract fields, fixes GH-331.
 - Update documentation to explain usage of `timeframed` model manager, fixes GH-118
 - Honor `OneToOneField.parent_link=False`.
 - Fix handling of deferred attributes on Django 1.10+, fixes GH-278
@@ -14,7 +15,7 @@ master (unreleased)
 - Support `reversed` for all kinds of `Choices` objects, fixes GH-309
 - Fix Model instance non picklable GH-330
 - Fix patched `save` in FieldTracker
-- Upgrades test requirements (pytest, pytest-django, pytest-cov) and 
+- Upgrades test requirements (pytest, pytest-django, pytest-cov) and
   skips tox test with Python 3.5 and Django (trunk)
 
 3.1.2 (2018.05.09)
