@@ -238,6 +238,10 @@ class Tracked(models.Model):
 
     tracker = FieldTracker()
 
+    def save(self, *args, **kwargs):
+        """ No-op save() to ensure that FieldTracker.patch_save() works. """
+        super(Tracked, self).save(*args, **kwargs)
+
 
 class TrackedFK(models.Model):
     fk = models.ForeignKey('Tracked', on_delete=models.CASCADE)
