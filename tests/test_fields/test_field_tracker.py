@@ -1,20 +1,20 @@
 from __future__ import unicode_literals
 
 import django
+from django.core.cache import cache
 from django.core.exceptions import FieldError
 from django.test import TestCase
-from django.core.cache import cache
+
 from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
-    Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, TrackedFileField, TrackedAbstract,
-    ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
+    InheritedAbstractTracked, InheritedModelTracked, InheritedTracked, InheritedTrackedFK,
+    ModelTracked, ModelTrackedFK, ModelTrackedMultiple, ModelTrackedNotDefault, Tracked,
+    TrackedFileField, TrackedFK, TrackedMultiple, TrackedNonFieldAttr, TrackedNotDefault,
 )
 
 
 class FieldTrackerTestCase(TestCase):
-
     tracker = None
 
     def assertHasChanged(self, **kwargs):
@@ -46,7 +46,6 @@ class FieldTrackerTestCase(TestCase):
 
 
 class FieldTrackerCommonTests(object):
-
     def test_pre_save_previous(self):
         self.assertPrevious(name=None, number=None)
         self.instance.name = 'new age'
@@ -55,7 +54,6 @@ class FieldTrackerCommonTests(object):
 
 
 class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
-
     tracked_class = Tracked
 
     def setUp(self):
@@ -245,7 +243,6 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
 
 
 class FieldTrackerMultipleInstancesTests(TestCase):
-
     def test_with_deferred_fields_access_multiple(self):
         Tracked.objects.create(pk=1, name='foo', number=1)
         Tracked.objects.create(pk=2, name='bar', number=2)
@@ -256,9 +253,7 @@ class FieldTrackerMultipleInstancesTests(TestCase):
             instance.name
 
 
-class FieldTrackedModelCustomTests(FieldTrackerTestCase,
-                                   FieldTrackerCommonTests):
-
+class FieldTrackedModelCustomTests(FieldTrackerTestCase, FieldTrackerCommonTests):
     tracked_class = TrackedNotDefault
 
     def setUp(self):
@@ -337,7 +332,6 @@ class FieldTrackedModelCustomTests(FieldTrackerTestCase,
 
 
 class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
-
     tracked_class = TrackedNonFieldAttr
 
     def setUp(self):
@@ -387,9 +381,7 @@ class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
         self.assertCurrent(rounded=8)
 
 
-class FieldTrackedModelMultiTests(FieldTrackerTestCase,
-                                  FieldTrackerCommonTests):
-
+class FieldTrackedModelMultiTests(FieldTrackerTestCase, FieldTrackerCommonTests):
     tracked_class = TrackedMultiple
 
     def setUp(self):
@@ -480,7 +472,6 @@ class FieldTrackedModelMultiTests(FieldTrackerTestCase,
 
 
 class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
-
     fk_class = Tracked
     tracked_class = TrackedFK
 
@@ -522,7 +513,6 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
 
 
 class InheritedFieldTrackerTests(FieldTrackerTests):
-
     tracked_class = InheritedTracked
 
     def test_child_fields_not_tracked(self):
@@ -532,12 +522,10 @@ class InheritedFieldTrackerTests(FieldTrackerTests):
 
 
 class FieldTrackerInheritedForeignKeyTests(FieldTrackerForeignKeyTests):
-
     tracked_class = InheritedTrackedFK
 
 
 class FieldTrackerFileFieldTests(FieldTrackerTestCase):
-
     tracked_class = TrackedFileField
 
     def setUp(self):
@@ -641,7 +629,6 @@ class FieldTrackerFileFieldTests(FieldTrackerTestCase):
 
 
 class ModelTrackerTests(FieldTrackerTests):
-
     tracked_class = ModelTracked
 
     def test_cache_compatible(self):
@@ -695,7 +682,6 @@ class ModelTrackerTests(FieldTrackerTests):
 
 
 class ModelTrackedModelCustomTests(FieldTrackedModelCustomTests):
-
     tracked_class = ModelTrackedNotDefault
 
     def test_first_save(self):
@@ -728,7 +714,6 @@ class ModelTrackedModelCustomTests(FieldTrackedModelCustomTests):
 
 
 class ModelTrackedModelMultiTests(FieldTrackedModelMultiTests):
-
     tracked_class = ModelTrackedMultiple
 
     def test_pre_save_has_changed(self):
@@ -759,7 +744,6 @@ class ModelTrackedModelMultiTests(FieldTrackedModelMultiTests):
 
 
 class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
-
     fk_class = ModelTracked
     tracked_class = ModelTrackedFK
 
@@ -778,7 +762,6 @@ class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
 
 
 class InheritedModelTrackerTests(ModelTrackerTests):
-
     tracked_class = InheritedModelTracked
 
     def test_child_fields_not_tracked(self):
@@ -787,6 +770,13 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.assertTrue(self.tracker.has_changed('name2'))
 
 
-class AbstractModelTrackerTests(FieldTrackerTestCase):
+class InheritedAbstractModelTrackerTests(FieldTrackerTestCase):
+    tracked_class = InheritedAbstractTracked
 
-    tracked_class = TrackedAbstract
+    def setUp(self):
+        self.instance = self.tracked_class()
+
+    def test_field_settable(self):
+        self.assertEqual(self.instance.number, 0)
+        self.instance.number = 2
+        self.assertEqual(self.instance.number, 2)

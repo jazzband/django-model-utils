@@ -1,28 +1,19 @@
-from __future__ import unicode_literals, absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import django
 from django.db import models
-from django.db.models.query_utils import DeferredAttribute
 from django.db.models import Manager
+from django.db.models.query_utils import DeferredAttribute
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
-from model_utils.fields import SplitField, MonitorField, StatusField
-from model_utils.managers import (
-    QueryManager,
-    InheritanceManager,
-    JoinManagerMixin
-)
-from model_utils.models import (
-    SoftDeletableModel,
-    StatusModel,
-    TimeFramedModel,
-    TimeStampedModel,
-)
+from model_utils.fields import MonitorField, SplitField, StatusField
+from model_utils.managers import InheritanceManager, JoinManagerMixin, QueryManager
+from model_utils.models import SoftDeletableModel, StatusModel, TimeFramedModel, TimeStampedModel
+from model_utils.tracker import FieldTracker, ModelTracker
 from tests.fields import MutableField
 from tests.managers import CustomSoftDeleteManager
-from model_utils.tracker import FieldTracker, ModelTracker
 
 
 class InheritanceManagerTestRelated(models.Model):
@@ -224,11 +215,17 @@ class FeaturedManager(models.Manager):
         return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
 
 
-class AbstractTracked(models.Model):
+class AbstractBase(models.Model):
     number = 1
 
     class Meta:
         abstract = True
+
+
+class InheritedAbstractTracked(AbstractBase):
+    number = models.IntegerField(default=0)
+
+    tracker = FieldTracker()
 
 
 class Tracked(models.Model):
@@ -245,14 +242,6 @@ class TrackedFK(models.Model):
     tracker = FieldTracker()
     custom_tracker = FieldTracker(fields=['fk_id'])
     custom_tracker_without_id = FieldTracker(fields=['fk'])
-
-
-class TrackedAbstract(AbstractTracked):
-    name = models.CharField(max_length=20)
-    number = models.IntegerField()
-    mutable = MutableField(default=None)
-
-    tracker = FieldTracker()
 
 
 class TrackedNotDefault(models.Model):
