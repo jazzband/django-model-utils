@@ -3,8 +3,7 @@ language: python
 cache: pip
 python:
 - 2.7
-- 3.4
-- 3.5
+- 3.7
 - 3.6
 install: pip install tox-travis codecov
 # positional args ({posargs}) to pass into tox.ini
