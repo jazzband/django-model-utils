@@ -8,7 +8,12 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
-from model_utils.fields import SplitField, MonitorField, StatusField
+from model_utils.fields import (
+    SplitField,
+    MonitorField,
+    StatusField,
+    UUIDField,
+)
 from model_utils.managers import (
     QueryManager,
     InheritanceManager,
@@ -19,6 +24,7 @@ from model_utils.models import (
     StatusModel,
     TimeFramedModel,
     TimeStampedModel,
+    UUIDModel,
 )
 from tests.fields import MutableField
 from tests.managers import CustomSoftDeleteManager
@@ -169,8 +175,8 @@ class Post(models.Model):
 
     objects = models.Manager()
     public = QueryManager(published=True)
-    public_confirmed = QueryManager(models.Q(published=True) &
-                                    models.Q(confirmed=True))
+    public_confirmed = QueryManager(
+        models.Q(published=True) & models.Q(confirmed=True))
     public_reversed = QueryManager(published=True).order_by("-order")
 
     class Meta:
@@ -369,6 +375,7 @@ class StringyDescriptor(object):
     """
     Descriptor that returns a string version of the underlying integer value.
     """
+
     def __init__(self, name):
         self.name = name
 
@@ -422,3 +429,11 @@ class JoinItemForeignKey(models.Model):
         on_delete=models.CASCADE
     )
     objects = JoinManager()
+
+
+class CustomUUIDModel(UUIDModel):
+    pass
+
+
+class CustomNotPrimaryUUIDModel(models.Model):
+    uuid = UUIDField(primary_key=False)

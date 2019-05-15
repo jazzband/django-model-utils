@@ -86,3 +86,26 @@ SoftDeletableModel
 This abstract base class just provides field ``is_removed`` which is
 set to True instead of removing the instance. Entities returned in
 default manager are limited to not-deleted instances.
+
+
+UUIDModel
+------------------
+
+This abstract base class provides ``id`` field on any model that inherits from it
+which will be the primary key.
+
+If you dont want to set ``id`` as primary key or change the field name, you can be override it 
+with our `UUIDField`_ 
+
+Also you can override the default uuid version. Versions 1,3,4 and 5 are now supported.
+
+.. code-block:: python
+
+    from model_utils.models import UUIDModel
+
+    class MyAppModel(UUIDModel):
+        pass
+
+
+
+.. _`UUIDField`: https://github.com/jazzband/django-model-utils/blob/master/docs/fields.rst#uuidfield
