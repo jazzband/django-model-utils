@@ -4,6 +4,7 @@ import django
 from django.db import models
 from django.db.models.query_utils import DeferredAttribute
 from django.db.models import Manager
+from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -25,6 +26,7 @@ from model_utils.models import (
     TimeFramedModel,
     TimeStampedModel,
     UUIDModel,
+    SaveSignalHandlingModel,
 )
 from tests.fields import MutableField
 from tests.managers import CustomSoftDeleteManager
@@ -437,3 +439,7 @@ class CustomUUIDModel(UUIDModel):
 
 class CustomNotPrimaryUUIDModel(models.Model):
     uuid = UUIDField(primary_key=False)
+
+
+class SaveSignalHandlingTestModel(SaveSignalHandlingModel):
+    name = models.CharField(max_length=20)
