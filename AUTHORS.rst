@@ -11,6 +11,7 @@
 | Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
 | Donald Stufft <donald.stufft@gmail.com>
 | Douglas Meehan <dmeehan@gmail.com>
+| Emin Bugra Saral <github.com/ebsaral>
 | Facundo Gaich <facugaich@gmail.com>
 | Felipe Prenholato <philipe.rp@gmail.com>
 | Filipe Ximenes <filipeximenes@gmail.com>
