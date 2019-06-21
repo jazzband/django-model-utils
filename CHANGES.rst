@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-master (unreleased)
+3.2.0 (2019.06.21)
 -------------------
 - Catch `AttributeError` for deferred abstract fields, fixes GH-331.
 - Update documentation to explain usage of `timeframed` model manager, fixes GH-118
