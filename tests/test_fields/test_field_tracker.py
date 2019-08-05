@@ -787,6 +787,6 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.assertTrue(self.tracker.has_changed('name2'))
 
 
-class AbstractModelTrackerTests(FieldTrackerTestCase):
+class AbstractModelTrackerTests(FieldTrackerTests):
 
     tracked_class = TrackedAbstract
