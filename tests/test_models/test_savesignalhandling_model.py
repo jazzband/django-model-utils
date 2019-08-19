@@ -26,7 +26,6 @@ class SaveSignalHandlingModelTests(TestCase):
         self.assertEqual(obj.name, 'Test B')
         self.assertFalse(hasattr(obj, 'pre_save_runned'))
 
-
     def test_post_save(self):
         post_save.connect(post_save_test, sender=SaveSignalHandlingTestModel)
 

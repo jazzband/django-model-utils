@@ -80,6 +80,7 @@ class InheritanceManagerTestChild3(InheritanceManagerTestParent):
         InheritanceManagerTestParent, related_name='manual_onetoone',
         parent_link=True, on_delete=models.CASCADE)
 
+
 class InheritanceManagerTestChild4(InheritanceManagerTestParent):
     other_onetoone = models.OneToOneField(
         InheritanceManagerTestParent, related_name='non_inheritance_relation',
