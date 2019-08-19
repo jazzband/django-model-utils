@@ -107,8 +107,8 @@ def add_timeframed_query_manager(sender, **kwargs):
             % sender.__name__
         )
     sender.add_to_class('timeframed', QueryManager(
-        (models.Q(start__lte=now) | models.Q(start__isnull=True)) &
-        (models.Q(end__gte=now) | models.Q(end__isnull=True))
+        (models.Q(start__lte=now) | models.Q(start__isnull=True))
+        & (models.Q(end__gte=now) | models.Q(end__isnull=True))
     ))
 
 
@@ -196,7 +196,7 @@ class SaveSignalHandlingModel(models.Model):
         if cls._meta.proxy:
             cls = cls._meta.concrete_model
         meta = cls._meta
-        if not meta.auto_created and not 'pre_save' in self.signals_to_disable:
+        if not meta.auto_created and 'pre_save' not in self.signals_to_disable:
             pre_save.send(
                 sender=origin, instance=self, raw=raw, using=using,
                 update_fields=update_fields,
@@ -209,7 +209,7 @@ class SaveSignalHandlingModel(models.Model):
         self._state.db = using
         self._state.adding = False
 
-        if not meta.auto_created and not 'post_save' in self.signals_to_disable:
+        if not meta.auto_created and 'post_save' not in self.signals_to_disable:
             post_save.send(
                 sender=origin, instance=self, created=(not updated),
                 update_fields=update_fields, raw=raw, using=using,
