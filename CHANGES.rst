@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+3.3.0 (2019.08.19)
+------------------
+- Added `Choices.subset`.
+
 3.2.0 (2019.06.21)
 -------------------
 - Catch `AttributeError` for deferred abstract fields, fixes GH-331.
@@ -413,4 +417,3 @@ CHANGES
 -----
 
 * Added ``QueryManager``
-
