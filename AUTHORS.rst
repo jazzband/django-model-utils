@@ -1,4 +1,5 @@
 | ad-m <github.com/ad-m>
+| Adam Barnes <sara.and.zuka+django-model-utils@gmail.com>
 | Alejandro Varas <alej0varas@gmail.com>
 | Alex Orange <crazycasta@gmail.com>
 | Alexey Evseev <myhappydo@gmail.com>

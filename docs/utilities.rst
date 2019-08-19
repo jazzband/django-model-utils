@@ -84,6 +84,27 @@ instances and other iterable objects that could be converted into Choices:
         STATUS = GENERIC_CHOICES + [(2, 'featured', _('featured'))]
         status = models.IntegerField(choices=STATUS, default=STATUS.draft)
 
+Should you wish to provide a subset of choices for a field, for
+instance, you have a form class to set some model instance to a failed
+state, and only wish to show the user the failed outcomes from which to
+select, you can use the ``subset`` method:
+
+.. code-block:: python
+
+    from model_utils import Choices
+
+    OUTCOMES = Choices(
+        (0, 'success', _('Successful')),
+        (1, 'user_cancelled', _('Cancelled by the user')),
+        (2, 'admin_cancelled', _('Cancelled by an admin')),
+    )
+    FAILED_OUTCOMES = OUTCOMES.subset('user_cancelled', 'admin_cancelled')
+
+The ``choices`` attribute on the model field can then be set to
+``FAILED_OUTCOMES``, thus allowing the subset to be defined in close
+proximity to the definition of all the choices, and reused elsewhere as
+required.
+
 
 Field Tracker
 =============
