@@ -107,8 +107,8 @@ def add_timeframed_query_manager(sender, **kwargs):
             % sender.__name__
         )
     sender.add_to_class('timeframed', QueryManager(
-        (models.Q(start__lte=now) | models.Q(start__isnull=True)) &
-        (models.Q(end__gte=now) | models.Q(end__isnull=True))
+        (models.Q(start__lte=now) | models.Q(start__isnull=True))
+        & (models.Q(end__gte=now) | models.Q(end__isnull=True))
     ))
 
 
