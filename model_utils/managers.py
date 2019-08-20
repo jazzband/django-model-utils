@@ -225,6 +225,31 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
     pass
 
 
+    def instance_of(self, *models):
+        """
+        Fetch only objects that are instances of the provided model(s).
+        """
+        # If we aren't already selecting the subclasess, we need
+        # to in order to get this to work.
+        
+        # How can we tell if we are not selecting subclasses?
+        
+        # Is it safe to just apply .select_subclasses(*models)?
+        
+        # Due to https://code.djangoproject.com/ticket/16572, we
+        # can't really do this for anything other than children (ie,
+        # no grandchildren+).
+        where_queries = []
+        for model in models:
+            where_queries.append('(' + ' AND '.join([
+                '"%s"."%s" IS NOT NULL' % (
+                    model._meta.db_table,
+                    field.attname, # Should this be something else?
+                ) for field in model._meta.parents.values()
+            ]) + ')')
+        
+        return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
+
 class InheritanceManagerMixin(object):
     _queryset_class = InheritanceQuerySet
 
@@ -237,6 +262,8 @@ class InheritanceManagerMixin(object):
     def get_subclass(self, *args, **kwargs):
         return self.get_queryset().get_subclass(*args, **kwargs)
 
+    def instance_of(self, *models):
+        return self.get_queryset().instance_of(*models)
 
 class InheritanceManager(InheritanceManagerMixin, models.Manager):
     pass

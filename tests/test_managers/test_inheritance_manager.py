@@ -424,6 +424,61 @@ class InheritanceManagerUsingModelsTests(TestCase):
         )
         self.assertTrue(all(result.foo == (result.id + 1) for result in results))
 
+    def test_limit_to_specific_subclass(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3)
+
+        self.assertEqual([child3], list(results))
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_limit_to_specific_grandchild_class(self):
+        grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestGrandChild1)
+
+        self.assertEqual([grandchild1], list(results))
+
+    def test_limit_to_child_fetches_grandchildren_as_child_class(self):
+        # Not sure if this is the desired behaviour...?
+        children = InheritanceManagerTestChild1.objects.all()
+
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild1)
+
+        self.assertEqual(set(children), set(results))
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_can_fetch_limited_class_grandchildren(self):
+        # Not sure if this is the desired behaviour...?
+        children = InheritanceManagerTestChild1.objects.select_subclasses()
+
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild1).select_subclasses()
+
+        self.assertEqual(set(children), set(results))
+
+    def test_selecting_multiple_instance_classes(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
+        children1 = InheritanceManagerTestChild1.objects.all()
+
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3, InheritanceManagerTestChild1)
+
+        self.assertEqual(set([child3] + list(children1)), set(results))
+
+    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
+    def test_selecting_multiple_instance_classes_including_grandchildren(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
+        grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
+
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3, InheritanceManagerTestGrandChild1).select_subclasses()
+
+        self.assertEqual(set([child3, grandchild1]), set(results))
+
+    def test_select_subclasses_interaction_with_instance_of(self):
+        child3 = InheritanceManagerTestChild3.objects.create()
+
+        results = InheritanceManagerTestParent.objects.select_subclasses(InheritanceManagerTestChild1).instance_of(InheritanceManagerTestChild3)
+
+        self.assertEqual(set([child3]), set(results))
+
+
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def setUp(self):
