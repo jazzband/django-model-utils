@@ -228,6 +228,7 @@ It should be noted that a generic FieldTracker tracks Foreign Keys by db_column 
     class Child(models.Model):
         name = models.CharField(max_length=64)
         parent = models.ForeignKey(Parent)
+        tracker = FieldTracker()
 
 .. code-block:: pycon
     
