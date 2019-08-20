@@ -1,21 +1,32 @@
+VIRTUALENV = virtualenv --python=python3
+PYTHON = $(VENV)/bin/python
+VENV := $(shell echo $${VIRTUAL_ENV-.venv})
+INSTALL_STAMP = $(VENV)/.install.stamp
+
 all: init docs test
 
-init:
-	python setup.py develop
-	pip install tox coverage Sphinx
+init: $(INSTALL_STAMP)
+$(INSTALL_STAMP): $(PYTHON) setup.py
+	$(VENV)/bin/pip install -e .
+	$(VENV)/bin/pip install tox coverage Sphinx
+	touch $(INSTALL_STAMP)
 
-test:
-	coverage erase
-	tox
-	coverage html
+virtualenv: $(PYTHON)
+$(PYTHON):
+	$(VIRTUALENV) $(VENV)
+
+test: init
+	$(VENV)/bin/coverage erase
+	$(VENV)/bin/tox
+	$(VENV)/bin/coverage html
 
 docs: documentation
 
-documentation:
-	python setup.py build_sphinx
+documentation: init
+	$(PYTHON) setup.py build_sphinx
 
-messages:
-	python translations.py make
+messages: init
+	$(PYTHON) translations.py make
 
-compilemessages:
-	python translations.py compile
+compilemessages: init
+	$(PYTHON) translations.py compile
