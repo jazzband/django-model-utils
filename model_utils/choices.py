@@ -142,3 +142,17 @@ class Choices(object):
 
     def __deepcopy__(self, memo):
         return self.__class__(*copy.deepcopy(self._triples, memo))
+
+    def subset(self, *new_identifiers):
+        identifiers = set(self._identifier_map.keys())
+
+        if not identifiers.issuperset(new_identifiers):
+            raise ValueError(
+                'The following identifiers are not present: %s' %
+                identifiers.symmetric_difference(new_identifiers),
+            )
+
+        return self.__class__(*[
+            choice for choice in self._triples
+            if choice[1] in new_identifiers
+        ])

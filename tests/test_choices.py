@@ -279,3 +279,30 @@ class IdentifierChoicesTests(ChoicesTests):
                 ('group b', [(3, 'three')]),
             ],
         )
+
+
+class SubsetChoicesTest(TestCase):
+
+    def setUp(self):
+        self.choices = Choices(
+            (0, 'a', 'A'),
+            (1, 'b', 'B'),
+        )
+
+    def test_nonexistent_identifiers_raise(self):
+        with self.assertRaises(ValueError):
+            self.choices.subset('a', 'c')
+
+    def test_solo_nonexistent_identifiers_raise(self):
+        with self.assertRaises(ValueError):
+            self.choices.subset('c')
+
+    def test_empty_subset_passes(self):
+        subset = self.choices.subset()
+
+        self.assertEqual(subset, Choices())
+
+    def test_subset_returns_correct_subset(self):
+        subset = self.choices.subset('a')
+
+        self.assertEqual(subset, Choices((0, 'a', 'A')))

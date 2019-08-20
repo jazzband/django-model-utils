@@ -8,9 +8,9 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
-from model_utils.fields import MonitorField, SplitField, StatusField
+from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
 from model_utils.managers import InheritanceManager, JoinManagerMixin, QueryManager
-from model_utils.models import SoftDeletableModel, StatusModel, TimeFramedModel, TimeStampedModel
+from model_utils.models import SaveSignalHandlingModel, SoftDeletableModel, StatusModel, TimeFramedModel, TimeStampedModel, UUIDModel
 from model_utils.tracker import FieldTracker, ModelTracker
 from tests.fields import MutableField
 from tests.managers import CustomSoftDeleteManager
@@ -63,6 +63,7 @@ class InheritanceManagerTestChild3(InheritanceManagerTestParent):
     parent_ptr = models.OneToOneField(
         InheritanceManagerTestParent, related_name='manual_onetoone',
         parent_link=True, on_delete=models.CASCADE)
+
 
 class InheritanceManagerTestChild4(InheritanceManagerTestParent):
     other_onetoone = models.OneToOneField(
@@ -160,8 +161,8 @@ class Post(models.Model):
 
     objects = models.Manager()
     public = QueryManager(published=True)
-    public_confirmed = QueryManager(models.Q(published=True) &
-                                    models.Q(confirmed=True))
+    public_confirmed = QueryManager(
+        models.Q(published=True) & models.Q(confirmed=True))
     public_reversed = QueryManager(published=True).order_by("-order")
 
     class Meta:
@@ -234,6 +235,10 @@ class Tracked(models.Model):
     mutable = MutableField(default=None)
 
     tracker = FieldTracker()
+
+    def save(self, *args, **kwargs):
+        """ No-op save() to ensure that FieldTracker.patch_save() works. """
+        super(Tracked, self).save(*args, **kwargs)
 
 
 class TrackedFK(models.Model):
@@ -354,6 +359,7 @@ class StringyDescriptor(object):
     """
     Descriptor that returns a string version of the underlying integer value.
     """
+
     def __init__(self, name):
         self.name = name
 
@@ -407,3 +413,15 @@ class JoinItemForeignKey(models.Model):
         on_delete=models.CASCADE
     )
     objects = JoinManager()
+
+
+class CustomUUIDModel(UUIDModel):
+    pass
+
+
+class CustomNotPrimaryUUIDModel(models.Model):
+    uuid = UUIDField(primary_key=False)
+
+
+class SaveSignalHandlingTestModel(SaveSignalHandlingModel):
+    name = models.CharField(max_length=20)

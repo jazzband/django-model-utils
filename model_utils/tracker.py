@@ -205,7 +205,6 @@ class FieldTracker(object):
     def contribute_to_class(self, cls, name):
         self.name = name
         self.attname = '_%s' % name
-        self.patch_save(cls)
         models.signals.class_prepared.connect(self.finalize_class, sender=cls)
 
     def finalize_class(self, sender, **kwargs):
@@ -222,6 +221,7 @@ class FieldTracker(object):
         models.signals.post_init.connect(self.initialize_tracker)
         self.model_class = sender
         setattr(sender, self.name, self)
+        self.patch_save(sender)
 
     def initialize_tracker(self, sender, instance, **kwargs):
         if not isinstance(instance, self.model_class):

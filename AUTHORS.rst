@@ -1,4 +1,5 @@
 | ad-m <github.com/ad-m>
+| Adam Barnes <sara.and.zuka+django-model-utils@gmail.com>
 | Alejandro Varas <alej0varas@gmail.com>
 | Alex Orange <crazycasta@gmail.com>
 | Alexey Evseev <myhappydo@gmail.com>
@@ -11,6 +12,7 @@
 | Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
 | Donald Stufft <donald.stufft@gmail.com>
 | Douglas Meehan <dmeehan@gmail.com>
+| Emin Bugra Saral <github.com/ebsaral>
 | Facundo Gaich <facugaich@gmail.com>
 | Felipe Prenholato <philipe.rp@gmail.com>
 | Filipe Ximenes <filipeximenes@gmail.com>
@@ -51,4 +53,4 @@
 | Jack Cushman <jcushman@law.harvard.edu>
 | Zach Cheung <kuroro.zhang@gmail.com>
 | Daniel Andrlik <daniel@andrlik.org>
-
+| marfyl <github.com/marfyl>

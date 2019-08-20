@@ -1,7 +1,11 @@
 CHANGES
 =======
 
-master (unreleased)
+3.3.0 (2019.08.19)
+------------------
+- Added `Choices.subset`.
+
+3.2.0 (2019.06.21)
 -------------------
 - Catch `AttributeError` for deferred abstract fields, fixes GH-331.
 - Update documentation to explain usage of `timeframed` model manager, fixes GH-118
@@ -17,6 +21,7 @@ master (unreleased)
 - Fix patched `save` in FieldTracker
 - Upgrades test requirements (pytest, pytest-django, pytest-cov) and
   skips tox test with Python 3.5 and Django (trunk)
+- Add UUIDModel and UUIDField support.
 
 3.1.2 (2018.05.09)
 ------------------
@@ -45,6 +50,7 @@ master (unreleased)
 * Drop support for Django 1.4, 1.5, 1.6, 1.7.
 * Exclude tests from the distribution, fixes GH-258.
 * Add support for Django 1.11 GH-269
+* Add a new model to disable pre_save/post_save signals
 
 
 2.6.1 (2017.01.11)
@@ -411,4 +417,3 @@ master (unreleased)
 -----
 
 * Added ``QueryManager``
-
