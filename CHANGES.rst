@@ -1,8 +1,172 @@
 CHANGES
 =======
 
-master (unreleased)
+3.3.0 (2019.08.19)
+------------------
+- Added `Choices.subset`.
+
+3.2.0 (2019.06.21)
 -------------------
+- Catch `AttributeError` for deferred abstract fields, fixes GH-331.
+- Update documentation to explain usage of `timeframed` model manager, fixes GH-118
+- Honor `OneToOneField.parent_link=False`.
+- Fix handling of deferred attributes on Django 1.10+, fixes GH-278
+- Fix `FieldTracker.has_changed()` and `FieldTracker.previous()` to return
+  correct responses for deferred fields.
+- Add Simplified Chinese translations.
+- Update AutoLastModifiedField so that at instance creation it will
+  always be set equal to created to make querying easier. Fixes GH-254
+- Support `reversed` for all kinds of `Choices` objects, fixes GH-309
+- Fix Model instance non picklable GH-330
+- Fix patched `save` in FieldTracker
+- Upgrades test requirements (pytest, pytest-django, pytest-cov) and
+  skips tox test with Python 3.5 and Django (trunk)
+- Add UUIDModel and UUIDField support.
+
+3.1.2 (2018.05.09)
+------------------
+* Update InheritanceIterable to inherit from
+  ModelIterable instead of BaseIterable, fixes GH-277.
+
+* Add all_objects Manager for 'SoftDeletableModel' to include soft
+  deleted objects on queries as per issue GH-255
+
+3.1.1 (2017.12.17)
+------------------
+
+- Update classifiers and README via GH-306, fixes GH-305
+
+3.1.0 (2017.12.11)
+------------------
+
+- Support for Django 2.0 via GH-298, fixes GH-297
+- Remove old travis script via GH-300
+- Fix codecov and switch to py.test #301
+
+3.0.0 (2017.04.13)
+------------------
+
+* Drop support for Python 2.6.
+* Drop support for Django 1.4, 1.5, 1.6, 1.7.
+* Exclude tests from the distribution, fixes GH-258.
+* Add support for Django 1.11 GH-269
+* Add a new model to disable pre_save/post_save signals
+
+
+2.6.1 (2017.01.11)
+------------------
+
+* Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
+  on Django 1.10+. Thanks Romain Garrigues. Merge of GH-242, fixes GH-241.
+
+* Fix `InheritanceManager` and `SoftDeletableManager` to respect
+  `self._queryset_class` instead of hardcoding the queryset class. Merge of
+  GH-250, fixes GH-249.
+
+* Add mixins for `SoftDeletableQuerySet` and `SoftDeletableManager`, as stated
+  in the the documentation.
+
+* Fix `SoftDeletableModel.delete()` to use the correct database connection.
+  Merge of GH-239.
+
+* Added boolean keyword argument `soft` to `SoftDeletableModel.delete()` that
+  revert to default behavior when set to `False`. Merge of GH-240.
+
+* Enforced default manager in `StatusModel` to avoid manager order issues when
+  using abstract models that redefine `objects` manager. Merge of GH-253, fixes
+  GH-251.
+
+
+2.6 (2016.09.19)
+----------------
+
+* Added `SoftDeletableModel` abstract class, its manageer
+  `SoftDeletableManager` and queryset `SoftDeletableQuerySet`.
+
+* Fix issue with field tracker and deferred FileField for Django 1.10.
+
+
+2.5.2 (2016.08.09)
+------------------
+
+* Include `runtests.py` in sdist.
+
+
+2.5.1 (2016.08.03)
+------------------
+
+* Fix `InheritanceQuerySet` raising an `AttributeError` exception
+  under Django 1.9.
+
+* Django 1.10 support regressed with changes between pre-alpha and final
+  release; 1.10 currently not supported.
+
+
+2.5 (2016.04.18)
+----------------
+
+* Drop support for Python 3.2.
+
+* Add support for Django 1.10 pre-alpha.
+
+* Track foreign keys on parent models properly when a tracker
+  is defined on a child model. Fixes GH-214.
+
+
+2.4 (2015.12.03)
+----------------
+
+* Remove `PassThroughManager`. Use Django's built-in `QuerySet.as_manager()`
+  and/or `Manager.from_queryset()` utilities instead.
+
+* Add support for Django 1.9.
+
+
+2.3.1 (2015-07-20)
+------------------
+
+* Remove all translation-related automation in `setup.py`. Fixes GH-178 and
+  GH-179. Thanks Joe Weiss, Matt Molyneaux, and others for the reports.
+
+
+2.3 (2015.07.17)
+----------------
+
+* Keep track of deferred fields on model instance instead of on
+  FieldInstanceTracker instance. Fixes accessing deferred fields for multiple
+  instances of a model from the same queryset. Thanks Bram Boogaard. Merge of
+  GH-151.
+
+* Fix Django 1.7 migrations compatibility for SplitField. Thanks ad-m. Merge of
+  GH-157; fixes GH-156.
+
+* Add German translations.
+
+* Django 1.8 compatibility.
+
+
+2.2 (2014.07.31)
+----------------
+
+* Revert GH-130, restoring ability to access ``FieldTracker`` changes in
+  overridden ``save`` methods or ``post_save`` handlers. This reopens GH-83
+  (inability to pickle models with ``FieldTracker``) until a solution can be
+  found that doesn't break behavior otherwise. Thanks Brian May for the
+  report. Fixes GH-143.
+
+
+2.1.1 (2014.07.28)
+------------------
+
+* ASCII-fold all non-ASCII characters in changelog; again. Argh. Apologies to
+  those whose names are mangled by this change. It seems that distutils makes
+  it impossible to handle non-ASCII content reliably under Python 3 in a
+  setup.py long_description, when the system encoding may be ASCII. Thanks
+  Brian May for the report. Fixes GH-141.
+
+
+2.1.0 (2014.07.25)
+------------------
 
 * Add support for Django's built-in migrations to ``MonitorField`` and
   ``StatusField``.
@@ -11,7 +175,7 @@ master (unreleased)
   ``dir``, allowing `IPython`_ tab completion to be useful. Merge of GH-104,
   fixes GH-55.
 
-* Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slinták
+* Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slintak
   for the report.  Thanks Matthew Schinckel for the fix.  Merge of GH-130,
   fixes GH-83.
 
@@ -253,4 +417,3 @@ master (unreleased)
 -----
 
 * Added ``QueryManager``
-

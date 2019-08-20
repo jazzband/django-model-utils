@@ -24,8 +24,8 @@ Contributing
 Please file bugs and send pull requests to the `GitHub repository`_ and `issue
 tracker`_.
 
-.. _GitHub repository: https://github.com/carljm/django-model-utils/
-.. _issue tracker: https://github.com/carljm/django-model-utils/issues
+.. _GitHub repository: https://github.com/jazzband/django-model-utils/
+.. _issue tracker: https://github.com/jazzband/django-model-utils/issues
 
 
 

@@ -84,15 +84,35 @@ If you don't explicitly call ``select_subclasses()`` or ``get_subclass()``,
 an ``InheritanceManager`` behaves identically to a normal ``Manager``; so
 it's safe to use as your default manager for the model.
 
-.. note::
-
-    Due to `Django bug #16572`_, on Django versions prior to 1.6
-    ``InheritanceManager`` only supports a single level of model inheritance;
-    it won't work for grandchild models.
-
 .. _contributed by Jeff Elmore: http://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
-.. _Django bug #16572: https://code.djangoproject.com/ticket/16572
 
+JoinManager
+-----------
+
+The ``JoinManager`` will create a temporary table of your current queryset
+and join that temporary table with the model of your current queryset. This can
+be advantageous if you have to page through your entire DB and using django's
+slice mechanism to do that. ``LIMIT .. OFFSET ..`` becomes slower the bigger
+offset you use.
+
+.. code-block:: python
+
+    sliced_qs = Place.objects.all()[2000:2010]
+    qs = sliced_qs.join()
+    # qs contains 10 objects, and there will be a much smaller performance hit
+    # for paging through all of first 2000 objects.
+
+Alternatively, you can give it a queryset and the manager will create a temporary
+table and join that to your current queryset. This can work as a more performant
+alternative to using django's ``__in`` as described in the following
+(`StackExchange answer`_).
+
+.. code-block:: python
+
+    big_qs = Restaurant.objects.filter(menu='vegetarian')
+    qs = Country.objects.filter(country_code='SE').join(big_qs)
+
+.. _StackExchange answer: https://dba.stackexchange.com/questions/91247/optimizing-a-postgres-query-with-a-large-in
 
 .. _QueryManager:
 
@@ -124,98 +144,19 @@ set the ordering of the ``QuerySet`` returned by the ``QueryManager``
 by chaining a call to ``.order_by()`` on the ``QueryManager`` (this is
 not required).
 
+SoftDeletableManager
+--------------------
 
-PassThroughManager
-------------------
-
-A common "gotcha" when defining methods on a custom manager class is that those
-same methods are not automatically also available on the QuerySets returned by
-that manager, so are not "chainable". This can be counterintuitive, as most of
-the public QuerySet API is mirrored on managers. It is possible to create a
-custom Manager that returns QuerySets that have the same additional methods,
-but this requires boilerplate code. The ``PassThroughManager`` class
-(`contributed by Paul McLanahan`_) removes this boilerplate.
-
-.. _contributed by Paul McLanahan: http://paulm.us/post/3717466639/passthroughmanager-for-django
-
-To use ``PassThroughManager``, rather than defining a custom manager with
-additional methods, define a custom ``QuerySet`` subclass with the additional
-methods you want, and pass that ``QuerySet`` subclass to the
-``PassThroughManager.for_queryset_class()`` class method. The returned
-``PassThroughManager`` subclass will always return instances of your custom
-``QuerySet``, and you can also call methods of your custom ``QuerySet``
-directly on the manager:
-
-.. code-block:: python
-
-    from datetime import datetime
-    from django.db import models
-    from django.db.models.query import QuerySet
-    from model_utils.managers import PassThroughManager
-
-    class PostQuerySet(QuerySet):
-        def by_author(self, user):
-            return self.filter(user=user)
-
-        def published(self):
-            return self.filter(published__lte=datetime.now())
-
-        def unpublished(self):
-            return self.filter(published__gte=datetime.now())
-
-
-    class Post(models.Model):
-        user = models.ForeignKey(User)
-        published = models.DateTimeField()
-
-        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
-
-    Post.objects.published()
-    Post.objects.by_author(user=request.user).unpublished()
+Returns only model instances that have the ``is_removed`` field set
+to False. Uses ``SoftDeletableQuerySet``, which ensures model instances
+won't be removed in bulk, but they will be marked as removed instead.
 
 Mixins
 ------
 
 Each of the above manager classes has a corresponding mixin that can be used to
-add functionality to any manager. For example, to create a GeoDjango
-``GeoManager`` that includes "pass through" functionality, you can write the
-following code:
+add functionality to any manager.
 
-.. code-block:: python
-
-    from django.contrib.gis.db import models
-    from django.contrib.gis.db.models.query import GeoQuerySet
-
-    from model_utils.managers import PassThroughManagerMixin
-
-    class PassThroughGeoManager(PassThroughManagerMixin, models.GeoManager):
-        pass
-
-    class LocationQuerySet(GeoQuerySet):
-        def within_boundary(self, geom):
-            return self.filter(point__within=geom)
-
-        def public(self):
-            return self.filter(public=True)
-
-    class Location(models.Model):
-        point  = models.PointField()
-        public = models.BooleanField(default=True)
-        objects = PassThroughGeoManager.for_queryset_class(LocationQuerySet)()
-
-    Location.objects.public()
-    Location.objects.within_boundary(geom=geom)
-    Location.objects.within_boundary(geom=geom).public()
-
-
-Now you have a "pass through manager" that can also take advantage of
-GeoDjango's spatial lookups. You can similarly add additional functionality to
-any manager by composing that manager with ``InheritanceManagerMixin`` or
-``QueryManagerMixin``.
-
-(Note that any manager class using ``InheritanceManagerMixin`` must return a
+Note that any manager class using ``InheritanceManagerMixin`` must return a
 ``QuerySet`` class using ``InheritanceQuerySetMixin`` from its ``get_queryset``
-method. This means that if composing ``InheritanceManagerMixin`` and
-``PassThroughManagerMixin``, the ``QuerySet`` class passed to
-``PassThroughManager.for_queryset_class`` must inherit
-``InheritanceQuerySetMixin``.)
+method.

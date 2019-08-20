@@ -3,4 +3,8 @@ include CHANGES.rst
 include LICENSE.txt
 include MANIFEST.in
 include README.rst
-include TODO.rst
+include requirements*.txt
+include Makefile tox.ini
+recursive-include model_utils/locale *.po *.mo
+graft docs
+recursive-include tests *.py

@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'django-model-utils'
-copyright = u'2013, Carl Meyer'
+copyright = u'2015, Carl Meyer'
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 

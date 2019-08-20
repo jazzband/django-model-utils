@@ -13,3 +13,9 @@ docs: documentation
 
 documentation:
 	python setup.py build_sphinx
+
+messages:
+	python translations.py make
+
+compilemessages:
+	python translations.py compile
