@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 
+import django
+import uuid
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
@@ -16,6 +19,7 @@ class AutoCreatedField(models.DateTimeField):
     By default, sets editable=False, default=datetime.now.
 
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('editable', False)
         kwargs.setdefault('default', now)
@@ -29,15 +33,27 @@ class AutoLastModifiedField(AutoCreatedField):
     By default, sets editable=False and default=datetime.now.
 
     """
+    def get_default(self):
+        """Return the default value for this field."""
+        if not hasattr(self, "_default"):
+            self._default = self._get_default()
+        return self._default
+
     def pre_save(self, model_instance, add):
-        if add and hasattr(model_instance, self.attname):
-            # when creating an instance and the modified date is set
-            # don't change the value, assume the developer wants that
-            # control.
-            value = getattr(model_instance, self.attname)
-        else:
-            value = now()
-            setattr(model_instance, self.attname, value)
+        value = now()
+        if add:
+            current_value = getattr(model_instance, self.attname, self.get_default())
+            if current_value != self.get_default():
+                # when creating an instance and the modified date is set
+                # don't change the value, assume the developer wants that
+                # control.
+                value = getattr(model_instance, self.attname)
+            else:
+                for field in model_instance._meta.get_fields():
+                    if isinstance(field, AutoCreatedField):
+                        value = getattr(model_instance, field.name)
+                        break
+        setattr(model_instance, self.attname, value)
         return value
 
 
@@ -53,6 +69,7 @@ class StatusField(models.CharField):
     Also features a ``no_check_for_status`` argument to make sure
     South can handle this field when it freezes a model.
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 100)
         self.check_for_status = not kwargs.pop('no_check_for_status', False)
@@ -65,6 +82,8 @@ class StatusField(models.CharField):
                 "To use StatusField, the model '%s' must have a %s choices class attribute." \
                 % (sender.__name__, self.choices_name)
             self._choices = getattr(sender, self.choices_name)
+            if django.VERSION >= (1, 9, 0):
+                self.choices = self._choices
             if not self.has_default():
                 self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
 
@@ -74,6 +93,8 @@ class StatusField(models.CharField):
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
         self._choices = [(0, 'dummy')]
+        if django.VERSION >= (1, 9, 0):
+            self.choices = self._choices
         super(StatusField, self).contribute_to_class(cls, name)
 
     def deconstruct(self):
@@ -89,6 +110,7 @@ class MonitorField(models.DateTimeField):
     changes.
 
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('default', now)
         monitor = kwargs.pop('monitor', None)
@@ -111,6 +133,9 @@ class MonitorField(models.DateTimeField):
         return getattr(instance, self.monitor)
 
     def _save_initial(self, sender, instance, **kwargs):
+        if django.VERSION >= (1, 10) and self.monitor in instance.get_deferred_fields():
+            # Fix related to issue #241 to avoid recursive error on double monitor fields
+            return
         setattr(instance, self.monitor_attname,
                 self.get_monitored_value(instance))
 
@@ -126,8 +151,7 @@ class MonitorField(models.DateTimeField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(MonitorField, self).deconstruct()
-        if self.monitor is not None:
-            kwargs['monitor'] = self.monitor
+        kwargs['monitor'] = self.monitor
         if self.when is not None:
             kwargs['when'] = self.when
         return name, path, args, kwargs
@@ -138,7 +162,10 @@ SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 # the number of paragraphs after which to split if no marker
 SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
-_excerpt_field_name = lambda name: '_%s_excerpt' % name
+
+def _excerpt_field_name(name):
+    return '_%s_excerpt' % name
+
 
 def get_excerpt(content):
     excerpt = []
@@ -155,6 +182,7 @@ def get_excerpt(content):
 
     return '\n'.join(default_excerpt)
 
+
 @python_2_unicode_compatible
 class SplitText(object):
     def __init__(self, instance, field_name, excerpt_field_name):
@@ -165,11 +193,13 @@ class SplitText(object):
         self.excerpt_field_name = excerpt_field_name
 
     # content is read/write
-    def _get_content(self):
+    @property
+    def content(self):
         return self.instance.__dict__[self.field_name]
-    def _set_content(self, val):
+
+    @content.setter
+    def content(self, val):
         setattr(self.instance, self.field_name, val)
-    content = property(_get_content, _set_content)
 
     # excerpt is a read only property
     def _get_excerpt(self):
@@ -183,6 +213,7 @@ class SplitText(object):
 
     def __str__(self):
         return self.content
+
 
 class SplitDescriptor(object):
     def __init__(self, field):
@@ -203,6 +234,7 @@ class SplitDescriptor(object):
             setattr(obj, self.excerpt_field_name, value.excerpt)
         else:
             obj.__dict__[self.field.name] = value
+
 
 class SplitField(models.TextField):
     def __init__(self, *args, **kwargs):
@@ -227,7 +259,7 @@ class SplitField(models.TextField):
         return value.content
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         return value.content
 
     def get_prep_value(self, value):
@@ -236,30 +268,53 @@ class SplitField(models.TextField):
         except AttributeError:
             return value
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(SplitField, self).deconstruct()
+        kwargs['no_excerpt_field'] = True
+        return name, path, args, kwargs
 
-# allow South to handle these fields smoothly
-try:
-    from south.modelsinspector import add_introspection_rules
-    # For a normal MarkupField, the add_excerpt_field attribute is
-    # always True, which means no_excerpt_field arg will always be
-    # True in a frozen MarkupField, which is what we want.
-    add_introspection_rules(rules=[
-        (
-            (SplitField,),
-            [],
-            {'no_excerpt_field': ('add_excerpt_field', {})}
-        ),
-        (
-            (MonitorField,),
-            [],
-            {'monitor': ('monitor', {})}
-        ),
-        (
-            (StatusField,),
-            [],
-            {'no_check_for_status': ('check_for_status', {})}
-        ),
-    ], patterns=['model_utils\.fields\.'])
-except ImportError:
-    pass
 
+class UUIDField(models.UUIDField):
+    """
+    A field for storing universally unique identifiers. Use Python UUID class.
+    """
+
+    def __init__(self, primary_key=True, version=4, editable=False, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        primary_key : bool
+            If True, this field is the primary key for the model.
+        version : int
+            An integer that set default UUID version.
+        editable : bool
+            If False, the field will not be displayed in the admin or any other ModelForm,
+            default is false.
+
+        Raises
+        ------
+        ValidationError
+            UUID version 2 is not supported.
+        """
+
+        if version == 2:
+            raise ValidationError(
+                'UUID version 2 is not supported.')
+
+        if version < 1 or version > 5:
+            raise ValidationError(
+                'UUID version is not valid.')
+
+        if version == 1:
+            default = uuid.uuid1
+        elif version == 3:
+            default = uuid.uuid3
+        elif version == 4:
+            default = uuid.uuid4
+        elif version == 5:
+            default = uuid.uuid5
+
+        kwargs.setdefault('primary_key', primary_key)
+        kwargs.setdefault('editable', editable)
+        kwargs.setdefault('default', default)
+        super(UUIDField, self).__init__(*args, **kwargs)

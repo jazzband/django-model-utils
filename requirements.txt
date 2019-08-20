@@ -1,0 +1,6 @@
+# Dependencies for development of django-model-utils
+
+tox
+sphinx
+twine
+freezegun
