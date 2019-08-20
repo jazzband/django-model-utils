@@ -66,7 +66,7 @@ field changes:
 (A ``MonitorField`` can monitor any type of field for changes, not only a
 ``StatusField``.)
 
-If a list is passed to the ``when`` parameter, the field will only 
+If a list is passed to the ``when`` parameter, the field will only
 update when it matches one of the specified values:
 
 .. code-block:: python
@@ -159,16 +159,16 @@ be the excerpt. This number can be customized by setting the
 UUIDField
 ----------
 
-A ``UUIDField`` subclass that provides an UUID field. You can 
-add this field to any model definition. 
+A ``UUIDField`` subclass that provides an UUID field. You can
+add this field to any model definition.
 
-With the param ``primary_key`` you can set if this field is the 
+With the param ``primary_key`` you can set if this field is the
 primary key for the model, default is True.
 
-Param ``version`` is an integer that set default UUID version. 
+Param ``version`` is an integer that set default UUID version.
 Versions 1,3,4 and 5 are supported, default is 4.
 
-If ``editable`` is set to false the field will not be displayed in the admin 
+If ``editable`` is set to false the field will not be displayed in the admin
 or any other ModelForm, default is False.
 
 
