@@ -68,8 +68,10 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
     def test_pre_save_changed(self):
         self.assertChanged(name=None)
         self.instance.name = 'new age'
+        print(self.instance.name)
         self.assertChanged(name=None)
         self.instance.number = 8
+        print(self.instance.number)
         self.assertChanged(name=None, number=None)
         self.instance.name = ''
         self.assertChanged(name=None, number=None)
