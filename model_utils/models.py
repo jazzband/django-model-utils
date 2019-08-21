@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import django
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction, router
 from django.db.models.signals import post_save, pre_save
@@ -18,7 +17,8 @@ from model_utils.managers import (
     SoftDeletableManager,
 )
 
-from django.utils.timezone import now
+from django.db.models.functions import Now
+now = Now()
 
 
 class TimeStampedModel(models.Model):

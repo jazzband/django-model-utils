@@ -1,8 +1,14 @@
 CHANGES
 =======
 
+3.4.0 (unreleased)
+------------------
+
+- Remove hacks for previously supported Django versions. (Fixes GH-390)
+
 3.3.0 (2019.08.19)
 ------------------
+
 - Added `Choices.subset`.
 
 3.2.0 (2019.06.21)
