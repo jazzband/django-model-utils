@@ -81,9 +81,7 @@ class StatusField(models.CharField):
             assert hasattr(sender, self.choices_name), \
                 "To use StatusField, the model '%s' must have a %s choices class attribute." \
                 % (sender.__name__, self.choices_name)
-            self._choices = getattr(sender, self.choices_name)
-            if django.VERSION >= (1, 9, 0):
-                self.choices = self._choices
+            self.choices = getattr(sender, self.choices_name)
             if not self.has_default():
                 self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
 
@@ -92,9 +90,7 @@ class StatusField(models.CharField):
         # we don't set the real choices until class_prepared (so we can rely on
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
-        self._choices = [(0, 'dummy')]
-        if django.VERSION >= (1, 9, 0):
-            self.choices = self._choices
+        self.choices = [(0, 'dummy')]
         super(StatusField, self).contribute_to_class(cls, name)
 
     def deconstruct(self):
@@ -133,11 +129,10 @@ class MonitorField(models.DateTimeField):
         return getattr(instance, self.monitor)
 
     def _save_initial(self, sender, instance, **kwargs):
-        if django.VERSION >= (1, 10) and self.monitor in instance.get_deferred_fields():
+        if self.monitor in instance.get_deferred_fields():
             # Fix related to issue #241 to avoid recursive error on double monitor fields
             return
-        setattr(instance, self.monitor_attname,
-                self.get_monitored_value(instance))
+        setattr(instance, self.monitor_attname, self.get_monitored_value(instance))
 
     def pre_save(self, model_instance, add):
         value = now()

@@ -171,15 +171,12 @@ class InheritanceManagerTests(TestCase):
         queryset = InheritanceManagerTestChild1.objects.values('id').filter(pk=self.child1.pk)
         self.assertEqual(list(queryset), [{'id': self.child1.pk}])
 
-    @skipUnless(django.VERSION >= (1, 9, 0), "test only applies to Django 1.9+")
-    def test_dj19_values_list_on_select_subclasses(self):
+    def test_values_list_on_select_subclasses(self):
         """
         Using `select_subclasses` in conjunction with `values_list()` raised an
         exception in `_get_sub_obj_recurse()` because the result of `values_list()`
         is either a `tuple` or primitive objects if `flat=True` is specified,
         because no type checking was done prior to fetching child nodes.
-
-        Django versions below 1.9 are not affected by this bug.
         """
 
         # Querysets are cast to lists to force immediate evaluation.
@@ -430,7 +427,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual([child3], list(results))
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_limit_to_specific_grandchild_class(self):
         grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestGrandChild1)
@@ -445,7 +441,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual(set(children), set(results))
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_can_fetch_limited_class_grandchildren(self):
         # Not sure if this is the desired behaviour...?
         children = InheritanceManagerTestChild1.objects.select_subclasses()
@@ -462,7 +457,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual(set([child3] + list(children1)), set(results))
 
-    @skipUnless(django.VERSION >= (1, 6, 0), "test only applies to Django 1.6+")
     def test_selecting_multiple_instance_classes_including_grandchildren(self):
         child3 = InheritanceManagerTestChild3.objects.create()
         grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
