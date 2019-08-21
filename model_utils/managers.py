@@ -116,12 +116,9 @@ class InheritanceQuerySetMixin(object):
 
     def iterator(self):
         iter = super(InheritanceQuerySetMixin, self).iterator()
-        if django.VERSION >= (1, 9):
-            for obj in iter:
-                yield obj
-            return
-        # Maintained for Django 1.8 compatability
-        if getattr(self, 'subclasses', False):
+
+        # Maintained for Django 1.8 compatibility
+        if getattr(self, 'subclasses') and django.VERSION < (1, 9):
             extras = tuple(self.query.extra.keys())
             # sort the subclass names longest first,
             # so with 'a' and 'a__b' it goes as deep as possible
