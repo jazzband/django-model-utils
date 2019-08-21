@@ -125,9 +125,6 @@ class InheritanceManagerTests(TestCase):
             )
             list(objs)
 
-    def test_version_determining_any_depth(self):
-        self.assertIsNone(self.get_manager().all()._get_maximum_depth())
-
     def test_manually_specifying_parent_fk_including_grandchildren(self):
         """
         given a Model which inherits from another Model, but also declares
