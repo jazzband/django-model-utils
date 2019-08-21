@@ -93,8 +93,6 @@ class FieldInstanceTracker(object):
         self.instance = instance
         self.fields = fields
         self.field_map = field_map
-        if django.VERSION < (1, 10):
-            self.init_deferred_fields()
 
     @property
     def deferred_fields(self):

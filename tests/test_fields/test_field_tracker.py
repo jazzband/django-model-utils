@@ -185,35 +185,23 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.instance.number = 1
         self.instance.save()
         item = self.tracked_class.objects.only('name').first()
-        if django.VERSION >= (1, 10):
-            self.assertTrue(item.get_deferred_fields())
-        else:
-            self.assertTrue(item._deferred_fields)
+        self.assertTrue(item.get_deferred_fields())
 
         # has_changed() returns False for deferred fields, without un-deferring them.
         # Use an if because ModelTracked doesn't support has_changed() in this case.
         if self.tracked_class == Tracked:
             self.assertFalse(item.tracker.has_changed('number'))
-            if django.VERSION >= (1, 10):
-                self.assertIsInstance(item.__class__.number, DescriptorWrapper)
-                self.assertTrue('number' in item.get_deferred_fields())
-            else:
-                self.assertTrue('number' in item._deferred_fields)
+            self.assertIsInstance(item.__class__.number, DescriptorWrapper)
+            self.assertTrue('number' in item.get_deferred_fields())
 
         # previous() un-defers field and returns value
         self.assertEqual(item.tracker.previous('number'), 1)
-        if django.VERSION >= (1, 10):
-            self.assertNotIn('number', item.get_deferred_fields())
-        else:
-            self.assertNotIn('number', item._deferred_fields)
+        self.assertNotIn('number', item.get_deferred_fields())
 
         # examining a deferred field un-defers it
         item = self.tracked_class.objects.only('name').first()
         self.assertEqual(item.number, 1)
-        if django.VERSION >= (1, 10):
-            self.assertTrue('number' not in item.get_deferred_fields())
-        else:
-            self.assertTrue('number' not in item._deferred_fields)
+        self.assertTrue('number' not in item.get_deferred_fields())
         self.assertEqual(item.tracker.previous('number'), 1)
         self.assertFalse(item.tracker.has_changed('number'))
 

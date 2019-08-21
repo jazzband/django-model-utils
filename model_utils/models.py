@@ -18,11 +18,7 @@ from model_utils.managers import (
     SoftDeletableManager,
 )
 
-if django.VERSION >= (1, 9, 0):
-    from django.db.models.functions import Now
-    now = Now()
-else:
-    from django.utils.timezone import now
+from django.utils.timezone import now
 
 
 class TimeStampedModel(models.Model):
@@ -75,9 +71,7 @@ def add_status_query_managers(sender, **kwargs):
     if not issubclass(sender, StatusModel):
         return
 
-    if django.VERSION >= (1, 10):
-        # First, get current manager name...
-        default_manager = sender._meta.default_manager
+    default_manager = sender._meta.default_manager
 
     for value, display in getattr(sender, 'STATUS', ()):
         if _field_exists(sender, value):
@@ -88,9 +82,7 @@ def add_status_query_managers(sender, **kwargs):
             )
         sender.add_to_class(value, QueryManager(status=value))
 
-    if django.VERSION >= (1, 10):
-        # ...then, put it back, as add_to_class is modifying the default manager!
-        sender._meta.default_manager_name = default_manager.name
+    sender._meta.default_manager_name = default_manager.name
 
 
 def add_timeframed_query_manager(sender, **kwargs):

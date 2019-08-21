@@ -114,35 +114,6 @@ class InheritanceQuerySetMixin(object):
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
 
-    def iterator(self):
-        # Maintained for Django 1.8 compatability
-        iter = super(InheritanceQuerySetMixin, self).iterator()
-        if getattr(self, 'subclasses', False):
-            extras = tuple(self.query.extra.keys())
-            # sort the subclass names longest first,
-            # so with 'a' and 'a__b' it goes as deep as possible
-            subclasses = sorted(self.subclasses, key=len, reverse=True)
-            for obj in iter:
-                sub_obj = None
-                for s in subclasses:
-                    sub_obj = self._get_sub_obj_recurse(obj, s)
-                    if sub_obj:
-                        break
-                if not sub_obj:
-                    sub_obj = obj
-
-                if getattr(self, '_annotated', False):
-                    for k in self._annotated:
-                        setattr(sub_obj, k, getattr(obj, k))
-
-                for k in extras:
-                    setattr(sub_obj, k, getattr(obj, k))
-
-                yield sub_obj
-        else:
-            for obj in iter:
-                yield obj
-
     def _get_subclasses_recurse(self, model, levels=None):
         """
         Given a Model class, find all related objects, exploring children
@@ -201,11 +172,6 @@ class InheritanceQuerySetMixin(object):
 
     def _get_sub_obj_recurse(self, obj, s):
         rel, _, s = s.partition(LOOKUP_SEP)
-
-        # Django 1.9: If a primitive type gets passed to this recursive function,
-        # return None as non-models are not part of inheritance.
-        if not isinstance(obj, models.Model):
-            return None
 
         try:
             node = getattr(obj, rel)

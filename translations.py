@@ -23,10 +23,6 @@ def run(command):
     if not settings.configured:
         settings.configure(**DEFAULT_SETTINGS)
 
-    # Compatibility with Django 1.7's stricter initialization
-    if hasattr(django, 'setup'):
-        django.setup()
-
     parent = os.path.dirname(os.path.abspath(__file__))
     appdir = os.path.join(parent, 'model_utils')
     os.chdir(appdir)
