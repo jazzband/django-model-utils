@@ -5,6 +5,9 @@ CHANGES
 ------------------
 
 - Remove hacks for previously supported Django versions. (Fixes GH-390)
+- Changed to use `six` directly instead of `django.utils.six` which was deprecated and will be removed in Django 3
+- removed import of `with_metaclass` which was not used
+- Added python3.7/Django3alpha test targets to tox
 
 3.3.0 (2019.08.19)
 ------------------

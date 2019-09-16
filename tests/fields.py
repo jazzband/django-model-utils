@@ -1,6 +1,6 @@
 import django
 from django.db import models
-from django.utils.six import with_metaclass, string_types
+from six import string_types
 
 
 def mutable_from_db(value):

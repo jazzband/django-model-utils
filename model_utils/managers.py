@@ -7,7 +7,7 @@ from django.db.models.query import ModelIterable
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.constants import LOOKUP_SEP
-from django.utils.six import string_types
+from six import string_types
 
 from django.db import connection
 from django.db.models.sql.datastructures import Join
@@ -197,11 +197,11 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
         """
         # If we aren't already selecting the subclasess, we need
         # to in order to get this to work.
-        
+
         # How can we tell if we are not selecting subclasses?
-        
+
         # Is it safe to just apply .select_subclasses(*models)?
-        
+
         # Due to https://code.djangoproject.com/ticket/16572, we
         # can't really do this for anything other than children (ie,
         # no grandchildren+).
@@ -213,7 +213,7 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
                     field.attname, # Should this be something else?
                 ) for field in model._meta.parents.values()
             ]) + ')')
-        
+
         return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
 
 class InheritanceManagerMixin(object):

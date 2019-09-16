@@ -33,7 +33,10 @@ setup(
     maintainer='JazzBand',
     url='https://github.com/jazzband/django-model-utils/',
     packages=find_packages(exclude=['tests*']),
-    install_requires=['Django>=1.11'],
+    install_requires=[
+        'Django >= 1.11',
+        'six >= 1.10.0'
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

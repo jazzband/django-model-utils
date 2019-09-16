@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.utils.six import text_type
+from six import text_type
 from django.test import TestCase
 
 from tests.models import Article, SplitFieldAbstractParent
