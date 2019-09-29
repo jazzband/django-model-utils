@@ -5,6 +5,7 @@ CHANGES
 ------------------
 
 - Remove hacks for previously supported Django versions. (Fixes GH-390)
+- Dropped support for Python 2.7. (Fixes GH-393)
 
 3.3.0 (2019.08.19)
 ------------------

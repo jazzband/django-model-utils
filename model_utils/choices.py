@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import copy
 
 
-class Choices(object):
+class Choices:
     """
     A class to encapsulate handy functionality for lists of choices
     for a Django model field.

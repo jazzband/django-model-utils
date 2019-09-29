@@ -4,7 +4,6 @@ import django
 from django.db import models
 from django.db.models.query_utils import DeferredAttribute
 from django.db.models import Manager
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
@@ -36,7 +35,6 @@ class InheritanceManagerTestRelated(models.Model):
     pass
 
 
-@python_2_unicode_compatible
 class InheritanceManagerTestParent(models.Model):
     # FileField is just a handy descriptor-using field. Refs #6.
     non_related_field_using_descriptor = models.FileField(upload_to="test")
@@ -206,12 +204,12 @@ class NoRendered(models.Model):
     body = SplitField(no_excerpt_field=True)
 
 
-class AuthorMixin(object):
+class AuthorMixin:
     def by_author(self, name):
         return self.filter(author=name)
 
 
-class PublishedMixin(object):
+class PublishedMixin:
     def published(self):
         return self.filter(published=True)
 
@@ -373,7 +371,7 @@ class CustomSoftDelete(SoftDeletableModel):
     objects = CustomSoftDeleteManager()
 
 
-class StringyDescriptor(object):
+class StringyDescriptor:
     """
     Descriptor that returns a string version of the underlying integer value.
     """
