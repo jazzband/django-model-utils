@@ -44,7 +44,7 @@ class InheritanceIterable(ModelIterable):
                 yield obj
 
 
-class InheritanceQuerySetMixin(object):
+class InheritanceQuerySetMixin:
     def __init__(self, *args, **kwargs):
         super(InheritanceQuerySetMixin, self).__init__(*args, **kwargs)
         self._iterable_class = InheritanceIterable
@@ -216,7 +216,8 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
         
         return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
 
-class InheritanceManagerMixin(object):
+
+class InheritanceManagerMixin:
     _queryset_class = InheritanceQuerySet
 
     def get_queryset(self):
@@ -235,7 +236,7 @@ class InheritanceManager(InheritanceManagerMixin, models.Manager):
     pass
 
 
-class QueryManagerMixin(object):
+class QueryManagerMixin:
 
     def __init__(self, *args, **kwargs):
         if args:
@@ -260,7 +261,7 @@ class QueryManager(QueryManagerMixin, models.Manager):
     pass
 
 
-class SoftDeletableQuerySetMixin(object):
+class SoftDeletableQuerySetMixin:
     """
     QuerySet for SoftDeletableModel. Instead of removing instance sets
     its ``is_removed`` field to True.
@@ -278,7 +279,7 @@ class SoftDeletableQuerySet(SoftDeletableQuerySetMixin, QuerySet):
     pass
 
 
-class SoftDeletableManagerMixin(object):
+class SoftDeletableManagerMixin:
     """
     Manager that limits the queryset by default to show only not removed
     instances of model.
@@ -393,7 +394,7 @@ class JoinQueryset(models.QuerySet):
         return new_qs
 
 
-class JoinManagerMixin(object):
+class JoinManagerMixin:
     """
     Manager that adds a method join. This method allows you to join two
     querysets together.

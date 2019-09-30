@@ -9,7 +9,7 @@ from django.db.models.fields.files import FileDescriptor
 from django.db.models.query_utils import DeferredAttribute
 
 
-class DescriptorMixin(object):
+class DescriptorMixin:
     tracker_instance = None
 
     def __get__(self, instance, owner):
@@ -29,7 +29,7 @@ class DescriptorMixin(object):
         return self.field_name
 
 
-class DescriptorWrapper(object):
+class DescriptorWrapper:
 
     def __init__(self, field_name, descriptor, tracker_attname):
         self.field_name = field_name
@@ -88,7 +88,7 @@ class FullDescriptorWrapper(DescriptorWrapper):
         self.descriptor.__delete__(obj)
 
 
-class FieldInstanceTracker(object):
+class FieldInstanceTracker:
     def __init__(self, instance, fields, field_map):
         self.instance = instance
         self.fields = fields
@@ -190,7 +190,7 @@ class FieldInstanceTracker(object):
                 setattr(self.instance.__class__, field, field_tracker)
 
 
-class FieldTracker(object):
+class FieldTracker:
 
     tracker_class = FieldInstanceTracker
 

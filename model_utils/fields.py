@@ -5,7 +5,6 @@ import uuid
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
 DEFAULT_CHOICES_NAME = 'STATUS'
@@ -178,8 +177,7 @@ def get_excerpt(content):
     return '\n'.join(default_excerpt)
 
 
-@python_2_unicode_compatible
-class SplitText(object):
+class SplitText:
     def __init__(self, instance, field_name, excerpt_field_name):
         # instead of storing actual values store a reference to the instance
         # along with field names, this makes assignment possible
@@ -210,7 +208,7 @@ class SplitText(object):
         return self.content
 
 
-class SplitDescriptor(object):
+class SplitDescriptor:
     def __init__(self, field):
         self.field = field
         self.excerpt_field_name = _excerpt_field_name(self.field.name)

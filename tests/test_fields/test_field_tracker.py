@@ -45,7 +45,7 @@ class FieldTrackerTestCase(TestCase):
         self.instance.save()
 
 
-class FieldTrackerCommonTests(object):
+class FieldTrackerCommonTests:
 
     def test_pre_save_previous(self):
         self.assertPrevious(name=None, number=None)
