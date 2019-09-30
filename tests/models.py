@@ -386,8 +386,10 @@ class StringyDescriptor:
             # This queries the database, and sets the value on the instance.
             if django.VERSION < (2, 1):
                 DeferredAttribute(field_name=self.name, model=cls).__get__(obj, cls)
-            else:
+            elif django.VERSION < (3, 0):
                 DeferredAttribute(field_name=self.name).__get__(obj, cls)
+            else:
+                DeferredAttribute(field=self).__get__(obj, cls)
         return str(obj.__dict__[self.name])
 
     def __set__(self, obj, value):
