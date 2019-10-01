@@ -377,26 +377,26 @@ class StringyDescriptor:
     """
 
     def __init__(self, name):
-        self.name = name
+        self.attname = name
 
     def __get__(self, obj, cls=None):
         if obj is None:
             return self
-        if self.name in obj.get_deferred_fields():
+        if self.attname in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
             if django.VERSION < (2, 1):
-                DeferredAttribute(field_name=self.name, model=cls).__get__(obj, cls)
+                DeferredAttribute(field_name=self.attname, model=cls).__get__(obj, cls)
             elif django.VERSION < (3, 0):
-                DeferredAttribute(field_name=self.name).__get__(obj, cls)
+                DeferredAttribute(field_name=self.attname).__get__(obj, cls)
             else:
                 DeferredAttribute(field=self).__get__(obj, cls)
-        return str(obj.__dict__[self.name])
+        return str(obj.__dict__[self.attname])
 
     def __set__(self, obj, value):
-        obj.__dict__[self.name] = int(value)
+        obj.__dict__[self.attname] = int(value)
 
     def __delete__(self, obj):
-        del obj.__dict__[self.name]
+        del obj.__dict__[self.attname]
 
 
 class CustomDescriptorField(models.IntegerField):
