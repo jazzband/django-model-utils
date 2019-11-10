@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import django
 from django.db import models
 from django.db.models.fields.related import OneToOneField, OneToOneRel
@@ -40,13 +39,12 @@ class InheritanceIterable(ModelIterable):
 
                 yield sub_obj
         else:
-            for obj in iter:
-                yield obj
+            yield from iter
 
 
 class InheritanceQuerySetMixin:
     def __init__(self, *args, **kwargs):
-        super(InheritanceQuerySetMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._iterable_class = InheritanceIterable
 
     def select_subclasses(self, *subclasses):
@@ -73,7 +71,7 @@ class InheritanceQuerySetMixin:
                     verified_subclasses.append(subclass)
                 else:
                     raise ValueError(
-                        '%r is not in the discovered subclasses, tried: %s' % (
+                        '{!r} is not in the discovered subclasses, tried: {}'.format(
                             subclass, ', '.join(calculated_subclasses))
                     )
             subclasses = verified_subclasses
@@ -93,11 +91,11 @@ class InheritanceQuerySetMixin:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
 
-        return super(InheritanceQuerySetMixin, self)._chain(**kwargs)
+        return super()._chain(**kwargs)
 
     def _clone(self, klass=None, setup=False, **kwargs):
         if django.VERSION >= (2, 0):
-            qs = super(InheritanceQuerySetMixin, self)._clone()
+            qs = super()._clone()
             for name in ['subclasses', '_annotated']:
                 if hasattr(self, name):
                     setattr(qs, name, getattr(self, name))
@@ -107,10 +105,10 @@ class InheritanceQuerySetMixin:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
 
-        return super(InheritanceQuerySetMixin, self)._clone(**kwargs)
+        return super()._clone(**kwargs)
 
     def annotate(self, *args, **kwargs):
-        qset = super(InheritanceQuerySetMixin, self).annotate(*args, **kwargs)
+        qset = super().annotate(*args, **kwargs)
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
 
@@ -152,7 +150,7 @@ class InheritanceQuerySetMixin:
         """
         if not issubclass(model, self.model):
             raise ValueError(
-                "%r is not a subclass of %r" % (model, self.model))
+                "{!r} is not a subclass of {!r}".format(model, self.model))
 
         ancestry = []
         # should be a OneToOneField or None
@@ -208,7 +206,7 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
         where_queries = []
         for model in models:
             where_queries.append('(' + ' AND '.join([
-                '"%s"."%s" IS NOT NULL' % (
+                '"{}"."{}" IS NOT NULL'.format(
                     model._meta.db_table,
                     field.attname, # Should this be something else?
                 ) for field in model._meta.parents.values()
@@ -244,14 +242,14 @@ class QueryManagerMixin:
         else:
             self._q = models.Q(**kwargs)
         self._order_by = None
-        super(QueryManagerMixin, self).__init__()
+        super().__init__()
 
     def order_by(self, *args):
         self._order_by = args
         return self
 
     def get_queryset(self):
-        qs = super(QueryManagerMixin, self).get_queryset().filter(self._q)
+        qs = super().get_queryset().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs

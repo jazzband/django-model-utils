@@ -1,10 +1,12 @@
-sudo: True
+version: ~> 1.0
 dist: xenial
+os: linux
 language: python
 cache: pip
 python:
-- 3.7
 - 3.6
+- 3.7
+- 3.8-dev
 install: pip install tox-travis codecov
 # positional args ({posargs}) to pass into tox.ini
 script: tox -- --cov --cov-append
@@ -13,7 +15,7 @@ services:
 after_success: codecov
 deploy:
   provider: pypi
-  user: jazzband
+  username: jazzband
   server: https://jazzband.co/projects/django-model-utils/upload
   distributions: sdist bdist_wheel
   password:

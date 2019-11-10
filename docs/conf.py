@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # django-model-utils documentation build configuration file, created by
 # sphinx-quickstart on Wed Jul 31 22:27:07 2013.
@@ -40,8 +39,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-model-utils'
-copyright = u'2015, Carl Meyer'
+project = 'django-model-utils'
+copyright = '2015, Carl Meyer'
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
@@ -194,8 +193,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-model-utils.tex', u'django-model-utils Documentation',
-   u'Carl Meyer', 'manual'),
+  ('index', 'django-model-utils.tex', 'django-model-utils Documentation',
+   'Carl Meyer', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -224,8 +223,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-model-utils', u'django-model-utils Documentation',
-     [u'Carl Meyer'], 1)
+    ('index', 'django-model-utils', 'django-model-utils Documentation',
+     ['Carl Meyer'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -238,8 +237,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'django-model-utils', u'django-model-utils Documentation',
-   u'Carl Meyer', 'django-model-utils', 'One line description of project.',
+  ('index', 'django-model-utils', 'django-model-utils Documentation',
+   'Carl Meyer', 'django-model-utils', 'One line description of project.',
    'Miscellaneous'),
 ]
 
