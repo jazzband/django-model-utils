@@ -10,6 +10,8 @@ python:
 install: pip install tox-travis codecov
 # positional args ({posargs}) to pass into tox.ini
 script: tox -- --cov --cov-append
+addons:
+  postgresql: '10'
 services:
   - postgresql
 after_success: codecov
