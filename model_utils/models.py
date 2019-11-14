@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction, router
 from django.db.models.signals import post_save, pre_save
@@ -136,7 +134,7 @@ class SoftDeletableModel(models.Model):
             self.is_removed = True
             self.save(using=using)
         else:
-            return super(SoftDeletableModel, self).delete(using=using, *args, **kwargs)
+            return super().delete(using=using, *args, **kwargs)
 
 
 class UUIDModel(models.Model):
@@ -170,7 +168,7 @@ class SaveSignalHandlingModel(models.Model):
 
         self.signals_to_disable = signals_to_disable or []
 
-        super(SaveSignalHandlingModel, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def save_base(self, raw=False, force_insert=False,
                   force_update=False, using=None, update_fields=None):

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from unittest import skip
 import django
 from django.core.exceptions import FieldError
@@ -414,7 +413,7 @@ class FieldTrackedModelMultiTests(FieldTrackerTestCase,
     def test_pre_save_previous(self):
         for tracker in self.trackers:
             self.tracker = tracker
-            super(FieldTrackedModelMultiTests, self).test_pre_save_previous()
+            super().test_pre_save_previous()
 
     def test_post_save_has_changed(self):
         self.update_instance(name='retro', number=4)

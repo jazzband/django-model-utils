@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-
-from django.utils.six import text_type
 from django.test import TestCase
 
 from tests.models import Article, SplitFieldAbstractParent
@@ -15,7 +12,7 @@ class SplitFieldTests(TestCase):
             title='example post', body=self.full_text)
 
     def test_unicode_content(self):
-        self.assertEqual(text_type(self.post.body), self.full_text)
+        self.assertEqual(str(self.post.body), self.full_text)
 
     def test_excerpt(self):
         self.assertEqual(self.post.body.excerpt, self.excerpt)
@@ -40,13 +37,13 @@ class SplitFieldTests(TestCase):
         new_text = 'different\n\n<!-- split -->\n\nother'
         self.post.body = new_text
         self.post.save()
-        self.assertEqual(text_type(self.post.body), new_text)
+        self.assertEqual(str(self.post.body), new_text)
 
     def test_assign_to_content(self):
         new_text = 'different\n\n<!-- split -->\n\nother'
         self.post.body.content = new_text
         self.post.save()
-        self.assertEqual(text_type(self.post.body), new_text)
+        self.assertEqual(str(self.post.body), new_text)
 
     def test_assign_to_excerpt(self):
         with self.assertRaises(AttributeError):

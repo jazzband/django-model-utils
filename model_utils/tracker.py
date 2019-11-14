@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from copy import deepcopy
 
 import django
@@ -20,7 +18,7 @@ class DescriptorMixin:
         if field_name in instance._deferred_fields:
             instance._deferred_fields.remove(field_name)
             was_deferred = True
-        value = super(DescriptorMixin, self).__get__(instance, owner)
+        value = super().__get__(instance, owner)
         if was_deferred:
             self.tracker_instance.saved_data[field_name] = deepcopy(value)
         return value
@@ -125,7 +123,7 @@ class FieldInstanceTracker:
             else:
                 fields = self.fields
 
-        return dict((f, self.get_field_value(f)) for f in fields)
+        return {f: self.get_field_value(f) for f in fields}
 
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
@@ -159,11 +157,11 @@ class FieldInstanceTracker:
 
     def changed(self):
         """Returns dict of fields that changed since save (with old values)"""
-        return dict(
-            (field, self.previous(field))
+        return {
+            field: self.previous(field)
             for field in self.fields
             if self.has_changed(field)
-        )
+        }
 
     def init_deferred_fields(self):
         self.instance._deferred_fields = set()
@@ -199,10 +197,10 @@ class FieldTracker:
 
     def get_field_map(self, cls):
         """Returns dict mapping fields names to model attribute names"""
-        field_map = dict((field, field) for field in self.fields)
-        all_fields = dict((f.name, f.attname) for f in cls._meta.fields)
-        field_map.update(**dict((k, v) for (k, v) in all_fields.items()
-                                if k in field_map))
+        field_map = {field: field for field in self.fields}
+        all_fields = {f.name: f.attname for f in cls._meta.fields}
+        field_map.update(**{k: v for (k, v) in all_fields.items()
+                                if k in field_map})
         return field_map
 
     def contribute_to_class(self, cls, name):
@@ -280,11 +278,11 @@ class ModelInstanceTracker(FieldInstanceTracker):
             return {}
         saved = self.saved_data.items()
         current = self.current()
-        return dict((k, v) for k, v in saved if v != current[k])
+        return {k: v for k, v in saved if v != current[k]}
 
 
 class ModelTracker(FieldTracker):
     tracker_class = ModelInstanceTracker
 
     def get_field_map(self, cls):
-        return dict((field, field) for field in self.fields)
+        return {field: field for field in self.fields}

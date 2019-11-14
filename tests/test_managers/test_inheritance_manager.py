@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from unittest import skipUnless
 
 import django
@@ -27,16 +25,16 @@ class InheritanceManagerTests(TestCase):
         return InheritanceManagerTestParent.objects
 
     def test_normal(self):
-        children = set([
+        children = {
             InheritanceManagerTestParent(pk=self.child1.pk),
             InheritanceManagerTestParent(pk=self.child2.pk),
             InheritanceManagerTestParent(pk=self.grandchild1.pk),
             InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
-        ])
+        }
         self.assertEqual(set(self.get_manager().all()), children)
 
     def test_select_all_subclasses(self):
-        children = set([self.child1, self.child2])
+        children = {self.child1, self.child2}
         children.add(self.grandchild1)
         children.add(self.grandchild1_2)
         self.assertEqual(
@@ -53,12 +51,12 @@ class InheritanceManagerTests(TestCase):
             self.get_manager().select_subclasses('user')
 
     def test_select_specific_subclasses(self):
-        children = set([
+        children = {
             self.child1,
             InheritanceManagerTestParent(pk=self.child2.pk),
             InheritanceManagerTestChild1(pk=self.grandchild1.pk),
             InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
-        ])
+        }
         self.assertEqual(
             set(
                 self.get_manager().select_subclasses(
@@ -68,12 +66,12 @@ class InheritanceManagerTests(TestCase):
         )
 
     def test_select_specific_grandchildren(self):
-        children = set([
+        children = {
             InheritanceManagerTestParent(pk=self.child1.pk),
             InheritanceManagerTestParent(pk=self.child2.pk),
             self.grandchild1,
             InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
-        ])
+        }
         self.assertEqual(
             set(
                 self.get_manager().select_subclasses(
@@ -84,12 +82,12 @@ class InheritanceManagerTests(TestCase):
         )
 
     def test_children_and_grandchildren(self):
-        children = set([
+        children = {
             self.child1,
             InheritanceManagerTestParent(pk=self.child2.pk),
             self.grandchild1,
             InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
-        ])
+        }
         self.assertEqual(
             set(
                 self.get_manager().select_subclasses(
@@ -463,14 +461,14 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3, InheritanceManagerTestGrandChild1).select_subclasses()
 
-        self.assertEqual(set([child3, grandchild1]), set(results))
+        self.assertEqual({child3, grandchild1}, set(results))
 
     def test_select_subclasses_interaction_with_instance_of(self):
         child3 = InheritanceManagerTestChild3.objects.create()
 
         results = InheritanceManagerTestParent.objects.select_subclasses(InheritanceManagerTestChild1).instance_of(InheritanceManagerTestChild3)
 
-        self.assertEqual(set([child3]), set(results))
+        self.assertEqual({child3}, set(results))
 
 
 
