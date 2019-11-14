@@ -6,7 +6,6 @@ from django.db.models.query import ModelIterable
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db.models.constants import LOOKUP_SEP
-from django.utils.six import string_types
 
 from django.db import connection
 from django.db.models.sql.datastructures import Join
@@ -63,7 +62,7 @@ class InheritanceQuerySetMixin:
                 if subclass is self.model:
                     continue
 
-                if not isinstance(subclass, string_types):
+                if not isinstance(subclass, (str,)):
                     subclass = self._get_ancestors_path(
                         subclass, levels=levels)
 

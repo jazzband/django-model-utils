@@ -1,13 +1,12 @@
 import django
 from django.db import models
-from django.utils.six import with_metaclass, string_types
 
 
 def mutable_from_db(value):
     if value == '':
         return None
     try:
-        if isinstance(value, string_types):
+        if isinstance(value, (str,)):
             return [int(i) for i in value.split(',')]
     except ValueError:
         pass
