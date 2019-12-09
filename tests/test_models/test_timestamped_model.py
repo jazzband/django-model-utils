@@ -39,7 +39,6 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, different_date)
         self.assertEqual(t1.modified, different_date)
 
-
     def test_overriding_modified_via_object_creation(self):
         """
         Setting the modified date explicitly should be possible when

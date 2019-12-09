@@ -1,4 +1,3 @@
-import django
 from django.test import TestCase
 
 from tests.models import ModelWithCustomDescriptor
