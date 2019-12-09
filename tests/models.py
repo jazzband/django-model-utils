@@ -374,26 +374,27 @@ class StringyDescriptor:
     Descriptor that returns a string version of the underlying integer value.
     """
     def __init__(self, name):
-        self.attname = name
+        self.name = name
 
     def __get__(self, obj, cls=None):
         if obj is None:
             return self
-        if self.attname in obj.get_deferred_fields():
+        if self.name in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
             if django.VERSION < (3, 0):
-                DeferredAttribute(field_name=self.attname).__get__(obj, cls)
+                DeferredAttribute(field_name=self.name).__get__(obj, cls)
             else:
+                # Since Django 3.0, DeferredAttribute wants a field argument.
                 fields_map = {f.name: f for f in cls._meta.fields}
-                field = fields_map[self.attname]
+                field = fields_map[self.name]
                 DeferredAttribute(field=field).__get__(obj, cls)
-        return str(obj.__dict__[self.attname])
+        return str(obj.__dict__[self.name])
 
     def __set__(self, obj, value):
-        obj.__dict__[self.attname] = int(value)
+        obj.__dict__[self.name] = int(value)
 
     def __delete__(self, obj):
-        del obj.__dict__[self.attname]
+        del obj.__dict__[self.name]
 
 
 class CustomDescriptorField(models.IntegerField):
