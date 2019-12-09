@@ -384,10 +384,9 @@ class StringyDescriptor:
             if django.VERSION < (3, 0):
                 DeferredAttribute(field_name=self.attname).__get__(obj, cls)
             else:
-                class FakeField(object):
-                    def __init__(self, name):
-                        self.attname = name
-                DeferredAttribute(field=FakeField(name=self.attname)).__get__(obj, cls)
+                fields_map = {f.name: f for f in cls._meta.fields}
+                field = fields_map[self.attname]
+                DeferredAttribute(field=field).__get__(obj, cls)
         return str(obj.__dict__[self.attname])
 
     def __set__(self, obj, value):
