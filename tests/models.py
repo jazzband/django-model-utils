@@ -388,7 +388,7 @@ class StringyDescriptor:
                     def __init__(self, name):
                         self.name = name
 
-                DeferredAttribute(field_name=FakeField(name=self.attname)).__get__(obj, cls)
+                DeferredAttribute(field=FakeField(name=self.attname)).__get__(obj, cls)
         return str(obj.__dict__[self.attname])
 
     def __set__(self, obj, value):
