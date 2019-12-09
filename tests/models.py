@@ -381,7 +381,14 @@ class StringyDescriptor:
             return self
         if self.attname in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
-            DeferredAttribute(field_name=self.attname).__get__(obj, cls)
+            if django.VERSION < (3, 0):
+                DeferredAttribute(field_name=self.attname).__get__(obj, cls)
+            else:
+                def FakeField(object):
+                    def __init__(self, name):
+                        self.name = name
+
+                DeferredAttribute(field_name=FakeField(name=self.attname)).__get__(obj, cls)
         return str(obj.__dict__[self.attname])
 
     def __set__(self, obj, value):
