@@ -387,7 +387,7 @@ class StringyDescriptor:
             elif django.VERSION < (3, 0):
                 DeferredAttribute(field_name=self.attname).__get__(obj, cls)
             else:
-                DeferredAttribute(field=self).__get__(obj, cls)
+                DeferredAttribute(field=self, model=cls).__get__(obj, cls)
         return str(obj.__dict__[self.attname])
 
     def __set__(self, obj, value):
