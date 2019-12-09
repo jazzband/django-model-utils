@@ -373,10 +373,6 @@ class StringyDescriptor:
     """
     Descriptor that returns a string version of the underlying integer value.
     """
-    def __new__(cls, *args):
-        cls.model = cls
-        return super().__new__(cls)
-
     def __init__(self, name):
         self.attname = name
 
@@ -385,12 +381,7 @@ class StringyDescriptor:
             return self
         if self.attname in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
-            if django.VERSION < (2, 1):
-                DeferredAttribute(field_name=self.attname, model=cls).__get__(obj, cls)
-            elif django.VERSION < (3, 0):
-                DeferredAttribute(field_name=self.attname).__get__(obj, cls)
-            else:
-                DeferredAttribute(field=self).__get__(obj, cls)
+            DeferredAttribute(field_name=self.attname).__get__(obj, cls)
         return str(obj.__dict__[self.attname])
 
     def __set__(self, obj, value):
