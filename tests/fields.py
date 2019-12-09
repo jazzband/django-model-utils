@@ -1,4 +1,3 @@
-import django
 from django.db import models
 
 
@@ -25,7 +24,7 @@ class MutableField(models.TextField):
     def to_python(self, value):
         return mutable_from_db(value)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         return mutable_from_db(value)
 
     def get_db_prep_save(self, value, connection):

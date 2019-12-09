@@ -1,13 +1,11 @@
 import django
-from django.db import models
-from django.db.models.fields.related import OneToOneField, OneToOneRel
-from django.db.models.query import QuerySet
-from django.db.models.query import ModelIterable
 from django.core.exceptions import ObjectDoesNotExist
-
-from django.db.models.constants import LOOKUP_SEP
-
 from django.db import connection
+from django.db import models
+from django.db.models.constants import LOOKUP_SEP
+from django.db.models.fields.related import OneToOneField, OneToOneRel
+from django.db.models.query import ModelIterable
+from django.db.models.query import QuerySet
 from django.db.models.sql.datastructures import Join
 
 
@@ -185,20 +183,17 @@ class InheritanceQuerySetMixin:
 
 
 class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
-    pass
-
-
     def instance_of(self, *models):
         """
         Fetch only objects that are instances of the provided model(s).
         """
         # If we aren't already selecting the subclasess, we need
         # to in order to get this to work.
-        
+
         # How can we tell if we are not selecting subclasses?
-        
+
         # Is it safe to just apply .select_subclasses(*models)?
-        
+
         # Due to https://code.djangoproject.com/ticket/16572, we
         # can't really do this for anything other than children (ie,
         # no grandchildren+).
@@ -207,10 +202,10 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
             where_queries.append('(' + ' AND '.join([
                 '"{}"."{}" IS NOT NULL'.format(
                     model._meta.db_table,
-                    field.attname, # Should this be something else?
+                    field.attname,  # Should this be something else?
                 ) for field in model._meta.parents.values()
             ]) + ')')
-        
+
         return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
 
 
@@ -228,6 +223,7 @@ class InheritanceManagerMixin:
 
     def instance_of(self, *models):
         return self.get_queryset().instance_of(*models)
+
 
 class InheritanceManager(InheritanceManagerMixin, models.Manager):
     pass

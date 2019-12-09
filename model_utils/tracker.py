@@ -200,7 +200,7 @@ class FieldTracker:
         field_map = {field: field for field in self.fields}
         all_fields = {f.name: f.attname for f in cls._meta.fields}
         field_map.update(**{k: v for (k, v) in all_fields.items()
-                                if k in field_map})
+                            if k in field_map})
         return field_map
 
     def contribute_to_class(self, cls, name):

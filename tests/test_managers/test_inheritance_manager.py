@@ -1,6 +1,3 @@
-from unittest import skipUnless
-
-import django
 from django.db import models
 from django.test import TestCase
 
@@ -469,7 +466,6 @@ class InheritanceManagerUsingModelsTests(TestCase):
         results = InheritanceManagerTestParent.objects.select_subclasses(InheritanceManagerTestChild1).instance_of(InheritanceManagerTestChild3)
 
         self.assertEqual({child3}, set(results))
-
 
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):

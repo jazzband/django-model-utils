@@ -1,11 +1,14 @@
 CHANGES
 =======
 
-3.4.0 (unreleased)
+4.0.0 (unreleased)
 ------------------
 
 - Remove hacks for previously supported Django versions. (Fixes GH-390)
 - Dropped support for Python 2.7. (Fixes GH-393)
+- Dropped usage of `six`
+- Drop support for `Django 1.11`
+- Add support for `Django 3.0`
 
 3.3.0 (2019.08.19)
 ------------------
@@ -32,10 +35,10 @@ CHANGES
 
 3.1.2 (2018.05.09)
 ------------------
-* Update InheritanceIterable to inherit from
+- Update InheritanceIterable to inherit from
   ModelIterable instead of BaseIterable, fixes GH-277.
 
-* Add all_objects Manager for 'SoftDeletableModel' to include soft
+- Add all_objects Manager for 'SoftDeletableModel' to include soft
   deleted objects on queries as per issue GH-255
 
 3.1.1 (2017.12.17)
@@ -53,33 +56,33 @@ CHANGES
 3.0.0 (2017.04.13)
 ------------------
 
-* Drop support for Python 2.6.
-* Drop support for Django 1.4, 1.5, 1.6, 1.7.
-* Exclude tests from the distribution, fixes GH-258.
-* Add support for Django 1.11 GH-269
-* Add a new model to disable pre_save/post_save signals
+- Drop support for Python 2.6.
+- Drop support for Django 1.4, 1.5, 1.6, 1.7.
+- Exclude tests from the distribution, fixes GH-258.
+- Add support for Django 1.11 GH-269
+- Add a new model to disable pre_save/post_save signals
 
 
 2.6.1 (2017.01.11)
 ------------------
 
-* Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
+- Fix infinite recursion with multiple `MonitorField` and `defer()` or `only()`
   on Django 1.10+. Thanks Romain Garrigues. Merge of GH-242, fixes GH-241.
 
-* Fix `InheritanceManager` and `SoftDeletableManager` to respect
+- Fix `InheritanceManager` and `SoftDeletableManager` to respect
   `self._queryset_class` instead of hardcoding the queryset class. Merge of
   GH-250, fixes GH-249.
 
-* Add mixins for `SoftDeletableQuerySet` and `SoftDeletableManager`, as stated
+- Add mixins for `SoftDeletableQuerySet` and `SoftDeletableManager`, as stated
   in the the documentation.
 
-* Fix `SoftDeletableModel.delete()` to use the correct database connection.
+- Fix `SoftDeletableModel.delete()` to use the correct database connection.
   Merge of GH-239.
 
-* Added boolean keyword argument `soft` to `SoftDeletableModel.delete()` that
+- Added boolean keyword argument `soft` to `SoftDeletableModel.delete()` that
   revert to default behavior when set to `False`. Merge of GH-240.
 
-* Enforced default manager in `StatusModel` to avoid manager order issues when
+- Enforced default manager in `StatusModel` to avoid manager order issues when
   using abstract models that redefine `objects` manager. Merge of GH-253, fixes
   GH-251.
 
@@ -87,75 +90,75 @@ CHANGES
 2.6 (2016.09.19)
 ----------------
 
-* Added `SoftDeletableModel` abstract class, its manageer
+- Added `SoftDeletableModel` abstract class, its manageer
   `SoftDeletableManager` and queryset `SoftDeletableQuerySet`.
 
-* Fix issue with field tracker and deferred FileField for Django 1.10.
+- Fix issue with field tracker and deferred FileField for Django 1.10.
 
 
 2.5.2 (2016.08.09)
 ------------------
 
-* Include `runtests.py` in sdist.
+- Include `runtests.py` in sdist.
 
 
 2.5.1 (2016.08.03)
 ------------------
 
-* Fix `InheritanceQuerySet` raising an `AttributeError` exception
+- Fix `InheritanceQuerySet` raising an `AttributeError` exception
   under Django 1.9.
 
-* Django 1.10 support regressed with changes between pre-alpha and final
+- Django 1.10 support regressed with changes between pre-alpha and final
   release; 1.10 currently not supported.
 
 
 2.5 (2016.04.18)
 ----------------
 
-* Drop support for Python 3.2.
+- Drop support for Python 3.2.
 
-* Add support for Django 1.10 pre-alpha.
+- Add support for Django 1.10 pre-alpha.
 
-* Track foreign keys on parent models properly when a tracker
+- Track foreign keys on parent models properly when a tracker
   is defined on a child model. Fixes GH-214.
 
 
 2.4 (2015.12.03)
 ----------------
 
-* Remove `PassThroughManager`. Use Django's built-in `QuerySet.as_manager()`
+- Remove `PassThroughManager`. Use Django's built-in `QuerySet.as_manager()`
   and/or `Manager.from_queryset()` utilities instead.
 
-* Add support for Django 1.9.
+- Add support for Django 1.9.
 
 
 2.3.1 (2015-07-20)
 ------------------
 
-* Remove all translation-related automation in `setup.py`. Fixes GH-178 and
+- Remove all translation-related automation in `setup.py`. Fixes GH-178 and
   GH-179. Thanks Joe Weiss, Matt Molyneaux, and others for the reports.
 
 
 2.3 (2015.07.17)
 ----------------
 
-* Keep track of deferred fields on model instance instead of on
+- Keep track of deferred fields on model instance instead of on
   FieldInstanceTracker instance. Fixes accessing deferred fields for multiple
   instances of a model from the same queryset. Thanks Bram Boogaard. Merge of
   GH-151.
 
-* Fix Django 1.7 migrations compatibility for SplitField. Thanks ad-m. Merge of
+- Fix Django 1.7 migrations compatibility for SplitField. Thanks ad-m. Merge of
   GH-157; fixes GH-156.
 
-* Add German translations.
+- Add German translations.
 
-* Django 1.8 compatibility.
+- Django 1.8 compatibility.
 
 
 2.2 (2014.07.31)
 ----------------
 
-* Revert GH-130, restoring ability to access ``FieldTracker`` changes in
+- Revert GH-130, restoring ability to access ``FieldTracker`` changes in
   overridden ``save`` methods or ``post_save`` handlers. This reopens GH-83
   (inability to pickle models with ``FieldTracker``) until a solution can be
   found that doesn't break behavior otherwise. Thanks Brian May for the
@@ -165,7 +168,7 @@ CHANGES
 2.1.1 (2014.07.28)
 ------------------
 
-* ASCII-fold all non-ASCII characters in changelog; again. Argh. Apologies to
+- ASCII-fold all non-ASCII characters in changelog; again. Argh. Apologies to
   those whose names are mangled by this change. It seems that distutils makes
   it impossible to handle non-ASCII content reliably under Python 3 in a
   setup.py long_description, when the system encoding may be ASCII. Thanks
@@ -175,14 +178,14 @@ CHANGES
 2.1.0 (2014.07.25)
 ------------------
 
-* Add support for Django's built-in migrations to ``MonitorField`` and
+- Add support for Django's built-in migrations to ``MonitorField`` and
   ``StatusField``.
 
-* ``PassThroughManager`` now has support for seeing exposed methods via
+- ``PassThroughManager`` now has support for seeing exposed methods via
   ``dir``, allowing `IPython`_ tab completion to be useful. Merge of GH-104,
   fixes GH-55.
 
-* Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slintak
+- Add pickle support for models using ``FieldTracker``.  Thanks Ondrej Slintak
   for the report.  Thanks Matthew Schinckel for the fix.  Merge of GH-130,
   fixes GH-83.
 
@@ -192,21 +195,21 @@ CHANGES
 2.0.3 (2014.03.19)
 -------------------
 
-* Fix ``get_query_set`` vs ``get_queryset`` in ``PassThroughManager`` for
+- Fix ``get_query_set`` vs ``get_queryset`` in ``PassThroughManager`` for
   Django <1.6. Fixes issues with related managers not filtering by relation
   properly. Thanks whop, Bojan Mihelac, Daniel Shapiro, and Matthew Schinckel
   for the report; Matthew for the fix. Merge of GH-121.
 
-* Fix ``FieldTracker`` with deferred model attributes. Thanks Michael van
+- Fix ``FieldTracker`` with deferred model attributes. Thanks Michael van
   Tellingen. Merge of GH-115.
 
-* Fix ``InheritanceManager`` with self-referential FK; avoid infinite
+- Fix ``InheritanceManager`` with self-referential FK; avoid infinite
   recursion. Thanks rsenkbeil. Merge of GH-114.
 
 2.0.2 (2014.02.19)
 -------------------
 
-* ASCII-fold all non-ASCII characters in changelog. Apologies to those whose
+- ASCII-fold all non-ASCII characters in changelog. Apologies to those whose
   names are mangled by this change. It seems that distutils makes it impossible
   to handle non-ASCII content reliably under Python 3 in a setup.py
   long_description, when the system encoding may be ASCII. Thanks Simone Dalla
@@ -216,17 +219,17 @@ CHANGES
 2.0.1 (2014.02.11)
 -------------------
 
-* Fix dependency to be on "Django" rather than "django", which plays better
+- Fix dependency to be on "Django" rather than "django", which plays better
   with static PyPI mirrors. Thanks Travis Swicegood.
 
-* Fix issue with attempt to access ``__slots__`` when copying
+- Fix issue with attempt to access ``__slots__`` when copying
   ``PassThroughManager``. Thanks Patryk Zawadzki. Merge of GH-105.
 
-* Improve ``InheritanceManager`` so any attributes added by using extra(select)
+- Improve ``InheritanceManager`` so any attributes added by using extra(select)
   will be propagated onto children. Thanks Curtis Maloney. Merge of GH-101,
   fixes GH-34.
 
-* Added ``InheritanceManagerMixin``, ``InheritanceQuerySetMixin``,
+- Added ``InheritanceManagerMixin``, ``InheritanceQuerySetMixin``,
   ``PassThroughManagerMixin``, and ``QueryManagerMixin`` to allow composing
   their functionality with other custom manager/queryset subclasses (e.g. those
   in GeoDjango). Thanks Douglas Meehan!
@@ -235,54 +238,54 @@ CHANGES
 2.0 (2014.01.06)
 ----------------
 
-* BACKWARDS-INCOMPATIBLE: Indexing into a ``Choices`` instance now translates
+- BACKWARDS-INCOMPATIBLE: Indexing into a ``Choices`` instance now translates
   database representations to human-readable choice names, rather than simply
   indexing into an array of choice tuples. (Indexing into ``Choices`` was
   previously not documented.) If you have code that is relying on indexing or
   slicing ``Choices``, the simplest workaround is to change e.g. ``STATUS[1:]``
   to ``list(STATUS)[1:]``.
 
-* Fixed bug with checking for field name conflicts for added query managers on
+- Fixed bug with checking for field name conflicts for added query managers on
   `StatusModel`.
 
-* Can pass `choices_name` to `StatusField` to use a different name for
+- Can pass `choices_name` to `StatusField` to use a different name for
   choices class attribute. ``STATUS`` is used by default.
 
-* Can pass model subclasses, rather than strings, into
+- Can pass model subclasses, rather than strings, into
   `select_subclasses()`. Thanks Keryn Knight. Merge of GH-79.
 
-* Deepcopying a `Choices` instance no longer fails with infinite recursion in
+- Deepcopying a `Choices` instance no longer fails with infinite recursion in
   `getattr`. Thanks Leden. Merge of GH-75.
 
-* `get_subclass()` method is now available on both managers and
+- `get_subclass()` method is now available on both managers and
   querysets. Thanks Travis Swicegood. Merge of GH-82.
 
-* Fix bug in `InheritanceManager` with grandchild classes on Django 1.6+;
+- Fix bug in `InheritanceManager` with grandchild classes on Django 1.6+;
   `select_subclasses('child', 'child__grandchild')` would only ever get to the
   child class. Thanks Keryn Knight for report and proposed fix.
 
-* MonitorField now accepts a 'when' parameter. It will update only when the field
+- MonitorField now accepts a 'when' parameter. It will update only when the field
   changes to one of the values specified.
 
 
 1.5.0 (2013.08.29)
 ------------------
 
-* `Choices` now accepts option-groupings. Fixes GH-14.
+- `Choices` now accepts option-groupings. Fixes GH-14.
 
-* `Choices` can now be added to other `Choices` or to any iterable, and can be
+- `Choices` can now be added to other `Choices` or to any iterable, and can be
   compared for equality with itself. Thanks Tony Aldridge. (Merge of GH-76.)
 
-* `Choices` now `__contains__` its Python identifier values. Thanks Keryn
+- `Choices` now `__contains__` its Python identifier values. Thanks Keryn
   Knight. (Merge of GH-69).
 
-* Fixed a bug causing ``KeyError`` when saving with the parameter
+- Fixed a bug causing ``KeyError`` when saving with the parameter
   ``update_fields`` in which there are untracked fields. Thanks Mikhail
   Silonov. (Merge of GH-70, fixes GH-71).
 
-* Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
+- Fixed ``FieldTracker`` usage on inherited models.  Fixes GH-57.
 
-* Added mutable field support to ``FieldTracker`` (Merge of GH-73, fixes GH-74)
+- Added mutable field support to ``FieldTracker`` (Merge of GH-73, fixes GH-74)
 
 
 1.4.0 (2013.06.03)
@@ -423,4 +426,4 @@ CHANGES
 0.3.0
 -----
 
-* Added ``QueryManager``
+- Added ``QueryManager``
