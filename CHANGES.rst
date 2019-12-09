@@ -8,6 +8,7 @@ CHANGES
 - Dropped support for Python 2.7. (Fixes GH-393)
 - Dropped usage of `six`
 - Drop support for `Django 1.11`
+- Add support for `Django 3.0`
 
 3.3.0 (2019.08.19)
 ------------------
