@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import copy
 
 
@@ -132,9 +130,9 @@ class Choices:
         return False
 
     def __repr__(self):
-        return '%s(%s)' % (
+        return '{}({})'.format(
             self.__class__.__name__,
-            ', '.join(("%s" % repr(i) for i in self._triples))
+            ', '.join("%s" % repr(i) for i in self._triples)
         )
 
     def __contains__(self, item):

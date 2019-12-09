@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.db.utils import ConnectionDoesNotExist
 from django.test import TestCase
 

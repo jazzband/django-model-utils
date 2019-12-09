@@ -1,5 +1,3 @@
-from __future__ import unicode_literals, absolute_import
-
 import django
 from django.db import models
 from django.db.models.query_utils import DeferredAttribute
@@ -48,7 +46,7 @@ class InheritanceManagerTestParent(models.Model):
     objects = InheritanceManager()
 
     def __str__(self):
-        return "%s(%s)" % (
+        return "{}({})".format(
             self.__class__.__name__[len('InheritanceManagerTest'):],
             self.pk,
         )
@@ -246,7 +244,7 @@ class Tracked(models.Model):
 
     def save(self, *args, **kwargs):
         """ No-op save() to ensure that FieldTracker.patch_save() works. """
-        super(Tracked, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class TrackedFK(models.Model):
@@ -401,7 +399,7 @@ class StringyDescriptor:
 
 class CustomDescriptorField(models.IntegerField):
     def contribute_to_class(self, cls, name, **kwargs):
-        super(CustomDescriptorField, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
         setattr(cls, name, StringyDescriptor(name))
 
 

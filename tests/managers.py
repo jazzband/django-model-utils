@@ -1,5 +1,3 @@
-from __future__ import unicode_literals, absolute_import
-
 from model_utils.managers import SoftDeletableQuerySet, SoftDeletableManager
 
 

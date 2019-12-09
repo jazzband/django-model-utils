@@ -1,4 +1,3 @@
-
 from django.test import TestCase
 
 from tests.models import JoinItemForeignKey, BoxJoinModel

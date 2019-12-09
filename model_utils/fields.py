@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django
 import uuid
 from django.db import models
@@ -22,7 +20,7 @@ class AutoCreatedField(models.DateTimeField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('editable', False)
         kwargs.setdefault('default', now)
-        super(AutoCreatedField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class AutoLastModifiedField(AutoCreatedField):
@@ -73,7 +71,7 @@ class StatusField(models.CharField):
         kwargs.setdefault('max_length', 100)
         self.check_for_status = not kwargs.pop('no_check_for_status', False)
         self.choices_name = kwargs.pop('choices_name', DEFAULT_CHOICES_NAME)
-        super(StatusField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def prepare_class(self, sender, **kwargs):
         if not sender._meta.abstract and self.check_for_status:
@@ -90,10 +88,10 @@ class StatusField(models.CharField):
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
         self.choices = [(0, 'dummy')]
-        super(StatusField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(StatusField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         kwargs['no_check_for_status'] = True
         return name, path, args, kwargs
 
@@ -117,12 +115,12 @@ class MonitorField(models.DateTimeField):
         if when is not None:
             when = set(when)
         self.when = when
-        super(MonitorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
         self.monitor_attname = '_monitor_%s' % name
         models.signals.post_init.connect(self._save_initial, sender=cls)
-        super(MonitorField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
 
     def get_monitored_value(self, instance):
         return getattr(instance, self.monitor)
@@ -141,10 +139,10 @@ class MonitorField(models.DateTimeField):
             if self.when is None or current in self.when:
                 setattr(model_instance, self.attname, value)
                 self._save_initial(model_instance.__class__, model_instance)
-        return super(MonitorField, self).pre_save(model_instance, add)
+        return super().pre_save(model_instance, add)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(MonitorField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         kwargs['monitor'] = self.monitor
         if self.when is not None:
             kwargs['when'] = self.when
@@ -236,17 +234,17 @@ class SplitField(models.TextField):
         # _excerpt field itself is frozen as well. See introspection
         # rules below.
         self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
-        super(SplitField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
         if self.add_excerpt_field and not cls._meta.abstract:
             excerpt_field = models.TextField(editable=False)
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
-        super(SplitField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
         setattr(cls, self.name, SplitDescriptor(self))
 
     def pre_save(self, model_instance, add):
-        value = super(SplitField, self).pre_save(model_instance, add)
+        value = super().pre_save(model_instance, add)
         excerpt = get_excerpt(value.content)
         setattr(model_instance, _excerpt_field_name(self.attname), excerpt)
         return value.content
@@ -262,7 +260,7 @@ class SplitField(models.TextField):
             return value
 
     def deconstruct(self):
-        name, path, args, kwargs = super(SplitField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         kwargs['no_excerpt_field'] = True
         return name, path, args, kwargs
 
@@ -310,4 +308,4 @@ class UUIDField(models.UUIDField):
         kwargs.setdefault('primary_key', primary_key)
         kwargs.setdefault('editable', editable)
         kwargs.setdefault('default', default)
-        super(UUIDField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
