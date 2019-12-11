@@ -1,18 +1,17 @@
 CHANGES
 =======
 
-4.0.0 (unreleased)
+4.0.0 (2019-12-11)
 ------------------
-
 - Remove hacks for previously supported Django versions. (Fixes GH-390)
 - Dropped support for Python 2.7. (Fixes GH-393)
 - Dropped usage of `six`
 - Drop support for `Django 1.11`
+- Add support for `Python 3.8`
 - Add support for `Django 3.0`
 
 3.3.0 (2019.08.19)
 ------------------
-
 - Added `Choices.subset`.
 
 3.2.0 (2019.06.21)

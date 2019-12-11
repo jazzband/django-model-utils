@@ -1,56 +1,99 @@
-| ad-m <github.com/ad-m>
-| Adam Barnes <sara.and.zuka+django-model-utils@gmail.com>
-| Alejandro Varas <alej0varas@gmail.com>
+| Adam Bogdał <adam@bogdal.pl>
+| Adam Chainz <adam@adamj.eu>
+| Adam Dobrawy <github.com/ad-m>
+| Adam Nelson <adam@varud.com>
+| Alejandro Varas <a.varas@tucarga.cl>
 | Alex Orange <crazycasta@gmail.com>
+| Alexander Kavanaugh <alex@kavdev.io>
 | Alexey Evseev <myhappydo@gmail.com>
-| Andy Freeland <andy@andyfreeland.net>
+| Andy Freeland <andy.freeland@redjack.com>
+| Ant Somers <github.com/thiras>
+| Antti Kaihola <akaihol+github@ambitone.com>
+| Arseny Sysolyatin <phelansav@gmail.com>
 | Artis Avotins <artis.avotins@gmail.com>
-| Bram Boogaard <b.boogaard@auto-interactive.nl>
-| Carl Meyer <carl@dirtcircle.com>
-| Curtis Maloney <curtis@tinbrain.net>
-| Den Lesnov
-| Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
+| Asif Saif Uddin <auvipy@gmail.com>
+| Bo Marchman <bo.marchman@gmail.com>
+| Bojan Mihelac <bmihelac@mihelac.org>
+| Bruno Alla <bruno.alla@founders4schools.org.uk>
+| Daniel Andrlik <daniel@andrlik.org>
+| Daniel Stanton <stringsonfire@me.com>
+| Den Lesnov <den-lesnov@yandex-team.ru>
+| Diego Navarro <dnmellen@gmail.com>
+| Dmytro Kyrychuck <dmytro.kyrychuck@gmail.com>
 | Donald Stufft <donald.stufft@gmail.com>
 | Douglas Meehan <dmeehan@gmail.com>
-| Emin Bugra Saral <github.com/ebsaral>
-| Facundo Gaich <facugaich@gmail.com>
-| Felipe Prenholato <philipe.rp@gmail.com>
+| Emin Bugra Saral <eminbugrasaral@me.com>
+| Eran Rundstein <eranrund@gmail.com>
+| Eugene Kuznetsov <atorich@gmail.com>
+| Felipe Prenholato <felipe.rafael@pdg.com.br>
 | Filipe Ximenes <filipeximenes@gmail.com>
+| Germano Massullo <github.com/Germano0>
 | Gregor Müllegger <gregor@muellegger.de>
-| Germano Massullo <germano.massullo@gmail.com>
+| Guilherme Devincenzi <github.com/gdevincenzi>
+| Hanley <hanley@wayup.com>
 | Hanley Hansen <hanleyhansen@gmail.com>
-| ivirabyan
+| Harry Moreno <morenoh149@gmail.com>
+| Hasan Ramezani <hasan.r67@gmail.com>
+| Ivan Virabyan <i.virabyan@gmail.com>
+| JMP <josemarfyl@gmail.com>
+| Jack Cushman <jcushman@law.harvard.edu>
 | James Oakley <jfunk@funktronics.ca>
 | Jannis Leidel <jannis@leidel.info>
-| Jarek Glowacki <github.com/jarekwg>
-| Javier García Sogo <jgsogo@gmail.com>
-| Jeff Elmore <jeffelmore.org>
-| Jonathan Sundqvist <jonathan@argpar.se>
-| Keryn Knight <kerynknight.com>
-| Martey Dodoo <martey+django-model-utils@mobolic.com>
+| Javier Garcia Sogo <jgsogo@gmail.com>
+| Jeff Elmore <jelmore@lexile.com>
+| John Vandenberg <jayvdb@gmail.com>
+| Jonathan Sundqvist <sundqvist.jonathan@gmail.com>
+| João Amaro <joaoamaro70@gmail.com>
+| Karl WnW <karl.wnw@gmail.com>
+| Keryn Knight <keryn@kerynknight.com>
+| Lucas Wiman <lucaswiman@counsyl.com>
+| Martey Dodoo <martey@mobolic.com>
 | Matthew Schinckel <matt@schinckel.net>
-| Michael van Tellingen <michaelvantellingen@gmail.com>
-| Mike Bryant <mike@mikebryant.me.uk>
-| Mikhail Silonov <silonov.pro>
+| Michael van Tellingen <m.vantellingen@lukkien.com>
+| Mike Bryant <m@ocado.com>
+| Mikhail Silonov <m.silonov@corp.mail.ru>
+| Misha Kalyna <mike.viburn@gmail.com>
+| Nick Sandford <nick.sandford@gmail.com>
 | Patryk Zawadzki <patrys@room-303.com>
 | Paul McLanahan <paul@mclanahan.net>
 | Philipp Steinhardt <steinhardt@myvision.de>
+| Radosław Ganczarek <radoslaw@ganczarek.in>
+| Reece Dunham <jumbocakefdx@gmail.com>
 | Remy Suen <remy.suen@gmail.com>
 | Rinat Shigapov <rinatshigapov@gmail.com>
 | Rodney Folz <rodney@rodneyfolz.com>
-| Romain Garrigues <github.com/romgar>
-| rsenkbeil <github.com/rsenkbeil>
+| Romain G <romain@iwoca.co.uk>
+| Romain Garrigues <romain.garrigues@makina-corpus.com>
+| Roman <roman@lonje.com>
 | Ryan Kaskel <dev@ryankaskel.com>
+| Ryan P Kilby <rpkilby@ncsu.edu>
+| Ryan Senkbeil <rsenk330@gmail.com>
+| Rémy HUBSCHER <remy@chefclub.tv>
+| Sachi King <nakato@nakato.io>
+| Sebastian Illing <sebastian@alpaca.casa>
+| Sergey Tikhonov <zimbler@gmail.com>
+| Sergey Zherevchuk <rochon@yandex.ru>
+| Seán Hayes <sean@seanhayes.name>
+| Simon Charette <github.com/charettes>
 | Simon Meers <simon@simonmeers.com>
-| sayane
+| Skia <skia@libskia.so>
+| Tavistock <tavistock91@gmail.com>
+| Thomas Schreiber <tom@rizu.fake>
 | Tony Aldridge <zaragopha@hotmail.com>
-| Travis Swicegood <travis@domain51.com>
+| Tony Narlock <tony@git-pull.com>
+| Travis Swicegood <development@domain51.com>
 | Trey Hunner <trey@treyhunner.com>
-| Karl Wan Nan Wo <karl.wnw@gmail.com>
-| zyegfryed
-| Radosław Jan Ganczarek <radoslaw@ganczarek.in>
-| Lucas Wiman <lucas.wiman@gmail.com>
-| Jack Cushman <jcushman@law.harvard.edu>
+| Václav Dohnal <vaclav.dohnal@gmail.com>
 | Zach Cheung <kuroro.zhang@gmail.com>
-| Daniel Andrlik <daniel@andrlik.org>
-| marfyl <github.com/marfyl>
+| ad-m <ad_m@dobrytata.pl>
+| asday <sara.and.zuka@gmail.com>
+| bboogaard <b.boogaard@auto-interactive.nl>
+| funkybob <curtis@tinbrain.net>
+| georgemillard <george.millard@ellenmacarthurfoundation.org>
+| jarekwg <jarekwg@gmail.com>
+| romgar <romain.garrigues.cs@gmail.com>
+| silonov <mike@silonov.pro>
+| smacker <max@smacker.ru>
+| zyegfryed <zyegfryed@gmail.com>
+| Éric Araujo <merwok@netwok.org>
+| Őry Máté <ory.mate@cloud.bme.hu>
