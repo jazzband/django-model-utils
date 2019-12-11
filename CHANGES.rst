@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+4.0.1 (unreleased)
+------------------
+- No changes yet
+
 4.0.0 (2019-12-11)
 ------------------
 - Remove hacks for previously supported Django versions. (Fixes GH-390)
