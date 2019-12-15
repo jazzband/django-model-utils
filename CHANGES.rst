@@ -3,7 +3,7 @@ CHANGES
 
 4.0.1 (unreleased)
 ------------------
-- No changes yet
+- `FieldTracker` now marks fields as not changed after `refresh_from_db`
 
 4.0.0 (2019-12-11)
 ------------------
