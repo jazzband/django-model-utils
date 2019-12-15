@@ -258,12 +258,12 @@ It should be noted that a generic FieldTracker tracks Foreign Keys by db_column 
         tracker = FieldTracker()
 
 .. code-block:: pycon
-    
+
     >>> p = Parent.objects.create(name='P')
     >>> c = Child.objects.create(name='C', parent=p)
     >>> c.tracker.has_changed('parent_id')
-    
-    
+
+
 To find the db_column names of your model (using the above example):
 
 .. code-block:: pycon
@@ -273,10 +273,10 @@ To find the db_column names of your model (using the above example):
     ('id', 'id')
     ('name', 'name')
     ('parent_id', 'parent_id')
-    
+
 
 The model field name *may* be used when tracking with a specific tracker:
- 
+
 .. code-block:: python
 
     specific_tracker = FieldTracker(fields=['parent'])
@@ -295,3 +295,49 @@ signal handlers to identify field changes on model save.
     Due to the implementation of ``FieldTracker``, ``post_save`` signal
     handlers relying on field tracker methods should only be registered after
     model creation.
+
+FieldTracker implementation details
+-----------------------------------
+
+.. code-block:: python
+
+    from django.db import models
+    from model_utils import FieldTracker, TimeStampedModel
+
+    class MyModel(TimeStampedModel):
+        name = models.CharField(max_length=64)
+        tracker = FieldTracker()
+
+        def save(self, *args, **kwargs):
+            """ Automatically add "modified" to update_fields."""
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None:
+                kwargs['update_fields'] = set(update_fields) | {'modified'}
+            super().save(*args, **kwargs)
+
+    # [...]
+
+    instance = MyModel.objects.first()
+    instance.name = 'new'
+    instance.save(update_fields={'name'})
+
+This is how ``FieldTracker`` tracks field changes on ``instance.save`` call.
+
+1. In ``class_prepared`` handler ``FieldTracker`` patches ``save_base`` and
+   ``refresh_from_db`` methods to reset initial state for tracked fields.
+2. In ``post_init`` handler ``FieldTracker`` saves initial values for tracked
+   fields.
+3. ``MyModel.save`` changes ``update_fields`` in order to store auto updated
+   ``modified`` timestamp. Complete list of saved fields is now known.
+4. ``Model.save`` does nothing interesting except calling ``save_base``.
+5. Decorated ``save_base()`` method calls ``super().save_base`` and all fields
+   that have values different to initial are considered as changed.
+6. ``Model.save_base`` sends ``pre_save`` signal, saves instance to database and
+   sends ``post_save`` signal. All ``pre_save/post_save`` receivers can query
+   ``instance.tracker`` for a set of changed fields etc.
+7. After ``Model.save_base`` return ``FieldTracker`` resets initial state for
+   updated fields (if no ``update_fields`` passed - whole initial state is
+   reset).
+8. ``instance.refresh_from_db()`` call causes initial state reset like for
+   ``save_base()``.
+
