@@ -234,7 +234,7 @@ class FieldTracker:
         instance._instance_intialized = True
 
     def patch_save(self, model):
-        self._patch(model, 'save', 'update_fields')
+        self._patch(model, 'save_base', 'update_fields')
         self._patch(model, 'refresh_from_db', 'fields')
 
     def _patch(self, model, method, fields_kwarg):
