@@ -178,6 +178,22 @@ class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
         self.assertEqual(in_db.number, self.instance.number)
         self.assertEqual(in_db.mutable, self.instance.mutable)
 
+    def test_refresh_from_db(self):
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
+        self.tracked_class.objects.filter(pk=self.instance.pk).update(
+            name='new age', number=8, mutable=[3, 2, 1])
+        self.assertChanged()
+        self.instance.name = 'like in db'
+        self.instance.number = 8
+        self.instance.mutable = [3, 2, 1]
+        self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
+        self.instance.refresh_from_db(fields=('name',))
+        self.assertChanged(number=4, mutable=[1, 2, 3])
+        self.instance.refresh_from_db(fields={'mutable'})
+        self.assertChanged(number=4)
+        self.instance.refresh_from_db()
+        self.assertChanged()
+
     def test_with_deferred(self):
         self.instance.name = 'new age'
         self.instance.number = 1
