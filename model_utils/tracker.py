@@ -1,4 +1,5 @@
 from copy import deepcopy
+from functools import wraps
 
 import django
 from django.core.exceptions import FieldError
@@ -233,11 +234,16 @@ class FieldTracker:
         instance._instance_intialized = True
 
     def patch_save(self, model):
-        original_save = model.save
+        self._patch(model, 'save', 'update_fields')
+        self._patch(model, 'refresh_from_db', 'fields')
 
-        def save(instance, *args, **kwargs):
-            ret = original_save(instance, *args, **kwargs)
-            update_fields = kwargs.get('update_fields')
+    def _patch(self, model, method, fields_kwarg):
+        original = getattr(model, method)
+
+        @wraps(original)
+        def inner(instance, *args, **kwargs):
+            ret = original(instance, *args, **kwargs)
+            update_fields = kwargs.get(fields_kwarg)
             if not update_fields and update_fields is not None:  # () or []
                 fields = update_fields
             elif update_fields is None:
@@ -252,7 +258,7 @@ class FieldTracker:
             )
             return ret
 
-        model.save = save
+        setattr(model, method, inner)
 
     def __get__(self, instance, owner):
         if instance is None:
