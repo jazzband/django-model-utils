@@ -4,6 +4,8 @@ CHANGES
 4.0.1 (unreleased)
 ------------------
 - `FieldTracker` now marks fields as not changed after `refresh_from_db`
+- `FieldTracker` now respects `update_fields` changed in overridden `save()`
+  method
 
 4.0.0 (2019-12-11)
 ------------------
