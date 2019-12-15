@@ -6,7 +6,7 @@ from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
     Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, TrackedFileField, TrackedAbstract,
+    InheritedTracked, TrackedFileField, TrackedAbstract, TrackerTimeStamped,
     ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
 )
 
@@ -521,6 +521,30 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
         self.assertChanged(fk=self.old_fk.id)
         self.assertPrevious(fk=self.old_fk.id)
         self.assertCurrent(fk=self.instance.fk_id)
+
+
+class FieldTrackerTimeStampedTests(FieldTrackerTestCase):
+
+    fk_class = Tracked
+    tracked_class = TrackerTimeStamped
+
+    def setUp(self):
+        self.instance = self.tracked_class.objects.create(name='old', number=1)
+        self.tracker = self.instance.tracker
+
+    def test_set_modified_on_save(self):
+        old_modified = self.instance.modified
+        self.instance.name = 'new'
+        self.instance.save()
+        self.assertGreater(self.instance.modified, old_modified)
+        self.assertChanged()
+
+    def test_set_modified_on_save_update_fields(self):
+        old_modified = self.instance.modified
+        self.instance.name = 'new'
+        self.instance.save(update_fields=('name',))
+        self.assertGreater(self.instance.modified, old_modified)
+        self.assertChanged()
 
 
 class InheritedFieldTrackerTests(FieldTrackerTests):

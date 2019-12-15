@@ -247,6 +247,21 @@ class Tracked(models.Model):
         super().save(*args, **kwargs)
 
 
+class TrackerTimeStamped(TimeStampedModel):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+    mutable = MutableField(default=None)
+
+    tracker = FieldTracker()
+
+    def save(self, *args, **kwargs):
+        """ Automatically add "modified" to update_fields."""
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None:
+            kwargs['update_fields'] = set(update_fields) | {'modified'}
+        super().save(*args, **kwargs)
+
+
 class TrackedFK(models.Model):
     fk = models.ForeignKey('Tracked', on_delete=models.CASCADE)
 
