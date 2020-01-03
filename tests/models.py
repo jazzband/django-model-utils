@@ -369,8 +369,13 @@ class StatusFieldChoicesName(models.Model):
 
 
 class StatusFieldChoicesDisplay(models.Model):
-    NAMED_STATUS = (("UNCB", _("Unconfirmed Booking")), ("CONB", _("Confirmed Booking")))
-    status = StatusField(choices_name='NAMED_STATUS')
+    UNCONFIRMED_BOOKING = 'UNCB'
+    CONFIRMED_BOOKING = 'CONB'
+    JOB_STATUSES = ((UNCONFIRMED_BOOKING, _("Unconfirmed Booking")),
+                    (CONFIRMED_BOOKING, _("Confirmed Booking"))
+                    )
+    STATUS = JOB_STATUSES
+    status = StatusField(default=CONFIRMED_BOOKING)
 
 
 class SoftDeletable(SoftDeletableModel):
@@ -393,6 +398,7 @@ class StringyDescriptor:
     """
     Descriptor that returns a string version of the underlying integer value.
     """
+
     def __init__(self, name):
         self.name = name
 
