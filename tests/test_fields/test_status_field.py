@@ -28,7 +28,7 @@ class StatusFieldTests(TestCase):
 
     def test_get_status_display_title(self):
         instance = StatusFieldChoicesDisplay()
-        self.assertEqual(instance.get_status_display(), "Unconfirmed Booking")
+        self.assertEqual(instance.get_status_display(), "Confirmed Booking")
 
     def test_choices_name(self):
         StatusFieldChoicesName()
