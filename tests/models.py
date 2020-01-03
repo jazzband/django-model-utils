@@ -368,6 +368,11 @@ class StatusFieldChoicesName(models.Model):
     status = StatusField(choices_name='NAMED_STATUS')
 
 
+class StatusFieldChoicesDisplay(models.Model):
+    NAMED_STATUS = Choices(("UNCB", "Unconfirmed Booking"), ("CONB", "Confirmed Booking"))
+    status = StatusField(choices_name='NAMED_STATUS')
+
+
 class SoftDeletable(SoftDeletableModel):
     """
     Test model with additional manager for full access to model
