@@ -369,7 +369,7 @@ class StatusFieldChoicesName(models.Model):
 
 
 class StatusFieldChoicesDisplay(models.Model):
-    NAMED_STATUS = Choices(("UNCB", _("Unconfirmed Booking")), ("CONB", _("Confirmed Booking")))
+    NAMED_STATUS = (("UNCB", _("Unconfirmed Booking")), ("CONB", _("Confirmed Booking")))
     status = StatusField(choices_name='NAMED_STATUS')
 
 
