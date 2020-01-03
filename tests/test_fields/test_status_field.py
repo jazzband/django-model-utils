@@ -3,7 +3,7 @@ from django.test import TestCase
 from model_utils.fields import StatusField
 from tests.models import (
     Article, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
-    StatusFieldChoicesName,
+    StatusFieldChoicesName, StatusFieldChoicesDisplay
 )
 
 
@@ -25,6 +25,10 @@ class StatusFieldTests(TestCase):
     def test_get_status_display(self):
         instance = StatusFieldDefaultFilled()
         self.assertEqual(instance.get_status_display(), "Yes")
+
+    def test_get_status_display_title(self):
+        instance = StatusFieldChoicesDisplay()
+        self.assertEqual(instance.get_status_display(), "Unconfirmed Booking")
 
     def test_choices_name(self):
         StatusFieldChoicesName()
