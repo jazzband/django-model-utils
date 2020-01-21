@@ -1,32 +1,18 @@
 import django
 from django.db import models
-from django.db.models.query_utils import DeferredAttribute
 from django.db.models import Manager
+from django.db.models.query_utils import DeferredAttribute
 from django.utils.translation import ugettext_lazy as _
-
 from model_utils import Choices
-from model_utils.fields import (
-    SplitField,
-    MonitorField,
-    StatusField,
-    UUIDField,
-)
-from model_utils.managers import (
-    QueryManager,
-    InheritanceManager,
-    JoinManagerMixin
-)
-from model_utils.models import (
-    SoftDeletableModel,
-    StatusModel,
-    TimeFramedModel,
-    TimeStampedModel,
-    UUIDModel,
-    SaveSignalHandlingModel,
-)
+from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
+from model_utils.managers import (InheritanceManager, JoinManagerMixin,
+                                  QueryManager)
+from model_utils.models import (SaveSignalHandlingModel, SoftDeletableModel,
+                                StatusModel, TimeFramedModel, TimeStampedModel,
+                                UUIDModel)
+from model_utils.tracker import FieldTracker, ModelTracker
 from tests.fields import MutableField
 from tests.managers import CustomSoftDeleteManager
-from model_utils.tracker import FieldTracker, ModelTracker
 
 
 class InheritanceManagerTestRelated(models.Model):
@@ -368,7 +354,7 @@ class StatusFieldChoicesName(models.Model):
     status = StatusField(choices_name='NAMED_STATUS')
 
 
-class StatusFieldChoicesDisplay(models.Model):
+class StatusFieldChoicesDisplay(StatusModel):
     UNCONFIRMED_BOOKING = 'UNCB'
     CONFIRMED_BOOKING = 'CONB'
     JOB_STATUSES = ((UNCONFIRMED_BOOKING, _("Unconfirmed Booking")),
