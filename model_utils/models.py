@@ -35,7 +35,7 @@ class TimeStampedModel(models.Model):
         a parameter to the update field argument.
         """
         if 'update_fields' in kwargs and 'modified' not in kwargs['update_fields']:
-            kwargs['update_fields'].append('modified')
+            kwargs['update_fields'] += ['modified']
         super().save(*args, **kwargs)
         
     class Meta:
