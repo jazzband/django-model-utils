@@ -375,7 +375,7 @@ class StatusFieldChoicesDisplay(models.Model):
                     (CONFIRMED_BOOKING, _("Confirmed Booking"))
                     )
     STATUS = JOB_STATUSES
-    status = StatusField(default=CONFIRMED_BOOKING)
+    status = StatusField(db_index=True, default=CONFIRMED_BOOKING)
 
 
 class SoftDeletable(SoftDeletableModel):
