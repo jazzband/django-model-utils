@@ -90,3 +90,31 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, different_date2)
         self.assertNotEqual(t1.modified, different_date2)
         self.assertNotEqual(t1.modified, different_date)
+    
+    def test_save_with_update_fields_overrides_modified_provided(self):
+        '''
+        Tests if the save method updated modified field
+        accordingly when update_fields is used as an argument
+        and modified is provided
+        '''
+        with freeze_time(datetime(2020,1,1)):
+            t1 = TimeStamp.objects.create()
+        
+        with freeze_time(datetime(2020,1,2)):
+            t1.save(update_fields=['modified'])
+        
+        self.assertEqual(t1.modified, datetime(2020,1,2))
+        
+    def test_save_with_update_fields_overrides_modified_not_provided(self):
+        '''
+        Tests if the save method updated modified field
+        accordingly when update_fields is used as an argument
+        and modified is not provided
+        '''
+        with freeze_time(datetime(2020,1,1)):
+            t1 = TimeStamp.objects.create()
+            
+        with freeze_time(datetime(2020,1,2)):
+            t1.save(update_fields=[])
+            
+        self.assertEqual(t1.modified, datetime(2020,1,2))
