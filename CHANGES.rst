@@ -6,6 +6,7 @@ CHANGES
 - `FieldTracker` now marks fields as not changed after `refresh_from_db`
 - `FieldTracker` now respects `update_fields` changed in overridden `save()`
   method
+- Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
 
 4.0.0 (2019-12-11)
 ------------------
