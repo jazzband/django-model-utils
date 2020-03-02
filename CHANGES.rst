@@ -3,6 +3,8 @@ CHANGES
 
 4.0.1 (unreleased)
 ------------------
+- TimeStampedModel now automatically adds 'modified' field as an update_fields
+  parameter even if it is forgotten while using save()
 - `FieldTracker` now marks fields as not changed after `refresh_from_db`
 - `FieldTracker` now respects `update_fields` changed in overridden `save()`
   method
