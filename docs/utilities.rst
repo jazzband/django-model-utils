@@ -4,8 +4,13 @@ Miscellaneous Utilities
 
 .. _Choices:
 
-Choices
-=======
+``Choices``
+===========
+
+.. note::
+
+    Django 3.0 adds `enumeration types <https://docs.djangoproject.com/en/3.0/releases/3.0/#enumerations-for-model-field-choices>`__.
+    These provide most of the same features as ``Choices``.
 
 ``Choices`` provides some conveniences for setting ``choices`` on a Django model field:
 
