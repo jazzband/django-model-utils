@@ -23,6 +23,7 @@
 | Donald Stufft <donald.stufft@gmail.com>
 | Douglas Meehan <dmeehan@gmail.com>
 | Emin Bugra Saral <eminbugrasaral@me.com>
+| Enrique Matías Sánchez <cronopios@gmail.com>
 | Eran Rundstein <eranrund@gmail.com>
 | Eugene Kuznetsov <atorich@gmail.com>
 | Felipe Prenholato <felipe.rafael@pdg.com.br>
