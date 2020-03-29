@@ -9,6 +9,7 @@ CHANGES
 - `FieldTracker` now respects `update_fields` changed in overridden `save()`
   method
 - Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
+- Add Spanish translation
 
 4.0.0 (2019-12-11)
 ------------------
