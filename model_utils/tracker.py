@@ -185,7 +185,7 @@ class FieldInstanceTracker:
                 field_tracker = FileDescriptorTracker(field_obj.field)
                 setattr(self.instance.__class__, field, field_tracker)
             else:
-                field_tracker = DeferredAttributeTracker(field, type(self.instance))
+                field_tracker = DeferredAttributeTracker(field)
                 setattr(self.instance.__class__, field, field_tracker)
 
 
