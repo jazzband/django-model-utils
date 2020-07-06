@@ -75,7 +75,10 @@ class InheritanceQuerySetMixin:
 
         # workaround https://code.djangoproject.com/ticket/16855
         previous_select_related = self.query.select_related
-        new_qs = self.select_related(*subclasses)
+        if subclasses:
+            new_qs = self.select_related(*subclasses)
+        else:
+            new_qs = self
         previous_is_dict = isinstance(previous_select_related, dict)
         new_is_dict = isinstance(new_qs.query.select_related, dict)
         if previous_is_dict and new_is_dict:
