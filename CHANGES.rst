@@ -10,6 +10,7 @@ CHANGES
 - `FieldTracker` now respects `update_fields` changed in overridden `save()`
   method
 - Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
+- `FieldTracker` now works correct with instance where PK field is not `AutoField` (e.g. `UUIDField`)
 
 4.0.0 (2019-12-11)
 ------------------

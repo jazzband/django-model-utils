@@ -49,6 +49,7 @@
 | Lucas Wiman <lucaswiman@counsyl.com>
 | Martey Dodoo <martey@mobolic.com>
 | Matthew Schinckel <matt@schinckel.net>
+| Maxim Zemskov <m.zemskov1@gmail.com>
 | Michael van Tellingen <m.vantellingen@lukkien.com>
 | Mike Bryant <m@ocado.com>
 | Mikhail Silonov <m.silonov@corp.mail.ru>
