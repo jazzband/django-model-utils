@@ -101,7 +101,7 @@ class FieldInstanceTracker:
         return getattr(self.instance, self.field_map[field])
 
     def set_saved_fields(self, fields=None):
-        if not self.instance.pk:
+        if self.instance._state.adding:
             self.saved_data = {}
         elif fields is None:
             self.saved_data = self.current()
@@ -271,7 +271,7 @@ class ModelInstanceTracker(FieldInstanceTracker):
 
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
-        if not self.instance.pk:
+        if self.instance._state.adding:
             return True
         elif field in self.saved_data:
             return self.previous(field) != self.get_field_value(field)
@@ -280,7 +280,7 @@ class ModelInstanceTracker(FieldInstanceTracker):
 
     def changed(self):
         """Returns dict of fields that changed since save (with old values)"""
-        if not self.instance.pk:
+        if self.instance._state.adding:
             return {}
         saved = self.saved_data.items()
         current = self.current()
