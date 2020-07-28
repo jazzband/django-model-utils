@@ -140,7 +140,7 @@ class FieldInstanceTracker:
         """Returns currently saved value of given field"""
 
         # handle deferred fields that have not yet been loaded from the database
-        if self.instance.pk and field in self.deferred_fields and field not in self.saved_data:
+        if not self.instance._state.adding and field in self.deferred_fields and field not in self.saved_data:
 
             # if the field has not been assigned locally, simply fetch and un-defer the value
             if field not in self.instance.__dict__:
