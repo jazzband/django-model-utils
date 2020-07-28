@@ -306,7 +306,7 @@ class TrackedMultiple(models.Model):
 class TrackedFileField(models.Model):
     some_file = models.FileField(upload_to='test_location')
 
-    tracker = FieldTracker(fields=['some_file'])
+    tracker = FieldTracker()
 
 
 class InheritedTracked(Tracked):
