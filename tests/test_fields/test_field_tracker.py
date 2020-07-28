@@ -790,7 +790,7 @@ class ModelTrackerForeignKeyTests(FieldTrackerForeignKeyTests):
     tracked_class = ModelTrackedFK
 
     def test_custom_without_id(self):
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(1):
             self.tracked_class.objects.get()
         self.tracker = self.instance.custom_tracker_without_id
         self.assertChanged()
