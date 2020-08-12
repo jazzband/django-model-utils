@@ -83,9 +83,13 @@ returns objects with that status only:
 SoftDeletableModel
 ------------------
 
-This abstract base class just provides field ``is_removed`` which is
+This abstract base class just provides a field ``is_removed`` which is
 set to True instead of removing the instance. Entities returned in
-default manager are limited to not-deleted instances.
+manager ``available_objects`` are limited to not-deleted instances.
+
+Note that relying on the default ``objects`` manager to filter out not-deleted
+instances is deprecated. ``objects`` will include deleted objects in a future
+release.
 
 
 UUIDModel
