@@ -44,7 +44,7 @@ class InheritanceManagerTests(TestCase):
         raise an AttributeError further in.
         """
         regex = '^.+? is not in the discovered subclasses, tried:.+$'
-        with self.assertRaisesRegexp(ValueError, regex):
+        with self.assertRaisesRegex(ValueError, regex):
             self.get_manager().select_subclasses('user')
 
     def test_select_specific_subclasses(self):
@@ -306,7 +306,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         Confirming that giving a stupid model doesn't work.
         """
         regex = '^.+? is not a subclass of .+$'
-        with self.assertRaisesRegexp(ValueError, regex):
+        with self.assertRaisesRegex(ValueError, regex):
             InheritanceManagerTestParent.objects.select_subclasses(
                 TimeFrame).order_by('pk')
 

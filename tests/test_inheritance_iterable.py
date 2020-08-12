@@ -17,4 +17,4 @@ class InheritanceIterableTest(TestCase):
                 to_attr='normal_field_prefetched'
             )
         )
-        self.assertEquals(qs.count(), 0)
+        self.assertEqual(qs.count(), 0)
