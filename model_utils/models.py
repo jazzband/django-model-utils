@@ -37,7 +37,7 @@ class TimeStampedModel(models.Model):
         if 'update_fields' in kwargs and 'modified' not in kwargs['update_fields']:
             kwargs['update_fields'] += ['modified']
         super().save(*args, **kwargs)
-        
+
     class Meta:
         abstract = True
 
@@ -132,7 +132,8 @@ class SoftDeletableModel(models.Model):
     class Meta:
         abstract = True
 
-    objects = SoftDeletableManager()
+    objects = SoftDeletableManager(_emit_deprecation_warnings=True)
+    available_objects = SoftDeletableManager()
     all_objects = models.Manager()
 
     def delete(self, using=None, soft=True, *args, **kwargs):
