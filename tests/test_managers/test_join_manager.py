@@ -17,21 +17,21 @@ class JoinManagerTest(TestCase):
         a_slice = BoxJoinModel.objects.all()[0:10]
         with self.assertNumQueries(1):
             result = a_slice.join()
-        self.assertEquals(result.count(), 10)
+        self.assertEqual(result.count(), 10)
 
     def test_self_join_with_where_statement(self):
         qs = BoxJoinModel.objects.filter(name='name_1')
         result = qs.join()
-        self.assertEquals(result.count(), 1)
+        self.assertEqual(result.count(), 1)
 
     def test_join_with_other_qs(self):
         item_qs = JoinItemForeignKey.objects.filter(weight=10)
         boxes = BoxJoinModel.objects.all().join(qs=item_qs)
-        self.assertEquals(boxes.count(), 1)
-        self.assertEquals(boxes[0].name, 'name_1')
+        self.assertEqual(boxes.count(), 1)
+        self.assertEqual(boxes[0].name, 'name_1')
 
     def test_reverse_join(self):
         box_qs = BoxJoinModel.objects.filter(name='name_1')
         items = JoinItemForeignKey.objects.all().join(box_qs)
-        self.assertEquals(items.count(), 1)
-        self.assertEquals(items[0].weight, 10)
+        self.assertEqual(items.count(), 1)
+        self.assertEqual(items[0].weight, 10)
