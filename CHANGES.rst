@@ -12,6 +12,9 @@ CHANGES
 - Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
 - Add available_objects manager to SoftDeletableModel and add deprecation
   warning to objects manager.
+- StatusModel now automatically adds 'status_changed' field during save as an
+  update_fieldsparameter when 'status' is present in it to make sure it is not
+  forgotten.
 
 4.0.0 (2019-12-11)
 ------------------
