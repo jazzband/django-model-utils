@@ -38,7 +38,7 @@ class StatusModelTests(TestCase):
         t1.save()
         self.assertTrue(t1.status_changed > date_active_again)
 
-    def test_save_with_update_fields_overrides_changed_provided(self):
+    def test_save_with_update_fields_overrides_status_changed_provided(self):
         '''
         Tests if the save method updated status_changed field
         accordingly when update_fields is used as an argument
@@ -53,7 +53,7 @@ class StatusModelTests(TestCase):
         
         self.assertEqual(t1.status_changed, datetime(2020,1,2))
         
-    def test_save_with_update_fields_overrides_modified_not_provided(self):
+    def test_save_with_update_fields_overrides_status_changed_not_provided(self):
         '''
         Tests if the save method updated status_changed field
         accordingly when update_fields is used as an argument
