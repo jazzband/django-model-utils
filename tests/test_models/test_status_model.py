@@ -38,6 +38,36 @@ class StatusModelTests(TestCase):
         t1.save()
         self.assertTrue(t1.status_changed > date_active_again)
 
+    def test_save_with_update_fields_overrides_status_changed_provided(self):
+        '''
+        Tests if the save method updated status_changed field
+        accordingly when update_fields is used as an argument
+        and status_changed is provided
+        '''
+        with freeze_time(datetime(2020,1,1)):
+            t1 = Status.objects.create()
+        
+        with freeze_time(datetime(2020,1,2)):
+            t1.status = Status.on_hold
+            t1.save(update_fields=['status', 'status_changed'])
+        
+        self.assertEqual(t1.status_changed, datetime(2020,1,2))
+        
+    def test_save_with_update_fields_overrides_status_changed_not_provided(self):
+        '''
+        Tests if the save method updated status_changed field
+        accordingly when update_fields is used as an argument
+        with status and status_changed is not provided
+        '''
+        with freeze_time(datetime(2020,1,1)):
+            t1 = Status.objects.create()
+            
+        with freeze_time(datetime(2020,1,2)):
+            t1.status = Status.on_hold
+            t1.save(update_fields=['status'])
+            
+        self.assertEqual(t1.status_changed, datetime(2020,1,2))
+
 
 class StatusModelPlainTupleTests(StatusModelTests):
     def setUp(self):
