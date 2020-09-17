@@ -12,6 +12,7 @@ CHANGES
 - Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
 - Add available_objects manager to SoftDeletableModel and add deprecation
   warning to objects manager.
+- Add support for `Django 3.1`
 
 4.0.0 (2019-12-11)
 ------------------
