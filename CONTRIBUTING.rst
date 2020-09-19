@@ -47,7 +47,7 @@ Translations
 If you are able to provide translations for a new language or to update an
 existing translation file, make sure to run makemessages beforehand::
 
-    python django-admin.py makemessages -l ISO_LANGUAGE_CODE
+    python django-admin makemessages -l ISO_LANGUAGE_CODE
 
 This command will collect all translation strings from the source directory
 and create or update the translation file for the given language. Now open the
