@@ -1,0 +1,41 @@
+# This file is distributed under the same license as the django-model-utils package.
+#
+# Translators:
+# Hasan Ramezani <hasan.r67@gmail.com>, 2020.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-19 13:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: models.py:28
+msgid "created"
+msgstr "ایجاد شد"
+
+#: models.py:29
+msgid "modified"
+msgstr "اصلاح شد"
+
+#: models.py:51
+msgid "start"
+msgstr "شروع"
+
+#: models.py:52
+msgid "end"
+msgstr "پایان"
+
+#: models.py:67
+msgid "status"
+msgstr "وضعیت"
+
+#: models.py:68
+msgid "status changed"
+msgstr "وضعیت تغییر کرد"
