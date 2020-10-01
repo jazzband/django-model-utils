@@ -89,7 +89,7 @@ class InheritanceManagerTestChild4(InheritanceManagerTestParent):
 
 
 class TimeStamp(TimeStampedModel):
-    pass
+    test_field = models.PositiveSmallIntegerField(default=0)
 
 
 class TimeFrame(TimeFramedModel):
