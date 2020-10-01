@@ -127,7 +127,7 @@ class TimeStampedModelTests(TestCase):
     @parameterized.expand([
         ('list', []),
         ('tuple', ()),
-        ('set', {}),
+        ('set', set()),
     ])
     def test_save_is_skipped_for_empty_update_fields_iterable(self, _, update_fields):
         with freeze_time(datetime(2020, 1, 1)):
