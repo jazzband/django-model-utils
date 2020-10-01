@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from freezegun import freeze_time
-
 from django.test import TestCase
+from freezegun import freeze_time
+from parameterized import parameterized
 
 from tests.models import TimeStamp
 
@@ -90,31 +90,62 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, different_date2)
         self.assertNotEqual(t1.modified, different_date2)
         self.assertNotEqual(t1.modified, different_date)
-    
-    def test_save_with_update_fields_overrides_modified_provided(self):
-        '''
+
+    @parameterized.expand([
+        ('list', ['modified']),
+        ('tuple', ('modified',)),
+        ('set', {'modified'}),
+    ])
+    def test_save_with_update_fields_overrides_modified_provided_within_a(self, _, update_fields):
+        """
         Tests if the save method updated modified field
         accordingly when update_fields is used as an argument
         and modified is provided
-        '''
-        with freeze_time(datetime(2020,1,1)):
+        """
+        with freeze_time(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
-        
-        with freeze_time(datetime(2020,1,2)):
-            t1.save(update_fields=['modified'])
-        
-        self.assertEqual(t1.modified, datetime(2020,1,2))
-        
-    def test_save_with_update_fields_overrides_modified_not_provided(self):
-        '''
-        Tests if the save method updated modified field
-        accordingly when update_fields is used as an argument
-        and modified is not provided
-        '''
-        with freeze_time(datetime(2020,1,1)):
+
+        with freeze_time(datetime(2020, 1, 2)):
+            t1.save(update_fields=update_fields)
+
+        self.assertEqual(t1.modified, datetime(2020, 1, 2))
+
+    @parameterized.expand([
+        ('list', ['test_field']),
+        ('tuple', ('test_field',)),
+        ('set', {'test_field'}),
+    ])
+    def test_save_with_update_fields_updates_modified_even_when_it_is_not_included_in_a(self, _, update_fields):
+        with freeze_time(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
-            
-        with freeze_time(datetime(2020,1,2)):
-            t1.save(update_fields=[])
-            
-        self.assertEqual(t1.modified, datetime(2020,1,2))
+
+        with freeze_time(datetime(2020, 1, 2)):
+            t1.save(update_fields=update_fields)
+
+        self.assertEqual(t1.modified, datetime(2020, 1, 2))
+
+    @parameterized.expand([
+        ('list', []),
+        ('tuple', ()),
+        ('set', {}),
+    ])
+    def test_save_is_skipped_for_empty_update_fields_iterable(self, _, update_fields):
+        with freeze_time(datetime(2020, 1, 1)):
+            t1 = TimeStamp.objects.create()
+
+        with freeze_time(datetime(2020, 1, 2)):
+            t1.test_field = 1
+            t1.save(update_fields=update_fields)
+
+        t1.refresh_from_db()
+        self.assertEqual(t1.test_field, 0)
+        self.assertEqual(t1.modified, datetime(2020, 1, 1))
+
+    def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(self):
+        with freeze_time(datetime(2020, 1, 1)):
+            t1 = TimeStamp.objects.create()
+
+        with freeze_time(datetime(2020, 1, 2)):
+            t1.save(update_fields=None)
+
+        self.assertEqual(t1.modified, datetime(2020, 1, 2))
