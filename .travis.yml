@@ -7,6 +7,9 @@ python:
 - 3.6
 - 3.7
 - 3.8
+arch:
+  - amd64
+  - ppc64le
 install: pip install tox-travis codecov
 # positional args ({posargs}) to pass into tox.ini
 script: tox -- --cov --cov-append
