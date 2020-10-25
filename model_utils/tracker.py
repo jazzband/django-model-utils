@@ -1,7 +1,6 @@
 from copy import deepcopy
 from functools import wraps
 
-import django
 from django.core.exceptions import FieldError
 from django.db import models
 from django.db.models.fields.files import FileDescriptor
@@ -95,7 +94,7 @@ class FieldInstanceTracker:
 
     @property
     def deferred_fields(self):
-        return self.instance._deferred_fields if django.VERSION < (1, 10) else self.instance.get_deferred_fields()
+        return self.instance.get_deferred_fields()
 
     def get_field_value(self, field):
         return getattr(self.instance, self.field_map[field])
@@ -213,12 +212,11 @@ class FieldTracker:
         if self.fields is None:
             self.fields = (field.attname for field in sender._meta.fields)
         self.fields = set(self.fields)
-        if django.VERSION >= (1, 10):
-            for field_name in self.fields:
-                descriptor = getattr(sender, field_name)
-                wrapper_cls = DescriptorWrapper.cls_for_descriptor(descriptor)
-                wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
-                setattr(sender, field_name, wrapped_descriptor)
+        for field_name in self.fields:
+            descriptor = getattr(sender, field_name)
+            wrapper_cls = DescriptorWrapper.cls_for_descriptor(descriptor)
+            wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
+            setattr(sender, field_name, wrapped_descriptor)
         self.field_map = self.get_field_map(sender)
         models.signals.post_init.connect(self.initialize_tracker)
         self.model_class = sender
