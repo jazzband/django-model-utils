@@ -13,9 +13,10 @@ class StatusManagerAddedTests(TestCase):
 
     def test_conflict_error(self):
         with self.assertRaises(ImproperlyConfigured):
+
             class ErrorModel(StatusModel):
                 STATUS = (
-                    ('active', 'Is Active'),
-                    ('deleted', 'Is Deleted'),
+                    ("active", "Is Active"),
+                    ("deleted", "Is Deleted"),
                 )
                 active = models.BooleanField()

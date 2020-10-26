@@ -28,7 +28,6 @@ class DescriptorMixin:
 
 
 class DescriptorWrapper:
-
     def __init__(self, field_name, descriptor, tracker_attname):
         self.field_name = field_name
         self.descriptor = descriptor
@@ -48,13 +47,13 @@ class DescriptorWrapper:
         return value
 
     def __set__(self, instance, value):
-        initialized = hasattr(instance, '_instance_initialized')
+        initialized = hasattr(instance, "_instance_initialized")
         was_deferred = self.field_name in instance.get_deferred_fields()
 
         # Sentinel attribute to detect whether we are already trying to
         # set the attribute higher up the stack. This prevents infinite
         # recursion when retrieving deferred values from the database.
-        recursion_sentinel_attname = '_setting_' + self.field_name
+        recursion_sentinel_attname = "_setting_" + self.field_name
         already_setting = hasattr(instance, recursion_sentinel_attname)
 
         if initialized and was_deferred and not already_setting:
@@ -65,14 +64,14 @@ class DescriptorWrapper:
                 getattr(instance, self.field_name)
             finally:
                 instance.__dict__.pop(recursion_sentinel_attname, None)
-        if hasattr(self.descriptor, '__set__'):
+        if hasattr(self.descriptor, "__set__"):
             self.descriptor.__set__(instance, value)
         else:
             instance.__dict__[self.field_name] = value
 
     @staticmethod
     def cls_for_descriptor(descriptor):
-        if hasattr(descriptor, '__delete__'):
+        if hasattr(descriptor, "__delete__"):
             return FullDescriptorWrapper
         else:
             return DescriptorWrapper
@@ -82,6 +81,7 @@ class FullDescriptorWrapper(DescriptorWrapper):
     """
     Wrapper for descriptors with all three descriptor methods.
     """
+
     def __delete__(self, obj):
         self.descriptor.__delete__(obj)
 
@@ -117,8 +117,7 @@ class FieldInstanceTracker:
             deferred_fields = self.deferred_fields
             if deferred_fields:
                 fields = [
-                    field for field in self.fields
-                    if field not in deferred_fields
+                    field for field in self.fields if field not in deferred_fields
                 ]
             else:
                 fields = self.fields
@@ -139,7 +138,11 @@ class FieldInstanceTracker:
         """Returns currently saved value of given field"""
 
         # handle deferred fields that have not yet been loaded from the database
-        if self.instance.pk and field in self.deferred_fields and field not in self.saved_data:
+        if (
+            self.instance.pk
+            and field in self.deferred_fields
+            and field not in self.saved_data
+        ):
 
             # if the field has not been assigned locally, simply fetch and un-defer the value
             if field not in self.instance.__dict__:
@@ -165,7 +168,7 @@ class FieldInstanceTracker:
 
     def init_deferred_fields(self):
         self.instance._deferred_fields = set()
-        if hasattr(self.instance, '_deferred') and not self.instance._deferred:
+        if hasattr(self.instance, "_deferred") and not self.instance._deferred:
             return
 
         class DeferredAttributeTracker(DescriptorMixin, DeferredAttribute):
@@ -199,13 +202,12 @@ class FieldTracker:
         """Returns dict mapping fields names to model attribute names"""
         field_map = {field: field for field in self.fields}
         all_fields = {f.name: f.attname for f in cls._meta.fields}
-        field_map.update(**{k: v for (k, v) in all_fields.items()
-                            if k in field_map})
+        field_map.update(**{k: v for (k, v) in all_fields.items() if k in field_map})
         return field_map
 
     def contribute_to_class(self, cls, name):
         self.name = name
-        self.attname = '_%s' % name
+        self.attname = "_%s" % name
         models.signals.class_prepared.connect(self.finalize_class, sender=cls)
 
     def finalize_class(self, sender, **kwargs):
@@ -232,8 +234,8 @@ class FieldTracker:
         instance._instance_initialized = True
 
     def patch_save(self, model):
-        self._patch(model, 'save_base', 'update_fields')
-        self._patch(model, 'refresh_from_db', 'fields')
+        self._patch(model, "save_base", "update_fields")
+        self._patch(model, "refresh_from_db", "fields")
 
     def _patch(self, model, method, fields_kwarg):
         original = getattr(model, method)
@@ -247,13 +249,8 @@ class FieldTracker:
             elif update_fields is None:
                 fields = None
             else:
-                fields = (
-                    field for field in update_fields if
-                    field in self.fields
-                )
-            getattr(instance, self.attname).set_saved_fields(
-                fields=fields
-            )
+                fields = (field for field in update_fields if field in self.fields)
+            getattr(instance, self.attname).set_saved_fields(fields=fields)
             return ret
 
         setattr(model, method, inner)
@@ -266,7 +263,6 @@ class FieldTracker:
 
 
 class ModelInstanceTracker(FieldInstanceTracker):
-
     def has_changed(self, field):
         """Returns ``True`` if field has changed from currently saved value"""
         if not self.instance.pk:

@@ -7,7 +7,6 @@ from model_utils.fields import UUIDField
 
 
 class UUIDFieldTests(TestCase):
-
     def test_uuid_version_default(self):
         instance = UUIDField()
         self.assertEqual(instance.default, uuid.uuid4)
@@ -17,7 +16,7 @@ class UUIDFieldTests(TestCase):
         self.assertEqual(instance.default, uuid.uuid1)
 
     def test_uuid_version_2_error(self):
-        self.assertRaises(ValidationError, UUIDField, 'version', 2)
+        self.assertRaises(ValidationError, UUIDField, "version", 2)
 
     def test_uuid_version_3(self):
         instance = UUIDField(version=3)
@@ -32,7 +31,7 @@ class UUIDFieldTests(TestCase):
         self.assertEqual(instance.default, uuid.uuid5)
 
     def test_uuid_version_bellow_min(self):
-        self.assertRaises(ValidationError, UUIDField, 'version', 0)
+        self.assertRaises(ValidationError, UUIDField, "version", 0)
 
     def test_uuid_version_above_max(self):
-        self.assertRaises(ValidationError, UUIDField, 'version', 6)
+        self.assertRaises(ValidationError, UUIDField, "version", 6)

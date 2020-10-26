@@ -11,11 +11,7 @@ from model_utils.fields import (
     StatusField,
     UUIDField,
 )
-from model_utils.managers import (
-    QueryManager,
-    InheritanceManager,
-    JoinManagerMixin
-)
+from model_utils.managers import QueryManager, InheritanceManager, JoinManagerMixin
 from model_utils.models import (
     SoftDeletableModel,
     StatusModel,
@@ -37,17 +33,20 @@ class InheritanceManagerTestParent(models.Model):
     # FileField is just a handy descriptor-using field. Refs #6.
     non_related_field_using_descriptor = models.FileField(upload_to="test")
     related = models.ForeignKey(
-        InheritanceManagerTestRelated, related_name="imtests", null=True,
-        on_delete=models.CASCADE)
+        InheritanceManagerTestRelated,
+        related_name="imtests",
+        null=True,
+        on_delete=models.CASCADE,
+    )
     normal_field = models.TextField()
     related_self = models.OneToOneField(
-        "self", related_name="imtests_self", null=True,
-        on_delete=models.CASCADE)
+        "self", related_name="imtests_self", null=True, on_delete=models.CASCADE
+    )
     objects = InheritanceManager()
 
     def __str__(self):
         return "{}({})".format(
-            self.__class__.__name__[len('InheritanceManagerTest'):],
+            self.__class__.__name__.replace("InheritanceManager", ""),
             self.pk,
         )
 
@@ -73,19 +72,28 @@ class InheritanceManagerTestChild2(InheritanceManagerTestParent):
 
 class InheritanceManagerTestChild3(InheritanceManagerTestParent):
     parent_ptr = models.OneToOneField(
-        InheritanceManagerTestParent, related_name='manual_onetoone',
-        parent_link=True, on_delete=models.CASCADE)
+        InheritanceManagerTestParent,
+        related_name="manual_onetoone",
+        parent_link=True,
+        on_delete=models.CASCADE,
+    )
 
 
 class InheritanceManagerTestChild4(InheritanceManagerTestParent):
     other_onetoone = models.OneToOneField(
-        InheritanceManagerTestParent, related_name='non_inheritance_relation',
-        parent_link=False, on_delete=models.CASCADE)
+        InheritanceManagerTestParent,
+        related_name="non_inheritance_relation",
+        parent_link=False,
+        on_delete=models.CASCADE,
+    )
     # The following is needed because of that Django bug:
     # https://code.djangoproject.com/ticket/29998
     parent_ptr = models.OneToOneField(
-        InheritanceManagerTestParent, related_name='child4_onetoone',
-        parent_link=True, on_delete=models.CASCADE)
+        InheritanceManagerTestParent,
+        related_name="child4_onetoone",
+        parent_link=True,
+        on_delete=models.CASCADE,
+    )
 
 
 class TimeStamp(TimeStampedModel):
@@ -173,8 +181,7 @@ class Post(models.Model):
 
     objects = models.Manager()
     public = QueryManager(published=True)
-    public_confirmed = QueryManager(
-        models.Q(published=True) & models.Q(confirmed=True))
+    public_confirmed = QueryManager(models.Q(published=True) & models.Q(confirmed=True))
     public_reversed = QueryManager(published=True).order_by("-order")
 
     class Meta:
@@ -199,6 +206,7 @@ class NoRendered(models.Model):
     never be used except by the South model-freezing.
 
     """
+
     body = SplitField(no_excerpt_field=True)
 
 
@@ -256,18 +264,18 @@ class TrackerTimeStamped(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         """ Automatically add "modified" to update_fields."""
-        update_fields = kwargs.get('update_fields')
+        update_fields = kwargs.get("update_fields")
         if update_fields is not None:
-            kwargs['update_fields'] = set(update_fields) | {'modified'}
+            kwargs["update_fields"] = set(update_fields) | {"modified"}
         super().save(*args, **kwargs)
 
 
 class TrackedFK(models.Model):
-    fk = models.ForeignKey('Tracked', on_delete=models.CASCADE)
+    fk = models.ForeignKey("Tracked", on_delete=models.CASCADE)
 
     tracker = FieldTracker()
-    custom_tracker = FieldTracker(fields=['fk_id'])
-    custom_tracker_without_id = FieldTracker(fields=['fk'])
+    custom_tracker = FieldTracker(fields=["fk_id"])
+    custom_tracker_without_id = FieldTracker(fields=["fk"])
 
 
 class TrackedAbstract(AbstractTracked):
@@ -282,7 +290,7 @@ class TrackedNotDefault(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
-    name_tracker = FieldTracker(fields=['name'])
+    name_tracker = FieldTracker(fields=["name"])
 
 
 class TrackedNonFieldAttr(models.Model):
@@ -292,19 +300,19 @@ class TrackedNonFieldAttr(models.Model):
     def rounded(self):
         return round(self.number) if self.number is not None else None
 
-    tracker = FieldTracker(fields=['rounded'])
+    tracker = FieldTracker(fields=["rounded"])
 
 
 class TrackedMultiple(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
-    name_tracker = FieldTracker(fields=['name'])
-    number_tracker = FieldTracker(fields=['number'])
+    name_tracker = FieldTracker(fields=["name"])
+    number_tracker = FieldTracker(fields=["number"])
 
 
 class TrackedFileField(models.Model):
-    some_file = models.FileField(upload_to='test_location')
+    some_file = models.FileField(upload_to="test_location")
 
     tracker = FieldTracker()
 
@@ -314,8 +322,8 @@ class InheritedTracked(Tracked):
 
 
 class InheritedTrackedFK(TrackedFK):
-    custom_tracker = FieldTracker(fields=['fk_id'])
-    custom_tracker_without_id = FieldTracker(fields=['fk'])
+    custom_tracker = FieldTracker(fields=["fk_id"])
+    custom_tracker_without_id = FieldTracker(fields=["fk"])
 
 
 class ModelTracked(models.Model):
@@ -327,26 +335,26 @@ class ModelTracked(models.Model):
 
 
 class ModelTrackedFK(models.Model):
-    fk = models.ForeignKey('ModelTracked', on_delete=models.CASCADE)
+    fk = models.ForeignKey("ModelTracked", on_delete=models.CASCADE)
 
     tracker = ModelTracker()
-    custom_tracker = ModelTracker(fields=['fk_id'])
-    custom_tracker_without_id = ModelTracker(fields=['fk'])
+    custom_tracker = ModelTracker(fields=["fk_id"])
+    custom_tracker_without_id = ModelTracker(fields=["fk"])
 
 
 class ModelTrackedNotDefault(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
-    name_tracker = ModelTracker(fields=['name'])
+    name_tracker = ModelTracker(fields=["name"])
 
 
 class ModelTrackedMultiple(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
 
-    name_tracker = ModelTracker(fields=['name'])
-    number_tracker = ModelTracker(fields=['number'])
+    name_tracker = ModelTracker(fields=["name"])
+    number_tracker = ModelTracker(fields=["number"])
 
 
 class InheritedModelTracked(ModelTracked):
@@ -365,7 +373,7 @@ class StatusFieldDefaultNotFilled(models.Model):
 
 class StatusFieldChoicesName(models.Model):
     NAMED_STATUS = Choices((0, "no", "No"), (1, "yes", "Yes"))
-    status = StatusField(choices_name='NAMED_STATUS')
+    status = StatusField(choices_name="NAMED_STATUS")
 
 
 class SoftDeletable(SoftDeletableModel):
@@ -373,6 +381,7 @@ class SoftDeletable(SoftDeletableModel):
     Test model with additional manager for full access to model
     instances.
     """
+
     name = models.CharField(max_length=20)
 
     all_objects = models.Manager()
@@ -388,6 +397,7 @@ class StringyDescriptor:
     """
     Descriptor that returns a string version of the underlying integer value.
     """
+
     def __init__(self, name):
         self.name = name
 
@@ -424,7 +434,7 @@ class ModelWithCustomDescriptor(models.Model):
     regular_field = models.IntegerField()
     tracked_regular_field = models.IntegerField()
 
-    tracker = FieldTracker(fields=['tracked_custom_field', 'tracked_regular_field'])
+    tracker = FieldTracker(fields=["tracked_custom_field", "tracked_regular_field"])
 
 
 class JoinManager(JoinManagerMixin, models.Manager):
@@ -438,11 +448,7 @@ class BoxJoinModel(models.Model):
 
 class JoinItemForeignKey(models.Model):
     weight = models.IntegerField()
-    belonging = models.ForeignKey(
-        BoxJoinModel,
-        null=True,
-        on_delete=models.CASCADE
-    )
+    belonging = models.ForeignKey(BoxJoinModel, null=True, on_delete=models.CASCADE)
     objects = JoinManager()
 
 

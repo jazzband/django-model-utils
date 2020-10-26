@@ -30,3 +30,6 @@ messages: init
 
 compilemessages: init
 	$(PYTHON) translations.py compile
+
+format:
+	black model_utils setup.py tests

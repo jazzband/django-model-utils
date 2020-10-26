@@ -5,12 +5,14 @@ from tests.models import Post
 
 class QueryManagerTests(TestCase):
     def setUp(self):
-        data = ((True, True, 0),
-                (True, False, 4),
-                (False, False, 2),
-                (False, True, 3),
-                (True, True, 1),
-                (True, False, 5))
+        data = (
+            (True, True, 0),
+            (True, False, 4),
+            (False, False, 2),
+            (False, True, 3),
+            (True, True, 1),
+            (True, False, 5),
+        )
         for p, c, o in data:
             Post.objects.create(published=p, confirmed=c, order=o)
 

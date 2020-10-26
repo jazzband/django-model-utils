@@ -2,13 +2,14 @@ from django.test import TestCase
 
 from model_utils.fields import StatusField
 from tests.models import (
-    Article, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
+    Article,
+    StatusFieldDefaultFilled,
+    StatusFieldDefaultNotFilled,
     StatusFieldChoicesName,
 )
 
 
 class StatusFieldTests(TestCase):
-
     def test_status_with_default_filled(self):
         instance = StatusFieldDefaultFilled()
         self.assertEqual(instance.status, instance.STATUS.yes)

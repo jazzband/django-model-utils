@@ -1,3 +1,4 @@
+black==20.8b1
 pytest==6.0.2
 pytest-django==3.10.0
 psycopg2-binary==2.8.6

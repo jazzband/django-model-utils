@@ -39,34 +39,34 @@ class StatusModelTests(TestCase):
         self.assertTrue(t1.status_changed > date_active_again)
 
     def test_save_with_update_fields_overrides_status_changed_provided(self):
-        '''
+        """
         Tests if the save method updated status_changed field
         accordingly when update_fields is used as an argument
         and status_changed is provided
-        '''
-        with freeze_time(datetime(2020,1,1)):
+        """
+        with freeze_time(datetime(2020, 1, 1)):
             t1 = Status.objects.create()
-        
-        with freeze_time(datetime(2020,1,2)):
+
+        with freeze_time(datetime(2020, 1, 2)):
             t1.status = Status.on_hold
-            t1.save(update_fields=['status', 'status_changed'])
-        
-        self.assertEqual(t1.status_changed, datetime(2020,1,2))
-        
+            t1.save(update_fields=["status", "status_changed"])
+
+        self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
+
     def test_save_with_update_fields_overrides_status_changed_not_provided(self):
-        '''
+        """
         Tests if the save method updated status_changed field
         accordingly when update_fields is used as an argument
         with status and status_changed is not provided
-        '''
-        with freeze_time(datetime(2020,1,1)):
+        """
+        with freeze_time(datetime(2020, 1, 1)):
             t1 = Status.objects.create()
-            
-        with freeze_time(datetime(2020,1,2)):
+
+        with freeze_time(datetime(2020, 1, 2)):
             t1.status = Status.on_hold
-            t1.save(update_fields=['status'])
-            
-        self.assertEqual(t1.status_changed, datetime(2020,1,2))
+            t1.save(update_fields=["status"])
+
+        self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
 
 
 class StatusModelPlainTupleTests(StatusModelTests):
@@ -77,7 +77,6 @@ class StatusModelPlainTupleTests(StatusModelTests):
 
 
 class StatusModelDefaultManagerTests(TestCase):
-
     def test_default_manager_is_not_status_model_generated_ones(self):
         # Regression test for GH-251
         # The logic behind order for managers seems to have changed in Django 1.10
@@ -88,13 +87,16 @@ class StatusModelDefaultManagerTests(TestCase):
         # This situation only happens when we define a model inheriting from an "abstract"
         # class which defines an "objects" manager.
 
-        StatusCustomManager.objects.create(status='first_choice')
-        StatusCustomManager.objects.create(status='second_choice')
-        StatusCustomManager.objects.create(status='second_choice')
+        StatusCustomManager.objects.create(status="first_choice")
+        StatusCustomManager.objects.create(status="second_choice")
+        StatusCustomManager.objects.create(status="second_choice")
 
         # ...which made this count() equal to 1 (only 1 element with status='first_choice')...
         self.assertEqual(StatusCustomManager._default_manager.count(), 3)
 
         # ...and this one equal to 0, because of 2 successive filters of 'first_choice'
         # (default manager) and 'second_choice' (explicit filter below).
-        self.assertEqual(StatusCustomManager._default_manager.filter(status='second_choice').count(), 2)
+        self.assertEqual(
+            StatusCustomManager._default_manager.filter(status="second_choice").count(),
+            2,
+        )

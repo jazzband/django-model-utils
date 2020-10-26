@@ -14,9 +14,9 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, datetime(2016, 1, 1))
 
     def test_created_sets_modified(self):
-        '''
+        """
         Ensure that on creation that modifed is set exactly equal to created.
-        '''
+        """
         t1 = TimeStamp.objects.create()
         self.assertEqual(t1.created, t1.modified)
 
@@ -29,7 +29,9 @@ class TimeStampedModelTests(TestCase):
 
         self.assertEqual(t1.modified, datetime(2016, 1, 2))
 
-    def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(self):
+    def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(
+        self,
+    ):
         """
         Setting the created date when first creating an object
         should be permissable.
@@ -91,12 +93,16 @@ class TimeStampedModelTests(TestCase):
         self.assertNotEqual(t1.modified, different_date2)
         self.assertNotEqual(t1.modified, different_date)
 
-    @parameterized.expand([
-        ('list', ['modified']),
-        ('tuple', ('modified',)),
-        ('set', {'modified'}),
-    ])
-    def test_save_with_update_fields_overrides_modified_provided_within_a(self, _, update_fields):
+    @parameterized.expand(
+        [
+            ("list", ["modified"]),
+            ("tuple", ("modified",)),
+            ("set", {"modified"}),
+        ]
+    )
+    def test_save_with_update_fields_overrides_modified_provided_within_a(
+        self, _, update_fields
+    ):
         """
         Tests if the save method updated modified field
         accordingly when update_fields is used as an argument
@@ -110,12 +116,16 @@ class TimeStampedModelTests(TestCase):
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2))
 
-    @parameterized.expand([
-        ('list', ['test_field']),
-        ('tuple', ('test_field',)),
-        ('set', {'test_field'}),
-    ])
-    def test_save_with_update_fields_updates_modified_even_when_it_is_not_included_in_a(self, _, update_fields):
+    @parameterized.expand(
+        [
+            ("list", ["test_field"]),
+            ("tuple", ("test_field",)),
+            ("set", {"test_field"}),
+        ]
+    )
+    def test_save_with_update_fields_updates_modified_even_when_it_is_not_included_in_a(
+        self, _, update_fields
+    ):
         with freeze_time(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
 
@@ -124,11 +134,13 @@ class TimeStampedModelTests(TestCase):
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2))
 
-    @parameterized.expand([
-        ('list', []),
-        ('tuple', ()),
-        ('set', set()),
-    ])
+    @parameterized.expand(
+        [
+            ("list", []),
+            ("tuple", ()),
+            ("set", set()),
+        ]
+    )
     def test_save_is_skipped_for_empty_update_fields_iterable(self, _, update_fields):
         with freeze_time(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
@@ -141,7 +153,9 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.test_field, 0)
         self.assertEqual(t1.modified, datetime(2020, 1, 1))
 
-    def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(self):
+    def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(
+        self,
+    ):
         with freeze_time(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
 

@@ -130,9 +130,8 @@ class Choices:
         return False
 
     def __repr__(self):
-        return '{}({})'.format(
-            self.__class__.__name__,
-            ', '.join("%s" % repr(i) for i in self._triples)
+        return "{}({})".format(
+            self.__class__.__name__, ", ".join("%s" % repr(i) for i in self._triples)
         )
 
     def __contains__(self, item):
@@ -146,11 +145,10 @@ class Choices:
 
         if not identifiers.issuperset(new_identifiers):
             raise ValueError(
-                'The following identifiers are not present: %s' %
-                identifiers.symmetric_difference(new_identifiers),
+                "The following identifiers are not present: %s"
+                % identifiers.symmetric_difference(new_identifiers),
             )
 
-        return self.__class__(*[
-            choice for choice in self._triples
-            if choice[1] in new_identifiers
-        ])
+        return self.__class__(
+            *[choice for choice in self._triples if choice[1] in new_identifiers]
+        )

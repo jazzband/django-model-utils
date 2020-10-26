@@ -14,7 +14,7 @@ class InheritanceIterable(ModelIterable):
     def __iter__(self):
         queryset = self.queryset
         iter = ModelIterable(queryset)
-        if getattr(queryset, 'subclasses', False):
+        if getattr(queryset, "subclasses", False):
             extras = tuple(queryset.query.extra.keys())
             # sort the subclass names longest first,
             # so with 'a' and 'a__b' it goes as deep as possible
@@ -28,7 +28,7 @@ class InheritanceIterable(ModelIterable):
                 if not sub_obj:
                     sub_obj = obj
 
-                if getattr(queryset, '_annotated', False):
+                if getattr(queryset, "_annotated", False):
                     for k in queryset._annotated:
                         setattr(sub_obj, k, getattr(obj, k))
 
@@ -47,8 +47,7 @@ class InheritanceQuerySetMixin:
 
     def select_subclasses(self, *subclasses):
         levels = None
-        calculated_subclasses = self._get_subclasses_recurse(
-            self.model, levels=levels)
+        calculated_subclasses = self._get_subclasses_recurse(self.model, levels=levels)
         # if none were passed in, we can just short circuit and select all
         if not subclasses:
             subclasses = calculated_subclasses
@@ -62,15 +61,15 @@ class InheritanceQuerySetMixin:
                     continue
 
                 if not isinstance(subclass, (str,)):
-                    subclass = self._get_ancestors_path(
-                        subclass, levels=levels)
+                    subclass = self._get_ancestors_path(subclass, levels=levels)
 
                 if subclass in calculated_subclasses:
                     verified_subclasses.append(subclass)
                 else:
                     raise ValueError(
-                        '{!r} is not in the discovered subclasses, tried: {}'.format(
-                            subclass, ', '.join(calculated_subclasses))
+                        "{!r} is not in the discovered subclasses, tried: {}".format(
+                            subclass, ", ".join(calculated_subclasses)
+                        )
                     )
             subclasses = verified_subclasses
 
@@ -88,7 +87,7 @@ class InheritanceQuerySetMixin:
         return new_qs
 
     def _chain(self, **kwargs):
-        for name in ['subclasses', '_annotated']:
+        for name in ["subclasses", "_annotated"]:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
 
@@ -96,7 +95,7 @@ class InheritanceQuerySetMixin:
 
     def _clone(self, klass=None, setup=False, **kwargs):
         qs = super()._clone()
-        for name in ['subclasses', '_annotated']:
+        for name in ["subclasses", "_annotated"]:
             if hasattr(self, name):
                 setattr(qs, name, getattr(self, name))
         return qs
@@ -113,11 +112,12 @@ class InheritanceQuerySetMixin:
         relations for select_related
         """
         related_objects = [
-            f for f in model._meta.get_fields()
-            if isinstance(f, OneToOneRel)]
+            f for f in model._meta.get_fields() if isinstance(f, OneToOneRel)
+        ]
 
         rels = [
-            rel for rel in related_objects
+            rel
+            for rel in related_objects
             if isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
             and model is not rel.field.model
@@ -130,9 +130,9 @@ class InheritanceQuerySetMixin:
         for rel in rels:
             if levels or levels is None:
                 for subclass in self._get_subclasses_recurse(
-                        rel.field.model, levels=levels):
-                    subclasses.append(
-                        rel.get_accessor_name() + LOOKUP_SEP + subclass)
+                    rel.field.model, levels=levels
+                ):
+                    subclasses.append(rel.get_accessor_name() + LOOKUP_SEP + subclass)
             subclasses.append(rel.get_accessor_name())
         return subclasses
 
@@ -143,8 +143,7 @@ class InheritanceQuerySetMixin:
         select_related string backwards.
         """
         if not issubclass(model, self.model):
-            raise ValueError(
-                "{!r} is not a subclass of {!r}".format(model, self.model))
+            raise ValueError("{!r} is not a subclass of {!r}".format(model, self.model))
 
         ancestry = []
         # should be a OneToOneField or None
@@ -156,8 +155,7 @@ class InheritanceQuerySetMixin:
             ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 parent_model = related.model
-                parent_link = parent_model._meta.get_ancestor_link(
-                    self.model)
+                parent_link = parent_model._meta.get_ancestor_link(self.model)
             else:
                 parent_link = None
         return LOOKUP_SEP.join(ancestry)
@@ -196,14 +194,21 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
         # no grandchildren+).
         where_queries = []
         for model in models:
-            where_queries.append('(' + ' AND '.join([
-                '"{}"."{}" IS NOT NULL'.format(
-                    model._meta.db_table,
-                    field.attname,  # Should this be something else?
-                ) for field in model._meta.parents.values()
-            ]) + ')')
+            where_queries.append(
+                "("
+                + " AND ".join(
+                    [
+                        '"{}"."{}" IS NOT NULL'.format(
+                            model._meta.db_table,
+                            field.attname,  # Should this be something else?
+                        )
+                        for field in model._meta.parents.values()
+                    ]
+                )
+                + ")"
+            )
 
-        return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
+        return self.select_subclasses(*models).extra(where=[" OR ".join(where_queries)])
 
 
 class InheritanceManagerMixin:
@@ -227,7 +232,6 @@ class InheritanceManager(InheritanceManagerMixin, models.Manager):
 
 
 class QueryManagerMixin:
-
     def __init__(self, *args, **kwargs):
         if args:
             self._q = args[0]
@@ -274,6 +278,7 @@ class SoftDeletableManagerMixin:
     Manager that limits the queryset by default to show only not removed
     instances of model.
     """
+
     _queryset_class = SoftDeletableQuerySet
 
     def __init__(self, *args, _emit_deprecation_warnings=False, **kwargs):
@@ -295,9 +300,9 @@ class SoftDeletableManagerMixin:
             ).format(self.model.__class__.__name__)
             warnings.warn(warning_message, DeprecationWarning)
 
-        kwargs = {'model': self.model, 'using': self._db}
-        if hasattr(self, '_hints'):
-            kwargs['hints'] = self._hints
+        kwargs = {"model": self.model, "using": self._db}
+        if hasattr(self, "_hints"):
+            kwargs["hints"] = self._hints
 
         return self._queryset_class(**kwargs).filter(is_removed=False)
 
@@ -307,16 +312,11 @@ class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):
 
 
 class JoinQueryset(models.QuerySet):
-
     def get_quoted_query(self, query):
         query, params = query.sql_with_params()
 
         # Put additional quotes around string.
-        params = [
-            '\'{}\''.format(p)
-            if isinstance(p, str) else p
-            for p in params
-        ]
+        params = ["'{}'".format(p) if isinstance(p, str) else p for p in params]
 
         # Cast list of parameters to tuple because I got
         # "not enough format characters" otherwise.
@@ -324,7 +324,7 @@ class JoinQueryset(models.QuerySet):
         return query % params
 
     def join(self, qs=None):
-        '''
+        """
         Join one queryset together with another using a temporary table. If
         no queryset is used, it will use the current queryset and join that
         to itself.
@@ -334,43 +334,46 @@ class JoinQueryset(models.QuerySet):
 
         The model of a given queryset needs to contain a valid foreign key to
         the current queryset to perform a join. A new queryset is then created.
-        '''
-        to_field = 'id'
+        """
+        to_field = "id"
 
         if qs:
             fk = [
-                fk for fk in qs.model._meta.fields
-                if getattr(fk, 'related_model', None) == self.model
+                fk
+                for fk in qs.model._meta.fields
+                if getattr(fk, "related_model", None) == self.model
             ]
             fk = fk[0] if fk else None
-            model_set = '{}_set'.format(self.model.__name__.lower())
+            model_set = "{}_set".format(self.model.__name__.lower())
             key = fk or getattr(qs.model, model_set, None)
 
             if not key:
-                raise ValueError('QuerySet is not related to current model')
+                raise ValueError("QuerySet is not related to current model")
 
             try:
                 fk_column = key.column
             except AttributeError:
-                fk_column = 'id'
+                fk_column = "id"
                 to_field = key.field.column
 
             qs = qs.only(fk_column)
             # if we give a qs we need to keep the model qs to not lose anything
             new_qs = self
         else:
-            fk_column = 'id'
+            fk_column = "id"
             qs = self.only(fk_column)
             new_qs = self.model.objects.all()
 
-        TABLE_NAME = 'temp_stuff'
+        TABLE_NAME = "temp_stuff"
         query = self.get_quoted_query(qs.query)
-        sql = '''
+        sql = """
             DROP TABLE IF EXISTS {table_name};
             DROP INDEX IF EXISTS {table_name}_id;
             CREATE TEMPORARY TABLE {table_name} AS {query};
             CREATE INDEX {table_name}_{fk_column} ON {table_name} ({fk_column});
-        '''.format(table_name=TABLE_NAME, fk_column=fk_column, query=str(query))
+        """.format(
+            table_name=TABLE_NAME, fk_column=fk_column, query=str(query)
+        )
 
         with connection.cursor() as cursor:
             cursor.execute(sql)
@@ -380,7 +383,7 @@ class JoinQueryset(models.QuerySet):
                 self.model,
                 on_delete=models.DO_NOTHING,
                 db_column=fk_column,
-                to_field=to_field
+                to_field=to_field,
             )
 
             class Meta:
@@ -391,9 +394,9 @@ class JoinQueryset(models.QuerySet):
             table_name=TempModel._meta.db_table,
             parent_alias=new_qs.query.get_initial_alias(),
             table_alias=None,
-            join_type='INNER JOIN',
+            join_type="INNER JOIN",
             join_field=self.model.tempmodel_set.rel,
-            nullable=False
+            nullable=False,
         )
         new_qs.query.join(conn, reuse=None)
         return new_qs
@@ -404,6 +407,7 @@ class JoinManagerMixin:
     Manager that adds a method join. This method allows you to join two
     querysets together.
     """
+
     _queryset_class = JoinQueryset
 
     def get_queryset(self):
