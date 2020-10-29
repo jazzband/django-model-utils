@@ -49,7 +49,7 @@ class DescriptorWrapper:
         return value
 
     def __set__(self, instance, value):
-        initialized = hasattr(instance, '_instance_intialized')
+        initialized = hasattr(instance, '_instance_initialized')
         was_deferred = self.field_name in instance.get_deferred_fields()
 
         # Sentinel attribute to detect whether we are already trying to
@@ -231,7 +231,7 @@ class FieldTracker:
         tracker = self.tracker_class(instance, self.fields, self.field_map)
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()
-        instance._instance_intialized = True
+        instance._instance_initialized = True
 
     def patch_save(self, model):
         self._patch(model, 'save_base', 'update_fields')
