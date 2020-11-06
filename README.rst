@@ -14,7 +14,7 @@ django-model-utils
 
 Django model mixins and utilities.
 
-``django-model-utils`` supports `Django`_ 2.1+ and 3.0+.
+``django-model-utils`` supports `Django`_ 2.2+.
 
 .. _Django: http://www.djangoproject.com/
 
