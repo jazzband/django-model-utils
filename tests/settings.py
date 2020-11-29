@@ -7,10 +7,11 @@ INSTALLED_APPS = (
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.environ.get("DJANGO_DATABASE_NAME_POSTGRES", "modelutils"),
-        "USER": os.environ.get("DJANGO_DATABASE_USER_POSTGRES", 'postgres'),
-        "PASSWORD": os.environ.get("DJANGO_DATABASE_PASSWORD_POSTGRES", ""),
-        "HOST": os.environ.get("DJANGO_DATABASE_HOST_POSTGRES", ""),
+        "NAME": os.environ.get("DB_NAME", "modelutils"),
+        "USER": os.environ.get("DB_USER", 'postgres'),
+        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+        "HOST": os.environ.get("DB_HOST", ""),
+        "PORT": os.environ.get("DB_PORT", 5432)
     },
 }
 SECRET_KEY = 'dummy'
