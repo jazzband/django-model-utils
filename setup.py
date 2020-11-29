@@ -40,14 +40,14 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Framework :: Django',
-        'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
         'Framework :: Django :: 3.0',
         'Framework :: Django :: 3.1',
     ],
     zip_safe=False,
-    tests_require=['Django>=2.1'],
+    tests_require=['Django>=2.2'],
     package_data={
         'model_utils': [
             'locale/*/LC_MESSAGES/django.po', 'locale/*/LC_MESSAGES/django.mo'

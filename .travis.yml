@@ -7,9 +7,14 @@ python:
 - 3.6
 - 3.7
 - 3.8
+- 3.9
 arch:
   - amd64
   - ppc64le
+jobs:
+  include:
+    - python: 3.8
+      env: TOXENV=flake8
 install: pip install tox-travis codecov
 # positional args ({posargs}) to pass into tox.ini
 script: tox -- --cov --cov-append

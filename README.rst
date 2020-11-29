@@ -11,10 +11,16 @@ django-model-utils
   :target: https://codecov.io/gh/jazzband/django-model-utils
 .. image:: https://img.shields.io/pypi/v/django-model-utils.svg
    :target: https://pypi.python.org/pypi/django-model-utils
+.. image:: https://img.shields.io/pypi/pyversions/django-model-utils.svg
+   :target: https://pypi.python.org/pypi/django-model-utils
+   :alt: Supported Python versions
+.. image:: https://img.shields.io/pypi/djversions/django-model-utils.svg
+   :target: https://pypi.org/project/django-model-utils/
+   :alt: Supported Django versions
 
 Django model mixins and utilities.
 
-``django-model-utils`` supports `Django`_ 2.1+ and 3.0+.
+``django-model-utils`` supports `Django`_ 2.2+.
 
 .. _Django: http://www.djangoproject.com/
 
