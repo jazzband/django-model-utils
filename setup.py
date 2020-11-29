@@ -15,23 +15,18 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 long_description = "\n\n".join(long_desc(HERE))
 
 
-def get_version(root_path):
-    with open(os.path.join(root_path, 'model_utils', '__init__.py')) as f:
-        for line in f:
-            if line.startswith('__version__ ='):
-                return line.split('=')[1].strip().strip('"\'')
-
-
 setup(
     name='django-model-utils',
-    version=get_version(HERE),
+    use_scm_version={"version_scheme": "post-release"},
+    setup_requires=["setuptools_scm"],
     license="BSD",
     description='Django model mixins and utilities',
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     author='Carl Meyer',
     author_email='carl@oddbird.net',
     maintainer='JazzBand',
-    url='https://github.com/jazzband/django-model-utils/',
+    url='https://github.com/jazzband/django-model-utils',
     packages=find_packages(exclude=['tests*']),
     install_requires=['Django>=2.0.1'],
     classifiers=[
