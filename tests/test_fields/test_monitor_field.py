@@ -1,11 +1,10 @@
 from datetime import datetime
 
+from django.test import TestCase
 from freezegun import freeze_time
 
-from django.test import TestCase
-
 from model_utils.fields import MonitorField
-from tests.models import Monitored, MonitorWhen, MonitorWhenEmpty, DoubleMonitored
+from tests.models import DoubleMonitored, Monitored, MonitorWhen, MonitorWhenEmpty
 
 
 class MonitorFieldTests(TestCase):

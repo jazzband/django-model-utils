@@ -1,8 +1,8 @@
+from django.db.models.signals import post_save, pre_save
 from django.test import TestCase
 
 from tests.models import SaveSignalHandlingTestModel
-from tests.signals import pre_save_test, post_save_test
-from django.db.models.signals import pre_save, post_save
+from tests.signals import post_save_test, pre_save_test
 
 
 class SaveSignalHandlingModelTests(TestCase):

@@ -1,12 +1,10 @@
 import warnings
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
-from django.db import models
+from django.db import connection, models
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related import OneToOneField, OneToOneRel
-from django.db.models.query import ModelIterable
-from django.db.models.query import QuerySet
+from django.db.models.query import ModelIterable, QuerySet
 from django.db.models.sql.datastructures import Join
 
 

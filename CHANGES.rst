@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+Next release (tbc)
+------------------
+- Applied `isort` to codebase (Refs GH-#402)
+
 4.1.0 (2020-11-29)
 ------------------
 - Update InheritanceQuerySetMixin to avoid querying too much tables

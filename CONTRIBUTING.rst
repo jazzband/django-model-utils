@@ -76,3 +76,13 @@ To run tox and generate a coverage report (in ``htmlcov`` directory)::
 
 **Please note**: Before a pull request can be merged, all tests must pass and
 code/branch coverage in tests must be 100%.
+
+Code Formatting
+---------------
+We make use of `isort`_ to sort imports.
+
+.. _isort: https://pycqa.github.io/isort/
+
+Once it is installed you can make sure the code is properly formatted by running::
+
+    make format

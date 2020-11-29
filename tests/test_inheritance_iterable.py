@@ -1,7 +1,7 @@
-from django.test import TestCase
 from django.db.models import Prefetch
+from django.test import TestCase
 
-from tests.models import InheritanceManagerTestParent, InheritanceManagerTestChild1
+from tests.models import InheritanceManagerTestChild1, InheritanceManagerTestParent
 
 
 class InheritanceIterableTest(TestCase):
