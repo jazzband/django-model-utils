@@ -17,6 +17,7 @@ CHANGES
   update_fieldsparameter when 'status' is present in it to make sure it is not
   forgotten.
 - Update test requirements
+- Move tests to GitHub Actions: https://github.com/jazzband/django-model-utils/actions
 
 4.0.0 (2019-12-11)
 ------------------
