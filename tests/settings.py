@@ -11,7 +11,7 @@ DATABASES = {
         "USER": os.environ.get("DB_USER", 'postgres'),
         "PASSWORD": os.environ.get("DB_PASSWORD", ""),
         "HOST": os.environ.get("DB_HOST", ""),
-        "PORT": os.envrion.get("DB_PORT", 5432)
+        "PORT": os.environ.get("DB_PORT", 5432)
     },
 }
 SECRET_KEY = 'dummy'
