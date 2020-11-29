@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from tests.models import CustomUUIDModel, CustomNotPrimaryUUIDModel
+from tests.models import CustomNotPrimaryUUIDModel, CustomUUIDModel
 
 
 class UUIDFieldTests(TestCase):

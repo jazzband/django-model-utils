@@ -1,4 +1,4 @@
-from pkg_resources import get_distribution, DistributionNotFound
+from pkg_resources import DistributionNotFound, get_distribution
 
 from .choices import Choices  # noqa:F401
 from .tracker import FieldTracker, ModelTracker  # noqa:F401

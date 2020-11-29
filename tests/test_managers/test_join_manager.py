@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from tests.models import JoinItemForeignKey, BoxJoinModel
+from tests.models import BoxJoinModel, JoinItemForeignKey
 
 
 class JoinManagerTest(TestCase):

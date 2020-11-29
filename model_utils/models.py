@@ -1,21 +1,18 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.db import models, transaction, router
+from django.db import models, router, transaction
+from django.db.models.functions import Now
 from django.db.models.signals import post_save, pre_save
 from django.utils.translation import gettext_lazy as _
 
 from model_utils.fields import (
     AutoCreatedField,
     AutoLastModifiedField,
-    StatusField,
     MonitorField,
+    StatusField,
     UUIDField,
 )
-from model_utils.managers import (
-    QueryManager,
-    SoftDeletableManager,
-)
+from model_utils.managers import QueryManager, SoftDeletableManager
 
-from django.db.models.functions import Now
 now = Now()
 
 

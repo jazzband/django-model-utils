@@ -1,4 +1,4 @@
-from model_utils.managers import SoftDeletableQuerySet, SoftDeletableManager
+from model_utils.managers import SoftDeletableManager, SoftDeletableQuerySet
 
 
 class CustomSoftDeleteQuerySet(SoftDeletableQuerySet):

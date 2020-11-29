@@ -1,13 +1,27 @@
 from unittest import skip
+
+from django.core.cache import cache
 from django.core.exceptions import FieldError
 from django.test import TestCase
-from django.core.cache import cache
+
 from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
-    Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, TrackedFileField, TrackedAbstract, TrackerTimeStamped,
-    ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
+    InheritedModelTracked,
+    InheritedTracked,
+    InheritedTrackedFK,
+    ModelTracked,
+    ModelTrackedFK,
+    ModelTrackedMultiple,
+    ModelTrackedNotDefault,
+    Tracked,
+    TrackedAbstract,
+    TrackedFileField,
+    TrackedFK,
+    TrackedMultiple,
+    TrackedNonFieldAttr,
+    TrackedNotDefault,
+    TrackerTimeStamped,
 )
 
 

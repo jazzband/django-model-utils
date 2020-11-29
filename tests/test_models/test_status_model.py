@@ -1,10 +1,9 @@
 from datetime import datetime
 
+from django.test.testcases import TestCase
 from freezegun import freeze_time
 
-from django.test.testcases import TestCase
-
-from tests.models import Status, StatusPlainTuple, StatusCustomManager
+from tests.models import Status, StatusCustomManager, StatusPlainTuple
 
 
 class StatusModelTests(TestCase):

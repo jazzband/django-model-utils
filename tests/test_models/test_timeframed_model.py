@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from django.db import models
 from django.core.exceptions import ImproperlyConfigured
+from django.db import models
 from django.test import TestCase
 
 from model_utils.managers import QueryManager

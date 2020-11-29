@@ -30,3 +30,6 @@ messages: init
 
 compilemessages: init
 	$(PYTHON) translations.py compile
+
+format:
+	isort model_utils tests setup.py

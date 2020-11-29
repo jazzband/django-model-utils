@@ -2,11 +2,15 @@ from django.db import models
 from django.test import TestCase
 
 from tests.models import (
-    InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
-    InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
     InheritanceManagerTestChild1,
-    InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3,
+    InheritanceManagerTestChild2,
+    InheritanceManagerTestChild3,
     InheritanceManagerTestChild4,
+    InheritanceManagerTestGrandChild1,
+    InheritanceManagerTestGrandChild1_2,
+    InheritanceManagerTestParent,
+    InheritanceManagerTestRelated,
+    TimeFrame,
 )
 
 
