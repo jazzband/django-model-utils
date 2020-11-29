@@ -5,6 +5,6 @@ from .tracker import FieldTracker, ModelTracker  # noqa:F401
 
 try:
     __version__ = get_distribution("django-model-utils").version
-except DistributionNotFound:
+except DistributionNotFound:  # pragma: no cover
     # package is not installed
-    pass
+    __version__ = None
