@@ -4,7 +4,7 @@ from django.test import TestCase
 from freezegun import freeze_time
 from parameterized import parameterized
 
-from tests.models import TimeStamp
+from tests.models import TimeStamp, TimeStampWithStatusModel
 
 
 class TimeStampedModelTests(TestCase):
@@ -147,5 +147,14 @@ class TimeStampedModelTests(TestCase):
 
         with freeze_time(datetime(2020, 1, 2)):
             t1.save(update_fields=None)
+
+        self.assertEqual(t1.modified, datetime(2020, 1, 2))
+
+    def test_model_inherit_timestampmodel_and_statusmodel(self):
+        with freeze_time(datetime(2020, 1, 1)):
+            t1 = TimeStampWithStatusModel.objects.create()
+
+        with freeze_time(datetime(2020, 1, 2)):
+            t1.save(update_fields=['test_field', 'status'])
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2))

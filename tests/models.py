@@ -447,3 +447,13 @@ class CustomNotPrimaryUUIDModel(models.Model):
 
 class SaveSignalHandlingTestModel(SaveSignalHandlingModel):
     name = models.CharField(max_length=20)
+
+
+class TimeStampWithStatusModel(TimeStampedModel, StatusModel):
+    STATUS = Choices(
+        ("active", _("active")),
+        ("deleted", _("deleted")),
+        ("on_hold", _("on hold")),
+    )
+
+    test_field = models.PositiveSmallIntegerField(default=0)

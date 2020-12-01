@@ -32,10 +32,8 @@ class TimeStampedModel(models.Model):
         a parameter to the update field argument.
         """
         update_fields = kwargs.get('update_fields', None)
-        if update_fields is not None:
-            update_fields = set(update_fields)
-            if update_fields:
-                kwargs['update_fields'] = update_fields.union({'modified'})
+        if update_fields:
+            kwargs['update_fields'] = set(update_fields).union({'modified'})
 
         super().save(*args, **kwargs)
 
@@ -74,12 +72,10 @@ class StatusModel(models.Model):
         status_changed field is updated even if it is not given as
         a parameter to the update field argument.
         """
-        if (
-            'update_fields' in kwargs
-            and 'status' in kwargs['update_fields']
-            and 'status_changed' not in kwargs['update_fields']
-        ):
-            kwargs['update_fields'] += ['status_changed']
+        update_fields = kwargs.get('update_fields', None)
+        if update_fields and 'status' in update_fields:
+            kwargs['update_fields'] = set(update_fields).union({'status_changed'})
+
         super().save(*args, **kwargs)
 
     class Meta:
