@@ -4,6 +4,8 @@ CHANGES
 Next release (tbc)
 ------------------
 - Applied `isort` to codebase (Refs GH-#402)
+- Fix `TypeError` in save when model inherits from both TimeStampModel
+  and StatusModel. (Fixes GH-465)
 
 4.1.0 (2020-11-29)
 ------------------
