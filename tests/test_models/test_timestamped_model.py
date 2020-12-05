@@ -111,20 +111,6 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.modified, datetime(2020, 1, 2))
 
     @parameterized.expand([
-        ('list', ['test_field']),
-        ('tuple', ('test_field',)),
-        ('set', {'test_field'}),
-    ])
-    def test_save_with_update_fields_updates_modified_even_when_it_is_not_included_in_a(self, _, update_fields):
-        with freeze_time(datetime(2020, 1, 1)):
-            t1 = TimeStamp.objects.create()
-
-        with freeze_time(datetime(2020, 1, 2)):
-            t1.save(update_fields=update_fields)
-
-        self.assertEqual(t1.modified, datetime(2020, 1, 2))
-
-    @parameterized.expand([
         ('list', []),
         ('tuple', ()),
         ('set', set()),
