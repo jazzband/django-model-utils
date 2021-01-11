@@ -29,6 +29,7 @@
 | Eugene Kuznetsov <atorich@gmail.com>
 | Felipe Prenholato <felipe.rafael@pdg.com.br>
 | Filipe Ximenes <filipeximenes@gmail.com>
+| Florian Alu <fla@grapps.fr>
 | Germano Massullo <github.com/Germano0>
 | Gregor Müllegger <gregor@muellegger.de>
 | Guilherme Devincenzi <github.com/gdevincenzi>
