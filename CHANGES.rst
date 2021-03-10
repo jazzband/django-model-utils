@@ -6,6 +6,8 @@ Unreleased
 - Add support for `Django 3.2`
 - Drop support for `Django 3.0`
 
+- Added urlsafe token field.
+
 4.1.1 (2020-12-01)
 ------------------
 - Applied `isort` to codebase (Refs GH-#402)

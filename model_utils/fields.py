@@ -1,4 +1,6 @@
+import secrets
 import uuid
+from collections import Callable
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -309,3 +311,41 @@ class UUIDField(models.UUIDField):
         kwargs.setdefault('editable', editable)
         kwargs.setdefault('default', default)
         super().__init__(*args, **kwargs)
+
+
+class UrlsafeTokenField(models.CharField):
+    """
+    A field for storing a unique token in database.
+    """
+
+    def __init__(self, editable=False, max_length=128, factory=None, **kwargs):
+        """
+        Parameters
+        ----------
+        editable: bool
+            If true token is editable.
+        max_length: int
+            Maximum length of the token.
+        factory: callable
+            If provided, called with max_length of the field instance to generate token.
+
+        Raises
+        ------
+        TypeError
+            non-callable value for factory is not supported.
+        """
+
+        if factory is not None and not isinstance(factory, Callable):
+            raise TypeError("'factory' should either be a callable not 'None'")
+        self._factory = factory
+
+        kwargs.pop('default', None)  # passing default value has not effect.
+
+        super().__init__(editable=editable, max_length=max_length, **kwargs)
+
+    def get_default(self):
+        if self._factory is not None:
+            return self._factory(self.max_length)
+        # generate a token of length x1.33 approx. trim up to max length
+        token = secrets.token_urlsafe(self.max_length)[:self.max_length]
+        return token

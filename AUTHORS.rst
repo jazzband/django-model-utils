@@ -99,3 +99,4 @@
 | zyegfryed <zyegfryed@gmail.com>
 | Éric Araujo <merwok@netwok.org>
 | Őry Máté <ory.mate@cloud.bme.hu>
+| Nafees Anwar <h.nafees.anwar@gmail.com>
