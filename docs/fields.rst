@@ -180,3 +180,46 @@ or any other ModelForm, default is False.
     class MyAppModel(models.Model):
         uuid = UUIDField(primary_key=True, version=4, editable=False)
 
+
+UrlsafeTokenField
+-----------------
+
+A ``CharField`` subclass that provides random token generating using
+python's ``secrets.token_urlsafe`` as default value.
+
+If ``editable`` is set to false the field will not be displayed in the admin
+or any other ModelForm, default is False.
+
+``max_length`` specifies the maximum length of the token. The default value is 128.
+
+
+.. code-block:: python
+
+    from django.db import models
+    from model_utils.fields import UrlsafeTokenField
+
+
+    class MyAppModel(models.Model):
+        uuid = UrlsafeTokenField(editable=False, max_length=128)
+
+
+You can provide your custom token generator using the ``factory`` argument.
+``factory`` should be callable. It will raise ``TypeError`` if it is not callable.
+``factory`` is called with ``max_length`` argument to generate the token, and should
+return a string of specified maximum length.
+
+
+.. code-block:: python
+
+    import uuid
+
+    from django.db import models
+    from model_utils.fields import UrlsafeTokenField
+
+
+    def _token_factory(max_length):
+        return uuid.uuid4().hex
+
+
+    class MyAppModel(models.Model):
+        uuid = UrlsafeTokenField(max_length=32, factory=_token_factory)

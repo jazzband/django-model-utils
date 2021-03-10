@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+- Added urlsafe token field.
+
 4.1.1 (2020-12-01)
 ------------------
 - Applied `isort` to codebase (Refs GH-#402)
