@@ -53,3 +53,12 @@ class UrlsaftTokenFieldTests(TestCase):
     def test_no_default_param(self):
         field = UrlsafeTokenField(default='DEFAULT')
         self.assertIs(field.default, NOT_PROVIDED)
+
+    def test_deconstruct(self):
+        def test_factory():
+            pass
+        instance = UrlsafeTokenField(factory=test_factory)
+        name, path, args, kwargs = instance.deconstruct()
+        new_instance = UrlsafeTokenField(*args, **kwargs)
+        self.assertIs(instance._factory, new_instance._factory)
+        self.assertIs(test_factory, new_instance._factory)

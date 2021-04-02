@@ -349,3 +349,8 @@ class UrlsafeTokenField(models.CharField):
         # generate a token of length x1.33 approx. trim up to max length
         token = secrets.token_urlsafe(self.max_length)[:self.max_length]
         return token
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        kwargs['factory'] = self._factory
+        return name, path, args, kwargs
