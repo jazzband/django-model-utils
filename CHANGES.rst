@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+Unreleased
+----------
+- Add support for `Django 3.2`
+
 4.1.1 (2020-12-01)
 ------------------
 - Applied `isort` to codebase (Refs GH-#402)
