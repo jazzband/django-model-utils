@@ -4,6 +4,7 @@ CHANGES
 Unreleased
 ----------
 - Add support for `Django 3.2`
+- Drop support for `Django 3.0`
 
 4.1.1 (2020-12-01)
 ------------------
