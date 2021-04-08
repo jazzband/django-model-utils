@@ -1,5 +1,5 @@
-CHANGES
-=======
+Changelog
+=========
 
 Unreleased
 ----------
