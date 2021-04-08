@@ -16,6 +16,7 @@ Contents
    models
    managers
    utilities
+   changelog
 
 
 Contributing
