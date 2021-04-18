@@ -3,7 +3,12 @@ from datetime import datetime
 from django.test.testcases import TestCase
 from freezegun import freeze_time
 
-from tests.models import Status, StatusCustomManager, StatusPlainTuple
+from tests.models import (
+    Status,
+    StatusCustomManager,
+    StatusCustomQuerySet,
+    StatusPlainTuple,
+)
 
 
 class StatusModelTests(TestCase):
@@ -97,3 +102,22 @@ class StatusModelDefaultManagerTests(TestCase):
         # ...and this one equal to 0, because of 2 successive filters of 'first_choice'
         # (default manager) and 'second_choice' (explicit filter below).
         self.assertEqual(StatusCustomManager._default_manager.filter(status='second_choice').count(), 2)
+
+
+class StatusModelStatusManagerTests(TestCase):
+
+    def test_manager_has_custom_qs_methods(self):
+        StatusCustomQuerySet.objects.create(status='first_choice')
+
+        StatusCustomQuerySet.objects.create(status='second_choice')
+        StatusCustomQuerySet.objects.create(status='second_choice')
+
+        self.assertTrue(StatusCustomQuerySet.first_choice.custom_exists())
+        self.assertEqual(StatusCustomQuerySet.first_choice.custom_count(), 1)
+
+        self.assertTrue(StatusCustomQuerySet.second_choice.custom_exists())
+        self.assertEqual(StatusCustomQuerySet.second_choice.custom_count(), 2)
+
+    def test_manager_class_name(self):
+        self.assertEqual(StatusCustomQuerySet.first_choice.__class__.__name__, 'StatusCustomQuerySetStatusManager')
+        self.assertEqual(StatusCustomQuerySet.second_choice.__class__.__name__, 'StatusCustomQuerySetStatusManager')

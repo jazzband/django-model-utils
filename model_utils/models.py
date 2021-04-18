@@ -92,6 +92,10 @@ def add_status_query_managers(sender, **kwargs):
 
     default_manager = sender._meta.default_manager
 
+    status_manager_class = QueryManager.from_queryset(
+        queryset_class=default_manager.get_queryset().__class__,
+        class_name='{}StatusManager'.format(sender.__name__)
+    )
     for value, display in getattr(sender, 'STATUS', ()):
         if _field_exists(sender, value):
             raise ImproperlyConfigured(
@@ -99,7 +103,7 @@ def add_status_query_managers(sender, **kwargs):
                 "conflicts with a status of the same name."
                 % (sender.__name__, value)
             )
-        sender.add_to_class(value, QueryManager(status=value))
+        sender.add_to_class(value, status_manager_class(status=value))
 
     sender._meta.default_manager_name = default_manager.name
 

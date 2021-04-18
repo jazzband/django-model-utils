@@ -157,6 +157,23 @@ class StatusCustomManager(AbstractStatusCustomManager):
     title = models.CharField(max_length=50)
 
 
+class StatusCustomQuerySet(models.QuerySet):
+    def custom_exists(self):
+        return self.exists()
+
+    def custom_count(self):
+        return self.count()
+
+
+class StatusCustomQuerySet(StatusModel):
+    STATUS = Choices(
+        ("first_choice", _("First choice")),
+        ("second_choice", _("Second choice")),
+    )
+
+    objects = StatusCustomQuerySet.as_manager()
+
+
 class Post(models.Model):
     published = models.BooleanField(default=False)
     confirmed = models.BooleanField(default=False)
