@@ -115,7 +115,7 @@ class DoubleMonitored(models.Model):
 
 class Status(StatusModel):
     STATUS = Choices(
-        ("active", _("active")),
+        ("active", _("Active")),
         ("deleted", _("deleted")),
         ("on_hold", _("on hold")),
     )

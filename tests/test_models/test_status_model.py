@@ -67,6 +67,11 @@ class StatusModelTests(TestCase):
 
         self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
 
+    def test_get_status_display(self):
+        instance: Status = self.model.objects.create(status=self.model.STATUS.active)
+        print(instance.get_deferred_fields())
+        self.assertEqual("Active", instance.get_status_display())
+
 
 class StatusModelPlainTupleTests(StatusModelTests):
     def setUp(self):
