@@ -7,6 +7,7 @@ from django.test import TestCase
 from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
+    CategoryFKModel,
     InheritedModelTracked,
     InheritedTracked,
     InheritedTrackedFK,
@@ -14,6 +15,7 @@ from tests.models import (
     ModelTrackedFK,
     ModelTrackedMultiple,
     ModelTrackedNotDefault,
+    SimpleTrackedModel,
     Tracked,
     TrackedAbstract,
     TrackedFileField,
@@ -831,3 +833,31 @@ class InheritedModelTrackerTests(ModelTrackerTests):
 class AbstractModelTrackerTests(ModelTrackerTests):
 
     tracked_class = TrackedAbstract
+
+
+class FieldTrackerSaveTests(FieldTrackerTestCase):
+
+    tracked_class = SimpleTrackedModel
+    foreign_class = CategoryFKModel
+
+    def setUp(self):
+        self.category = self.foreign_class()
+        self.instance = self.tracked_class(category=self.category)
+        self.tracker = self.instance.tracker
+
+    def test_tracker_changed_behavior_unchanged(self):
+        self.assertEqual(self.category.category, '')
+        self.category.save()
+        self.assertEqual(self.category.category, '')
+
+        self.assertChanged(name=None, external=None)
+        self.instance.category_id = self.category.id  # required in Django<3
+        self.instance.save()
+        self.assertFalse(self.instance.external)
+        self.assertChanged()
+        self.category.refresh_from_db()
+        self.assertEqual(self.category.category, self.category.INTERNAL)
+
+        self.tracked_class(category=self.category, external=True).save()
+        self.category.refresh_from_db()
+        self.assertEqual(self.category.category, self.category.MIXED)

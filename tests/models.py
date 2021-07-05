@@ -457,3 +457,45 @@ class TimeStampWithStatusModel(TimeStampedModel, StatusModel):
     )
 
     test_field = models.PositiveSmallIntegerField(default=0)
+
+
+class CategoryFKModel(models.Model):
+    INTERNAL = 'internal'
+    EXTERNAL = 'external'
+    MIXED = 'mixed'
+    CATEGORY_CHOICES = Choices(
+        (INTERNAL, _("internal")),
+        (EXTERNAL, _("external")),
+        (MIXED, _("mixed")),
+    )
+    category = models.CharField(blank=True, max_length=10, choices=CATEGORY_CHOICES)
+
+    def save(self, *args, **kwargs):
+        self._set_category()
+        super().save(*args, **kwargs)
+
+    def _set_category(self):
+        if not self.simpletrackedmodel_set.exists():
+            return
+
+        externals_exist = self.simpletrackedmodel_set.filter(external=True).exists()
+        internals_exist = self.simpletrackedmodel_set.filter(external=False).exists()
+
+        if externals_exist and internals_exist:
+            self.category = self.MIXED
+        elif internals_exist:
+            self.category = self.INTERNAL
+        else:
+            self.category = self.EXTERNAL
+
+
+class SimpleTrackedModel(models.Model):
+    name = models.CharField(max_length=20)
+    external = models.BooleanField(default=False)
+    category = models.ForeignKey(to=CategoryFKModel, on_delete=models.CASCADE)
+    tracker = FieldTracker()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if 'external' in self.tracker.changed():
+            self.category.save(update_fields=['category'])
