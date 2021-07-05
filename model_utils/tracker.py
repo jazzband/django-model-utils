@@ -242,10 +242,8 @@ class FieldTracker:
         def inner(instance, *args, **kwargs):
             ret = original(instance, *args, **kwargs)
             update_fields = kwargs.get(fields_kwarg)
-            if not update_fields and update_fields is not None:  # () or []
+            if not update_fields:
                 fields = update_fields
-            elif update_fields is None:
-                fields = None
             else:
                 fields = (
                     field for field in update_fields if
