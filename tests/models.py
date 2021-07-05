@@ -243,7 +243,7 @@ class TrackerTimeStamped(TimeStampedModel):
     number = models.IntegerField()
     mutable = MutableField(default=None)
 
-    tracker = FieldTracker()
+    tracker = FieldTracker(always_include_fields=['modified'])
 
 
 class TrackedFK(models.Model):

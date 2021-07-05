@@ -192,8 +192,9 @@ class FieldTracker:
 
     tracker_class = FieldInstanceTracker
 
-    def __init__(self, fields=None):
+    def __init__(self, fields=None, always_include_fields=None):
         self.fields = fields
+        self.always_include_fields = always_include_fields
 
     def get_field_map(self, cls):
         """Returns dict mapping fields names to model attribute names"""
@@ -232,7 +233,7 @@ class FieldTracker:
         instance._instance_initialized = True
 
     def patch_save(self, model):
-        self._patch(model, 'save_base', 'update_fields')
+        self._patch(model, 'save', 'update_fields')
         self._patch(model, 'refresh_from_db', 'fields')
 
     def _patch(self, model, method, fields_kwarg):
@@ -240,15 +241,20 @@ class FieldTracker:
 
         @wraps(original)
         def inner(instance, *args, **kwargs):
-            ret = original(instance, *args, **kwargs)
             update_fields = kwargs.get(fields_kwarg)
             if not update_fields:
                 fields = update_fields
             else:
-                fields = (
+                fields = {
                     field for field in update_fields if
                     field in self.fields
-                )
+                }
+                if self.always_include_fields:
+                    fields.update({
+                        field for field in self.always_include_fields if
+                        field in self.fields
+                    })
+            ret = original(instance, *args, **kwargs)
             getattr(instance, self.attname).set_saved_fields(
                 fields=fields
             )
