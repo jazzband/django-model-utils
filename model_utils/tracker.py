@@ -1,3 +1,4 @@
+from collections import Counter
 from copy import deepcopy
 from functools import wraps
 
@@ -86,11 +87,46 @@ class FullDescriptorWrapper(DescriptorWrapper):
         self.descriptor.__delete__(obj)
 
 
+class FieldsContext:
+    def __init__(self, tracker, *fields, state=None):
+        if state is None:
+            state = {}
+        self.tracker = tracker
+        self.fields = fields
+        self.state = state
+
+    def __enter__(self):
+        for f in self.fields:
+            self.state.setdefault(f, 0)
+            self.state[f] += 1
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        reset_fields = []
+        for f in self.fields:
+            self.state[f] -= 1
+            if self.state[f] == 0:
+                reset_fields.append(f)
+                del self.state[f]
+        if reset_fields:
+            self.tracker.set_saved_fields(fields=reset_fields)
+
+
 class FieldInstanceTracker:
     def __init__(self, instance, fields, field_map):
         self.instance = instance
         self.fields = fields
         self.field_map = field_map
+        self.context = FieldsContext(self, *self.fields)
+
+    def __enter__(self):
+        return self.context.__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.context.__exit__(exc_type, exc_val, exc_tb)
+
+    def __call__(self, *fields):
+        return FieldsContext(self, *fields, state=self.context.state)
 
     @property
     def deferred_fields(self):
@@ -194,6 +230,20 @@ class FieldTracker:
 
     def __init__(self, fields=None):
         self.fields = fields
+
+    def __call__(self, func=None, fields=None):
+        def decorator(f):
+            @wraps(f)
+            def inner(obj, *args, **kwargs):
+                tracker = getattr(obj, self.attname)
+                field_list = tracker.fields if fields is None else fields
+                with tracker(*field_list):
+                    return f(obj, *args, **kwargs)
+
+            return inner
+        if func is None:
+            return decorator
+        return decorator(func)
 
     def get_field_map(self, cls):
         """Returns dict mapping fields names to model attribute names"""
