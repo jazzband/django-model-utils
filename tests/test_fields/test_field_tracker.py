@@ -894,3 +894,13 @@ class TrackerContextDecoratorTests(TestCase):
 
         self.assertChanged('number')
         self.assertNotChanged('name')
+
+    def test_tracker_context_with_save(self):
+
+        with self.tracker:
+            self.instance.name = 'new'
+            self.instance.save()
+
+            self.assertChanged('name')
+
+        self.assertNotChanged('name')
