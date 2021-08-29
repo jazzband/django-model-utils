@@ -290,21 +290,17 @@ class FieldTracker:
 
         @wraps(original)
         def inner(instance, *args, **kwargs):
-            ret = original(instance, *args, **kwargs)
             update_fields = kwargs.get(fields_kwarg)
-            if not update_fields and update_fields is not None:  # () or []
-                fields = update_fields
-            elif update_fields is None:
-                fields = None
+            if update_fields is None:
+                fields = self.fields
             else:
                 fields = (
                     field for field in update_fields if
                     field in self.fields
                 )
-            getattr(instance, self.attname).set_saved_fields(
-                fields=fields
-            )
-            return ret
+            tracker = getattr(instance, self.attname)
+            with tracker(*fields):
+                return original(instance, *args, **kwargs)
 
         setattr(model, method, inner)
 
