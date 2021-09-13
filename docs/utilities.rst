@@ -387,7 +387,7 @@ like in example above, but does not help when model ``save`` method is overridde
 * By default, all fields are reset, but field list can be provided
 * Fields are counted separately depending on field list passed to context managers
 * Tracker can be used as decorator
-* Different instances have it's own context state
+* Different instances have their own context state
 * Different trackers in same instance have separate context state
 
 .. code-block:: python
