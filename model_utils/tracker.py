@@ -87,6 +87,25 @@ class FullDescriptorWrapper(DescriptorWrapper):
 
 
 class FieldsContext:
+    """
+    A context manager for tracking nested reset fields contexts.
+
+    If tracked fields is mentioned in more than one FieldsContext, it's state
+    is being reset on exiting last context that mentions that field.
+
+    >>> with fields_context(obj.tracker, 'f1', state=state):
+    ...     with fields_context(obj.tracker, 'f1', 'f2', state=state):
+    ...         obj.do_something_useful()
+    ...     # f2 is reset after inner context exit
+    ...     obj.do_something_else()
+    ... # f1 is reset after outer context exit
+    >>>
+
+    * Note that fields are countedbe passing same state dict
+    * FieldsContext is instantiated using FieldInstanceTracker (`obj.tracker`)
+    * Different objects has own state stack
+
+    """
     def __init__(self, tracker, *fields, state=None):
         if state is None:
             state = {}
