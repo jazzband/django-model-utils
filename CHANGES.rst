@@ -11,6 +11,17 @@ Unreleased
 
 4.1.1 (2020-12-01)
 ------------------
+
+**Breaking changes:**
+- `FieldTracker` now marks fields as not changed after `refresh_from_db`
+  respecting `fields` argument (GH-#404)
+- `FieldTracker` now respects `update_fields` changed in overridden `save()`
+  method (GH-#404)
+- `FieldTracker` now resets states after `pre_save()` and not anymore `save()`
+  signals, possibly altering the behaviour of overridden `save()`
+  methods (GH-#404)
+
+**Other changes:**
 - Applied `isort` to codebase (Refs GH-#402)
 - Fix `TypeError` in save when model inherits from both TimeStampModel
   and StatusModel. (Fixes GH-465)
