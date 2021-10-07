@@ -5,7 +5,7 @@ Unreleased
 ----------
 - Add support for `Django 3.2`
 - Drop support for `Django 3.0`
-
+- Add support for `Python 3.10`
 - Added urlsafe token field.
 - Introduce context manager for FieldTracker state reset (GH-#491)
 
