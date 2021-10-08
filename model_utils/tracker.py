@@ -101,12 +101,24 @@ class FieldsContext:
     ... # f1 is reset after outer context exit
     >>>
 
-    * Note that fields are countedbe passing same state dict
+    * Note that fields are counted by passing same state dict
     * FieldsContext is instantiated using FieldInstanceTracker (`obj.tracker`)
     * Different objects has own state stack
 
     """
+
     def __init__(self, tracker, *fields, state=None):
+        """
+        :param tracker: FieldInstanceTracker instance to be reset after
+            context exit
+        :param fields: a list of field names to be tracked in current context
+        :param state: shared state dict used to count number of field
+            occurrences in context stack.
+
+        On context enter each field mentioned in `fields` has +1 in shared
+        state, and on exit it receives -1. Fields that have zero after context
+        exit are reset in tracker instance.
+        """
         if state is None:
             state = {}
         self.tracker = tracker
@@ -114,12 +126,21 @@ class FieldsContext:
         self.state = state
 
     def __enter__(self):
+        """
+        Increments tracked fields occurrences count in shared state.
+        """
         for f in self.fields:
             self.state.setdefault(f, 0)
             self.state[f] += 1
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Decrements tracked fields occurrences count in shared state.
+
+        If any field has no more occurrences in shared state, this field is
+        being reset by tracker.
+        """
         reset_fields = []
         for f in self.fields:
             self.state[f] -= 1
