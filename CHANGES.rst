@@ -7,21 +7,31 @@ Unreleased
 - Drop support for `Django 3.0`
 
 - Added urlsafe token field.
+- Introduce context manager for FieldTracker state reset (GH-#491)
 
 4.1.1 (2020-12-01)
 ------------------
+
 - Applied `isort` to codebase (Refs GH-#402)
 - Fix `TypeError` in save when model inherits from both TimeStampModel
   and StatusModel. (Fixes GH-465)
 
 4.1.0 (2020-11-29)
 ------------------
+
+**Breaking changes:**
+- `FieldTracker` now marks fields as not changed after `refresh_from_db`
+  respecting `fields` argument (GH-#404)
+- `FieldTracker` now respects `update_fields` changed in overridden `save()`
+  method (GH-#404)
+- `FieldTracker` now resets states after `pre_save()` and not anymore `save()`
+  signals, possibly altering the behaviour of overridden `save()`
+  methods (GH-#404)
+
+**Other changes:**
 - Update InheritanceQuerySetMixin to avoid querying too much tables
 - TimeStampedModel now automatically adds 'modified' field as an update_fields
   parameter even if it is forgotten while using save()
-- `FieldTracker` now marks fields as not changed after `refresh_from_db`
-- `FieldTracker` now respects `update_fields` changed in overridden `save()`
-  method
 - Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
 - Add available_objects manager to SoftDeletableModel and add deprecation
   warning to objects manager.

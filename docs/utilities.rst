@@ -346,3 +346,75 @@ This is how ``FieldTracker`` tracks field changes on ``instance.save`` call.
 8. ``instance.refresh_from_db()`` call causes initial state reset like for
    ``save_base()``.
 
+When FieldTracker resets fields state
+-------------------------------------
+
+By the definition:
+
+.. NOTE::
+    * Field value *is changed* if it differs from current database value.
+    * Field value *was changed* if value has changed in database and field state didn't reset.
+
+.. code-block:: python
+
+    instance = Tracked.objects.get(pk=1)
+    # name not changed
+    instance.name += '_changed'
+    # name is changed
+    instance.save()
+    # name is not changed again
+
+Current implementation resets fields state after ``post_save`` signals emitting. This is convenient for "outer" code
+like in example above, but does not help when model ``save`` method is overridden.
+
+.. code-block:: python
+
+    class MyModel(models.Model)
+        name = models.CharField(max_length=64)
+        tracker = FieldsTracker()
+
+        def save(self):  # erroneous implementation
+            self.name = self.name.replace(' ', '_')
+            name_changed = self.tracker.has_changed('name')
+            super().save()
+            # changed state has been reset here, so we need to store previous state somewhere else
+            if name_changed:
+                do_something_about_it()
+
+``FieldTracker`` provides a context manager interface to postpone fields state reset in complicate situations.
+
+* Fields state resets after exiting from outer-most context
+* By default, all fields are reset, but field list can be provided
+* Fields are counted separately depending on field list passed to context managers
+* Tracker can be used as decorator
+* Different instances have their own context state
+* Different trackers in same instance have separate context state
+
+.. code-block:: python
+
+    class MyModel(models.Model)
+        name = models.CharField(max_length=64)
+        tracker = FieldTracker()
+
+        def save(self):  # correct implementation
+            self.name = self.name.replace(' ', '_')
+
+            with self.tracker:
+                super().save()
+                # changed state reset is postponed
+                if self.tracker.has_changed('name'):
+                    do_something_about_it()
+
+        # Decorator example
+        @tracker
+        def save(self): ...
+
+        # Restrict a set of fields to reset here
+        @tracker(fields=('name'))
+        def save(self): ...
+
+        # Context manager with field list
+        def save(self):
+            with self.tracker('name'):
+                ...
+

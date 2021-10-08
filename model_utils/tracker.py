@@ -86,11 +86,86 @@ class FullDescriptorWrapper(DescriptorWrapper):
         self.descriptor.__delete__(obj)
 
 
+class FieldsContext:
+    """
+    A context manager for tracking nested reset fields contexts.
+
+    If tracked fields is mentioned in more than one FieldsContext, it's state
+    is being reset on exiting last context that mentions that field.
+
+    >>> with fields_context(obj.tracker, 'f1', state=state):
+    ...     with fields_context(obj.tracker, 'f1', 'f2', state=state):
+    ...         obj.do_something_useful()
+    ...     # f2 is reset after inner context exit
+    ...     obj.do_something_else()
+    ... # f1 is reset after outer context exit
+    >>>
+
+    * Note that fields are counted by passing same state dict
+    * FieldsContext is instantiated using FieldInstanceTracker (`obj.tracker`)
+    * Different objects has own state stack
+
+    """
+
+    def __init__(self, tracker, *fields, state=None):
+        """
+        :param tracker: FieldInstanceTracker instance to be reset after
+            context exit
+        :param fields: a list of field names to be tracked in current context
+        :param state: shared state dict used to count number of field
+            occurrences in context stack.
+
+        On context enter each field mentioned in `fields` has +1 in shared
+        state, and on exit it receives -1. Fields that have zero after context
+        exit are reset in tracker instance.
+        """
+        if state is None:
+            state = {}
+        self.tracker = tracker
+        self.fields = fields
+        self.state = state
+
+    def __enter__(self):
+        """
+        Increments tracked fields occurrences count in shared state.
+        """
+        for f in self.fields:
+            self.state.setdefault(f, 0)
+            self.state[f] += 1
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Decrements tracked fields occurrences count in shared state.
+
+        If any field has no more occurrences in shared state, this field is
+        being reset by tracker.
+        """
+        reset_fields = []
+        for f in self.fields:
+            self.state[f] -= 1
+            if self.state[f] == 0:
+                reset_fields.append(f)
+                del self.state[f]
+        if reset_fields:
+            self.tracker.set_saved_fields(fields=reset_fields)
+
+
 class FieldInstanceTracker:
     def __init__(self, instance, fields, field_map):
         self.instance = instance
         self.fields = fields
         self.field_map = field_map
+        self.context = FieldsContext(self, *self.fields)
+
+    def __enter__(self):
+        return self.context.__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.context.__exit__(exc_type, exc_val, exc_tb)
+
+    def __call__(self, *fields):
+        return FieldsContext(self, *fields, state=self.context.state)
 
     @property
     def deferred_fields(self):
@@ -195,6 +270,20 @@ class FieldTracker:
     def __init__(self, fields=None):
         self.fields = fields
 
+    def __call__(self, func=None, fields=None):
+        def decorator(f):
+            @wraps(f)
+            def inner(obj, *args, **kwargs):
+                tracker = getattr(obj, self.attname)
+                field_list = tracker.fields if fields is None else fields
+                with tracker(*field_list):
+                    return f(obj, *args, **kwargs)
+
+            return inner
+        if func is None:
+            return decorator
+        return decorator(func)
+
     def get_field_map(self, cls):
         """Returns dict mapping fields names to model attribute names"""
         field_map = {field: field for field in self.fields}
@@ -240,21 +329,17 @@ class FieldTracker:
 
         @wraps(original)
         def inner(instance, *args, **kwargs):
-            ret = original(instance, *args, **kwargs)
             update_fields = kwargs.get(fields_kwarg)
-            if not update_fields and update_fields is not None:  # () or []
-                fields = update_fields
-            elif update_fields is None:
-                fields = None
+            if update_fields is None:
+                fields = self.fields
             else:
                 fields = (
                     field for field in update_fields if
                     field in self.fields
                 )
-            getattr(instance, self.attname).set_saved_fields(
-                fields=fields
-            )
-            return ret
+            tracker = getattr(instance, self.attname)
+            with tracker(*fields):
+                return original(instance, *args, **kwargs)
 
         setattr(model, method, inner)
 
