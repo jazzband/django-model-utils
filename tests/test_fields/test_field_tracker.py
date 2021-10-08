@@ -2,6 +2,7 @@ from unittest import skip
 
 from django.core.cache import cache
 from django.core.exceptions import FieldError
+from django.db.models.fields.files import FieldFile
 from django.test import TestCase
 
 from model_utils import FieldTracker
@@ -585,6 +586,25 @@ class FieldTrackerFileFieldTests(FieldTrackerTestCase):
         self.tracker = self.instance.tracker
         self.some_file = 'something.txt'
         self.another_file = 'another.txt'
+
+    def test_saved_data_without_instance(self):
+        """
+        Tests that instance won't get copied by the Field Tracker.
+
+        This change was introduced in Django 3.1 with
+        https://github.com/django/django/pull/12055
+        It results in a dramatic CPU and memory usage of FieldTracker on FileField and
+        its subclasses.
+        The pickling/deepcopying the instance is useless in the context of FieldTracker
+        thus we are skipping it.
+        """
+        self.assertEqual(self.tracker.saved_data, {})
+        self.update_instance(some_file=self.some_file)
+        field_file_copy = self.tracker.saved_data.get('some_file')
+        self.assertIsNotNone(field_file_copy)
+        self.assertEqual(field_file_copy.__getstate__().get('instance'), None)
+        self.assertEqual(self.instance.some_file.instance, self.instance)
+        self.assertIsInstance(self.instance.some_file, FieldFile)
 
     def test_pre_save_changed(self):
         self.assertChanged(some_file=None)
