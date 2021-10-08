@@ -8,6 +8,8 @@ Unreleased
 
 - Added urlsafe token field.
 - Introduce context manager for FieldTracker state reset (GH-#491)
+- Fix performance regression of FieldTracker on FileField subclasses on Django 3.1+
+  (GH-#498)
 
 4.1.1 (2020-12-01)
 ------------------
