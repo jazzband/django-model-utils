@@ -1,6 +1,6 @@
 import secrets
 import uuid
-from collections import Callable
+from collections.abc import Callable
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
