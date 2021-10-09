@@ -3,8 +3,41 @@ from functools import wraps
 
 from django.core.exceptions import FieldError
 from django.db import models
-from django.db.models.fields.files import FileDescriptor
+from django.db.models.fields.files import FieldFile, FileDescriptor
 from django.db.models.query_utils import DeferredAttribute
+
+
+class LightStateFieldFile(FieldFile):
+    """
+    FieldFile subclass with the only aim to remove the instance from the state.
+
+    The change introduced in Django 3.1 on FieldFile subclasses results in pickling the
+    whole instance for every field tracked.
+    As this is done on the initialization of objects, a simple queryset evaluation on
+    Django 3.1+ can make the app unusable, as CPU and memory usage gets easily
+    multiplied by magnitudes.
+    """
+    def __getstate__(self):
+        """
+        We don't need to deepcopy the instance, so nullify if provided.
+        """
+        state = super().__getstate__()
+        if 'instance' in state:
+            state['instance'] = None
+        return state
+
+
+def lightweight_deepcopy(value):
+    """
+    Use our lightweight class to avoid copying the instance on a FieldFile deepcopy.
+    """
+    if isinstance(value, FieldFile):
+        value = LightStateFieldFile(
+            instance=value.instance,
+            field=value.field,
+            name=value.name,
+        )
+    return deepcopy(value)
 
 
 class DescriptorMixin:
@@ -20,7 +53,7 @@ class DescriptorMixin:
             was_deferred = True
         value = super().__get__(instance, owner)
         if was_deferred:
-            self.tracker_instance.saved_data[field_name] = deepcopy(value)
+            self.tracker_instance.saved_data[field_name] = lightweight_deepcopy(value)
         return value
 
     def _get_field_name(self):
@@ -44,7 +77,7 @@ class DescriptorWrapper:
             value = self.descriptor
         if was_deferred:
             tracker_instance = getattr(instance, self.tracker_attname)
-            tracker_instance.saved_data[self.field_name] = deepcopy(value)
+            tracker_instance.saved_data[self.field_name] = lightweight_deepcopy(value)
         return value
 
     def __set__(self, instance, value):
@@ -184,7 +217,7 @@ class FieldInstanceTracker:
 
         # preventing mutable fields side effects
         for field, field_value in self.saved_data.items():
-            self.saved_data[field] = deepcopy(field_value)
+            self.saved_data[field] = lightweight_deepcopy(field_value)
 
     def current(self, fields=None):
         """Returns dict of current values for all tracked fields"""
@@ -225,7 +258,7 @@ class FieldInstanceTracker:
             else:
                 current_value = self.get_field_value(field)
                 self.instance.refresh_from_db(fields=[field])
-                self.saved_data[field] = deepcopy(self.get_field_value(field))
+                self.saved_data[field] = lightweight_deepcopy(self.get_field_value(field))
                 setattr(self.instance, self.field_map[field], current_value)
 
         return self.saved_data.get(field)
