@@ -3,6 +3,11 @@ Changelog
 
 Unreleased
 ----------
+
+
+4.2.0 (2021-10-10)
+------------------
+
 - Add support for `Django 3.2`
 - Drop support for `Django 3.0`
 - Add support for `Python 3.10`
