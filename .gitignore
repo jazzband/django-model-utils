@@ -1,4 +1,5 @@
 dist/*
+build
 django_model_utils.egg-info/*
 HGREV
 .coverage

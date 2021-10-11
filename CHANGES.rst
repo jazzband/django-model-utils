@@ -5,7 +5,7 @@ Unreleased
 ----------
 
 
-4.2.0 (2021-10-10)
+4.2.0 (2021-10-11)
 ------------------
 
 - Add support for `Django 3.2`
@@ -27,6 +27,7 @@ Unreleased
 ------------------
 
 **Breaking changes:**
+
 - `FieldTracker` now marks fields as not changed after `refresh_from_db`
   respecting `fields` argument (GH-#404)
 - `FieldTracker` now respects `update_fields` changed in overridden `save()`
@@ -36,6 +37,7 @@ Unreleased
   methods (GH-#404)
 
 **Other changes:**
+
 - Update InheritanceQuerySetMixin to avoid querying too much tables
 - TimeStampedModel now automatically adds 'modified' field as an update_fields
   parameter even if it is forgotten while using save()
