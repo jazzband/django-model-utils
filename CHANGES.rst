@@ -4,6 +4,8 @@ Changelog
 Unreleased
 ----------
 
+- Gracefully handle `setuptools` not being installed at runtime (GH-#506)
+
 
 4.2.0 (2021-10-11)
 ------------------

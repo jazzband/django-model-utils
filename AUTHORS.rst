@@ -24,6 +24,7 @@
 | Dmytro Kyrychuck <dmytro.kyrychuck@gmail.com>
 | Donald Stufft <donald.stufft@gmail.com>
 | Douglas Meehan <dmeehan@gmail.com>
+| Edward Peek <edward.peek@crown.com>
 | Emin Bugra Saral <eminbugrasaral@me.com>
 | Eran Rundstein <eranrund@gmail.com>
 | Eugene Kuznetsov <atorich@gmail.com>
