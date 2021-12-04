@@ -1,7 +1,7 @@
 from datetime import datetime
 
+import time_machine
 from django.test.testcases import TestCase
-from freezegun import freeze_time
 
 from tests.models import Status, StatusCustomManager, StatusPlainTuple
 
@@ -13,7 +13,7 @@ class StatusModelTests(TestCase):
         self.active = Status.STATUS.active
 
     def test_created(self):
-        with freeze_time(datetime(2016, 1, 1)):
+        with time_machine.travel(datetime(2016, 1, 1)):
             c1 = self.model.objects.create()
         self.assertTrue(c1.status_changed, datetime(2016, 1, 1))
 
@@ -43,10 +43,10 @@ class StatusModelTests(TestCase):
         accordingly when update_fields is used as an argument
         and status_changed is provided
         '''
-        with freeze_time(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1)):
             t1 = Status.objects.create()
 
-        with freeze_time(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2)):
             t1.status = Status.on_hold
             t1.save(update_fields=['status', 'status_changed'])
 
@@ -58,10 +58,10 @@ class StatusModelTests(TestCase):
         accordingly when update_fields is used as an argument
         with status and status_changed is not provided
         '''
-        with freeze_time(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1)):
             t1 = Status.objects.create()
 
-        with freeze_time(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2)):
             t1.status = Status.on_hold
             t1.save(update_fields=['status'])
 

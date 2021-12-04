@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 
+import time_machine
 from django.test import TestCase
-from freezegun import freeze_time
 
 from tests.models import TimeStamp, TimeStampWithStatusModel
 
 
 class TimeStampedModelTests(TestCase):
     def test_created(self):
-        with freeze_time(datetime(2016, 1, 1)):
+        with time_machine.travel(datetime(2016, 1, 1)):
             t1 = TimeStamp.objects.create()
         self.assertEqual(t1.created, datetime(2016, 1, 1))
 
@@ -20,10 +20,10 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, t1.modified)
 
     def test_modified(self):
-        with freeze_time(datetime(2016, 1, 1)):
+        with time_machine.travel(datetime(2016, 1, 1)):
             t1 = TimeStamp.objects.create()
 
-        with freeze_time(datetime(2016, 1, 2)):
+        with time_machine.travel(datetime(2016, 1, 2)):
             t1.save()
 
         self.assertEqual(t1.modified, datetime(2016, 1, 2))
@@ -104,10 +104,10 @@ class TimeStampedModelTests(TestCase):
 
         for update_fields in tests:
             with self.subTest(update_fields=update_fields):
-                with freeze_time(datetime(2020, 1, 1)):
+                with time_machine.travel(datetime(2020, 1, 1)):
                     t1 = TimeStamp.objects.create()
 
-                with freeze_time(datetime(2020, 1, 2)):
+                with time_machine.travel(datetime(2020, 1, 2)):
                     t1.save(update_fields=update_fields)
                 self.assertEqual(t1.modified, datetime(2020, 1, 2))
 
@@ -120,10 +120,10 @@ class TimeStampedModelTests(TestCase):
 
         for update_fields in tests:
             with self.subTest(update_fields=update_fields):
-                with freeze_time(datetime(2020, 1, 1)):
+                with time_machine.travel(datetime(2020, 1, 1)):
                     t1 = TimeStamp.objects.create()
 
-                with freeze_time(datetime(2020, 1, 2)):
+                with time_machine.travel(datetime(2020, 1, 2)):
                     t1.test_field = 1
                     t1.save(update_fields=update_fields)
 
@@ -132,19 +132,19 @@ class TimeStampedModelTests(TestCase):
                 self.assertEqual(t1.modified, datetime(2020, 1, 1))
 
     def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(self):
-        with freeze_time(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
 
-        with freeze_time(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2)):
             t1.save(update_fields=None)
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2))
 
     def test_model_inherit_timestampmodel_and_statusmodel(self):
-        with freeze_time(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1)):
             t1 = TimeStampWithStatusModel.objects.create()
 
-        with freeze_time(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2)):
             t1.save(update_fields=['test_field', 'status'])
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2))

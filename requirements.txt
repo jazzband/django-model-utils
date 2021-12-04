@@ -2,5 +2,5 @@
 
 tox
 sphinx
+time-machine
 twine
-freezegun
