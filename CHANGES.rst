@@ -4,6 +4,7 @@ Changelog
 Unreleased
 ----------
 
+- Confirm support for `Django 4.0`
 
 4.2.0 (2021-10-11)
 ------------------
