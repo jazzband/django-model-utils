@@ -47,6 +47,7 @@ setup(
         'Framework :: Django :: 2.2',
         'Framework :: Django :: 3.1',
         'Framework :: Django :: 3.2',
+        'Framework :: Django :: 4.0',
     ],
     zip_safe=False,
     tests_require=['Django>=2.2'],
