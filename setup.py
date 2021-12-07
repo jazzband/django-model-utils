@@ -29,7 +29,7 @@ setup(
     maintainer='JazzBand',
     url='https://github.com/jazzband/django-model-utils',
     packages=find_packages(exclude=['tests*']),
-    install_requires=['Django>=2.0.1'],
+    install_requires=['Django>=2.2'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
@@ -50,7 +50,6 @@ setup(
         'Framework :: Django :: 4.0',
     ],
     zip_safe=False,
-    tests_require=['Django>=2.2'],
     package_data={
         'model_utils': [
             'locale/*/LC_MESSAGES/django.po', 'locale/*/LC_MESSAGES/django.mo'
