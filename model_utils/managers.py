@@ -258,12 +258,15 @@ class SoftDeletableQuerySetMixin:
     its ``is_removed`` field to True.
     """
 
-    def delete(self):
+    def delete(self, soft=True):
         """
         Soft delete objects from queryset (set their ``is_removed``
         field to True)
         """
-        self.update(is_removed=True)
+        if soft:
+            self.update(is_removed=True)
+        else:
+            super().delete()
 
 
 class SoftDeletableQuerySet(SoftDeletableQuerySetMixin, QuerySet):
