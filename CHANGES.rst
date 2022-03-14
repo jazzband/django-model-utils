@@ -1,15 +1,60 @@
-CHANGES
-=======
+Changelog
+=========
 
-4.0.1 (unreleased)
+Unreleased
+----------
+
+- Confirm support for `Django 4.0`
+- Add Spanish translation
+- Add French translation
+
+4.2.0 (2021-10-11)
 ------------------
+
+- Add support for `Django 3.2`
+- Drop support for `Django 3.0`
+- Add support for `Python 3.10`
+- Added urlsafe token field.
+- Introduce context manager for FieldTracker state reset (GH-#491)
+- Fix performance regression of FieldTracker on FileField subclasses on Django 3.1+
+  (GH-#498)
+
+4.1.1 (2020-12-01)
+------------------
+
+- Applied `isort` to codebase (Refs GH-#402)
+- Fix `TypeError` in save when model inherits from both TimeStampModel
+  and StatusModel. (Fixes GH-465)
+
+4.1.0 (2020-11-29)
+------------------
+
+**Breaking changes:**
+
+- `FieldTracker` now marks fields as not changed after `refresh_from_db`
+  respecting `fields` argument (GH-#404)
+- `FieldTracker` now respects `update_fields` changed in overridden `save()`
+  method (GH-#404)
+- `FieldTracker` now resets states after `pre_save()` and not anymore `save()`
+  signals, possibly altering the behaviour of overridden `save()`
+  methods (GH-#404)
+
+**Other changes:**
+
+- Update InheritanceQuerySetMixin to avoid querying too much tables
 - TimeStampedModel now automatically adds 'modified' field as an update_fields
   parameter even if it is forgotten while using save()
-- `FieldTracker` now marks fields as not changed after `refresh_from_db`
-- `FieldTracker` now respects `update_fields` changed in overridden `save()`
-  method
 - Replace ugettext_lazy with gettext_lazy to satisfy Django deprecation warning
-- Add Spanish translation
+- Add available_objects manager to SoftDeletableModel and add deprecation
+  warning to objects manager.
+- StatusModel now automatically adds 'status_changed' field during save as an
+  update_fieldsparameter when 'status' is present in it to make sure it is not
+  forgotten.
+- Update test requirements
+- Move tests to GitHub Actions: https://github.com/jazzband/django-model-utils/actions
+- Drop support for `Django 2.1`
+- Add support for `Python 3.9`
+- Add support for `Django 3.1`
 
 4.0.0 (2019-12-11)
 ------------------

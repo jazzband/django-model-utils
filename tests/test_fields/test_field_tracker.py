@@ -1,13 +1,28 @@
 from unittest import skip
-from django.core.exceptions import FieldError
-from django.test import TestCase
+
 from django.core.cache import cache
+from django.core.exceptions import FieldError
+from django.db.models.fields.files import FieldFile
+from django.test import TestCase
+
 from model_utils import FieldTracker
 from model_utils.tracker import DescriptorWrapper
 from tests.models import (
-    Tracked, TrackedFK, InheritedTrackedFK, TrackedNotDefault, TrackedNonFieldAttr, TrackedMultiple,
-    InheritedTracked, TrackedFileField, TrackedAbstract, TrackerTimeStamped,
-    ModelTracked, ModelTrackedFK, ModelTrackedNotDefault, ModelTrackedMultiple, InheritedModelTracked,
+    InheritedModelTracked,
+    InheritedTracked,
+    InheritedTrackedFK,
+    ModelTracked,
+    ModelTrackedFK,
+    ModelTrackedMultiple,
+    ModelTrackedNotDefault,
+    Tracked,
+    TrackedAbstract,
+    TrackedFileField,
+    TrackedFK,
+    TrackedMultiple,
+    TrackedNonFieldAttr,
+    TrackedNotDefault,
+    TrackerTimeStamped,
 )
 
 
@@ -572,6 +587,25 @@ class FieldTrackerFileFieldTests(FieldTrackerTestCase):
         self.some_file = 'something.txt'
         self.another_file = 'another.txt'
 
+    def test_saved_data_without_instance(self):
+        """
+        Tests that instance won't get copied by the Field Tracker.
+
+        This change was introduced in Django 3.1 with
+        https://github.com/django/django/pull/12055
+        It results in a dramatic CPU and memory usage of FieldTracker on FileField and
+        its subclasses.
+        The pickling/deepcopying the instance is useless in the context of FieldTracker
+        thus we are skipping it.
+        """
+        self.assertEqual(self.tracker.saved_data, {})
+        self.update_instance(some_file=self.some_file)
+        field_file_copy = self.tracker.saved_data.get('some_file')
+        self.assertIsNotNone(field_file_copy)
+        self.assertEqual(field_file_copy.__getstate__().get('instance'), None)
+        self.assertEqual(self.instance.some_file.instance, self.instance)
+        self.assertIsInstance(self.instance.some_file, FieldFile)
+
     def test_pre_save_changed(self):
         self.assertChanged(some_file=None)
         self.instance.some_file = self.some_file
@@ -817,3 +851,76 @@ class InheritedModelTrackerTests(ModelTrackerTests):
 class AbstractModelTrackerTests(ModelTrackerTests):
 
     tracked_class = TrackedAbstract
+
+
+class TrackerContextDecoratorTests(TestCase):
+
+    def setUp(self):
+        self.instance = Tracked.objects.create(number=1)
+        self.tracker = self.instance.tracker
+
+    def assertChanged(self, *fields):
+        for f in fields:
+            self.assertTrue(self.tracker.has_changed(f))
+
+    def assertNotChanged(self, *fields):
+        for f in fields:
+            self.assertFalse(self.tracker.has_changed(f))
+
+    def test_context_manager(self):
+        with self.tracker:
+            with self.tracker:
+                self.instance.name = 'new'
+
+                self.assertChanged('name')
+
+            self.assertChanged('name')
+
+        self.assertNotChanged('name')
+
+    def test_context_manager_fields(self):
+        with self.tracker('number'):
+            with self.tracker('number', 'name'):
+                self.instance.name = 'new'
+                self.instance.number += 1
+
+                self.assertChanged('name', 'number')
+
+            self.assertChanged('number')
+            self.assertNotChanged('name')
+
+        self.assertNotChanged('number', 'name')
+
+    def test_tracker_decorator(self):
+
+        @Tracked.tracker
+        def tracked_method(obj):
+            obj.name = 'new'
+            self.assertChanged('name')
+
+        tracked_method(self.instance)
+
+        self.assertNotChanged('name')
+
+    def test_tracker_decorator_fields(self):
+
+        @Tracked.tracker(fields=['name'])
+        def tracked_method(obj):
+            obj.name = 'new'
+            obj.number += 1
+            self.assertChanged('name', 'number')
+
+        tracked_method(self.instance)
+
+        self.assertChanged('number')
+        self.assertNotChanged('name')
+
+    def test_tracker_context_with_save(self):
+
+        with self.tracker:
+            self.instance.name = 'new'
+            self.instance.save()
+
+            self.assertChanged('name')
+
+        self.assertNotChanged('name')

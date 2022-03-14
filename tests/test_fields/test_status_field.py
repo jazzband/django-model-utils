@@ -2,8 +2,10 @@ from django.test import TestCase
 
 from model_utils.fields import StatusField
 from tests.models import (
-    Article, StatusFieldDefaultFilled, StatusFieldDefaultNotFilled,
+    Article,
     StatusFieldChoicesName,
+    StatusFieldDefaultFilled,
+    StatusFieldDefaultNotFilled,
 )
 
 

@@ -83,9 +83,13 @@ returns objects with that status only:
 SoftDeletableModel
 ------------------
 
-This abstract base class just provides field ``is_removed`` which is
+This abstract base class just provides a field ``is_removed`` which is
 set to True instead of removing the instance. Entities returned in
-default manager are limited to not-deleted instances.
+manager ``available_objects`` are limited to not-deleted instances.
+
+Note that relying on the default ``objects`` manager to filter out not-deleted
+instances is deprecated. ``objects`` will include deleted objects in a future
+release.
 
 
 UUIDModel
@@ -94,7 +98,7 @@ UUIDModel
 This abstract base class provides ``id`` field on any model that inherits from it
 which will be the primary key.
 
-If you dont want to set ``id`` as primary key or change the field name, you can be override it
+If you dont want to set ``id`` as primary key or change the field name, you can override it
 with our `UUIDField`_
 
 Also you can override the default uuid version. Versions 1,3,4 and 5 are now supported.

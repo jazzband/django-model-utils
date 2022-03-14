@@ -1,11 +1,10 @@
-import django
+import warnings
+
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import connection
-from django.db import models
+from django.db import connection, models
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related import OneToOneField, OneToOneRel
-from django.db.models.query import ModelIterable
-from django.db.models.query import QuerySet
+from django.db.models.query import ModelIterable, QuerySet
 from django.db.models.sql.datastructures import Join
 
 
@@ -75,7 +74,10 @@ class InheritanceQuerySetMixin:
 
         # workaround https://code.djangoproject.com/ticket/16855
         previous_select_related = self.query.select_related
-        new_qs = self.select_related(*subclasses)
+        if subclasses:
+            new_qs = self.select_related(*subclasses)
+        else:
+            new_qs = self
         previous_is_dict = isinstance(previous_select_related, dict)
         new_is_dict = isinstance(new_qs.query.select_related, dict)
         if previous_is_dict and new_is_dict:
@@ -84,25 +86,21 @@ class InheritanceQuerySetMixin:
         return new_qs
 
     def _chain(self, **kwargs):
+        update = {}
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
-                kwargs[name] = getattr(self, name)
+                update[name] = getattr(self, name)
 
-        return super()._chain(**kwargs)
+        chained = super()._chain(**kwargs)
+        chained.__dict__.update(update)
+        return chained
 
     def _clone(self, klass=None, setup=False, **kwargs):
-        if django.VERSION >= (2, 0):
-            qs = super()._clone()
-            for name in ['subclasses', '_annotated']:
-                if hasattr(self, name):
-                    setattr(qs, name, getattr(self, name))
-            return qs
-
+        qs = super()._clone()
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
-                kwargs[name] = getattr(self, name)
-
-        return super()._clone(**kwargs)
+                setattr(qs, name, getattr(self, name))
+        return qs
 
     def annotate(self, *args, **kwargs):
         qset = super().annotate(*args, **kwargs)
@@ -279,10 +277,25 @@ class SoftDeletableManagerMixin:
     """
     _queryset_class = SoftDeletableQuerySet
 
+    def __init__(self, *args, _emit_deprecation_warnings=False, **kwargs):
+        self.emit_deprecation_warnings = _emit_deprecation_warnings
+        super().__init__(*args, **kwargs)
+
     def get_queryset(self):
         """
         Return queryset limited to not removed entries.
         """
+
+        if self.emit_deprecation_warnings:
+            warning_message = (
+                "{0}.objects model manager will include soft-deleted objects in an "
+                "upcoming release; please use {0}.available_objects to continue "
+                "excluding soft-deleted objects. See "
+                "https://django-model-utils.readthedocs.io/en/stable/models.html"
+                "#softdeletablemodel for more information."
+            ).format(self.model.__class__.__name__)
+            warnings.warn(warning_message, DeprecationWarning)
+
         kwargs = {'model': self.model, 'using': self._db}
         if hasattr(self, '_hints'):
             kwargs['hints'] = self._hints

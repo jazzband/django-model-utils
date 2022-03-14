@@ -47,7 +47,7 @@ Translations
 If you are able to provide translations for a new language or to update an
 existing translation file, make sure to run makemessages beforehand::
 
-    python django-admin.py makemessages -l ISO_LANGUAGE_CODE
+    python django-admin makemessages -l ISO_LANGUAGE_CODE
 
 This command will collect all translation strings from the source directory
 and create or update the translation file for the given language. Now open the
@@ -76,3 +76,13 @@ To run tox and generate a coverage report (in ``htmlcov`` directory)::
 
 **Please note**: Before a pull request can be merged, all tests must pass and
 code/branch coverage in tests must be 100%.
+
+Code Formatting
+---------------
+We make use of `isort`_ to sort imports.
+
+.. _isort: https://pycqa.github.io/isort/
+
+Once it is installed you can make sure the code is properly formatted by running::
+
+    make format

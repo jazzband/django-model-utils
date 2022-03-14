@@ -1,14 +1,10 @@
-from unittest import skipIf
-
-import django
-from django.test import TestCase
 from django.db.models import Prefetch
+from django.test import TestCase
 
-from tests.models import InheritanceManagerTestParent, InheritanceManagerTestChild1
+from tests.models import InheritanceManagerTestChild1, InheritanceManagerTestParent
 
 
 class InheritanceIterableTest(TestCase):
-    @skipIf(django.VERSION[:2] == (1, 10), "Django 1.10 expects ModelIterable not a subclass of it")
     def test_prefetch(self):
         qs = InheritanceManagerTestChild1.objects.all().prefetch_related(
             Prefetch(
@@ -17,4 +13,4 @@ class InheritanceIterableTest(TestCase):
                 to_attr='normal_field_prefetched'
             )
         )
-        self.assertEquals(qs.count(), 0)
+        self.assertEqual(qs.count(), 0)

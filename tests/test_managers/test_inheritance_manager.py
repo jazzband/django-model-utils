@@ -2,11 +2,15 @@ from django.db import models
 from django.test import TestCase
 
 from tests.models import (
-    InheritanceManagerTestRelated, InheritanceManagerTestGrandChild1,
-    InheritanceManagerTestGrandChild1_2, InheritanceManagerTestParent,
     InheritanceManagerTestChild1,
-    InheritanceManagerTestChild2, TimeFrame, InheritanceManagerTestChild3,
+    InheritanceManagerTestChild2,
+    InheritanceManagerTestChild3,
     InheritanceManagerTestChild4,
+    InheritanceManagerTestGrandChild1,
+    InheritanceManagerTestGrandChild1_2,
+    InheritanceManagerTestParent,
+    InheritanceManagerTestRelated,
+    TimeFrame,
 )
 
 
@@ -44,7 +48,7 @@ class InheritanceManagerTests(TestCase):
         raise an AttributeError further in.
         """
         regex = '^.+? is not in the discovered subclasses, tried:.+$'
-        with self.assertRaisesRegexp(ValueError, regex):
+        with self.assertRaisesRegex(ValueError, regex):
             self.get_manager().select_subclasses('user')
 
     def test_select_specific_subclasses(self):
@@ -306,7 +310,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         Confirming that giving a stupid model doesn't work.
         """
         regex = '^.+? is not a subclass of .+$'
-        with self.assertRaisesRegexp(ValueError, regex):
+        with self.assertRaisesRegex(ValueError, regex):
             InheritanceManagerTestParent.objects.select_subclasses(
                 TimeFrame).order_by('pk')
 
@@ -486,6 +490,14 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
             InheritanceManagerTestParent.objects.select_subclasses().get(
                 id=self.child1.id),
             self.child1)
+
+    def test_get_method_with_select_subclasses_check_for_useless_join(self):
+        child4 = InheritanceManagerTestChild4.objects.create(related=self.related, other_onetoone=self.child1)
+        self.assertEqual(
+            str(InheritanceManagerTestChild4.objects.select_subclasses().filter(
+                id=child4.id).query),
+            str(InheritanceManagerTestChild4.objects.select_subclasses().select_related(None).filter(
+                id=child4.id).query))
 
     def test_annotate_with_select_subclasses(self):
         qs = InheritanceManagerTestParent.objects.select_subclasses().annotate(
