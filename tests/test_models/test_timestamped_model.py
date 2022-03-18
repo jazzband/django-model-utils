@@ -30,10 +30,10 @@ class TimeStampedModelTests(TestCase):
 
     def test_modified_is_not_cached(self):
         with freeze_time(datetime(2016, 1, 1)):
-            t1 = TimeStamp.objects.create()
+            t1 = TimeStamp()
 
         with freeze_time(datetime(2017, 1, 1)):
-            t2 = TimeStamp.objects.create()
+            t2 = TimeStamp()
 
         self.assertNotEqual(t1.modified, t2.modified)
 
