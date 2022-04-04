@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import time_machine
 from django.test import TestCase
@@ -9,7 +9,7 @@ from tests.models import DoubleMonitored, Monitored, MonitorWhen, MonitorWhenEmp
 
 class MonitorFieldTests(TestCase):
     def setUp(self):
-        with time_machine.travel(datetime(2016, 1, 1, 10, 0, 0)):
+        with time_machine.travel(datetime(2016, 1, 1, 10, 0, 0, tzinfo=timezone.utc)):
             self.instance = Monitored(name='Charlie')
             self.created = self.instance.name_changed
 
@@ -18,10 +18,10 @@ class MonitorFieldTests(TestCase):
         self.assertEqual(self.instance.name_changed, self.created)
 
     def test_save_changed(self):
-        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0)):
+        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc)):
             self.instance.name = 'Maria'
             self.instance.save()
-        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0))
+        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
 
     def test_double_save(self):
         self.instance.name = 'Jose'
@@ -40,7 +40,7 @@ class MonitorWhenFieldTests(TestCase):
     Will record changes only when name is 'Jose' or 'Maria'
     """
     def setUp(self):
-        with time_machine.travel(datetime(2016, 1, 1, 10, 0, 0)):
+        with time_machine.travel(datetime(2016, 1, 1, 10, 0, 0, tzinfo=timezone.utc)):
             self.instance = MonitorWhen(name='Charlie')
             self.created = self.instance.name_changed
 
@@ -49,16 +49,16 @@ class MonitorWhenFieldTests(TestCase):
         self.assertEqual(self.instance.name_changed, self.created)
 
     def test_save_changed_to_Jose(self):
-        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0)):
+        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc)):
             self.instance.name = 'Jose'
             self.instance.save()
-        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0))
+        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
 
     def test_save_changed_to_Maria(self):
-        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0)):
+        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc)):
             self.instance.name = 'Maria'
             self.instance.save()
-        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0))
+        self.assertEqual(self.instance.name_changed, datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
 
     def test_save_changed_to_Pedro(self):
         self.instance.name = 'Pedro'
@@ -111,7 +111,7 @@ class MonitorDoubleFieldTests(TestCase):
 
     def test_monitor_still_works_with_deferred_fields_filtered_out_of_save_initial(self):
         obj = DoubleMonitored.objects.defer('name').get(name='Charlie')
-        with time_machine.travel("2016-12-01"):
+        with time_machine.travel(datetime(2016, 12, 1, tzinfo=timezone.utc)):
             obj.name = 'Charlie2'
             obj.save()
-        self.assertEqual(obj.name_changed, datetime(2016, 12, 1))
+        self.assertEqual(obj.name_changed, datetime(2016, 12, 1, tzinfo=timezone.utc))

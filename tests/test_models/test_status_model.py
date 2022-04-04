@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import time_machine
 from django.test.testcases import TestCase
@@ -43,14 +43,14 @@ class StatusModelTests(TestCase):
         accordingly when update_fields is used as an argument
         and status_changed is provided
         '''
-        with time_machine.travel(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
             t1 = Status.objects.create()
 
-        with time_machine.travel(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
             t1.status = Status.on_hold
             t1.save(update_fields=['status', 'status_changed'])
 
-        self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
+        self.assertEqual(t1.status_changed, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
     def test_save_with_update_fields_overrides_status_changed_not_provided(self):
         '''
@@ -58,14 +58,14 @@ class StatusModelTests(TestCase):
         accordingly when update_fields is used as an argument
         with status and status_changed is not provided
         '''
-        with time_machine.travel(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
             t1 = Status.objects.create()
 
-        with time_machine.travel(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
             t1.status = Status.on_hold
             t1.save(update_fields=['status'])
 
-        self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
+        self.assertEqual(t1.status_changed, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
 
 class StatusModelPlainTupleTests(StatusModelTests):
