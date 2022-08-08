@@ -7,7 +7,7 @@ repos:
         files: ^((model_utils|tests)/)|setup.py
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.2
+    rev: 5.0.4
     hooks:
       - id: flake8
         args: ['--ignore=E402,E501,E731,W503']
