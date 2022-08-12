@@ -5,6 +5,7 @@ from collections.abc import Callable
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.timezone import now
 
 DEFAULT_CHOICES_NAME = 'STATUS'
@@ -34,9 +35,13 @@ class AutoLastModifiedField(AutoCreatedField):
     """
     def get_default(self):
         """Return the default value for this field."""
-        if not hasattr(self, "_default"):
-            self._default = self._get_default()
-        return self._default
+        return self._get_default()
+
+    @cached_property
+    def _get_default(self):
+        if callable(self.default):
+            return self.default
+        return lambda: self.default
 
     def pre_save(self, model_instance, add):
         value = now()

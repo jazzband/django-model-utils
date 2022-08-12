@@ -28,6 +28,15 @@ class TimeStampedModelTests(TestCase):
 
         self.assertEqual(t1.modified, datetime(2016, 1, 2))
 
+    def test_modified_is_not_cached(self):
+        with freeze_time(datetime(2016, 1, 1)):
+            t1 = TimeStamp()
+
+        with freeze_time(datetime(2017, 1, 1)):
+            t2 = TimeStamp()
+
+        self.assertNotEqual(t1.modified, t2.modified)
+
     def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(self):
         """
         Setting the created date when first creating an object
