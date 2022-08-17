@@ -29,7 +29,7 @@ setup(
     maintainer='JazzBand',
     url='https://github.com/jazzband/django-model-utils',
     packages=find_packages(exclude=['tests*']),
-    install_requires=['Django>=2.2'],
+    install_requires=['Django>=3.2'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
@@ -44,8 +44,6 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Framework :: Django',
-        'Framework :: Django :: 2.2',
-        'Framework :: Django :: 3.1',
         'Framework :: Django :: 3.2',
         'Framework :: Django :: 4.0',
     ],
