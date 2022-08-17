@@ -9,6 +9,7 @@ Unreleased
 - Add French translation
 - Drop Django 1.7 workaround from `select_subclasses()`
 - Drop support for `Django < 3.2`
+- Drop support for `Python 3.6`
 
 4.2.0 (2021-10-11)
 ------------------

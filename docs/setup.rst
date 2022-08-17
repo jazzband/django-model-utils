@@ -18,6 +18,6 @@ Dependencies
 ============
 
 ``django-model-utils`` supports `Django`_ 3.2+ (latest bugfix
-release in each series only) on Python 3.6+.
+release in each series only) on Python 3.7+.
 
 .. _Django: http://www.djangoproject.com/
