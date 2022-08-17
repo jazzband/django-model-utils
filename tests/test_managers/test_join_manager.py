@@ -6,7 +6,7 @@ from tests.models import BoxJoinModel, JoinItemForeignKey
 class JoinManagerTest(TestCase):
     def setUp(self):
         for i in range(20):
-            BoxJoinModel.objects.create(name='name_{i}'.format(i=i))
+            BoxJoinModel.objects.create(name=f'name_{i}')
 
         JoinItemForeignKey.objects.create(
             weight=10, belonging=BoxJoinModel.objects.get(name='name_1')

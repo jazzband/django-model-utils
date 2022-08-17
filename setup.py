@@ -8,7 +8,7 @@ def long_desc(root_path):
     for filename in FILES:
         filepath = os.path.realpath(os.path.join(root_path, filename))
         if os.path.isfile(filepath):
-            with open(filepath, mode='r') as f:
+            with open(filepath) as f:
                 yield f.read()
 
 
