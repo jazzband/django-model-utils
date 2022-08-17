@@ -185,7 +185,7 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
         """
         Fetch only objects that are instances of the provided model(s).
         """
-        # If we aren't already selecting the subclasess, we need
+        # If we aren't already selecting the subclasses, we need
         # to in order to get this to work.
 
         # How can we tell if we are not selecting subclasses?
@@ -331,7 +331,7 @@ class JoinQueryset(models.QuerySet):
         to itself.
 
         `Join` either uses the current queryset and effectively does a self-join to
-        create a new limited queryset OR it uses a querset given by the user.
+        create a new limited queryset OR it uses a queryset given by the user.
 
         The model of a given queryset needs to contain a valid foreign key to
         the current queryset to perform a join. A new queryset is then created.

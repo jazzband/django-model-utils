@@ -14,7 +14,7 @@ class TimeStampedModelTests(TestCase):
 
     def test_created_sets_modified(self):
         '''
-        Ensure that on creation that modifed is set exactly equal to created.
+        Ensure that on creation that modified is set exactly equal to created.
         '''
         t1 = TimeStamp.objects.create()
         self.assertEqual(t1.created, t1.modified)
@@ -31,7 +31,7 @@ class TimeStampedModelTests(TestCase):
     def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(self):
         """
         Setting the created date when first creating an object
-        should be permissable.
+        should be permissible.
         """
         different_date = datetime.today() - timedelta(weeks=52)
         t1 = TimeStamp.objects.create(created=different_date)

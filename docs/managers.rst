@@ -6,7 +6,7 @@ InheritanceManager
 
 This manager (`contributed by Jeff Elmore`_) should be attached to a base model
 class in a model-inheritance tree.  It allows queries on that base model to
-return heterogenous results of the actual proper subtypes, without any
+return heterogeneous results of the actual proper subtypes, without any
 additional queries.
 
 For instance, if you have a ``Place`` model with subclasses ``Restaurant`` and
