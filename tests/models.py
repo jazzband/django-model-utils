@@ -1,4 +1,3 @@
-import django
 from django.db import models
 from django.db.models import Manager
 from django.db.models.query_utils import DeferredAttribute
@@ -387,13 +386,9 @@ class StringyDescriptor:
             return self
         if self.name in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
-            if django.VERSION < (3, 0):
-                DeferredAttribute(field_name=self.name).__get__(obj, cls)
-            else:
-                # Since Django 3.0, DeferredAttribute wants a field argument.
-                fields_map = {f.name: f for f in cls._meta.fields}
-                field = fields_map[self.name]
-                DeferredAttribute(field=field).__get__(obj, cls)
+            fields_map = {f.name: f for f in cls._meta.fields}
+            field = fields_map[self.name]
+            DeferredAttribute(field=field).__get__(obj, cls)
         return str(obj.__dict__[self.name])
 
     def __set__(self, obj, value):

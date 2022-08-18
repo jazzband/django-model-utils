@@ -12,3 +12,9 @@ repos:
       - id: flake8
         args: ['--ignore=E402,E501,E731,W503']
         files: ^(model_utils|tests)/
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.3
+    hooks:
+    -   id: pyupgrade
+        args: [--py37-plus]

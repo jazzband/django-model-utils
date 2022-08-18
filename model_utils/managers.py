@@ -139,7 +139,7 @@ class InheritanceQuerySetMixin:
         """
         if not issubclass(model, self.model):
             raise ValueError(
-                "{!r} is not a subclass of {!r}".format(model, self.model))
+                f"{model!r} is not a subclass of {self.model!r}")
 
         ancestry = []
         # should be a OneToOneField or None
@@ -308,7 +308,7 @@ class JoinQueryset(models.QuerySet):
 
         # Put additional quotes around string.
         params = [
-            '\'{}\''.format(p)
+            f'\'{p}\''
             if isinstance(p, str) else p
             for p in params
         ]
@@ -338,7 +338,7 @@ class JoinQueryset(models.QuerySet):
                 if getattr(fk, 'related_model', None) == self.model
             ]
             fk = fk[0] if fk else None
-            model_set = '{}_set'.format(self.model.__name__.lower())
+            model_set = f'{self.model.__name__.lower()}_set'
             key = fk or getattr(qs.model, model_set, None)
 
             if not key:
