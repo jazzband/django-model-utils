@@ -22,7 +22,7 @@ Django model mixins and utilities.
 
 ``django-model-utils`` supports `Django`_ 3.2+.
 
-.. _Django: http://www.djangoproject.com/
+.. _Django: https://www.djangoproject.com/
 
 This app is available on `PyPI`_.
 
