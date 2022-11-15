@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Unreleased
+4.3.0 (2022-11-15)
 ----------
 
 - Confirm support for `Django 4.0`
