@@ -11,6 +11,7 @@ Changelog
 - Drop support for `Django < 3.2`
 - Drop support for `Python 3.6`
 - Confirm support for `Django 4.1`
+- Add support for `Python 3.11` (GH-#545)
 
 4.3.0
 -----
