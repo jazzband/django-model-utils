@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.3.0 (2022-11-15)
-----------
+4.3.1 (2022-11-15)
+------------------
 
 - Confirm support for `Django 4.0`
 - Add Spanish translation
@@ -11,6 +11,11 @@ Changelog
 - Drop support for `Django < 3.2`
 - Drop support for `Python 3.6`
 - Confirm support for `Django 4.1`
+
+4.3.0
+-----
+
+- Never released due to packaging issues.
 
 4.2.0 (2021-10-11)
 ------------------
