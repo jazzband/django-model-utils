@@ -371,7 +371,7 @@ like in example above, but does not help when model ``save`` method is overridde
 
     class MyModel(models.Model)
         name = models.CharField(max_length=64)
-        tracker = FieldsTracker()
+        tracker = FieldTracker()
 
         def save(self):  # erroneous implementation
             self.name = self.name.replace(' ', '_')
