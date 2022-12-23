@@ -1,3 +1,4 @@
+from typing import Optional, Type
 import warnings
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,6 +7,11 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import ModelIterable, QuerySet
 from django.db.models.sql.datastructures import Join
+
+try:
+    from typing import Self
+except ImportError:
+    from typing import Any as Self
 
 
 class InheritanceIterable(ModelIterable):
@@ -43,7 +49,7 @@ class InheritanceQuerySetMixin:
         super().__init__(*args, **kwargs)
         self._iterable_class = InheritanceIterable
 
-    def select_subclasses(self, *subclasses):
+    def select_subclasses(self, *subclasses)-> QuerySet:
         levels = None
         calculated_subclasses = self._get_subclasses_recurse(
             self.model, levels=levels)
@@ -170,12 +176,12 @@ class InheritanceQuerySetMixin:
         else:
             return node
 
-    def get_subclass(self, *args, **kwargs):
+    def get_subclass(self, *args, **kwargs)-> Optional[models.Model]:
         return self.select_subclasses().get(*args, **kwargs)
 
 
 class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
-    def instance_of(self, *models):
+    def instance_of(self, *models: Type[models.Model]) -> QuerySet:
         """
         Fetch only objects that are instances of the provided model(s).
         """
@@ -204,16 +210,16 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
 class InheritanceManagerMixin:
     _queryset_class = InheritanceQuerySet
 
-    def get_queryset(self):
+    def get_queryset(self) -> InheritanceQuerySet:
         return self._queryset_class(self.model)
 
-    def select_subclasses(self, *subclasses):
+    def select_subclasses(self, *subclasses: Type[models.Model]) -> QuerySet:
         return self.get_queryset().select_subclasses(*subclasses)
 
-    def get_subclass(self, *args, **kwargs):
+    def get_subclass(self, *args: Type[models.Model], **kwargs) -> Optional[models.Model]:
         return self.get_queryset().get_subclass(*args, **kwargs)
 
-    def instance_of(self, *models):
+    def instance_of(self, *models: Type[models.Model]) -> QuerySet:
         return self.get_queryset().instance_of(*models)
 
 
@@ -231,11 +237,11 @@ class QueryManagerMixin:
         self._order_by = None
         super().__init__()
 
-    def order_by(self, *args):
+    def order_by(self, *args) -> Self:
         self._order_by = args
         return self
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         qs = super().get_queryset().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
@@ -252,7 +258,7 @@ class SoftDeletableQuerySetMixin:
     its ``is_removed`` field to True.
     """
 
-    def delete(self):
+    def delete(self) -> None:
         """
         Soft delete objects from queryset (set their ``is_removed``
         field to True)
@@ -275,7 +281,7 @@ class SoftDeletableManagerMixin:
         self.emit_deprecation_warnings = _emit_deprecation_warnings
         super().__init__(*args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         """
         Return queryset limited to not removed entries.
         """
@@ -318,7 +324,7 @@ class JoinQueryset(models.QuerySet):
         params = tuple(params)
         return query % params
 
-    def join(self, qs=None):
+    def join(self, qs=None) -> QuerySet:
         '''
         Join one queryset together with another using a temporary table. If
         no queryset is used, it will use the current queryset and join that

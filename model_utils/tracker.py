@@ -1,5 +1,6 @@
 from copy import deepcopy
 from functools import wraps
+from typing import Any, Dict, Sequence
 
 from django.core.exceptions import FieldError
 from django.db import models
@@ -204,10 +205,10 @@ class FieldInstanceTracker:
     def deferred_fields(self):
         return self.instance.get_deferred_fields()
 
-    def get_field_value(self, field):
+    def get_field_value(self, field: str):
         return getattr(self.instance, self.field_map[field])
 
-    def set_saved_fields(self, fields=None):
+    def set_saved_fields(self, fields: Sequence[str]=None) -> None:
         if not self.instance.pk:
             self.saved_data = {}
         elif fields is None:
@@ -219,7 +220,7 @@ class FieldInstanceTracker:
         for field, field_value in self.saved_data.items():
             self.saved_data[field] = lightweight_deepcopy(field_value)
 
-    def current(self, fields=None):
+    def current(self, fields: Sequence[str]=None) -> Dict[str, Any]:
         """Returns dict of current values for all tracked fields"""
         if fields is None:
             deferred_fields = self.deferred_fields
@@ -233,7 +234,7 @@ class FieldInstanceTracker:
 
         return {f: self.get_field_value(f) for f in fields}
 
-    def has_changed(self, field):
+    def has_changed(self, field: str) -> bool:
         """Returns ``True`` if field has changed from currently saved value"""
         if field in self.fields:
             # deferred fields haven't changed
@@ -243,7 +244,7 @@ class FieldInstanceTracker:
         else:
             raise FieldError('field "%s" not tracked' % field)
 
-    def previous(self, field):
+    def previous(self, field: str):
         """Returns currently saved value of given field"""
 
         # handle deferred fields that have not yet been loaded from the database
@@ -263,7 +264,7 @@ class FieldInstanceTracker:
 
         return self.saved_data.get(field)
 
-    def changed(self):
+    def changed(self) -> Dict[str, Any]:
         """Returns dict of fields that changed since save (with old values)"""
         return {
             field: self.previous(field)
@@ -385,7 +386,7 @@ class FieldTracker:
 
 class ModelInstanceTracker(FieldInstanceTracker):
 
-    def has_changed(self, field):
+    def has_changed(self, field) -> bool:
         """Returns ``True`` if field has changed from currently saved value"""
         if not self.instance.pk:
             return True
@@ -394,7 +395,7 @@ class ModelInstanceTracker(FieldInstanceTracker):
         else:
             raise FieldError('field "%s" not tracked' % field)
 
-    def changed(self):
+    def changed(self) -> Dict[str, Any]:
         """Returns dict of fields that changed since save (with old values)"""
         if not self.instance.pk:
             return {}

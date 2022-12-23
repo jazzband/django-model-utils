@@ -1,3 +1,4 @@
+from typing import Sequence
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models, router, transaction
 from django.db.models.functions import Now
@@ -192,8 +193,8 @@ class SaveSignalHandlingModel(models.Model):
 
         super().save(*args, **kwargs)
 
-    def save_base(self, raw=False, force_insert=False,
-                  force_update=False, using=None, update_fields=None):
+    def save_base(self, raw: bool=False, force_insert: bool=False,
+                  force_update: bool=False, using=None, update_fields: Sequence[str]=None):
         """
         Copied from base class for a minor change.
         This is an ugly overwriting but since Django's ``save_base`` method
