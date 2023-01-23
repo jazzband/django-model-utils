@@ -51,7 +51,9 @@ setup(
     zip_safe=False,
     package_data={
         'model_utils': [
-            'locale/*/LC_MESSAGES/django.po', 'locale/*/LC_MESSAGES/django.mo'
+            'locale/*/LC_MESSAGES/django.po',
+            'locale/*/LC_MESSAGES/django.mo',
+            'py.typed',
         ],
     },
 )
