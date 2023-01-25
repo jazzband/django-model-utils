@@ -249,7 +249,7 @@ Changelog
   for the report.  Thanks Matthew Schinckel for the fix.  Merge of GH-130,
   fixes GH-83.
 
-.. _IPython: http://ipython.org/
+.. _IPython: https://ipython.org/
 
 
 2.0.3 (2014.03.19)
