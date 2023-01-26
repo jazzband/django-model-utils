@@ -539,7 +539,7 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
 
 
 class FieldTrackerForeignKeyPrefetchRelatedTests(FieldTrackerTestCase):
-    """Test that using `prefetch_related` on a tracked field does raise a ValueError."""
+    """Test that using `prefetch_related` on a tracked field does not raise a ValueError."""
 
     fk_class = Tracked
     tracked_class = TrackedFK
