@@ -15,6 +15,7 @@ from tests.models import (
     ModelTrackedFK,
     ModelTrackedMultiple,
     ModelTrackedNotDefault,
+    ModelTrackedPrefetchRelatedFK,
     Tracked,
     TrackedAbstract,
     TrackedFileField,
@@ -536,6 +537,29 @@ class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
         self.assertChanged(fk=self.old_fk.id)
         self.assertPrevious(fk=self.old_fk.id)
         self.assertCurrent(fk=self.instance.fk_id)
+
+
+class ModelTrackedPrefetchRelatedFKTests(FieldTrackerTestCase):
+    """Test that using `prefetch_related` on a tracked field does raise a ValueError."""
+
+    tracked_class = ModelTrackedPrefetchRelatedFK
+
+    def setUp(self):
+        model_tracked = ModelTracked.objects.create(name="", number=0)
+        model_tracked_fk = ModelTrackedFK.objects.create(fk=model_tracked)
+        self.instance = ModelTrackedPrefetchRelatedFK.objects.create(fk=model_tracked_fk)
+
+    def test_default(self):
+        self.tracker = self.instance.tracker
+        self.assertIsNotNone(list(self.tracked_class.objects.prefetch_related("fk__fk")))
+
+    def test_custom(self):
+        self.tracker = self.instance.custom_tracker
+        self.assertIsNotNone(list(self.tracked_class.objects.prefetch_related("fk__fk")))
+
+    def test_custom_without_id(self):
+        self.tracker = self.instance.custom_tracker_without_id
+        self.assertIsNotNone(list(self.tracked_class.objects.prefetch_related("fk__fk")))
 
 
 class FieldTrackerTimeStampedTests(FieldTrackerTestCase):

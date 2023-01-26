@@ -324,6 +324,14 @@ class ModelTrackedFK(models.Model):
     custom_tracker_without_id = ModelTracker(fields=['fk'])
 
 
+class ModelTrackedPrefetchRelatedFK(models.Model):
+    fk = models.ForeignKey('ModelTrackedFK', on_delete=models.CASCADE)
+
+    tracker = ModelTracked()
+    custom_tracker = ModelTracker(fields=['fk_id'])
+    custom_tracker_without_id = ModelTracker(fields=['fk'])
+
+
 class ModelTrackedNotDefault(models.Model):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
