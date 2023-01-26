@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.3.2
+-----
+- Fix `ValueError` when calling `prefetch_related` for tracked `ForeignKey` fields (Fixes GH-433)
+
 4.3.1 (2022-11-15)
 ------------------
 
