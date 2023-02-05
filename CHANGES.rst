@@ -1,10 +1,15 @@
 Changelog
 =========
 
+4.5.0
+-----
+
+- Don't use `post_init` signal for initialize tracker
+
 4.4.0 (2024-02-10)
 ------------------
 
-- Add support for `Python 3.11` 
+- Add support for `Python 3.11`
 - Add support for `Python 3.12`
 - Drop support for `Python 3.7`
 - Add support for `Django 4.2`
