@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import warnings
 
 from django.core.exceptions import ObjectDoesNotExist
