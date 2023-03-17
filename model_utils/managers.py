@@ -89,7 +89,7 @@ class InheritanceQuerySetMixin:
         chained.__dict__.update(update)
         return chained
 
-    def _clone(self, klass=None, setup=False, **kwargs):
+    def _clone(self):
         qs = super()._clone()
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
