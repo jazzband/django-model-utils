@@ -156,6 +156,7 @@ class SoftDeletableModel(models.Model):
         if soft:
             self.is_removed = True
             self.save(using=using)
+            return (0, {})  # no objects were actually deleted
         else:
             return super().delete(using=using, *args, **kwargs)
 

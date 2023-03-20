@@ -260,6 +260,7 @@ class SoftDeletableQuerySetMixin:
         field to True)
         """
         self.update(is_removed=True)
+        return (0, {})  # no objects were actually deleted
 
 
 class SoftDeletableQuerySet(SoftDeletableQuerySetMixin, QuerySet):
