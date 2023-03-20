@@ -347,7 +347,7 @@ class UrlsafeTokenField(models.CharField):
         """
 
         if factory is not None and not isinstance(factory, Callable):
-            raise TypeError("'factory' should either be a callable not 'None'")
+            raise TypeError("'factory' should either be a callable or 'None'")
         self._factory = factory
 
         kwargs.pop('default', None)  # passing default value has not effect.
