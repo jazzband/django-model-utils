@@ -12,6 +12,7 @@ To be released
 - Make `contribute_to_class()` in `StatusField`, `MonitorField` and `SplitField`
   forward additional arguments to Django
 - `SplitField` no longer accepts `no_excerpt_field` as a keyword argument
+- Make `soft` argument to `SoftDeletableModel.delete()` keyword-only
 
 4.4.0 (2024-02-10)
 ------------------

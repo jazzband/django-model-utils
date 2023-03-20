@@ -146,7 +146,7 @@ class SoftDeletableModel(models.Model):
     available_objects = SoftDeletableManager()
     all_objects = models.Manager()
 
-    def delete(self, using=None, soft=True, *args, **kwargs):
+    def delete(self, using=None, *args, soft=True, **kwargs):
         """
         Soft delete object (set its ``is_removed`` field to True).
         Actually delete object if setting ``soft`` to False.
@@ -155,7 +155,7 @@ class SoftDeletableModel(models.Model):
             self.is_removed = True
             self.save(using=using)
         else:
-            return super().delete(using=using, *args, **kwargs)
+            return super().delete(using, *args, **kwargs)
 
 
 class UUIDModel(models.Model):
