@@ -1,7 +1,6 @@
 import secrets
 import uuid
 import warnings
-from collections.abc import Callable
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -346,7 +345,7 @@ class UrlsafeTokenField(models.CharField):
             non-callable value for factory is not supported.
         """
 
-        if factory is not None and not isinstance(factory, Callable):
+        if factory is not None and not callable(factory):
             raise TypeError("'factory' should either be a callable or 'None'")
         self._factory = factory
 
