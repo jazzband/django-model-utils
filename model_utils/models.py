@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, Literal, TypeVar, overload
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.functions import Now
@@ -14,6 +16,8 @@ from model_utils.fields import (
 )
 from model_utils.managers import QueryManager, SoftDeletableManager
 
+ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
+
 now = Now()
 
 
@@ -26,7 +30,7 @@ class TimeStampedModel(models.Model):
     created = AutoCreatedField(_('created'))
     modified = AutoLastModifiedField(_('modified'))
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Overriding the save method in order to make sure that
         modified field is updated even if it is not given as
@@ -67,7 +71,7 @@ class StatusModel(models.Model):
     status = StatusField(_('status'))
     status_changed = MonitorField(_('status changed'), monitor='status')
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Overriding the save method in order to make sure that
         status_changed field is updated even if it is not given as
@@ -83,7 +87,7 @@ class StatusModel(models.Model):
         abstract = True
 
 
-def add_status_query_managers(sender, **kwargs):
+def add_status_query_managers(sender: type[models.Model], **kwargs: Any) -> None:
     """
     Add a Querymanager for each status item dynamically.
 
@@ -92,6 +96,7 @@ def add_status_query_managers(sender, **kwargs):
         return
 
     default_manager = sender._meta.default_manager
+    assert default_manager is not None
 
     for value, display in getattr(sender, 'STATUS', ()):
         if _field_exists(sender, value):
@@ -105,7 +110,7 @@ def add_status_query_managers(sender, **kwargs):
     sender._meta.default_manager_name = default_manager.name
 
 
-def add_timeframed_query_manager(sender, **kwargs):
+def add_timeframed_query_manager(sender: type[models.Model], **kwargs: Any) -> None:
     """
     Add a QueryManager for a specific timeframe.
 
@@ -128,7 +133,7 @@ models.signals.class_prepared.connect(add_status_query_managers)
 models.signals.class_prepared.connect(add_timeframed_query_manager)
 
 
-def _field_exists(model_class, field_name):
+def _field_exists(model_class: type[models.Model], field_name: str) -> bool:
     return field_name in [f.attname for f in model_class._meta.local_fields]
 
 
@@ -144,11 +149,28 @@ class SoftDeletableModel(models.Model):
     class Meta:
         abstract = True
 
-    objects = SoftDeletableManager(_emit_deprecation_warnings=True)
-    available_objects = SoftDeletableManager()
+    objects: models.Manager[SoftDeletableModel] = SoftDeletableManager(_emit_deprecation_warnings=True)
+    available_objects: models.Manager[SoftDeletableModel] = SoftDeletableManager()
     all_objects = models.Manager()
 
-    def delete(self, using=None, *args, soft=True, **kwargs):
+    # Note that soft delete does not return anything,
+    # which doesn't conform to Django's interface.
+    # https://github.com/jazzband/django-model-utils/issues/541
+    @overload  # type: ignore[override]
+    def delete(
+        self, using: Any = None, *args: Any, soft: Literal[True] = True, **kwargs: Any
+    ) -> None:
+        ...
+
+    @overload
+    def delete(
+        self, using: Any = None, *args: Any, soft: Literal[False], **kwargs: Any
+    ) -> tuple[int, dict[str, int]]:
+        ...
+
+    def delete(
+        self, using: Any = None, *args: Any, soft: bool = True, **kwargs: Any
+    ) -> tuple[int, dict[str, int]] | None:
         """
         Soft delete object (set its ``is_removed`` field to True).
         Actually delete object if setting ``soft`` to False.
@@ -156,6 +178,7 @@ class SoftDeletableModel(models.Model):
         if soft:
             self.is_removed = True
             self.save(using=using)
+            return None
         else:
             return super().delete(using, *args, **kwargs)
 
