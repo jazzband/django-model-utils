@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase

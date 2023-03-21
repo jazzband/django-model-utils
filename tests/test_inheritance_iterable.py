@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db.models import Prefetch
 from django.test import TestCase
 
