@@ -870,7 +870,7 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.assertTrue(self.tracker.has_changed('name2'))
 
 
-@skip
+@skip("has known failures")
 class AbstractModelTrackerTests(ModelTrackerTests):
 
     tracked_class = TrackedAbstract
