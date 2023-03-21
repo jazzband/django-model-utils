@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.test import TestCase
 
 from tests.models import BoxJoinModel, JoinItemForeignKey
