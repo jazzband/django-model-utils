@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import ClassVar, TypeVar
 
 from django.db import models
 from django.db.models import Manager
@@ -25,6 +25,8 @@ from model_utils.models import (
 )
 from model_utils.tracker import FieldTracker, ModelTracker
 from tests.fields import MutableField
+
+ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
 
 
 class InheritanceManagerTestRelated(models.Model):
@@ -128,7 +130,7 @@ class DoubleMonitored(models.Model):
 
 
 class Status(StatusModel):
-    STATUS = Choices(
+    STATUS: Choices[str] = Choices(
         ("active", _("active")),
         ("deleted", _("deleted")),
         ("on_hold", _("on hold")),
@@ -184,7 +186,8 @@ class Post(models.Model):
     public: ClassVar[QueryManager[Post]] = QueryManager(published=True)
     public_confirmed: ClassVar[QueryManager[Post]] = QueryManager(
         models.Q(published=True) & models.Q(confirmed=True))
-    public_reversed = QueryManager(published=True).order_by("-order")
+    public_reversed: QueryManager[Post] = QueryManager(
+        published=True).order_by("-order")
 
     class Meta:
         ordering = ("order",)
@@ -246,7 +249,7 @@ class TrackedFK(models.Model):
 
 class TrackedAbstract(AbstractTracked):
     name = models.CharField(max_length=20)
-    number = models.IntegerField()
+    number = models.IntegerField()  # type: ignore[assignment]
     mutable = MutableField(default=None)
 
     tracker = ModelTracker()
