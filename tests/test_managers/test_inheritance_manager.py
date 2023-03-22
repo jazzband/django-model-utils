@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.db import models
 from django.test import TestCase
 
+from model_utils.managers import InheritanceManager
 from tests.models import (
     InheritanceManagerTestChild1,
     InheritanceManagerTestChild2,
@@ -16,19 +19,22 @@ from tests.models import (
     TimeFrame,
 )
 
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
+
 
 class InheritanceManagerTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.child1 = InheritanceManagerTestChild1.objects.create()
         self.child2 = InheritanceManagerTestChild2.objects.create()
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
         self.grandchild1_2 = \
             InheritanceManagerTestGrandChild1_2.objects.create()
 
-    def get_manager(self):
+    def get_manager(self) -> InheritanceManager[InheritanceManagerTestParent]:
         return InheritanceManagerTestParent.objects
 
-    def test_normal(self):
+    def test_normal(self) -> None:
         children = {
             InheritanceManagerTestParent(pk=self.child1.pk),
             InheritanceManagerTestParent(pk=self.child2.pk),
@@ -37,14 +43,14 @@ class InheritanceManagerTests(TestCase):
         }
         self.assertEqual(set(self.get_manager().all()), children)
 
-    def test_select_all_subclasses(self):
+    def test_select_all_subclasses(self) -> None:
         children = {self.child1, self.child2}
         children.add(self.grandchild1)
         children.add(self.grandchild1_2)
         self.assertEqual(
             set(self.get_manager().select_subclasses()), children)
 
-    def test_select_subclasses_invalid_relation(self):
+    def test_select_subclasses_invalid_relation(self) -> None:
         """
         If an invalid relation string is provided, we can provide the user
         with a list which is valid, rather than just have the select_related()
@@ -54,7 +60,7 @@ class InheritanceManagerTests(TestCase):
         with self.assertRaisesRegex(ValueError, regex):
             self.get_manager().select_subclasses('user')
 
-    def test_select_specific_subclasses(self):
+    def test_select_specific_subclasses(self) -> None:
         children = {
             self.child1,
             InheritanceManagerTestParent(pk=self.child2.pk),
@@ -69,7 +75,7 @@ class InheritanceManagerTests(TestCase):
             children,
         )
 
-    def test_select_specific_grandchildren(self):
+    def test_select_specific_grandchildren(self) -> None:
         children = {
             InheritanceManagerTestParent(pk=self.child1.pk),
             InheritanceManagerTestParent(pk=self.child2.pk),
@@ -85,7 +91,7 @@ class InheritanceManagerTests(TestCase):
             children,
         )
 
-    def test_children_and_grandchildren(self):
+    def test_children_and_grandchildren(self) -> None:
         children = {
             self.child1,
             InheritanceManagerTestParent(pk=self.child2.pk),
@@ -102,24 +108,24 @@ class InheritanceManagerTests(TestCase):
             children,
         )
 
-    def test_get_subclass(self):
+    def test_get_subclass(self) -> None:
         self.assertEqual(
             self.get_manager().get_subclass(pk=self.child1.pk),
             self.child1)
 
-    def test_get_subclass_on_queryset(self):
+    def test_get_subclass_on_queryset(self) -> None:
         self.assertEqual(
             self.get_manager().all().get_subclass(pk=self.child1.pk),
             self.child1)
 
-    def test_prior_select_related(self):
+    def test_prior_select_related(self) -> None:
         with self.assertNumQueries(1):
             obj = self.get_manager().select_related(
                 "inheritancemanagertestchild1").select_subclasses(
                 "inheritancemanagertestchild2").get(pk=self.child1.pk)
             obj.inheritancemanagertestchild1
 
-    def test_manually_specifying_parent_fk_including_grandchildren(self):
+    def test_manually_specifying_parent_fk_including_grandchildren(self) -> None:
         """
         given a Model which inherits from another Model, but also declares
         the OneToOne link manually using `related_name` and `parent_link`,
@@ -150,7 +156,7 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
 
-    def test_manually_specifying_parent_fk_single_subclass(self):
+    def test_manually_specifying_parent_fk_single_subclass(self) -> None:
         """
         Using a string related_name when the relation is manually defined
         instead of implicit should still work in the same way.
@@ -170,11 +176,11 @@ class InheritanceManagerTests(TestCase):
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
 
-    def test_filter_on_values_queryset(self):
+    def test_filter_on_values_queryset(self) -> None:
         queryset = InheritanceManagerTestChild1.objects.values('id').filter(pk=self.child1.pk)
         self.assertEqual(list(queryset), [{'id': self.child1.pk}])
 
-    def test_values_list_on_select_subclasses(self):
+    def test_values_list_on_select_subclasses(self) -> None:
         """
         Using `select_subclasses` in conjunction with `values_list()` raised an
         exception in `_get_sub_obj_recurse()` because the result of `values_list()`
@@ -219,14 +225,14 @@ class InheritanceManagerTests(TestCase):
 
 
 class InheritanceManagerUsingModelsTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.parent1 = InheritanceManagerTestParent.objects.create()
         self.child1 = InheritanceManagerTestChild1.objects.create()
         self.child2 = InheritanceManagerTestChild2.objects.create()
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create()
         self.grandchild1_2 = InheritanceManagerTestGrandChild1_2.objects.create()
 
-    def test_select_subclass_by_child_model(self):
+    def test_select_subclass_by_child_model(self) -> None:
         """
         Confirm that passing a child model works the same as passing the
         select_related manually
@@ -238,7 +244,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(objs.subclasses, objsmodels.subclasses)
         self.assertEqual(list(objs), list(objsmodels))
 
-    def test_select_subclass_by_grandchild_model(self):
+    def test_select_subclass_by_grandchild_model(self) -> None:
         """
         Confirm that passing a grandchild model works the same as passing the
         select_related manually
@@ -251,7 +257,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(objs.subclasses, objsmodels.subclasses)
         self.assertEqual(list(objs), list(objsmodels))
 
-    def test_selecting_all_subclasses_specifically_grandchildren(self):
+    def test_selecting_all_subclasses_specifically_grandchildren(self) -> None:
         """
         A bare select_subclasses() should achieve the same results as doing
         select_subclasses and specifying all possible subclasses.
@@ -268,7 +274,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
         self.assertEqual(list(objs), list(objsmodels))
 
-    def test_selecting_all_subclasses_specifically_children(self):
+    def test_selecting_all_subclasses_specifically_children(self) -> None:
         """
         A bare select_subclasses() should achieve the same results as doing
         select_subclasses and specifying all possible subclasses.
@@ -296,7 +302,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
         self.assertEqual(list(objs), list(objsmodels))
 
-    def test_select_subclass_just_self(self):
+    def test_select_subclass_just_self(self) -> None:
         """
         Passing in the same model as the manager/queryset is bound against
         (ie: the root parent) should have no effect on the result set.
@@ -312,7 +318,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
         ])
 
-    def test_select_subclass_invalid_related_model(self):
+    def test_select_subclass_invalid_related_model(self) -> None:
         """
         Confirming that giving a stupid model doesn't work.
         """
@@ -321,7 +327,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestParent.objects.select_subclasses(
                 TimeFrame).order_by('pk')
 
-    def test_mixing_strings_and_classes_with_grandchildren(self):
+    def test_mixing_strings_and_classes_with_grandchildren(self) -> None:
         """
         Given arguments consisting of both strings and model classes,
         ensure the right resolutions take place, accounting for the extra
@@ -342,7 +348,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         ]
         self.assertEqual(list(objs), expecting2)
 
-    def test_mixing_strings_and_classes_with_children(self):
+    def test_mixing_strings_and_classes_with_children(self) -> None:
         """
         Given arguments consisting of both strings and model classes,
         ensure the right resolutions take place, walking down as far as
@@ -364,7 +370,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         ]
         self.assertEqual(list(objs), expecting2)
 
-    def test_duplications(self):
+    def test_duplications(self) -> None:
         """
         Check that even if the same thing is provided as a string and a model
         that the right results are retrieved.
@@ -381,7 +387,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestParent(pk=self.grandchild1_2.pk),
         ])
 
-    def test_child_doesnt_accidentally_get_parent(self):
+    def test_child_doesnt_accidentally_get_parent(self) -> None:
         """
         Given a Child model which also has an InheritanceManager,
         none of the returned objects should be Parent objects.
@@ -394,7 +400,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
             InheritanceManagerTestChild1(pk=self.grandchild1_2.pk),
         ], list(objs))
 
-    def test_manually_specifying_parent_fk_only_specific_child(self):
+    def test_manually_specifying_parent_fk_only_specific_child(self) -> None:
         """
         given a Model which inherits from another Model, but also declares
         the OneToOne link manually using `related_name` and `parent_link`,
@@ -418,7 +424,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         self.assertEqual(set(results.subclasses),
                          set(expected_related_names))
 
-    def test_extras_descend(self):
+    def test_extras_descend(self) -> None:
         """
         Ensure that extra(select=) values are copied onto sub-classes.
         """
@@ -427,25 +433,25 @@ class InheritanceManagerUsingModelsTests(TestCase):
         )
         self.assertTrue(all(result.foo == (result.id + 1) for result in results))
 
-    def test_limit_to_specific_subclass(self):
+    def test_limit_to_specific_subclass(self) -> None:
         child3 = InheritanceManagerTestChild3.objects.create()
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3)
 
         self.assertEqual([child3], list(results))
 
-    def test_limit_to_specific_subclass_with_custom_db_column(self):
+    def test_limit_to_specific_subclass_with_custom_db_column(self) -> None:
         item = InheritanceManagerTestChild3_1.objects.create()
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3_1)
 
         self.assertEqual([item], list(results))
 
-    def test_limit_to_specific_grandchild_class(self):
+    def test_limit_to_specific_grandchild_class(self) -> None:
         grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestGrandChild1)
 
         self.assertEqual([grandchild1], list(results))
 
-    def test_limit_to_child_fetches_grandchildren_as_child_class(self):
+    def test_limit_to_child_fetches_grandchildren_as_child_class(self) -> None:
         # Not sure if this is the desired behaviour...?
         children = InheritanceManagerTestChild1.objects.all()
 
@@ -453,7 +459,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual(set(children), set(results))
 
-    def test_can_fetch_limited_class_grandchildren(self):
+    def test_can_fetch_limited_class_grandchildren(self) -> None:
         # Not sure if this is the desired behaviour...?
         children = InheritanceManagerTestChild1.objects.select_subclasses()
 
@@ -461,7 +467,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual(set(children), set(results))
 
-    def test_selecting_multiple_instance_classes(self):
+    def test_selecting_multiple_instance_classes(self) -> None:
         child3 = InheritanceManagerTestChild3.objects.create()
         children1 = InheritanceManagerTestChild1.objects.all()
 
@@ -469,7 +475,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual(set([child3] + list(children1)), set(results))
 
-    def test_selecting_multiple_instance_classes_including_grandchildren(self):
+    def test_selecting_multiple_instance_classes_including_grandchildren(self) -> None:
         child3 = InheritanceManagerTestChild3.objects.create()
         grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
 
@@ -477,7 +483,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
         self.assertEqual({child3, grandchild1}, set(results))
 
-    def test_select_subclasses_interaction_with_instance_of(self):
+    def test_select_subclasses_interaction_with_instance_of(self) -> None:
         child3 = InheritanceManagerTestChild3.objects.create()
 
         results = InheritanceManagerTestParent.objects.select_subclasses(InheritanceManagerTestChild1).instance_of(InheritanceManagerTestChild3)
@@ -486,7 +492,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
 
 
 class InheritanceManagerRelatedTests(InheritanceManagerTests):
-    def setUp(self):
+    def setUp(self) -> None:
         self.related = InheritanceManagerTestRelated.objects.create()
         self.child1 = InheritanceManagerTestChild1.objects.create(
             related=self.related)
@@ -495,16 +501,16 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create(related=self.related)
         self.grandchild1_2 = InheritanceManagerTestGrandChild1_2.objects.create(related=self.related)
 
-    def get_manager(self):
+    def get_manager(self) -> RelatedManager[InheritanceManagerTestParent]:  # type: ignore[override]
         return self.related.imtests
 
-    def test_get_method_with_select_subclasses(self):
+    def test_get_method_with_select_subclasses(self) -> None:
         self.assertEqual(
             InheritanceManagerTestParent.objects.select_subclasses().get(
                 id=self.child1.id),
             self.child1)
 
-    def test_get_method_with_select_subclasses_check_for_useless_join(self):
+    def test_get_method_with_select_subclasses_check_for_useless_join(self) -> None:
         child4 = InheritanceManagerTestChild4.objects.create(related=self.related, other_onetoone=self.child1)
         self.assertEqual(
             str(InheritanceManagerTestChild4.objects.select_subclasses().filter(
@@ -512,26 +518,26 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
             str(InheritanceManagerTestChild4.objects.select_subclasses().select_related(None).filter(
                 id=child4.id).query))
 
-    def test_annotate_with_select_subclasses(self):
+    def test_annotate_with_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.select_subclasses().annotate(
             models.Count('id'))
         self.assertEqual(qs.get(id=self.child1.id).id__count, 1)
 
-    def test_annotate_with_named_arguments_with_select_subclasses(self):
+    def test_annotate_with_named_arguments_with_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.select_subclasses().annotate(
             test_count=models.Count('id'))
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
 
-    def test_annotate_before_select_subclasses(self):
+    def test_annotate_before_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.annotate(
             models.Count('id')).select_subclasses()
         self.assertEqual(qs.get(id=self.child1.id).id__count, 1)
 
-    def test_annotate_with_named_arguments_before_select_subclasses(self):
+    def test_annotate_with_named_arguments_before_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.annotate(
             test_count=models.Count('id')).select_subclasses()
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
 
-    def test_clone_when_inheritance_queryset_selects_subclasses_should_clone_them_too(self):
+    def test_clone_when_inheritance_queryset_selects_subclasses_should_clone_them_too(self) -> None:
         qs = InheritanceManagerTestParent.objects.select_subclasses()
         self.assertEqual(qs.subclasses, qs._clone().subclasses)

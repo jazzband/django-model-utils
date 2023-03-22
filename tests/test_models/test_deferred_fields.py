@@ -6,7 +6,7 @@ from tests.models import ModelWithCustomDescriptor
 
 
 class CustomDescriptorTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.instance = ModelWithCustomDescriptor.objects.create(
             custom_field='1',
             tracked_custom_field='1',
@@ -14,7 +14,7 @@ class CustomDescriptorTests(TestCase):
             tracked_regular_field=1,
         )
 
-    def test_custom_descriptor_works(self):
+    def test_custom_descriptor_works(self) -> None:
         instance = self.instance
         self.assertEqual(instance.custom_field, '1')
         self.assertEqual(instance.__dict__['custom_field'], 1)
@@ -27,7 +27,7 @@ class CustomDescriptorTests(TestCase):
         self.assertEqual(instance.custom_field, '2')
         self.assertEqual(instance.__dict__['custom_field'], 2)
 
-    def test_deferred(self):
+    def test_deferred(self) -> None:
         instance = ModelWithCustomDescriptor.objects.only('id').get(
             pk=self.instance.pk)
         self.assertIn('custom_field', instance.get_deferred_fields())
