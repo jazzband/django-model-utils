@@ -115,7 +115,7 @@ class Choices(Generic[T]):
                         group_name = choice[0]
                         subchoices = choice[1]
                         tc: list[_Triple] = []
-                        triple_collector.append((group_name, tc))
+                        triple_collector.append((group_name, group_name, tc))
                         dc: list[_Double] = []
                         double_collector.append((group_name, dc))
                         self._process(subchoices, tc, dc)
