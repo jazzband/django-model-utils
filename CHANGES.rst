@@ -1,6 +1,11 @@
 Changelog
 =========
 
+To be released
+--------
+
+- Confirm support for `Django 4.2`
+
 4.3.1 (2022-11-15)
 ------------------
 
