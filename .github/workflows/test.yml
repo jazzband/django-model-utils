@@ -3,6 +3,9 @@ name: Test
 on: [push, pull_request]
 
 env:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: postgres
   FORCE_COLOR: 1
 
 jobs:
@@ -18,9 +21,9 @@ jobs:
       postgres:
         image: postgres:12
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
         ports:
         - 5432:5432
         options: >-
@@ -60,11 +63,9 @@ jobs:
       run: |
         tox -v -- --cov --cov-append --cov-report term-missing --cov-report xml
       env:
-        DB_NAME: postgres
-        DB_USER: postgres
-        DB_PASSWORD: postgres
-        DB_HOST: localhost
-        DB_PORT: 5432
+        POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        POSTGRES_USER: ${{ env.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
 
     - name: Upload coverage
       uses: codecov/codecov-action@v3
