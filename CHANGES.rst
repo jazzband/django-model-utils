@@ -1,6 +1,11 @@
 Changelog
 =========
 
+To be released
+--------
+
+Swedish translation (GH-#561)
+
 4.3.1 (2022-11-15)
 ------------------
 
