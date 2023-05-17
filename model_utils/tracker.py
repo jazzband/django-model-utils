@@ -340,7 +340,7 @@ class FieldTracker:
             wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
             setattr(sender, field_name, wrapped_descriptor)
         self.field_map = self.get_field_map(sender)
-        models.signals.post_init.connect(self.initialize_tracker)
+        models.signals.post_init.connect(self.initialize_tracker, sender=sender)
         self.model_class = sender
         setattr(sender, self.name, self)
         self.patch_save(sender)
