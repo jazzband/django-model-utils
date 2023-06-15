@@ -141,7 +141,7 @@ class Choices:
     def __deepcopy__(self, memo):
         return self.__class__(*copy.deepcopy(self._triples, memo))
 
-    def subset(self, *new_identifiers):
+    def subset(self, *new_identifiers) -> "Choices":
         identifiers = set(self._identifier_map.keys())
 
         if not identifiers.issuperset(new_identifiers):
