@@ -5,6 +5,9 @@ To be released
 --------
 
 - Confirm support for `Django 4.2`
+- Add support for `Python 3.11` (GH-#545)
+- Add support for `Python 3.12` (GH-#545)
+- Drop support for `Python 3.7` (GH-#545)
 
 4.3.1 (2022-11-15)
 ------------------
@@ -16,7 +19,6 @@ To be released
 - Drop support for `Django < 3.2`
 - Drop support for `Python 3.6`
 - Confirm support for `Django 4.1`
-- Add support for `Python 3.11` (GH-#545)
 
 4.3.0
 -----
