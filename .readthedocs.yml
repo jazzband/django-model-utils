@@ -9,5 +9,10 @@ build:
   tools:
     python: "3"
 
+python:
+  install:
+    - method: pip
+      path: .
+
 sphinx:
   configuration: docs/conf.py
