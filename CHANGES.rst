@@ -8,6 +8,7 @@ To be released
 - Add support for `Python 3.11` (GH-#545)
 - Add support for `Python 3.12` (GH-#545)
 - Drop support for `Python 3.7` (GH-#545)
+- Swedish translation (GH-#561)
 
 4.3.1 (2022-11-15)
 ------------------
