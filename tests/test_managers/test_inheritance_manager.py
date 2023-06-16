@@ -5,6 +5,7 @@ from tests.models import (
     InheritanceManagerTestChild1,
     InheritanceManagerTestChild2,
     InheritanceManagerTestChild3,
+    InheritanceManagerTestChild3_1,
     InheritanceManagerTestChild4,
     InheritanceManagerTestGrandChild1,
     InheritanceManagerTestGrandChild1_2,
@@ -141,6 +142,7 @@ class InheritanceManagerTests(TestCase):
             'inheritancemanagertestchild1',
             'inheritancemanagertestchild2',
             'manual_onetoone',  # this was set via parent_link & related_name
+            'inheritancemanagertestchild3_1',
             'child4_onetoone',
         ]
         self.assertEqual(set(results.subclasses),
@@ -256,7 +258,9 @@ class InheritanceManagerUsingModelsTests(TestCase):
         objs = InheritanceManagerTestParent.objects.select_subclasses().order_by('pk')
         objsmodels = InheritanceManagerTestParent.objects.select_subclasses(
             InheritanceManagerTestChild1, InheritanceManagerTestChild2,
-            InheritanceManagerTestChild3, InheritanceManagerTestChild4,
+            InheritanceManagerTestChild3,
+            InheritanceManagerTestChild3_1,
+            InheritanceManagerTestChild4,
             InheritanceManagerTestGrandChild1,
             InheritanceManagerTestGrandChild1_2).order_by('pk')
         self.assertEqual(set(objs.subclasses), set(objsmodels.subclasses))
@@ -278,6 +282,7 @@ class InheritanceManagerUsingModelsTests(TestCase):
         models = (InheritanceManagerTestChild1,
                   InheritanceManagerTestChild2,
                   InheritanceManagerTestChild3,
+                  InheritanceManagerTestChild3_1,
                   InheritanceManagerTestChild4,
                   InheritanceManagerTestGrandChild1,
                   InheritanceManagerTestGrandChild1_2)
@@ -425,6 +430,12 @@ class InheritanceManagerUsingModelsTests(TestCase):
         results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3)
 
         self.assertEqual([child3], list(results))
+
+    def test_limit_to_specific_subclass_with_custom_db_column(self):
+        item = InheritanceManagerTestChild3_1.objects.create()
+        results = InheritanceManagerTestParent.objects.instance_of(InheritanceManagerTestChild3_1)
+
+        self.assertEqual([item], list(results))
 
     def test_limit_to_specific_grandchild_class(self):
         grandchild1 = InheritanceManagerTestGrandChild1.objects.get()
