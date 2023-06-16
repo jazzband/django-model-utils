@@ -194,7 +194,7 @@ class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
             where_queries.append('(' + ' AND '.join([
                 '"{}"."{}" IS NOT NULL'.format(
                     model._meta.db_table,
-                    field.attname,  # Should this be something else?
+                    field.column,
                 ) for field in model._meta.parents.values()
             ]) + ')')
 

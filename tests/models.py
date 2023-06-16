@@ -67,6 +67,12 @@ class InheritanceManagerTestChild3(InheritanceManagerTestParent):
         parent_link=True, on_delete=models.CASCADE)
 
 
+class InheritanceManagerTestChild3_1(InheritanceManagerTestParent):
+    parent_ptr = models.OneToOneField(
+        InheritanceManagerTestParent, db_column="custom_parent_ptr",
+        parent_link=True, on_delete=models.CASCADE)
+
+
 class InheritanceManagerTestChild4(InheritanceManagerTestParent):
     other_onetoone = models.OneToOneField(
         InheritanceManagerTestParent, related_name='non_inheritance_relation',
