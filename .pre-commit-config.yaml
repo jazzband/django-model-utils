@@ -14,7 +14,7 @@ repos:
         files: ^(model_utils|tests)/
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.6.0
     hooks:
     -   id: pyupgrade
-        args: [--py37-plus]
+        args: [--py38-plus]
