@@ -34,6 +34,18 @@ class MonitorFieldTests(TestCase):
         with self.assertRaises(TypeError):
             MonitorField()
 
+    def test_nullable_without_default_deprecation(self):
+        warning_message = (
+            "{}.default is set to 'django.utils.timezone.now' - when nullable"
+            " and no default. This behavior will be deprecated in the next"
+            " major release in favor of 'None'. See"
+            " https://django-model-utils.readthedocs.io/en/stable/fields.html"
+            "#monitorfield for more information."
+        ).format(MonitorField.__name__)
+
+        with self.assertWarns(DeprecationWarning, msg=warning_message):
+            MonitorField(monitor="foo", null=True, default=None)
+
 
 class MonitorWhenFieldTests(TestCase):
     """
