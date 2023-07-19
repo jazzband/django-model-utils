@@ -34,6 +34,7 @@
 | Germano Massullo <github.com/Germano0>
 | Gregor Müllegger <gregor@muellegger.de>
 | Guilherme Devincenzi <github.com/gdevincenzi>
+| Guilherme Crocetti <github.com/gmcrocetti>
 | Hanley <hanley@wayup.com>
 | Hanley Hansen <hanleyhansen@gmail.com>
 | Harry Moreno <morenoh149@gmail.com>

@@ -10,6 +10,7 @@ To be released
 - Drop support for `Python 3.7` (GH-#545)
 - Swedish translation (GH-#561)
 - Use proper column name instead of attname (GH-#573)
+- Change MonitorField default to be NULL when the field is nullable (GH-#576)
 
 4.3.1 (2022-11-15)
 ------------------
