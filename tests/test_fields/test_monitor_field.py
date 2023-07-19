@@ -34,6 +34,15 @@ class MonitorFieldTests(TestCase):
         with self.assertRaises(TypeError):
             MonitorField()
 
+    def test_monitor_default_is_none_when_nullable(self):
+        self.assertIsNone(self.instance.name_changed_nullable)
+
+        self.instance.name = "Jose"
+        with freeze_time(datetime(2023, 6, 18, 12, 0, 0)):
+            self.instance.save()
+
+        self.assertEqual(self.instance.name_changed_nullable, datetime(2023, 6, 18, 12, 0, 0))
+
 
 class MonitorWhenFieldTests(TestCase):
     """

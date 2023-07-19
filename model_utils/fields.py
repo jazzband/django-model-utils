@@ -107,7 +107,8 @@ class MonitorField(models.DateTimeField):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('default', now)
+        default = None if kwargs.get("null") else now
+        kwargs.setdefault('default', default)
         monitor = kwargs.pop('monitor', None)
         if not monitor:
             raise TypeError(
