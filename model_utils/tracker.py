@@ -3,8 +3,7 @@ from functools import wraps
 
 from django.core.exceptions import FieldError
 from django.db import models
-from django.db.models.fields.files import FieldFile, FileDescriptor
-from django.db.models.query_utils import DeferredAttribute
+from django.db.models.fields.files import FieldFile
 
 
 class LightStateFieldFile(FieldFile):
@@ -38,26 +37,6 @@ def lightweight_deepcopy(value):
             name=value.name,
         )
     return deepcopy(value)
-
-
-class DescriptorMixin:
-    tracker_instance = None
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        was_deferred = False
-        field_name = self._get_field_name()
-        if field_name in instance._deferred_fields:
-            instance._deferred_fields.remove(field_name)
-            was_deferred = True
-        value = super().__get__(instance, owner)
-        if was_deferred:
-            self.tracker_instance.saved_data[field_name] = lightweight_deepcopy(value)
-        return value
-
-    def _get_field_name(self):
-        return self.field_name
 
 
 class DescriptorWrapper:
@@ -270,30 +249,6 @@ class FieldInstanceTracker:
             for field in self.fields
             if self.has_changed(field)
         }
-
-    def init_deferred_fields(self):
-        self.instance._deferred_fields = set()
-        if hasattr(self.instance, '_deferred') and not self.instance._deferred:
-            return
-
-        class DeferredAttributeTracker(DescriptorMixin, DeferredAttribute):
-            tracker_instance = self
-
-        class FileDescriptorTracker(DescriptorMixin, FileDescriptor):
-            tracker_instance = self
-
-            def _get_field_name(self):
-                return self.field.name
-
-        self.instance._deferred_fields = self.instance.get_deferred_fields()
-        for field in self.instance._deferred_fields:
-            field_obj = self.instance.__class__.__dict__.get(field)
-            if isinstance(field_obj, FileDescriptor):
-                field_tracker = FileDescriptorTracker(field_obj.field)
-                setattr(self.instance.__class__, field, field_tracker)
-            else:
-                field_tracker = DeferredAttributeTracker(field)
-                setattr(self.instance.__class__, field, field_tracker)
 
 
 class FieldTracker:
