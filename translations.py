@@ -7,14 +7,10 @@ import django
 
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
-        'model_utils',
-        'tests',
+        "model_utils",
+        "tests",
     ),
-    DATABASES={
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3"
-        }
-    },
+    DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3"}},
     SILENCED_SYSTEM_CHECKS=["1_7.W001"],
 )
 
@@ -24,16 +20,16 @@ def run(command):
         settings.configure(**DEFAULT_SETTINGS)
 
     parent = os.path.dirname(os.path.abspath(__file__))
-    appdir = os.path.join(parent, 'model_utils')
+    appdir = os.path.join(parent, "model_utils")
     os.chdir(appdir)
 
     from django.core.management import call_command
 
-    call_command('%smessages' % command)
+    call_command("%smessages" % command)
 
 
-if __name__ == '__main__':
-    if (len(sys.argv)) < 2 or (sys.argv[1] not in {'make', 'compile'}):
+if __name__ == "__main__":
+    if (len(sys.argv)) < 2 or (sys.argv[1] not in {"make", "compile"}):
         print("Run `translations.py make` or `translations.py compile`.")
         sys.exit(1)
     run(sys.argv[1])

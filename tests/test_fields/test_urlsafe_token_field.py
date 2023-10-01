@@ -29,7 +29,7 @@ class UrlsaftTokenFieldTests(TestCase):
 
     def test_factory_not_callable(self):
         with self.assertRaises(TypeError):
-            UrlsafeTokenField(factory='INVALID')
+            UrlsafeTokenField(factory="INVALID")
 
     def test_get_default(self):
         field = UrlsafeTokenField()
@@ -42,7 +42,7 @@ class UrlsaftTokenFieldTests(TestCase):
         self.assertEqual(len(value), 64)
 
     def test_get_default_with_factory(self):
-        token = 'SAMPLE_TOKEN'
+        token = "SAMPLE_TOKEN"
         factory = Mock(return_value=token)
         field = UrlsafeTokenField(factory=factory)
         value = field.get_default()
@@ -51,12 +51,13 @@ class UrlsaftTokenFieldTests(TestCase):
         factory.assert_called_once_with(field.max_length)
 
     def test_no_default_param(self):
-        field = UrlsafeTokenField(default='DEFAULT')
+        field = UrlsafeTokenField(default="DEFAULT")
         self.assertIs(field.default, NOT_PROVIDED)
 
     def test_deconstruct(self):
         def test_factory():
             pass
+
         instance = UrlsafeTokenField(factory=test_factory)
         name, path, args, kwargs = instance.deconstruct()
         new_instance = UrlsafeTokenField(*args, **kwargs)

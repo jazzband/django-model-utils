@@ -10,7 +10,6 @@ from tests.models import (
 
 
 class StatusFieldTests(TestCase):
-
     def test_status_with_default_filled(self):
         instance = StatusFieldDefaultFilled()
         self.assertEqual(instance.status, instance.STATUS.yes)
