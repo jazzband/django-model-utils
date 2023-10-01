@@ -2,3 +2,5 @@ pytest==6.2.5
 pytest-django==3.10.0
 psycopg2-binary==2.9.5
 pytest-cov==2.10.1
+flake8==6.1.0
+black==23.9.1
