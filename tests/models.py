@@ -40,7 +40,7 @@ class InheritanceManagerTestParent(models.Model):
 
     def __str__(self):
         return "{}({})".format(
-            self.__class__.__name__[len("InheritanceManagerTest") :],
+            self.__class__.__name__[len("InheritanceManagerTest"):],
             self.pk,
         )
 
