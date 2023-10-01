@@ -13,9 +13,9 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, datetime(2016, 1, 1))
 
     def test_created_sets_modified(self):
-        '''
+        """
         Ensure that on creation that modified is set exactly equal to created.
-        '''
+        """
         t1 = TimeStamp.objects.create()
         self.assertEqual(t1.created, t1.modified)
 
@@ -28,7 +28,9 @@ class TimeStampedModelTests(TestCase):
 
         self.assertEqual(t1.modified, datetime(2016, 1, 2))
 
-    def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(self):
+    def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(
+        self,
+    ):
         """
         Setting the created date when first creating an object
         should be permissible.
@@ -97,9 +99,9 @@ class TimeStampedModelTests(TestCase):
         and modified is provided
         """
         tests = (
-            ['modified'],  # list
-            ('modified',),  # tuple
-            {'modified'},  # set
+            ["modified"],  # list
+            ("modified",),  # tuple
+            {"modified"},  # set
         )
 
         for update_fields in tests:
@@ -131,7 +133,9 @@ class TimeStampedModelTests(TestCase):
                 self.assertEqual(t1.test_field, 0)
                 self.assertEqual(t1.modified, datetime(2020, 1, 1))
 
-    def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(self):
+    def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(
+        self,
+    ):
         with freeze_time(datetime(2020, 1, 1)):
             t1 = TimeStamp.objects.create()
 
@@ -145,6 +149,6 @@ class TimeStampedModelTests(TestCase):
             t1 = TimeStampWithStatusModel.objects.create()
 
         with freeze_time(datetime(2020, 1, 2)):
-            t1.save(update_fields=['test_field', 'status'])
+            t1.save(update_fields=["test_field", "status"])
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2))

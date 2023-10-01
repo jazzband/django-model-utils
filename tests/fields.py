@@ -2,11 +2,11 @@ from django.db import models
 
 
 def mutable_from_db(value):
-    if value == '':
+    if value == "":
         return None
     try:
         if isinstance(value, (str,)):
-            return [int(i) for i in value.split(',')]
+            return [int(i) for i in value.split(",")]
     except ValueError:
         pass
     return value
@@ -14,9 +14,9 @@ def mutable_from_db(value):
 
 def mutable_to_db(value):
     if value is None:
-        return ''
+        return ""
     if isinstance(value, list):
-        value = ','.join(str(i) for i in value)
+        value = ",".join(str(i) for i in value)
     return str(value)
 
 

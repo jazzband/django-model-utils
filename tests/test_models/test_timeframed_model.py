@@ -30,8 +30,9 @@ class TimeFramedModelTests(TestCase):
         self.assertEqual(TimeFrame.timeframed.count(), 1)
 
     def test_within_range(self):
-        TimeFrame.objects.create(start=self.now - timedelta(days=1),
-                                 end=self.now + timedelta(days=1))
+        TimeFrame.objects.create(
+            start=self.now - timedelta(days=1), end=self.now + timedelta(days=1)
+        )
         self.assertEqual(TimeFrame.timeframed.count(), 1)
 
 
@@ -41,5 +42,6 @@ class TimeFrameManagerAddedTests(TestCase):
 
     def test_conflict_error(self):
         with self.assertRaises(ImproperlyConfigured):
+
             class ErrorModel(TimeFramedModel):
                 timeframed = models.BooleanField()

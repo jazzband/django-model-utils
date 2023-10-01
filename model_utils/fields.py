@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.timezone import now
 
-DEFAULT_CHOICES_NAME = 'STATUS'
+DEFAULT_CHOICES_NAME = "STATUS"
 
 
 class AutoCreatedField(models.DateTimeField):
@@ -20,8 +20,8 @@ class AutoCreatedField(models.DateTimeField):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('editable', False)
-        kwargs.setdefault('default', now)
+        kwargs.setdefault("editable", False)
+        kwargs.setdefault("default", now)
         super().__init__(*args, **kwargs)
 
 
@@ -32,6 +32,7 @@ class AutoLastModifiedField(AutoCreatedField):
     By default, sets editable=False and default=datetime.now.
 
     """
+
     def get_default(self):
         """Return the default value for this field."""
         if not hasattr(self, "_default"):
@@ -70,31 +71,34 @@ class StatusField(models.CharField):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 100)
-        self.check_for_status = not kwargs.pop('no_check_for_status', False)
-        self.choices_name = kwargs.pop('choices_name', DEFAULT_CHOICES_NAME)
+        kwargs.setdefault("max_length", 100)
+        self.check_for_status = not kwargs.pop("no_check_for_status", False)
+        self.choices_name = kwargs.pop("choices_name", DEFAULT_CHOICES_NAME)
         super().__init__(*args, **kwargs)
 
     def prepare_class(self, sender, **kwargs):
         if not sender._meta.abstract and self.check_for_status:
-            assert hasattr(sender, self.choices_name), \
-                "To use StatusField, the model '%s' must have a %s choices class attribute." \
+            assert hasattr(sender, self.choices_name), (
+                "To use StatusField, the model '%s' must have a %s choices class attribute."
                 % (sender.__name__, self.choices_name)
+            )
             self.choices = getattr(sender, self.choices_name)
             if not self.has_default():
-                self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
+                self.default = tuple(getattr(sender, self.choices_name))[0][
+                    0
+                ]  # set first as default
 
     def contribute_to_class(self, cls, name):
         models.signals.class_prepared.connect(self.prepare_class, sender=cls)
         # we don't set the real choices until class_prepared (so we can rely on
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
-        self.choices = [(0, 'dummy')]
+        self.choices = [(0, "dummy")]
         super().contribute_to_class(cls, name)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs['no_check_for_status'] = True
+        kwargs["no_check_for_status"] = True
         return name, path, args, kwargs
 
 
@@ -107,20 +111,21 @@ class MonitorField(models.DateTimeField):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('default', now)
-        monitor = kwargs.pop('monitor', None)
+        kwargs.setdefault("default", now)
+        monitor = kwargs.pop("monitor", None)
         if not monitor:
             raise TypeError(
-                '%s requires a "monitor" argument' % self.__class__.__name__)
+                '%s requires a "monitor" argument' % self.__class__.__name__
+            )
         self.monitor = monitor
-        when = kwargs.pop('when', None)
+        when = kwargs.pop("when", None)
         if when is not None:
             when = set(when)
         self.when = when
         super().__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
-        self.monitor_attname = '_monitor_%s' % name
+        self.monitor_attname = "_monitor_%s" % name
         models.signals.post_init.connect(self._save_initial, sender=cls)
         super().contribute_to_class(cls, name)
 
@@ -145,20 +150,20 @@ class MonitorField(models.DateTimeField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs['monitor'] = self.monitor
+        kwargs["monitor"] = self.monitor
         if self.when is not None:
-            kwargs['when'] = self.when
+            kwargs["when"] = self.when
         return name, path, args, kwargs
 
 
-SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
+SPLIT_MARKER = getattr(settings, "SPLIT_MARKER", "<!-- split -->")
 
 # the number of paragraphs after which to split if no marker
-SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
+SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, "SPLIT_DEFAULT_PARAGRAPHS", 2)
 
 
 def _excerpt_field_name(name):
-    return '_%s_excerpt' % name
+    return "_%s_excerpt" % name
 
 
 def get_excerpt(content):
@@ -171,10 +176,10 @@ def get_excerpt(content):
         if paras_seen < SPLIT_DEFAULT_PARAGRAPHS:
             default_excerpt.append(line)
         if line.strip() == SPLIT_MARKER:
-            return '\n'.join(excerpt)
+            return "\n".join(excerpt)
         excerpt.append(line)
 
-    return '\n'.join(default_excerpt)
+    return "\n".join(default_excerpt)
 
 
 class SplitText:
@@ -197,11 +202,13 @@ class SplitText:
     # excerpt is a read only property
     def _get_excerpt(self):
         return getattr(self.instance, self.excerpt_field_name)
+
     excerpt = property(_get_excerpt)
 
     # has_more is a boolean property
     def _get_has_more(self):
         return self.excerpt.strip() != self.content.strip()
+
     has_more = property(_get_has_more)
 
     def __str__(self):
@@ -215,7 +222,7 @@ class SplitDescriptor:
 
     def __get__(self, instance, owner):
         if instance is None:
-            raise AttributeError('Can only be accessed via an instance.')
+            raise AttributeError("Can only be accessed via an instance.")
         content = instance.__dict__[self.field.name]
         if content is None:
             return None
@@ -235,7 +242,7 @@ class SplitField(models.TextField):
         # SplitField can't try to add an _excerpt field, because the
         # _excerpt field itself is frozen as well. See introspection
         # rules below.
-        self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
+        self.add_excerpt_field = not kwargs.pop("no_excerpt_field", False)
         super().__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -263,7 +270,7 @@ class SplitField(models.TextField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs['no_excerpt_field'] = True
+        kwargs["no_excerpt_field"] = True
         return name, path, args, kwargs
 
 
@@ -291,12 +298,10 @@ class UUIDField(models.UUIDField):
         """
 
         if version == 2:
-            raise ValidationError(
-                'UUID version 2 is not supported.')
+            raise ValidationError("UUID version 2 is not supported.")
 
         if version < 1 or version > 5:
-            raise ValidationError(
-                'UUID version is not valid.')
+            raise ValidationError("UUID version is not valid.")
 
         if version == 1:
             default = uuid.uuid1
@@ -307,9 +312,9 @@ class UUIDField(models.UUIDField):
         elif version == 5:
             default = uuid.uuid5
 
-        kwargs.setdefault('primary_key', primary_key)
-        kwargs.setdefault('editable', editable)
-        kwargs.setdefault('default', default)
+        kwargs.setdefault("primary_key", primary_key)
+        kwargs.setdefault("editable", editable)
+        kwargs.setdefault("default", default)
         super().__init__(*args, **kwargs)
 
 
@@ -339,7 +344,7 @@ class UrlsafeTokenField(models.CharField):
             raise TypeError("'factory' should either be a callable not 'None'")
         self._factory = factory
 
-        kwargs.pop('default', None)  # passing default value has not effect.
+        kwargs.pop("default", None)  # passing default value has not effect.
 
         super().__init__(editable=editable, max_length=max_length, **kwargs)
 
@@ -347,10 +352,10 @@ class UrlsafeTokenField(models.CharField):
         if self._factory is not None:
             return self._factory(self.max_length)
         # generate a token of length x1.33 approx. trim up to max length
-        token = secrets.token_urlsafe(self.max_length)[:self.max_length]
+        token = secrets.token_urlsafe(self.max_length)[: self.max_length]
         return token
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs['factory'] = self._factory
+        kwargs["factory"] = self._factory
         return name, path, args, kwargs

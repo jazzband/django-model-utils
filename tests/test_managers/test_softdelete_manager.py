@@ -4,7 +4,6 @@ from tests.models import CustomSoftDelete
 
 
 class CustomSoftDeleteManagerTests(TestCase):
-
     def test_custom_manager_empty(self):
         qs = CustomSoftDelete.objects.only_read()
         self.assertEqual(qs.count(), 0)
@@ -20,7 +19,12 @@ class CustomSoftDeleteManagerTests(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def test_is_read_removed(self):
-        for is_read, is_removed in [(True, True), (True, False), (False, False), (False, True)]:
+        for is_read, is_removed in [
+            (True, True),
+            (True, False),
+            (False, False),
+            (False, True),
+        ]:
             CustomSoftDelete.objects.create(is_read=is_read, is_removed=is_removed)
         qs = CustomSoftDelete.objects.only_read()
         self.assertEqual(qs.count(), 1)
