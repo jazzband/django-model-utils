@@ -112,21 +112,3 @@ Also you can override the default uuid version. Versions 1,3,4 and 5 are now sup
 
 
 .. _`UUIDField`: https://github.com/jazzband/django-model-utils/blob/master/docs/fields.rst#uuidfield
-
-
-SaveSignalHandlingModel
------------------------
-
-An abstract base class model to pass a parameter ``signals_to_disable``
-to ``save`` method in order to disable signals
-
-.. code-block:: python
-
-    from model_utils.models import SaveSignalHandlingModel
-
-    class SaveSignalTestModel(SaveSignalHandlingModel):
-        name = models.CharField(max_length=20)
-
-    obj = SaveSignalTestModel(name='Test')
-    # Note: If you use `Model.objects.create`, the signals can't be disabled
-    obj.save(signals_to_disable=['pre_save'] # disable `pre_save` signal

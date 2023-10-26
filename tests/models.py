@@ -7,7 +7,6 @@ from model_utils import Choices
 from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
 from model_utils.managers import InheritanceManager, JoinManagerMixin, QueryManager
 from model_utils.models import (
-    SaveSignalHandlingModel,
     SoftDeletableModel,
     StatusModel,
     TimeFramedModel,
@@ -444,10 +443,6 @@ class CustomUUIDModel(UUIDModel):
 
 class CustomNotPrimaryUUIDModel(models.Model):
     uuid = UUIDField(primary_key=False)
-
-
-class SaveSignalHandlingTestModel(SaveSignalHandlingModel):
-    name = models.CharField(max_length=20)
 
 
 class TimeStampWithStatusModel(TimeStampedModel, StatusModel):
