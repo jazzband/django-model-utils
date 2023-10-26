@@ -6,7 +6,7 @@ To be released
 
 - Remove ``SaveSignalHandlingModel``. This model used a modified copy of the internal Django method `Model.save_base()`
   and had not been updated for upstream bug fixes changes since its addition. (GH-#582)
-- Confirm support for `Django 4.2`
+- Confirm support for `Django 4.2` and `Django 5.0`.
 - Add support for `Python 3.11` (GH-#545)
 - Add support for `Python 3.12` (GH-#545)
 - Drop support for `Python 3.7` (GH-#545)
