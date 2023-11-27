@@ -7,7 +7,6 @@ from model_utils import Choices
 from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
 from model_utils.managers import InheritanceManager, JoinManagerMixin, QueryManager
 from model_utils.models import (
-    SaveSignalHandlingModel,
     SoftDeletableModel,
     StatusModel,
     TimeFramedModel,
@@ -64,6 +63,12 @@ class InheritanceManagerTestChild2(InheritanceManagerTestParent):
 class InheritanceManagerTestChild3(InheritanceManagerTestParent):
     parent_ptr = models.OneToOneField(
         InheritanceManagerTestParent, related_name='manual_onetoone',
+        parent_link=True, on_delete=models.CASCADE)
+
+
+class InheritanceManagerTestChild3_1(InheritanceManagerTestParent):
+    parent_ptr = models.OneToOneField(
+        InheritanceManagerTestParent, db_column="custom_parent_ptr",
         parent_link=True, on_delete=models.CASCADE)
 
 
@@ -438,10 +443,6 @@ class CustomUUIDModel(UUIDModel):
 
 class CustomNotPrimaryUUIDModel(models.Model):
     uuid = UUIDField(primary_key=False)
-
-
-class SaveSignalHandlingTestModel(SaveSignalHandlingModel):
-    name = models.CharField(max_length=20)
 
 
 class TimeStampWithStatusModel(TimeStampedModel, StatusModel):

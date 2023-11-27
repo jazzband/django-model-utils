@@ -84,7 +84,7 @@ If you don't explicitly call ``select_subclasses()`` or ``get_subclass()``,
 an ``InheritanceManager`` behaves identically to a normal ``Manager``; so
 it's safe to use as your default manager for the model.
 
-.. _contributed by Jeff Elmore: http://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
+.. _contributed by Jeff Elmore: https://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
 
 JoinManager
 -----------
