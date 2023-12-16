@@ -12,6 +12,7 @@ To be released
 - Drop support for `Python 3.7` (GH-#545)
 - Swedish translation (GH-#561)
 - Use proper column name instead of attname (GH-#573)
+- Fix `ValueError` when calling `prefetch_related` for tracked `ForeignKey` fields (Fixes GH-433)
 
 4.3.1 (2022-11-15)
 ------------------

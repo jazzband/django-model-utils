@@ -103,6 +103,9 @@ class DescriptorWrapper:
         else:
             instance.__dict__[self.field_name] = value
 
+    def __getattr__(self, attr):
+        return getattr(self.descriptor, attr)
+
     @staticmethod
     def cls_for_descriptor(descriptor):
         if hasattr(descriptor, '__delete__'):

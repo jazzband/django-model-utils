@@ -45,6 +45,7 @@
 | Jannis Leidel <jannis@leidel.info>
 | Javier Garcia Sogo <jgsogo@gmail.com>
 | Jeff Elmore <jelmore@lexile.com>
+| Joe Riddle <joeriddles10@gmail.com>
 | John Vandenberg <jayvdb@gmail.com>
 | Jonathan Sundqvist <sundqvist.jonathan@gmail.com>
 | João Amaro <joaoamaro70@gmail.com>
