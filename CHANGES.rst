@@ -1,18 +1,19 @@
 Changelog
 =========
 
-To be released
---------
+4.4.0 (2024-02-10)
+------------------
 
+- Add support for `Python 3.11` 
+- Add support for `Python 3.12`
+- Drop support for `Python 3.7`
+- Add support for `Django 4.2`
+- Add support for `Django 5.0`
 - Remove ``SaveSignalHandlingModel``. This model used a modified copy of the internal Django method `Model.save_base()`
-  and had not been updated for upstream bug fixes changes since its addition. (GH-#582)
-- Confirm support for `Django 4.2` and `Django 5.0`.
-- Add support for `Python 3.11` (GH-#545)
-- Add support for `Python 3.12` (GH-#545)
-- Drop support for `Python 3.7` (GH-#545)
-- Swedish translation (GH-#561)
-- Use proper column name instead of attname (GH-#573)
-- Fix `ValueError` when calling `prefetch_related` for tracked `ForeignKey` fields (Fixes GH-433)
+  and had not been updated for upstream bug fixes changes since its addition.
+- Add Swedish translation
+- Use proper column name instead of attname
+- Fix ValueError when calling prefetch_related for tracked ForeignKey fields
 
 4.3.1 (2022-11-15)
 ------------------
