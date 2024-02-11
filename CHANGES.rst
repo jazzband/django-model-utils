@@ -42,6 +42,11 @@ Changelog
 - Fix performance regression of FieldTracker on FileField subclasses on Django 3.1+
   (GH-#498)
 
+Unreleased
+----------
+
+- SoftDeletableModel no longer uses SoftDeletableManager as its default manager (GH-364)
+
 4.1.1 (2020-12-01)
 ------------------
 

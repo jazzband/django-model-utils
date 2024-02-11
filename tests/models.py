@@ -364,13 +364,7 @@ class StatusFieldChoicesName(models.Model):
 
 
 class SoftDeletable(SoftDeletableModel):
-    """
-    Test model with additional manager for full access to model
-    instances.
-    """
     name = models.CharField(max_length=20)
-
-    all_objects = models.Manager()
 
 
 class CustomSoftDelete(SoftDeletableModel):

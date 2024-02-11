@@ -46,8 +46,11 @@ class SoftDeletableModelTests(TestCase):
     def test_instance_purge_no_connection(self):
         instance = SoftDeletable.available_objects.create(name='a')
 
-        self.assertRaises(ConnectionDoesNotExist, instance.delete,
-                          using='other', soft=False)
+        self.assertRaises(
+            ConnectionDoesNotExist, instance.delete, using='other', soft=False
+        )
 
-    def test_deprecation_warning(self):
-        self.assertWarns(DeprecationWarning, SoftDeletable.objects.all)
+    def test_default_manager_includes_removed(self):
+        SoftDeletable.available_objects.create(name='a', is_removed=True)
+        self.assertEqual(SoftDeletable.available_objects.count(), 0)
+        self.assertEqual(SoftDeletable._default_manager.count(), 1)

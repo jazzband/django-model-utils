@@ -87,9 +87,7 @@ This abstract base class just provides a field ``is_removed`` which is
 set to True instead of removing the instance. Entities returned in
 manager ``available_objects`` are limited to not-deleted instances.
 
-Note that relying on the default ``objects`` manager to filter out not-deleted
-instances is deprecated. ``objects`` will include deleted objects in a future
-release.
+Note that the default manager includes soft-deleted instances.
 
 
 UUIDModel

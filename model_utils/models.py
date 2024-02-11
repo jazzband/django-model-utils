@@ -142,9 +142,8 @@ class SoftDeletableModel(models.Model):
     class Meta:
         abstract = True
 
-    objects = SoftDeletableManager(_emit_deprecation_warnings=True)
-    available_objects = SoftDeletableManager()
     all_objects = models.Manager()
+    available_objects = SoftDeletableManager()
 
     def delete(self, using=None, soft=True, *args, **kwargs):
         """
