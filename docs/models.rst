@@ -89,8 +89,8 @@ manager ``available_objects`` are limited to not-deleted instances.
 
 Note that relying on the default ``objects`` manager to filter out not-deleted
 instances is deprecated. ``objects`` will include deleted objects in a future
-release.
-
+release. Until then, the recommended course of action is to use the manager
+``all_objects`` when you want to include all instances.
 
 UUIDModel
 ------------------
