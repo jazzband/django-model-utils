@@ -343,7 +343,7 @@ class FieldTracker:
             wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
             setattr(sender, field_name, wrapped_descriptor)
         self.field_map = self.get_field_map(sender)
-        models.signals.post_init.connect(self.initialize_tracker)
+        self.patch_init(sender)
         self.model_class = sender
         setattr(sender, self.name, self)
         self.patch_save(sender)
@@ -355,6 +355,16 @@ class FieldTracker:
         setattr(instance, self.attname, tracker)
         tracker.set_saved_fields()
         instance._instance_initialized = True
+
+    def patch_init(self, model):
+        original = getattr(model, '__init__')
+
+        @wraps(original)
+        def inner(instance, *args, **kwargs):
+            original(instance, *args, **kwargs)
+            self.initialize_tracker(model, instance)
+
+        setattr(model, '__init__', inner)
 
     def patch_save(self, model):
         self._patch(model, 'save_base', 'update_fields')

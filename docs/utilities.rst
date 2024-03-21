@@ -328,9 +328,9 @@ FieldTracker implementation details
 
 This is how ``FieldTracker`` tracks field changes on ``instance.save`` call.
 
-1. In ``class_prepared`` handler ``FieldTracker`` patches ``save_base`` and
-   ``refresh_from_db`` methods to reset initial state for tracked fields.
-2. In ``post_init`` handler ``FieldTracker`` saves initial values for tracked
+1. In ``class_prepared`` handler ``FieldTracker`` patches ``save_base``,
+   ``refresh_from_db`` and ``__init__`` methods to reset initial state for tracked fields.
+2. In the patched ``__init__`` method ``FieldTracker`` saves initial values for tracked
    fields.
 3. ``MyModel.save`` changes ``update_fields`` in order to store auto updated
    ``modified`` timestamp. Complete list of saved fields is now known.
