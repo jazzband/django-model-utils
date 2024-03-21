@@ -1,5 +1,5 @@
-from django.db.utils import ConnectionDoesNotExist
 from django.test import TestCase
+from django.utils.connection import ConnectionDoesNotExist
 
 from tests.models import SoftDeletable
 
