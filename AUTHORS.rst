@@ -46,6 +46,7 @@
 | Jannis Leidel <jannis@leidel.info>
 | Javier Garcia Sogo <jgsogo@gmail.com>
 | Jeff Elmore <jelmore@lexile.com>
+| Joe Riddle <joeriddles10@gmail.com>
 | John Vandenberg <jayvdb@gmail.com>
 | Jonathan Sundqvist <sundqvist.jonathan@gmail.com>
 | João Amaro <joaoamaro70@gmail.com>
@@ -104,3 +105,4 @@
 | Éric Araujo <merwok@netwok.org>
 | Őry Máté <ory.mate@cloud.bme.hu>
 | Nafees Anwar <h.nafees.anwar@gmail.com>
+| meanmail <github@meanmail.dev>

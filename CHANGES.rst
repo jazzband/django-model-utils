@@ -2,15 +2,23 @@ Changelog
 =========
 
 To be released
---------
+--------------
+- Add Brazilian Portuguese translation (GH-#578)
+- Don't use `post_init` signal for initialize tracker
 
-- Confirm support for `Django 4.2`
+4.4.0 (2024-02-10)
+------------------
+
 - Add support for `Python 3.11` (GH-#545)
 - Add support for `Python 3.12` (GH-#545)
 - Drop support for `Python 3.7` (GH-#545)
-- Swedish translation (GH-#561)
+- Add support for `Django 4.2`
+- Add support for `Django 5.0`
+- Remove ``SaveSignalHandlingModel``. This model used a modified copy of the internal Django method `Model.save_base()`
+  and had not been updated for upstream bug fixes changes since its addition.
+- Add Swedish translation
 - Use proper column name instead of attname (GH-#573)
-- Add Brazilian Portuguese translation (GH-#578)
+- Fix ValueError when calling prefetch_related for tracked ForeignKey fields
 
 4.3.1 (2022-11-15)
 ------------------
