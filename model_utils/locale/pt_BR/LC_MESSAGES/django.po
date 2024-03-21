@@ -1,0 +1,41 @@
+# This file is distributed under the same license as the django-model-utils package.
+#
+# Translators:
+# Guilherme Martins Crocetti <24530683+gmcrocetti@users.noreply.github.com>, 2023.
+msgid ""
+msgstr ""
+"Project-Id-Version: django-model-utils\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-20 22:05-0300\n"
+"PO-Revision-Date: 2023-07-20 22:05-0300\n"
+"Last-Translator: Guilherme Croceetti <24530683+gmcrocetti@users.noreply.github.com>\n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: models.py:25
+msgid "created"
+msgstr "criado"
+
+#: models.py:26
+msgid "modified"
+msgstr "modificado"
+
+#: models.py:50
+msgid "start"
+msgstr "início"
+
+#: models.py:51
+msgid "end"
+msgstr "fim"
+
+#: models.py:66
+msgid "status"
+msgstr "estado"
+
+#: models.py:67
+msgid "status changed"
+msgstr "estado modificado"
