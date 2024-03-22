@@ -44,9 +44,7 @@ class InheritanceQuerySetMixin:
         self._iterable_class = InheritanceIterable
 
     def select_subclasses(self, *subclasses):
-        levels = None
-        calculated_subclasses = self._get_subclasses_recurse(
-            self.model, levels=levels)
+        calculated_subclasses = self._get_subclasses_recurse(self.model)
         # if none were passed in, we can just short circuit and select all
         if not subclasses:
             subclasses = calculated_subclasses
@@ -60,8 +58,7 @@ class InheritanceQuerySetMixin:
                     continue
 
                 if not isinstance(subclass, (str,)):
-                    subclass = self._get_ancestors_path(
-                        subclass, levels=levels)
+                    subclass = self._get_ancestors_path(subclass)
 
                 if subclass in calculated_subclasses:
                     verified_subclasses.append(subclass)
@@ -101,7 +98,7 @@ class InheritanceQuerySetMixin:
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
 
-    def _get_subclasses_recurse(self, model, levels=None):
+    def _get_subclasses_recurse(self, model):
         """
         Given a Model class, find all related objects, exploring children
         recursively, returning a `list` of strings representing the
@@ -120,18 +117,14 @@ class InheritanceQuerySetMixin:
         ]
 
         subclasses = []
-        if levels:
-            levels -= 1
+
         for rel in rels:
-            if levels or levels is None:
-                for subclass in self._get_subclasses_recurse(
-                        rel.field.model, levels=levels):
-                    subclasses.append(
-                        rel.get_accessor_name() + LOOKUP_SEP + subclass)
+            for subclass in self._get_subclasses_recurse(rel.field.model):
+                subclasses.append(rel.get_accessor_name() + LOOKUP_SEP + subclass)
             subclasses.append(rel.get_accessor_name())
         return subclasses
 
-    def _get_ancestors_path(self, model, levels=None):
+    def _get_ancestors_path(self, model):
         """
         Serves as an opposite to _get_subclasses_recurse, instead walking from
         the Model class up the Model's ancestry and constructing the desired
@@ -144,17 +137,14 @@ class InheritanceQuerySetMixin:
         ancestry = []
         # should be a OneToOneField or None
         parent_link = model._meta.get_ancestor_link(self.model)
-        if levels:
-            levels -= 1
+
         while parent_link is not None:
             related = parent_link.remote_field
             ancestry.insert(0, related.get_accessor_name())
-            if levels or levels is None:
-                parent_model = related.model
-                parent_link = parent_model._meta.get_ancestor_link(
-                    self.model)
-            else:
-                parent_link = None
+
+            parent_model = related.model
+            parent_link = parent_model._meta.get_ancestor_link(self.model)
+
         return LOOKUP_SEP.join(ancestry)
 
     def _get_sub_obj_recurse(self, obj, s):
