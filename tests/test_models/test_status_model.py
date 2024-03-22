@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import time_machine
 from django.test.testcases import TestCase
 
-from tests.models import Status, StatusCustomManager, StatusPlainTuple
+from tests.models import CustomManagerStatusModel, Status, StatusPlainTuple
 
 
 class StatusModelTests(TestCase):
@@ -87,13 +87,13 @@ class StatusModelDefaultManagerTests(TestCase):
         # This situation only happens when we define a model inheriting from an "abstract"
         # class which defines an "objects" manager.
 
-        StatusCustomManager.objects.create(status='first_choice')
-        StatusCustomManager.objects.create(status='second_choice')
-        StatusCustomManager.objects.create(status='second_choice')
+        CustomManagerStatusModel.objects.create(status='first_choice')
+        CustomManagerStatusModel.objects.create(status='second_choice')
+        CustomManagerStatusModel.objects.create(status='second_choice')
 
         # ...which made this count() equal to 1 (only 1 element with status='first_choice')...
-        self.assertEqual(StatusCustomManager._default_manager.count(), 3)
+        self.assertEqual(CustomManagerStatusModel._default_manager.count(), 3)
 
         # ...and this one equal to 0, because of 2 successive filters of 'first_choice'
         # (default manager) and 'second_choice' (explicit filter below).
-        self.assertEqual(StatusCustomManager._default_manager.filter(status='second_choice').count(), 2)
+        self.assertEqual(CustomManagerStatusModel._default_manager.filter(status='second_choice').count(), 2)
