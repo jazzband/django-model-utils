@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
-import time_machine
 from django.test.testcases import TestCase
+from freezegun import freeze_time
 
 from tests.models import Status, StatusCustomManager, StatusPlainTuple
 
@@ -13,7 +13,7 @@ class StatusModelTests(TestCase):
         self.active = Status.STATUS.active
 
     def test_created(self):
-        with time_machine.travel(datetime(2016, 1, 1)):
+        with freeze_time(datetime(2016, 1, 1)):
             c1 = self.model.objects.create()
         self.assertTrue(c1.status_changed, datetime(2016, 1, 1))
 
@@ -43,14 +43,14 @@ class StatusModelTests(TestCase):
         accordingly when update_fields is used as an argument
         and status_changed is provided
         '''
-        with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
+        with freeze_time(datetime(2020, 1, 1)):
             t1 = Status.objects.create()
 
-        with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
+        with freeze_time(datetime(2020, 1, 2)):
             t1.status = Status.on_hold
             t1.save(update_fields=['status', 'status_changed'])
 
-        self.assertEqual(t1.status_changed, datetime(2020, 1, 2, tzinfo=timezone.utc))
+        self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
 
     def test_save_with_update_fields_overrides_status_changed_not_provided(self):
         '''
@@ -58,14 +58,14 @@ class StatusModelTests(TestCase):
         accordingly when update_fields is used as an argument
         with status and status_changed is not provided
         '''
-        with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
+        with freeze_time(datetime(2020, 1, 1)):
             t1 = Status.objects.create()
 
-        with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
+        with freeze_time(datetime(2020, 1, 2)):
             t1.status = Status.on_hold
             t1.save(update_fields=['status'])
 
-        self.assertEqual(t1.status_changed, datetime(2020, 1, 2, tzinfo=timezone.utc))
+        self.assertEqual(t1.status_changed, datetime(2020, 1, 2))
 
 
 class StatusModelPlainTupleTests(StatusModelTests):
