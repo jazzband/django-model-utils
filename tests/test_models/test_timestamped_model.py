@@ -1,16 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
+import time_machine
 from django.test import TestCase
-from freezegun import freeze_time
 
 from tests.models import TimeStamp, TimeStampWithStatusModel
 
 
 class TimeStampedModelTests(TestCase):
     def test_created(self):
-        with freeze_time(datetime(2016, 1, 1)):
+        with time_machine.travel(datetime(2016, 1, 1, tzinfo=timezone.utc)):
             t1 = TimeStamp.objects.create()
-        self.assertEqual(t1.created, datetime(2016, 1, 1))
+        self.assertEqual(t1.created, datetime(2016, 1, 1, tzinfo=timezone.utc))
 
     def test_created_sets_modified(self):
         '''
@@ -20,13 +20,13 @@ class TimeStampedModelTests(TestCase):
         self.assertEqual(t1.created, t1.modified)
 
     def test_modified(self):
-        with freeze_time(datetime(2016, 1, 1)):
+        with time_machine.travel(datetime(2016, 1, 1, tzinfo=timezone.utc)):
             t1 = TimeStamp.objects.create()
 
-        with freeze_time(datetime(2016, 1, 2)):
+        with time_machine.travel(datetime(2016, 1, 2, tzinfo=timezone.utc)):
             t1.save()
 
-        self.assertEqual(t1.modified, datetime(2016, 1, 2))
+        self.assertEqual(t1.modified, datetime(2016, 1, 2, tzinfo=timezone.utc))
 
     def test_overriding_created_via_object_creation_also_uses_creation_date_for_modified(self):
         """
@@ -104,12 +104,12 @@ class TimeStampedModelTests(TestCase):
 
         for update_fields in tests:
             with self.subTest(update_fields=update_fields):
-                with freeze_time(datetime(2020, 1, 1)):
+                with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
                     t1 = TimeStamp.objects.create()
 
-                with freeze_time(datetime(2020, 1, 2)):
+                with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
                     t1.save(update_fields=update_fields)
-                self.assertEqual(t1.modified, datetime(2020, 1, 2))
+                self.assertEqual(t1.modified, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
     def test_save_is_skipped_for_empty_update_fields_iterable(self):
         tests = (
@@ -120,31 +120,31 @@ class TimeStampedModelTests(TestCase):
 
         for update_fields in tests:
             with self.subTest(update_fields=update_fields):
-                with freeze_time(datetime(2020, 1, 1)):
+                with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
                     t1 = TimeStamp.objects.create()
 
-                with freeze_time(datetime(2020, 1, 2)):
+                with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
                     t1.test_field = 1
                     t1.save(update_fields=update_fields)
 
                 t1.refresh_from_db()
                 self.assertEqual(t1.test_field, 0)
-                self.assertEqual(t1.modified, datetime(2020, 1, 1))
+                self.assertEqual(t1.modified, datetime(2020, 1, 1, tzinfo=timezone.utc))
 
     def test_save_updates_modified_value_when_update_fields_explicitly_set_to_none(self):
-        with freeze_time(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
             t1 = TimeStamp.objects.create()
 
-        with freeze_time(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
             t1.save(update_fields=None)
 
-        self.assertEqual(t1.modified, datetime(2020, 1, 2))
+        self.assertEqual(t1.modified, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
     def test_model_inherit_timestampmodel_and_statusmodel(self):
-        with freeze_time(datetime(2020, 1, 1)):
+        with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
             t1 = TimeStampWithStatusModel.objects.create()
 
-        with freeze_time(datetime(2020, 1, 2)):
+        with time_machine.travel(datetime(2020, 1, 2, tzinfo=timezone.utc)):
             t1.save(update_fields=['test_field', 'status'])
 
-        self.assertEqual(t1.modified, datetime(2020, 1, 2))
+        self.assertEqual(t1.modified, datetime(2020, 1, 2, tzinfo=timezone.utc))
