@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Any
 from unittest import skip
 
 from django.core.cache import cache
@@ -9,7 +10,7 @@ from django.db.models.fields.files import FieldFile
 from django.test import TestCase
 
 from model_utils import FieldTracker
-from model_utils.tracker import DescriptorWrapper
+from model_utils.tracker import DescriptorWrapper, FieldInstanceTracker
 from tests.models import (
     InheritedModelTracked,
     InheritedTracked,
@@ -31,9 +32,10 @@ from tests.models import (
 
 class FieldTrackerTestCase(TestCase):
 
-    tracker = None
+    tracker: FieldInstanceTracker
+    instance: Tracked
 
-    def assertHasChanged(self, *, tracker=None, **kwargs):
+    def assertHasChanged(self, *, tracker: FieldInstanceTracker | None = None, **kwargs: Any) -> None:
         if tracker is None:
             tracker = self.tracker
         for field, value in kwargs.items():
@@ -43,23 +45,23 @@ class FieldTrackerTestCase(TestCase):
             else:
                 self.assertEqual(tracker.has_changed(field), value)
 
-    def assertPrevious(self, *, tracker=None, **kwargs):
+    def assertPrevious(self, *, tracker: FieldInstanceTracker | None = None, **kwargs: Any) -> None:
         if tracker is None:
             tracker = self.tracker
         for field, value in kwargs.items():
             self.assertEqual(tracker.previous(field), value)
 
-    def assertChanged(self, *, tracker=None, **kwargs):
+    def assertChanged(self, *, tracker: FieldInstanceTracker | None = None, **kwargs: Any) -> None:
         if tracker is None:
             tracker = self.tracker
         self.assertEqual(tracker.changed(), kwargs)
 
-    def assertCurrent(self, *, tracker=None, **kwargs):
+    def assertCurrent(self, *, tracker: FieldInstanceTracker | None = None, **kwargs: Any) -> None:
         if tracker is None:
             tracker = self.tracker
         self.assertEqual(tracker.current(), kwargs)
 
-    def update_instance(self, **kwargs):
+    def update_instance(self, **kwargs: Any) -> None:
         for field, value in kwargs.items():
             setattr(self.instance, field, value)
         self.instance.save()
@@ -889,11 +891,11 @@ class TrackerContextDecoratorTests(TestCase):
         self.instance = Tracked.objects.create(number=1)
         self.tracker = self.instance.tracker
 
-    def assertChanged(self, *fields):
+    def assertChanged(self, *fields: str) -> None:
         for f in fields:
             self.assertTrue(self.tracker.has_changed(f))
 
-    def assertNotChanged(self, *fields):
+    def assertNotChanged(self, *fields: str) -> None:
         for f in fields:
             self.assertFalse(self.tracker.has_changed(f))
 
@@ -924,7 +926,7 @@ class TrackerContextDecoratorTests(TestCase):
     def test_tracker_decorator(self) -> None:
 
         @Tracked.tracker
-        def tracked_method(obj):
+        def tracked_method(obj: Tracked) -> None:
             obj.name = 'new'
             self.assertChanged('name')
 
@@ -935,7 +937,7 @@ class TrackerContextDecoratorTests(TestCase):
     def test_tracker_decorator_fields(self) -> None:
 
         @Tracked.tracker(fields=['name'])
-        def tracked_method(obj):
+        def tracked_method(obj: Tracked) -> None:
             obj.name = 'new'
             obj.number += 1
             self.assertChanged('name', 'number')
