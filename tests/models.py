@@ -201,32 +201,6 @@ class NoRendered(models.Model):
     body = SplitField(no_excerpt_field=True)
 
 
-class AuthorMixin:
-    def by_author(self, name):
-        return self.filter(author=name)
-
-
-class PublishedMixin:
-    def published(self):
-        return self.filter(published=True)
-
-
-def unpublished(self):
-    return self.filter(published=False)
-
-
-class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
-    pass
-
-
-class FeaturedManager(models.Manager):
-    def get_queryset(self):
-        kwargs = {}
-        if hasattr(self, "_db"):
-            kwargs["using"] = self._db
-        return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
-
-
 class AbstractTracked(models.Model):
     number = 1
 
