@@ -192,15 +192,6 @@ class SplitFieldAbstractParent(models.Model):
         abstract = True
 
 
-class NoRendered(models.Model):
-    """
-    Test that the no_excerpt_field keyword arg works. This arg should
-    never be used except by the South model-freezing.
-
-    """
-    body = SplitField(no_excerpt_field=True)
-
-
 class AbstractTracked(models.Model):
     number = 1
 
