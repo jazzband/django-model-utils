@@ -145,7 +145,9 @@ class StatusCustomManager(Manager):
     pass
 
 
-class AbstractStatusCustomManager(StatusModel):
+class AbstractCustomManagerStatusModel(StatusModel):
+    """An abstract status model with a custom manager."""
+
     STATUS = Choices(
         ("first_choice", _("First choice")),
         ("second_choice", _("Second choice")),
@@ -157,7 +159,9 @@ class AbstractStatusCustomManager(StatusModel):
         abstract = True
 
 
-class StatusCustomManager(AbstractStatusCustomManager):
+class CustomManagerStatusModel(AbstractCustomManagerStatusModel):
+    """A concrete status model with a custom manager."""
+
     title = models.CharField(max_length=50)
 
 
