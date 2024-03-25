@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import ClassVar
+
 from django.db import models
 from django.db.models import Manager
 from django.db.models.query_utils import DeferredAttribute
@@ -32,7 +36,7 @@ class InheritanceManagerTestParent(models.Model):
     related_self = models.OneToOneField(
         "self", related_name="imtests_self", null=True,
         on_delete=models.CASCADE)
-    objects = InheritanceManager()
+    objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
     def __str__(self):
         return "{}({})".format(
@@ -44,7 +48,7 @@ class InheritanceManagerTestParent(models.Model):
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
-    objects = InheritanceManager()
+    objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
 
 class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
@@ -172,8 +176,8 @@ class Post(models.Model):
     order = models.IntegerField()
 
     objects = models.Manager()
-    public = QueryManager(published=True)
-    public_confirmed = QueryManager(
+    public: ClassVar[QueryManager[Post]] = QueryManager(published=True)
+    public_confirmed: ClassVar[QueryManager[Post]] = QueryManager(
         models.Q(published=True) & models.Q(confirmed=True))
     public_reversed = QueryManager(published=True).order_by("-order")
 
@@ -194,7 +198,7 @@ class SplitFieldAbstractParent(models.Model):
 
 
 class AbstractTracked(models.Model):
-    number = 1
+    number: models.IntegerField
 
     class Meta:
         abstract = True
@@ -340,13 +344,13 @@ class SoftDeletable(SoftDeletableModel):
     """
     name = models.CharField(max_length=20)
 
-    all_objects = models.Manager()
+    all_objects: ClassVar[Manager[SoftDeletable]] = models.Manager()
 
 
 class CustomSoftDelete(SoftDeletableModel):
     is_read = models.BooleanField(default=False)
 
-    objects = CustomSoftDeleteManager()
+    objects: ClassVar[CustomSoftDeleteManager[SoftDeletableModel]] = CustomSoftDeleteManager()
 
 
 class StringyDescriptor:
@@ -390,7 +394,7 @@ class ModelWithCustomDescriptor(models.Model):
 
 class BoxJoinModel(models.Model):
     name = models.CharField(max_length=32)
-    objects = JoinManager()
+    objects: ClassVar[JoinManager[BoxJoinModel]] = JoinManager()
 
 
 class JoinItemForeignKey(models.Model):
@@ -400,7 +404,7 @@ class JoinItemForeignKey(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
-    objects = JoinManager()
+    objects: ClassVar[JoinManager[JoinItemForeignKey]] = JoinManager()
 
 
 class CustomUUIDModel(UUIDModel):
