@@ -85,13 +85,13 @@ class StatusField(models.CharField):
             if not self.has_default():
                 self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, *args, **kwargs):
         models.signals.class_prepared.connect(self.prepare_class, sender=cls)
         # we don't set the real choices until class_prepared (so we can rely on
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
         self.choices = [(0, 'dummy')]
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, *args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
@@ -130,10 +130,10 @@ class MonitorField(models.DateTimeField):
         self.when = when
         super().__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, *args, **kwargs):
         self.monitor_attname = '_monitor_%s' % name
         models.signals.post_init.connect(self._save_initial, sender=cls)
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, *args, **kwargs)
 
     def get_monitored_value(self, instance):
         return getattr(instance, self.monitor)
@@ -249,11 +249,11 @@ class SplitField(models.TextField):
         self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
         super().__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, *args, **kwargs):
         if self.add_excerpt_field and not cls._meta.abstract:
             excerpt_field = models.TextField(editable=False)
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, *args, **kwargs)
         setattr(cls, self.name, SplitDescriptor(self))
 
     def pre_save(self, model_instance, add):
