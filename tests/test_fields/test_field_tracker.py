@@ -30,8 +30,9 @@ class FieldTrackerTestCase(TestCase):
 
     tracker = None
 
-    def assertHasChanged(self, **kwargs):
-        tracker = kwargs.pop('tracker', self.tracker)
+    def assertHasChanged(self, *, tracker=None, **kwargs):
+        if tracker is None:
+            tracker = self.tracker
         for field, value in kwargs.items():
             if value is None:
                 with self.assertRaises(FieldError):
@@ -39,17 +40,20 @@ class FieldTrackerTestCase(TestCase):
             else:
                 self.assertEqual(tracker.has_changed(field), value)
 
-    def assertPrevious(self, **kwargs):
-        tracker = kwargs.pop('tracker', self.tracker)
+    def assertPrevious(self, *, tracker=None, **kwargs):
+        if tracker is None:
+            tracker = self.tracker
         for field, value in kwargs.items():
             self.assertEqual(tracker.previous(field), value)
 
-    def assertChanged(self, **kwargs):
-        tracker = kwargs.pop('tracker', self.tracker)
+    def assertChanged(self, *, tracker=None, **kwargs):
+        if tracker is None:
+            tracker = self.tracker
         self.assertEqual(tracker.changed(), kwargs)
 
-    def assertCurrent(self, **kwargs):
-        tracker = kwargs.pop('tracker', self.tracker)
+    def assertCurrent(self, *, tracker=None, **kwargs):
+        if tracker is None:
+            tracker = self.tracker
         self.assertEqual(tracker.current(), kwargs)
 
     def update_instance(self, **kwargs):
