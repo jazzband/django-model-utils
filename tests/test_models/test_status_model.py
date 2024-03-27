@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 import time_machine
@@ -7,12 +9,14 @@ from tests.models import CustomManagerStatusModel, Status, StatusPlainTuple
 
 
 class StatusModelTests(TestCase):
-    def setUp(self):
+    model: type[Status] | type[StatusPlainTuple]
+
+    def setUp(self) -> None:
         self.model = Status
         self.on_hold = Status.STATUS.on_hold
         self.active = Status.STATUS.active
 
-    def test_created(self):
+    def test_created(self) -> None:
         with time_machine.travel(datetime(2016, 1, 1)):
             c1 = self.model.objects.create()
         self.assertTrue(c1.status_changed, datetime(2016, 1, 1))
@@ -21,7 +25,7 @@ class StatusModelTests(TestCase):
         self.assertEqual(self.model.active.count(), 2)
         self.assertEqual(self.model.deleted.count(), 0)
 
-    def test_modification(self):
+    def test_modification(self) -> None:
         t1 = self.model.objects.create()
         date_created = t1.status_changed
         t1.status = self.on_hold
@@ -37,7 +41,7 @@ class StatusModelTests(TestCase):
         t1.save()
         self.assertTrue(t1.status_changed > date_active_again)
 
-    def test_save_with_update_fields_overrides_status_changed_provided(self):
+    def test_save_with_update_fields_overrides_status_changed_provided(self) -> None:
         '''
         Tests if the save method updated status_changed field
         accordingly when update_fields is used as an argument
@@ -52,7 +56,7 @@ class StatusModelTests(TestCase):
 
         self.assertEqual(t1.status_changed, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
-    def test_save_with_update_fields_overrides_status_changed_not_provided(self):
+    def test_save_with_update_fields_overrides_status_changed_not_provided(self) -> None:
         '''
         Tests if the save method updated status_changed field
         accordingly when update_fields is used as an argument
@@ -69,7 +73,7 @@ class StatusModelTests(TestCase):
 
 
 class StatusModelPlainTupleTests(StatusModelTests):
-    def setUp(self):
+    def setUp(self) -> None:
         self.model = StatusPlainTuple
         self.on_hold = StatusPlainTuple.STATUS[2][0]
         self.active = StatusPlainTuple.STATUS[0][0]
@@ -77,7 +81,7 @@ class StatusModelPlainTupleTests(StatusModelTests):
 
 class StatusModelDefaultManagerTests(TestCase):
 
-    def test_default_manager_is_not_status_model_generated_ones(self):
+    def test_default_manager_is_not_status_model_generated_ones(self) -> None:
         # Regression test for GH-251
         # The logic behind order for managers seems to have changed in Django 1.10
         # and affects default manager.

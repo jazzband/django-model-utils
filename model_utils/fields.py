@@ -1,12 +1,19 @@
+from __future__ import annotations
+
 import secrets
 import uuid
 import warnings
-from collections.abc import Callable
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.timezone import now
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from datetime import datetime
 
 DEFAULT_CHOICES_NAME = 'STATUS'
 
@@ -20,7 +27,7 @@ class AutoCreatedField(models.DateTimeField):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         kwargs.setdefault('editable', False)
         kwargs.setdefault('default', now)
         super().__init__(*args, **kwargs)
@@ -33,13 +40,13 @@ class AutoLastModifiedField(AutoCreatedField):
     By default, sets editable=False and default=datetime.now.
 
     """
-    def get_default(self):
+    def get_default(self) -> datetime:
         """Return the default value for this field."""
         if not hasattr(self, "_default"):
-            self._default = self._get_default()
+            self._default = self._get_default()  # type: ignore[attr-defined]
         return self._default
 
-    def pre_save(self, model_instance, add):
+    def pre_save(self, model_instance: models.Model, add: bool) -> datetime:
         value = now()
         if add:
             current_value = getattr(model_instance, self.attname, self.get_default())
@@ -70,13 +77,19 @@ class StatusField(models.CharField):
     South can handle this field when it freezes a model.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args: Any,
+        no_check_for_status: bool = False,
+        choices_name: str = DEFAULT_CHOICES_NAME,
+        **kwargs: Any
+    ):
         kwargs.setdefault('max_length', 100)
-        self.check_for_status = not kwargs.pop('no_check_for_status', False)
-        self.choices_name = kwargs.pop('choices_name', DEFAULT_CHOICES_NAME)
+        self.check_for_status = not no_check_for_status
+        self.choices_name = choices_name
         super().__init__(*args, **kwargs)
 
-    def prepare_class(self, sender, **kwargs):
+    def prepare_class(self, sender: type[models.Model], **kwargs: Any) -> None:
         if not sender._meta.abstract and self.check_for_status:
             assert hasattr(sender, self.choices_name), \
                 "To use StatusField, the model '%s' must have a %s choices class attribute." \
@@ -85,15 +98,15 @@ class StatusField(models.CharField):
             if not self.has_default():
                 self.default = tuple(getattr(sender, self.choices_name))[0][0]  # set first as default
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls: type[models.Model], name: str, *args: Any, **kwargs: Any) -> None:
         models.signals.class_prepared.connect(self.prepare_class, sender=cls)
         # we don't set the real choices until class_prepared (so we can rely on
         # the STATUS class attr being available), but we need to set some dummy
         # choices now so the super method will add the get_FOO_display method
         self.choices = [(0, 'dummy')]
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, *args, **kwargs)
 
-    def deconstruct(self):
+    def deconstruct(self) -> tuple[str, str, Sequence[Any], dict[str, Any]]:
         name, path, args, kwargs = super().deconstruct()
         kwargs['no_check_for_status'] = True
         return name, path, args, kwargs
@@ -107,7 +120,7 @@ class MonitorField(models.DateTimeField):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, monitor: str, when: Iterable[Any] | None = None, **kwargs: Any):
         if kwargs.get("null") and kwargs.get("default") is None:
             warning_message = (
                 "{}.default is set to 'django.utils.timezone.now' - when nullable"
@@ -119,32 +132,25 @@ class MonitorField(models.DateTimeField):
             warnings.warn(warning_message, DeprecationWarning)
 
         kwargs.setdefault('default', now)
-        monitor = kwargs.pop('monitor', None)
-        if not monitor:
-            raise TypeError(
-                '%s requires a "monitor" argument' % self.__class__.__name__)
         self.monitor = monitor
-        when = kwargs.pop('when', None)
-        if when is not None:
-            when = set(when)
-        self.when = when
+        self.when = None if when is None else set(when)
         super().__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls: type[models.Model], name: str, *args: Any, **kwargs: Any) -> None:
         self.monitor_attname = '_monitor_%s' % name
         models.signals.post_init.connect(self._save_initial, sender=cls)
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, *args, **kwargs)
 
-    def get_monitored_value(self, instance):
+    def get_monitored_value(self, instance: models.Model) -> Any:
         return getattr(instance, self.monitor)
 
-    def _save_initial(self, sender, instance, **kwargs):
+    def _save_initial(self, sender: type[models.Model], instance: models.Model, **kwargs: Any) -> None:
         if self.monitor in instance.get_deferred_fields():
             # Fix related to issue #241 to avoid recursive error on double monitor fields
             return
         setattr(instance, self.monitor_attname, self.get_monitored_value(instance))
 
-    def pre_save(self, model_instance, add):
+    def pre_save(self, model_instance: models.Model, add: bool) -> Any:
         value = now()
         previous = getattr(model_instance, self.monitor_attname, None)
         current = self.get_monitored_value(model_instance)
@@ -154,7 +160,7 @@ class MonitorField(models.DateTimeField):
                 self._save_initial(model_instance.__class__, model_instance)
         return super().pre_save(model_instance, add)
 
-    def deconstruct(self):
+    def deconstruct(self) -> tuple[str, str, Sequence[Any], dict[str, Any]]:
         name, path, args, kwargs = super().deconstruct()
         kwargs['monitor'] = self.monitor
         if self.when is not None:
@@ -168,12 +174,12 @@ SPLIT_MARKER = getattr(settings, 'SPLIT_MARKER', '<!-- split -->')
 SPLIT_DEFAULT_PARAGRAPHS = getattr(settings, 'SPLIT_DEFAULT_PARAGRAPHS', 2)
 
 
-def _excerpt_field_name(name):
+def _excerpt_field_name(name: str) -> str:
     return '_%s_excerpt' % name
 
 
-def get_excerpt(content):
-    excerpt = []
+def get_excerpt(content: str) -> str:
+    excerpt: list[str] = []
     default_excerpt = []
     paras_seen = 0
     for line in content.splitlines():
@@ -189,42 +195,39 @@ def get_excerpt(content):
 
 
 class SplitText:
-    def __init__(self, instance, field_name, excerpt_field_name):
+    def __init__(self, instance: models.Model, field_name: str, excerpt_field_name: str):
         # instead of storing actual values store a reference to the instance
         # along with field names, this makes assignment possible
         self.instance = instance
         self.field_name = field_name
         self.excerpt_field_name = excerpt_field_name
 
-    # content is read/write
     @property
-    def content(self):
+    def content(self) -> str:
         return self.instance.__dict__[self.field_name]
 
     @content.setter
-    def content(self, val):
+    def content(self, val: str) -> None:
         setattr(self.instance, self.field_name, val)
 
-    # excerpt is a read only property
-    def _get_excerpt(self):
+    @property
+    def excerpt(self) -> str:
         return getattr(self.instance, self.excerpt_field_name)
-    excerpt = property(_get_excerpt)
 
-    # has_more is a boolean property
-    def _get_has_more(self):
+    @property
+    def has_more(self) -> bool:
         return self.excerpt.strip() != self.content.strip()
-    has_more = property(_get_has_more)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.content
 
 
 class SplitDescriptor:
-    def __init__(self, field):
+    def __init__(self, field: SplitField):
         self.field = field
         self.excerpt_field_name = _excerpt_field_name(self.field.name)
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: models.Model, owner: type[models.Model]) -> SplitText | None:
         if instance is None:
             raise AttributeError('Can only be accessed via an instance.')
         content = instance.__dict__[self.field.name]
@@ -232,7 +235,7 @@ class SplitDescriptor:
             return None
         return SplitText(instance, self.field.name, self.excerpt_field_name)
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: models.Model, value: SplitText | str | None) -> None:
         if isinstance(value, SplitText):
             obj.__dict__[self.field.name] = value.content
             setattr(obj, self.excerpt_field_name, value.excerpt)
@@ -241,41 +244,28 @@ class SplitDescriptor:
 
 
 class SplitField(models.TextField):
-    def __init__(self, *args, **kwargs):
-        # for South FakeORM compatibility: the frozen version of a
-        # SplitField can't try to add an _excerpt field, because the
-        # _excerpt field itself is frozen as well. See introspection
-        # rules below.
-        self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
-        super().__init__(*args, **kwargs)
-
-    def contribute_to_class(self, cls, name):
-        if self.add_excerpt_field and not cls._meta.abstract:
-            excerpt_field = models.TextField(editable=False)
+    def contribute_to_class(self, cls: type[models.Model], name: str, *args: Any, **kwargs: Any) -> None:
+        if not cls._meta.abstract:
+            excerpt_field: models.TextField = models.TextField(editable=False)
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, *args, **kwargs)
         setattr(cls, self.name, SplitDescriptor(self))
 
-    def pre_save(self, model_instance, add):
+    def pre_save(self, model_instance: models.Model, add: bool) -> str:
         value = super().pre_save(model_instance, add)
         excerpt = get_excerpt(value.content)
         setattr(model_instance, _excerpt_field_name(self.attname), excerpt)
         return value.content
 
-    def value_to_string(self, obj):
+    def value_to_string(self, obj: models.Model) -> str:
         value = self.value_from_object(obj)
         return value.content
 
-    def get_prep_value(self, value):
+    def get_prep_value(self, value: Any) -> str:
         try:
             return value.content
         except AttributeError:
             return value
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        kwargs['no_excerpt_field'] = True
-        return name, path, args, kwargs
 
 
 class UUIDField(models.UUIDField):
@@ -283,7 +273,14 @@ class UUIDField(models.UUIDField):
     A field for storing universally unique identifiers. Use Python UUID class.
     """
 
-    def __init__(self, primary_key=True, version=4, editable=False, *args, **kwargs):
+    def __init__(
+        self,
+        primary_key: bool = True,
+        version: int = 4,
+        editable: bool = False,
+        *args: Any,
+        **kwargs: Any
+    ):
         """
         Parameters
         ----------
@@ -309,6 +306,7 @@ class UUIDField(models.UUIDField):
             raise ValidationError(
                 'UUID version is not valid.')
 
+        default: Callable[..., uuid.UUID]
         if version == 1:
             default = uuid.uuid1
         elif version == 3:
@@ -329,7 +327,15 @@ class UrlsafeTokenField(models.CharField):
     A field for storing a unique token in database.
     """
 
-    def __init__(self, editable=False, max_length=128, factory=None, **kwargs):
+    max_length: int
+
+    def __init__(
+        self,
+        editable: bool = False,
+        max_length: int = 128,
+        factory: Callable[[int], str] | None = None,
+        **kwargs: Any
+    ):
         """
         Parameters
         ----------
@@ -346,22 +352,22 @@ class UrlsafeTokenField(models.CharField):
             non-callable value for factory is not supported.
         """
 
-        if factory is not None and not isinstance(factory, Callable):
-            raise TypeError("'factory' should either be a callable not 'None'")
+        if factory is not None and not callable(factory):
+            raise TypeError("'factory' should either be a callable or 'None'")
         self._factory = factory
 
         kwargs.pop('default', None)  # passing default value has not effect.
 
         super().__init__(editable=editable, max_length=max_length, **kwargs)
 
-    def get_default(self):
+    def get_default(self) -> str:
         if self._factory is not None:
             return self._factory(self.max_length)
         # generate a token of length x1.33 approx. trim up to max length
         token = secrets.token_urlsafe(self.max_length)[:self.max_length]
         return token
 
-    def deconstruct(self):
+    def deconstruct(self) -> tuple[str, str, Sequence[Any], dict[str, Any]]:
         name, path, args, kwargs = super().deconstruct()
         kwargs['factory'] = self._factory
         return name, path, args, kwargs
