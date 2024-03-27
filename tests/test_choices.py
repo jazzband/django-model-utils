@@ -1,16 +1,67 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Generic, TypeVar
+
+import pytest
 from django.test import TestCase
 
 from model_utils import Choices
 
+T = TypeVar("T")
 
-class ChoicesTests(TestCase):
-    def setUp(self) -> None:
-        self.STATUS = Choices('DRAFT', 'PUBLISHED')
+
+class ChoicesTestsMixin(Generic[T]):
+
+    STATUS: Choices[T]
 
     def test_getattr(self) -> None:
-        self.assertEqual(self.STATUS.DRAFT, 'DRAFT')
+        assert self.STATUS.DRAFT == 'DRAFT'
+
+    def test_len(self) -> None:
+        assert len(self.STATUS) == 2
+
+    def test_repr(self) -> None:
+        assert repr(self.STATUS) == "Choices" + repr((
+            ('DRAFT', 'DRAFT', 'DRAFT'),
+            ('PUBLISHED', 'PUBLISHED', 'PUBLISHED'),
+        ))
+
+    def test_wrong_length_tuple(self) -> None:
+        with pytest.raises(ValueError):
+            Choices(('a',))  # type: ignore[arg-type]
+
+    def test_deepcopy(self) -> None:
+        import copy
+        assert list(self.STATUS) == list(copy.deepcopy(self.STATUS))
+
+    def test_equality(self) -> None:
+        assert self.STATUS == Choices('DRAFT', 'PUBLISHED')
+
+    def test_inequality(self) -> None:
+        assert self.STATUS != ['DRAFT', 'PUBLISHED']
+        assert self.STATUS != Choices('DRAFT')
+
+    def test_composability(self) -> None:
+        assert Choices('DRAFT') + Choices('PUBLISHED') == self.STATUS
+        assert Choices('DRAFT') + ('PUBLISHED',) == self.STATUS
+        assert ('DRAFT',) + Choices('PUBLISHED') == self.STATUS
+
+    def test_option_groups(self) -> None:
+        # Note: The implementation accepts any kind of sequence, but the type system can only
+        #       track per-index types for tuples.
+        if TYPE_CHECKING:
+            c = Choices(('group a', ['one', 'two']), ('group b', ('three',)))
+        else:
+            c = Choices(('group a', ['one', 'two']), ['group b', ('three',)])
+        assert list(c) == [
+            ('group a', [('one', 'one'), ('two', 'two')]),
+            ('group b', [('three', 'three')]),
+        ]
+
+
+class ChoicesTests(TestCase, ChoicesTestsMixin[str]):
+    def setUp(self) -> None:
+        self.STATUS = Choices('DRAFT', 'PUBLISHED')
 
     def test_indexing(self) -> None:
         self.assertEqual(self.STATUS['PUBLISHED'], 'PUBLISHED')
@@ -23,19 +74,6 @@ class ChoicesTests(TestCase):
         self.assertEqual(tuple(reversed(self.STATUS)),
                          (('PUBLISHED', 'PUBLISHED'), ('DRAFT', 'DRAFT')))
 
-    def test_len(self) -> None:
-        self.assertEqual(len(self.STATUS), 2)
-
-    def test_repr(self) -> None:
-        self.assertEqual(repr(self.STATUS), "Choices" + repr((
-            ('DRAFT', 'DRAFT', 'DRAFT'),
-            ('PUBLISHED', 'PUBLISHED', 'PUBLISHED'),
-        )))
-
-    def test_wrong_length_tuple(self) -> None:
-        with self.assertRaises(ValueError):
-            Choices(('a',))
-
     def test_contains_value(self) -> None:
         self.assertTrue('PUBLISHED' in self.STATUS)
         self.assertTrue('DRAFT' in self.STATUS)
@@ -43,35 +81,8 @@ class ChoicesTests(TestCase):
     def test_doesnt_contain_value(self) -> None:
         self.assertFalse('UNPUBLISHED' in self.STATUS)
 
-    def test_deepcopy(self) -> None:
-        import copy
-        self.assertEqual(list(self.STATUS),
-                         list(copy.deepcopy(self.STATUS)))
 
-    def test_equality(self) -> None:
-        self.assertEqual(self.STATUS, Choices('DRAFT', 'PUBLISHED'))
-
-    def test_inequality(self) -> None:
-        self.assertNotEqual(self.STATUS, ['DRAFT', 'PUBLISHED'])
-        self.assertNotEqual(self.STATUS, Choices('DRAFT'))
-
-    def test_composability(self) -> None:
-        self.assertEqual(Choices('DRAFT') + Choices('PUBLISHED'), self.STATUS)
-        self.assertEqual(Choices('DRAFT') + ('PUBLISHED',), self.STATUS)
-        self.assertEqual(('DRAFT',) + Choices('PUBLISHED'), self.STATUS)
-
-    def test_option_groups(self) -> None:
-        c = Choices(('group a', ['one', 'two']), ['group b', ('three',)])
-        self.assertEqual(
-            list(c),
-            [
-                ('group a', [('one', 'one'), ('two', 'two')]),
-                ('group b', [('three', 'three')]),
-            ],
-        )
-
-
-class LabelChoicesTests(ChoicesTests):
+class LabelChoicesTests(TestCase, ChoicesTestsMixin[str]):
     def setUp(self) -> None:
         self.STATUS = Choices(
             ('DRAFT', 'is draft'),
@@ -157,10 +168,16 @@ class LabelChoicesTests(ChoicesTests):
         )
 
     def test_option_groups(self) -> None:
-        c = Choices(
-            ('group a', [(1, 'one'), (2, 'two')]),
-            ['group b', ((3, 'three'),)]
-        )
+        if TYPE_CHECKING:
+            c = Choices[int](
+                ('group a', [(1, 'one'), (2, 'two')]),
+                ('group b', ((3, 'three'),))
+            )
+        else:
+            c = Choices(
+                ('group a', [(1, 'one'), (2, 'two')]),
+                ['group b', ((3, 'three'),)]
+            )
         self.assertEqual(
             list(c),
             [
@@ -170,7 +187,7 @@ class LabelChoicesTests(ChoicesTests):
         )
 
 
-class IdentifierChoicesTests(ChoicesTests):
+class IdentifierChoicesTests(TestCase, ChoicesTestsMixin[int]):
     def setUp(self) -> None:
         self.STATUS = Choices(
             (0, 'DRAFT', 'is draft'),
@@ -216,10 +233,10 @@ class IdentifierChoicesTests(ChoicesTests):
         self.assertFalse(3 in self.STATUS)
 
     def test_doesnt_contain_display_value(self) -> None:
-        self.assertFalse('is draft' in self.STATUS)
+        self.assertFalse('is draft' in self.STATUS)  # type: ignore[operator]
 
     def test_doesnt_contain_python_attr(self) -> None:
-        self.assertFalse('PUBLISHED' in self.STATUS)
+        self.assertFalse('PUBLISHED' in self.STATUS)  # type: ignore[operator]
 
     def test_equality(self) -> None:
         self.assertEqual(self.STATUS, Choices(
@@ -268,10 +285,16 @@ class IdentifierChoicesTests(ChoicesTests):
         )
 
     def test_option_groups(self) -> None:
-        c = Choices(
-            ('group a', [(1, 'ONE', 'one'), (2, 'TWO', 'two')]),
-            ['group b', ((3, 'THREE', 'three'),)]
-        )
+        if TYPE_CHECKING:
+            c = Choices[int](
+                ('group a', [(1, 'ONE', 'one'), (2, 'TWO', 'two')]),
+                ('group b', ((3, 'THREE', 'three'),))
+            )
+        else:
+            c = Choices(
+                ('group a', [(1, 'ONE', 'one'), (2, 'TWO', 'two')]),
+                ['group b', ((3, 'THREE', 'three'),)]
+            )
         self.assertEqual(
             list(c),
             [
@@ -284,7 +307,7 @@ class IdentifierChoicesTests(ChoicesTests):
 class SubsetChoicesTest(TestCase):
 
     def setUp(self) -> None:
-        self.choices = Choices(
+        self.choices = Choices[int](
             (0, 'a', 'A'),
             (1, 'b', 'B'),
         )
