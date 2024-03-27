@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 
 import time_machine
@@ -114,7 +115,7 @@ class TimeStampedModelTests(TestCase):
                 self.assertEqual(t1.modified, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
     def test_save_is_skipped_for_empty_update_fields_iterable(self) -> None:
-        tests = (
+        tests: Iterable[Iterable[str]] = (
             [],  # list
             (),  # tuple
             set(),  # set

@@ -9,6 +9,8 @@ from tests.models import CustomManagerStatusModel, Status, StatusPlainTuple
 
 
 class StatusModelTests(TestCase):
+    model: type[Status] | type[StatusPlainTuple]
+
     def setUp(self) -> None:
         self.model = Status
         self.on_hold = Status.STATUS.on_hold
