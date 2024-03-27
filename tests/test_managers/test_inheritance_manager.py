@@ -25,7 +25,7 @@ class InheritanceManagerTests(TestCase):
         self.grandchild1_2 = \
             InheritanceManagerTestGrandChild1_2.objects.create()
 
-    def get_manager(self):
+    def get_manager(self) -> models.Manager:
         return InheritanceManagerTestParent.objects
 
     def test_normal(self) -> None:
@@ -495,7 +495,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
         self.grandchild1 = InheritanceManagerTestGrandChild1.objects.create(related=self.related)
         self.grandchild1_2 = InheritanceManagerTestGrandChild1_2.objects.create(related=self.related)
 
-    def get_manager(self):
+    def get_manager(self) -> models.Manager:
         return self.related.imtests
 
     def test_get_method_with_select_subclasses(self) -> None:
