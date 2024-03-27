@@ -222,16 +222,8 @@ class SplitDescriptor:
 
 
 class SplitField(models.TextField):
-    def __init__(self, *args, no_excerpt_field=False, **kwargs):
-        # for South FakeORM compatibility: the frozen version of a
-        # SplitField can't try to add an _excerpt field, because the
-        # _excerpt field itself is frozen as well. See introspection
-        # rules below.
-        self.add_excerpt_field = not no_excerpt_field
-        super().__init__(*args, **kwargs)
-
     def contribute_to_class(self, cls, name, *args, **kwargs):
-        if self.add_excerpt_field and not cls._meta.abstract:
+        if not cls._meta.abstract:
             excerpt_field = models.TextField(editable=False)
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
         super().contribute_to_class(cls, name, *args, **kwargs)
@@ -252,11 +244,6 @@ class SplitField(models.TextField):
             return value.content
         except AttributeError:
             return value
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        kwargs['no_excerpt_field'] = True
-        return name, path, args, kwargs
 
 
 class UUIDField(models.UUIDField):
