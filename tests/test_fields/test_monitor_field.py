@@ -34,7 +34,7 @@ class MonitorFieldTests(TestCase):
 
     def test_no_monitor_arg(self) -> None:
         with self.assertRaises(TypeError):
-            MonitorField()
+            MonitorField()  # type: ignore[call-arg]
 
     def test_monitor_default_is_none_when_nullable(self) -> None:
         self.assertIsNone(self.instance.name_changed_nullable)

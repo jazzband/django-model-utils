@@ -31,7 +31,7 @@ class UrlsaftTokenFieldTests(TestCase):
 
     def test_factory_not_callable(self) -> None:
         with self.assertRaises(TypeError):
-            UrlsafeTokenField(factory='INVALID')
+            UrlsafeTokenField(factory='INVALID')  # type: ignore[arg-type]
 
     def test_get_default(self) -> None:
         field = UrlsafeTokenField()
@@ -57,8 +57,8 @@ class UrlsaftTokenFieldTests(TestCase):
         self.assertIs(field.default, NOT_PROVIDED)
 
     def test_deconstruct(self) -> None:
-        def test_factory() -> None:
-            pass
+        def test_factory(max_length: int) -> str:
+            assert False
         instance = UrlsafeTokenField(factory=test_factory)
         name, path, args, kwargs = instance.deconstruct()
         new_instance = UrlsafeTokenField(*args, **kwargs)
