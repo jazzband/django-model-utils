@@ -9,8 +9,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: django-model-utils\n"
-"Report-Msgid-Bugs-To: https://github.com/jazzband/django-model-utils/issues\n"
-"POT-Creation-Date: 2021-01-11 11:39+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-01 15:01+0200\n"
 "PO-Revision-Date: 2021-01-11 11:45+0100\n"
 "Last-Translator: Florian Alu <fla@grapps.fr>\n"
 "Language-Team: \n"
@@ -21,26 +21,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.4.2\n"
 
-#: .\models.py:25
+#: models.py:24
 msgid "created"
 msgstr "créé"
 
-#: .\models.py:26
+#: models.py:25
 msgid "modified"
 msgstr "modifié"
 
-#: .\models.py:50
+#: models.py:49
 msgid "start"
 msgstr "début"
 
-#: .\models.py:51
+#: models.py:50
 msgid "end"
 msgstr "fin"
 
-#: .\models.py:66
+#: models.py:65
 msgid "status"
 msgstr "statut"
 
-#: .\models.py:67
+#: models.py:66
 msgid "status changed"
 msgstr "statut modifié"

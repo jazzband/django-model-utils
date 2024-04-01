@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-23 14:46+0100\n"
+"POT-Creation-Date: 2024-04-01 15:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,39 +15,36 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: model_utils/models.py:25
+
+#: models.py:24
 msgid "created"
 msgstr "skapad"
 
-#: model_utils/models.py:26
+#: models.py:25
 msgid "modified"
 msgstr "ändrad"
 
-#: model_utils/models.py:50
+#: models.py:49
 msgid "start"
 msgstr "start"
 
-#: model_utils/models.py:51
+#: models.py:50
 msgid "end"
 msgstr "slut"
 
-#: model_utils/models.py:66
+#: models.py:65
 msgid "status"
 msgstr "status"
 
-#: model_utils/models.py:67
+#: models.py:66
 msgid "status changed"
 msgstr "status ändrad"
 
-#: tests/models.py:106 tests/models.py:115 tests/models.py:124
-msgid "active"
-msgstr "aktiv"
+#~ msgid "active"
+#~ msgstr "aktiv"
 
-#: tests/models.py:107 tests/models.py:116 tests/models.py:125
-msgid "deleted"
-msgstr "borttagen"
+#~ msgid "deleted"
+#~ msgstr "borttagen"
 
-#: tests/models.py:108 tests/models.py:117 tests/models.py:126
-msgid "on hold"
-msgstr "väntande"
-
+#~ msgid "on hold"
+#~ msgstr "väntande"
