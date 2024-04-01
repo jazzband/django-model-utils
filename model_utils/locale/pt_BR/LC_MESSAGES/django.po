@@ -6,9 +6,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-model-utils\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-20 22:05-0300\n"
+"POT-Creation-Date: 2024-04-01 15:00+0200\n"
 "PO-Revision-Date: 2023-07-20 22:05-0300\n"
-"Last-Translator: Guilherme Croceetti <24530683+gmcrocetti@users.noreply.github.com>\n"
+"Last-Translator: Guilherme Croceetti <24530683+gmcrocetti@users.noreply."
+"github.com>\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
@@ -16,26 +17,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: models.py:25
+#: models.py:24
 msgid "created"
 msgstr "criado"
 
-#: models.py:26
+#: models.py:25
 msgid "modified"
 msgstr "modificado"
 
-#: models.py:50
+#: models.py:49
 msgid "start"
 msgstr "início"
 
-#: models.py:51
+#: models.py:50
 msgid "end"
 msgstr "fim"
 
-#: models.py:66
+#: models.py:65
 msgid "status"
 msgstr "estado"
 
-#: models.py:67
+#: models.py:66
 msgid "status changed"
 msgstr "estado modificado"
