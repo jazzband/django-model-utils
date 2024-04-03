@@ -69,10 +69,10 @@ class StatusField(models.CharField):
     South can handle this field when it freezes a model.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, no_check_for_status=False, choices_name=DEFAULT_CHOICES_NAME, **kwargs):
         kwargs.setdefault('max_length', 100)
-        self.check_for_status = not kwargs.pop('no_check_for_status', False)
-        self.choices_name = kwargs.pop('choices_name', DEFAULT_CHOICES_NAME)
+        self.check_for_status = not no_check_for_status
+        self.choices_name = choices_name
         super().__init__(*args, **kwargs)
 
     def prepare_class(self, sender, **kwargs):
@@ -106,7 +106,7 @@ class MonitorField(models.DateTimeField):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, monitor, when=None, **kwargs):
         if kwargs.get("null") and kwargs.get("default") is None:
             warning_message = (
                 "{}.default is set to 'django.utils.timezone.now' - when nullable"
@@ -118,12 +118,7 @@ class MonitorField(models.DateTimeField):
             warnings.warn(warning_message, DeprecationWarning)
 
         kwargs.setdefault('default', now)
-        monitor = kwargs.pop('monitor', None)
-        if not monitor:
-            raise TypeError(
-                '%s requires a "monitor" argument' % self.__class__.__name__)
         self.monitor = monitor
-        when = kwargs.pop('when', None)
         if when is not None:
             when = set(when)
         self.when = when
@@ -240,12 +235,12 @@ class SplitDescriptor:
 
 
 class SplitField(models.TextField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, no_excerpt_field=False, **kwargs):
         # for South FakeORM compatibility: the frozen version of a
         # SplitField can't try to add an _excerpt field, because the
         # _excerpt field itself is frozen as well. See introspection
         # rules below.
-        self.add_excerpt_field = not kwargs.pop('no_excerpt_field', False)
+        self.add_excerpt_field = not no_excerpt_field
         super().__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
