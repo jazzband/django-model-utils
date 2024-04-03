@@ -374,8 +374,8 @@ class StringyDescriptor:
 
 
 class CustomDescriptorField(models.IntegerField):
-    def contribute_to_class(self, cls, name, **kwargs):
-        super().contribute_to_class(cls, name, **kwargs)
+    def contribute_to_class(self, cls, name, *args, **kwargs):
+        super().contribute_to_class(cls, name, *args, **kwargs)
         setattr(cls, name, StringyDescriptor(name))
 
 

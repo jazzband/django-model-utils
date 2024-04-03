@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: modelutils
+      POSTGRES_USER: postgres
+    ports:
+    - 5432:5432

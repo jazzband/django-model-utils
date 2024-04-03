@@ -74,6 +74,18 @@ To run tox and generate a coverage report (in ``htmlcov`` directory)::
 
     make test
 
+A database is required to run the tests. For convince there is a ``docker-compose.yml`` file for spinning up a
+database container. To start the database container run:
+
+    docker-compose up -d
+
+Another way to run the tests with a sqlite database is to export the `SQLITE` variable::
+
+    export SQLITE=1
+    make test
+    # or
+    SQLITE=1 python setup.py test
+
 **Please note**: Before a pull request can be merged, all tests must pass and
 code/branch coverage in tests must be 100%.
 

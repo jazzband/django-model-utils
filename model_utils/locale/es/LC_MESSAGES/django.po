@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-model-utils\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-29 10:59+0200\n"
+"POT-Creation-Date: 2024-04-01 15:01+0200\n"
 "PO-Revision-Date: 2020-03-29 11:14+0100\n"
 "Last-Translator: Enrique Matías Sánchez <cronopios@gmail.com>\n"
 "Language-Team: \n"
@@ -17,27 +17,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: models.py:28
+#: models.py:24
 msgid "created"
 msgstr "creado"
 
-#: models.py:29
+#: models.py:25
 msgid "modified"
 msgstr "modificado"
 
-#: models.py:51
+#: models.py:49
 msgid "start"
 msgstr "inicio"
 
-#: models.py:52
+#: models.py:50
 msgid "end"
 msgstr "fin"
 
-#: models.py:67
+#: models.py:65
 msgid "status"
 msgstr "estado"
 
-#: models.py:68
+#: models.py:66
 msgid "status changed"
 msgstr "estado modificado"
-
