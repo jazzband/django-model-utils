@@ -190,7 +190,6 @@ class SplitText:
         self.field_name = field_name
         self.excerpt_field_name = excerpt_field_name
 
-    # content is read/write
     @property
     def content(self):
         return self.instance.__dict__[self.field_name]
@@ -199,15 +198,13 @@ class SplitText:
     def content(self, val):
         setattr(self.instance, self.field_name, val)
 
-    # excerpt is a read only property
-    def _get_excerpt(self):
+    @property
+    def excerpt(self):
         return getattr(self.instance, self.excerpt_field_name)
-    excerpt = property(_get_excerpt)
 
-    # has_more is a boolean property
-    def _get_has_more(self):
+    @property
+    def has_more(self):
         return self.excerpt.strip() != self.content.strip()
-    has_more = property(_get_has_more)
 
     def __str__(self):
         return self.content
