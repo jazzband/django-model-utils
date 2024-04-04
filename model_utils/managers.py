@@ -223,7 +223,76 @@ class InheritanceManagerMixin(Generic[ModelT]):
     _queryset_class = InheritanceQuerySet
 
     if TYPE_CHECKING:
+        from collections.abc import Sequence
+
+        def none(self) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def all(self) -> InheritanceQuerySet[ModelT]:
+            ...
+
         def filter(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def exclude(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def complex_filter(self, filter_obj: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def union(self, *other_qs: Any, all: bool = ...) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def intersection(self, *other_qs: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def difference(self, *other_qs: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def select_for_update(
+            self, nowait: bool = ..., skip_locked: bool = ..., of: Sequence[str] = ..., no_key: bool = ...
+        ) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def select_related(self, *fields: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def prefetch_related(self, *lookups: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def annotate(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def alias(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def order_by(self, *field_names: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def distinct(self, *field_names: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def extra(
+            self,
+            select: dict[str, Any] | None = ...,
+            where: list[str] | None = ...,
+            params: list[Any] | None = ...,
+            tables: list[str] | None = ...,
+            order_by: Sequence[str] | None = ...,
+            select_params: Sequence[Any] | None = ...,
+        ) -> InheritanceQuerySet[Any]:
+            ...
+
+        def reverse(self) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def defer(self, *fields: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def only(self, *fields: Any) -> InheritanceQuerySet[ModelT]:
+            ...
+
+        def using(self, alias: str | None) -> InheritanceQuerySet[ModelT]:
             ...
 
     def get_queryset(self) -> InheritanceQuerySet[ModelT]:
