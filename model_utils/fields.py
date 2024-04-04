@@ -1,6 +1,5 @@
 import secrets
 import uuid
-import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -107,17 +106,8 @@ class MonitorField(models.DateTimeField):
     """
 
     def __init__(self, *args, monitor, when=None, **kwargs):
-        if kwargs.get("null") and kwargs.get("default") is None:
-            warning_message = (
-                "{}.default is set to 'django.utils.timezone.now' - when nullable"
-                " and no default. This behavior will be deprecated in the next"
-                " major release in favor of 'None'. See"
-                " https://django-model-utils.readthedocs.io/en/stable/fields.html"
-                "#monitorfield for more information."
-            ).format(self.__class__.__name__)
-            warnings.warn(warning_message, DeprecationWarning)
-
-        kwargs.setdefault('default', now)
+        default = None if kwargs.get("null") else now
+        kwargs.setdefault('default', default)
         self.monitor = monitor
         if when is not None:
             when = set(when)
