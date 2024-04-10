@@ -11,6 +11,7 @@ To be released
 - Don't use `post_init` signal for initialize tracker
 - Make `contribute_to_class()` in `StatusField`, `MonitorField` and `SplitField`
   forward additional arguments to Django
+- `SplitField` no longer accepts `no_excerpt_field` as a keyword argument
 
 4.4.0 (2024-02-10)
 ------------------
