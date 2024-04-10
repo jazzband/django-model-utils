@@ -8,22 +8,29 @@ T = TypeVar("T")
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
+    # The type aliases defined here are evaluated when the django-stubs mypy plugin
+    # loads this module, so they must be able to execute under the lowest supported
+    # Python VM:
+    # - typing.List, typing.Tuple become obsolete in Pyton 3.9
+    # - typing.Union becomes obsolete in Pyton 3.10
+    from typing import List, Tuple, Union
+
     from django_stubs_ext import StrOrPromise
 
     # The type argument 'T' to 'Choices' is the database representation type.
-    _Double = tuple[T, StrOrPromise]
-    _Triple = tuple[T, str, StrOrPromise]
-    _Group = tuple[StrOrPromise, Sequence["_Choice[T]"]]
-    _Choice = _Double[T] | _Triple[T] | _Group[T]
+    _Double = Tuple[T, StrOrPromise]
+    _Triple = Tuple[T, str, StrOrPromise]
+    _Group = Tuple[StrOrPromise, Sequence["_Choice[T]"]]
+    _Choice = Union[_Double[T], _Triple[T], _Group[T]]
     # Choices can only be given as a single string if 'T' is 'str'.
-    _GroupStr = tuple[StrOrPromise, Sequence["_ChoiceStr"]]
-    _ChoiceStr = str | _Double[str] | _Triple[str] | _GroupStr
+    _GroupStr = Tuple[StrOrPromise, Sequence["_ChoiceStr"]]
+    _ChoiceStr = Union[str, _Double[str], _Triple[str], _GroupStr]
     # Note that we only accept lists and tuples in groups, not arbitrary sequences.
     # However, annotating it as such causes many problems.
 
-    _DoubleRead = _Double[T] | tuple[StrOrPromise, Iterable["_DoubleRead[T]"]]
-    _DoubleCollector = list[_Double[T] | tuple[StrOrPromise, "_DoubleCollector[T]"]]
-    _TripleCollector = list[_Triple[T] | tuple[StrOrPromise, "_TripleCollector[T]"]]
+    _DoubleRead = Union[_Double[T], Tuple[StrOrPromise, Iterable["_DoubleRead[T]"]]]
+    _DoubleCollector = List[Union[_Double[T], Tuple[StrOrPromise, "_DoubleCollector[T]"]]]
+    _TripleCollector = List[Union[_Triple[T], Tuple[StrOrPromise, "_TripleCollector[T]"]]]
 
 
 class Choices(Generic[T]):
