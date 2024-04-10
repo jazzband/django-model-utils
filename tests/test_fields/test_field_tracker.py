@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from unittest import skip
 
 from django.core.cache import cache
 from django.core.exceptions import FieldError
+from django.db import models
 from django.db.models.fields.files import FieldFile
 from django.test import TestCase
 
@@ -73,7 +76,7 @@ class FieldTrackerCommonTests:
 
 class FieldTrackerTests(FieldTrackerTestCase, FieldTrackerCommonTests):
 
-    tracked_class = Tracked
+    tracked_class: type[models.Model] = Tracked
 
     def setUp(self):
         self.instance = self.tracked_class()
@@ -280,7 +283,7 @@ class FieldTrackerMultipleInstancesTests(TestCase):
 class FieldTrackedModelCustomTests(FieldTrackerTestCase,
                                    FieldTrackerCommonTests):
 
-    tracked_class = TrackedNotDefault
+    tracked_class: type[models.Model] = TrackedNotDefault
 
     def setUp(self):
         self.instance = self.tracked_class()
@@ -411,7 +414,7 @@ class FieldTrackedModelAttributeTests(FieldTrackerTestCase):
 class FieldTrackedModelMultiTests(FieldTrackerTestCase,
                                   FieldTrackerCommonTests):
 
-    tracked_class = TrackedMultiple
+    tracked_class: type[models.Model] = TrackedMultiple
 
     def setUp(self):
         self.instance = self.tracked_class()
@@ -502,8 +505,8 @@ class FieldTrackedModelMultiTests(FieldTrackerTestCase,
 
 class FieldTrackerForeignKeyTests(FieldTrackerTestCase):
 
-    fk_class = Tracked
-    tracked_class = TrackedFK
+    fk_class: type[models.Model] = Tracked
+    tracked_class: type[models.Model] = TrackedFK
 
     def setUp(self):
         self.old_fk = self.fk_class.objects.create(number=8)
@@ -729,7 +732,7 @@ class FieldTrackerFileFieldTests(FieldTrackerTestCase):
 
 class ModelTrackerTests(FieldTrackerTests):
 
-    tracked_class = ModelTracked
+    tracked_class: type[models.Model] = ModelTracked
 
     def test_cache_compatible(self):
         cache.set('key', self.instance)
