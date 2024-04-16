@@ -208,9 +208,6 @@ class SplitDescriptor:
     def __get__(self, instance, owner):
         if instance is None:
             raise AttributeError('Can only be accessed via an instance.')
-        content = instance.__dict__[self.field.name]
-        if content is None:
-            return None
         return SplitText(instance, self.field.name, self.excerpt_field_name)
 
     def __set__(self, obj, value):
