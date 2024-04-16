@@ -49,7 +49,7 @@ class SplitFieldTests(TestCase):
 
     def test_assign_to_excerpt(self) -> None:
         with self.assertRaises(AttributeError):
-            self.post.body.excerpt = 'this should fail'
+            self.post.body.excerpt = 'this should fail'  # type: ignore[misc]
 
     def test_access_via_class(self) -> None:
         with self.assertRaises(AttributeError):
