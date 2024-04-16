@@ -1,13 +1,6 @@
-from model_utils.managers import SoftDeletableManager, SoftDeletableQuerySet
+from model_utils.managers import SoftDeletableQuerySet
 
 
 class CustomSoftDeleteQuerySet(SoftDeletableQuerySet):
     def only_read(self):
         return self.filter(is_read=True)
-
-
-class CustomSoftDeleteManager(SoftDeletableManager):
-    _queryset_class = CustomSoftDeleteQuerySet
-
-    def only_read(self):
-        return self.get_queryset().only_read()
