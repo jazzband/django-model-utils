@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from model_utils import Choices
 from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
-from model_utils.managers import InheritanceManager, JoinManager, QueryManager
+from model_utils.managers import InheritanceManager, JoinQueryset, QueryManager
 from model_utils.models import (
     SoftDeletableModel,
     StatusModel,
@@ -394,7 +394,7 @@ class ModelWithCustomDescriptor(models.Model):
 
 class BoxJoinModel(models.Model):
     name = models.CharField(max_length=32)
-    objects: ClassVar[JoinManager[BoxJoinModel]] = JoinManager()
+    objects = JoinQueryset.as_manager()
 
 
 class JoinItemForeignKey(models.Model):
@@ -404,7 +404,7 @@ class JoinItemForeignKey(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
-    objects: ClassVar[JoinManager[JoinItemForeignKey]] = JoinManager()
+    objects = JoinQueryset.as_manager()
 
 
 class CustomUUIDModel(UUIDModel):

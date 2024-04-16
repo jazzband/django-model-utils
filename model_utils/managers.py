@@ -382,18 +382,3 @@ class JoinQueryset(models.QuerySet):
         )
         new_qs.query.join(conn, reuse=None)
         return new_qs
-
-
-class JoinManagerMixin:
-    """
-    Manager that adds a method join. This method allows you to join two
-    querysets together.
-    """
-    _queryset_class = JoinQueryset
-
-    def get_queryset(self):
-        return self._queryset_class(model=self.model, using=self._db)
-
-
-class JoinManager(JoinManagerMixin, models.Manager):
-    pass
