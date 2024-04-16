@@ -96,7 +96,8 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
         self.tracker = self.instance.tracker
 
     def test_descriptor(self) -> None:
-        self.assertTrue(isinstance(self.tracked_class.tracker, FieldTracker))
+        tracker = self.tracked_class.tracker
+        self.assertTrue(isinstance(tracker, FieldTracker))
 
     def test_pre_save_changed(self) -> None:
         self.assertChanged(name=None)
@@ -528,14 +529,14 @@ class FieldTrackerForeignKeyMixin(FieldTrackerMixin):
 
     def setUp(self) -> None:
         self.old_fk = self.fk_class.objects.create(number=8)
-        self.instance = self.tracked_class.objects.create(fk=self.old_fk)
+        self.instance = self.tracked_class.objects.create(fk=self.old_fk)  # type: ignore[misc]
 
     def test_default(self) -> None:
         self.tracker = self.instance.tracker
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(id=self.instance.id, fk_id=self.old_fk.id)
-        self.instance.fk = self.fk_class.objects.create(number=8)
+        self.instance.fk = self.fk_class.objects.create(number=8)  # type: ignore[assignment]
         self.assertChanged(fk_id=self.old_fk.id)
         self.assertPrevious(fk_id=self.old_fk.id)
         self.assertCurrent(id=self.instance.id, fk_id=self.instance.fk_id)
@@ -545,7 +546,7 @@ class FieldTrackerForeignKeyMixin(FieldTrackerMixin):
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(fk_id=self.old_fk.id)
-        self.instance.fk = self.fk_class.objects.create(number=8)
+        self.instance.fk = self.fk_class.objects.create(number=8)  # type: ignore[assignment]
         self.assertChanged(fk_id=self.old_fk.id)
         self.assertPrevious(fk_id=self.old_fk.id)
         self.assertCurrent(fk_id=self.instance.fk_id)
@@ -557,7 +558,7 @@ class FieldTrackerForeignKeyMixin(FieldTrackerMixin):
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(fk=self.old_fk.id)
-        self.instance.fk = self.fk_class.objects.create(number=8)
+        self.instance.fk = self.fk_class.objects.create(number=8)  # type: ignore[assignment]
         self.assertChanged(fk=self.old_fk.id)
         self.assertPrevious(fk=self.old_fk.id)
         self.assertCurrent(fk=self.instance.fk_id)
