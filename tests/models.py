@@ -12,7 +12,7 @@ from model_utils import Choices
 from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
 from model_utils.managers import (
     InheritanceManager,
-    JoinManager,
+    JoinQueryset,
     QueryManager,
     SoftDeletableManager,
     SoftDeletableQuerySet,
@@ -416,7 +416,7 @@ class ModelWithCustomDescriptor(models.Model):
 
 class BoxJoinModel(models.Model):
     name = models.CharField(max_length=32)
-    objects: ClassVar[JoinManager[BoxJoinModel]] = JoinManager()
+    objects = JoinQueryset.as_manager()
 
 
 class JoinItemForeignKey(models.Model):
@@ -426,7 +426,7 @@ class JoinItemForeignKey(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
-    objects: ClassVar[JoinManager[JoinItemForeignKey]] = JoinManager()
+    objects = JoinQueryset.as_manager()
 
 
 class CustomUUIDModel(UUIDModel):
