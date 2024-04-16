@@ -360,7 +360,7 @@ class CustomSoftDeleteQuerySet(SoftDeletableQuerySet):
 class CustomSoftDelete(SoftDeletableModel):
     is_read = models.BooleanField(default=False)
 
-    objects = SoftDeletableManager.from_queryset(CustomSoftDeleteQuerySet)()  # type: ignore[misc]
+    available_objects = SoftDeletableManager.from_queryset(CustomSoftDeleteQuerySet)()  # type: ignore[misc]
 
 
 class StringyDescriptor:
