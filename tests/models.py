@@ -14,6 +14,7 @@ from model_utils.managers import (
     JoinManager,
     QueryManager,
     SoftDeletableManager,
+    SoftDeletableQuerySet,
 )
 from model_utils.models import (
     SoftDeletableModel,
@@ -24,7 +25,6 @@ from model_utils.models import (
 )
 from model_utils.tracker import FieldTracker, ModelTracker
 from tests.fields import MutableField
-from tests.managers import CustomSoftDeleteQuerySet
 
 
 class InheritanceManagerTestRelated(models.Model):
@@ -350,6 +350,11 @@ class SoftDeletable(SoftDeletableModel):
     name = models.CharField(max_length=20)
 
     all_objects: ClassVar[Manager[SoftDeletable]] = models.Manager()
+
+
+class CustomSoftDeleteQuerySet(SoftDeletableQuerySet):
+    def only_read(self):
+        return self.filter(is_read=True)
 
 
 class CustomSoftDelete(SoftDeletableModel):
