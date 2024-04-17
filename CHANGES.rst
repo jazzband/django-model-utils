@@ -13,6 +13,8 @@ To be released
   forward additional arguments to Django
 - `SplitField` no longer accepts `no_excerpt_field` as a keyword argument
 - Make `soft` argument to `SoftDeletableModel.delete()` keyword-only
+- `JoinManager` and `JoinManagerMixin` have been deprecated;
+  please use ``JoinQueryset.as_manager()`` instead
 
 4.4.0 (2024-02-10)
 ------------------
