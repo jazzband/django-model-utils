@@ -9,7 +9,13 @@ from django.utils.translation import gettext_lazy as _
 
 from model_utils import Choices
 from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
-from model_utils.managers import InheritanceManager, JoinManager, QueryManager
+from model_utils.managers import (
+    InheritanceManager,
+    JoinManager,
+    QueryManager,
+    SoftDeletableManager,
+    SoftDeletableQuerySet,
+)
 from model_utils.models import (
     SoftDeletableModel,
     StatusModel,
@@ -19,7 +25,6 @@ from model_utils.models import (
 )
 from model_utils.tracker import FieldTracker, ModelTracker
 from tests.fields import MutableField
-from tests.managers import CustomSoftDeleteManager
 
 
 class InheritanceManagerTestRelated(models.Model):
@@ -347,10 +352,15 @@ class SoftDeletable(SoftDeletableModel):
     all_objects: ClassVar[Manager[SoftDeletable]] = models.Manager()
 
 
+class CustomSoftDeleteQuerySet(SoftDeletableQuerySet):
+    def only_read(self):
+        return self.filter(is_read=True)
+
+
 class CustomSoftDelete(SoftDeletableModel):
     is_read = models.BooleanField(default=False)
 
-    objects: ClassVar[CustomSoftDeleteManager[SoftDeletableModel]] = CustomSoftDeleteManager()
+    available_objects = SoftDeletableManager.from_queryset(CustomSoftDeleteQuerySet)()  # type: ignore[misc]
 
 
 class StringyDescriptor:
