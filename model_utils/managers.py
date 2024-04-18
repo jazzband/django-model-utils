@@ -331,7 +331,7 @@ class JoinQueryset(models.QuerySet):
         else:
             fk_column = 'id'
             qs = self.only(fk_column)
-            new_qs = self.model.objects.all()
+            new_qs = self.model._default_manager.all()
 
         TABLE_NAME = 'temp_stuff'
         query, params = qs.query.sql_with_params()
