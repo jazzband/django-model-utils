@@ -34,15 +34,6 @@ Getting Help
 Documentation for django-model-utils is available
 https://django-model-utils.readthedocs.io/
 
-
-Run tests
----------
-
-.. code-block
-
-    pip install -e .
-    py.test
-
 Contributing
 ============
 
