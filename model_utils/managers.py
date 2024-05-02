@@ -303,21 +303,6 @@ class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):
 
 class JoinQueryset(models.QuerySet):
 
-    def get_quoted_query(self, query):
-        query, params = query.sql_with_params()
-
-        # Put additional quotes around string.
-        params = [
-            f'\'{p}\''
-            if isinstance(p, str) else p
-            for p in params
-        ]
-
-        # Cast list of parameters to tuple because I got
-        # "not enough format characters" otherwise.
-        params = tuple(params)
-        return query % params
-
     def join(self, qs=None):
         '''
         Join one queryset together with another using a temporary table. If
@@ -359,7 +344,7 @@ class JoinQueryset(models.QuerySet):
             new_qs = self.model.objects.all()
 
         TABLE_NAME = 'temp_stuff'
-        query = self.get_quoted_query(qs.query)
+        query, params = qs.query.sql_with_params()
         sql = '''
             DROP TABLE IF EXISTS {table_name};
             DROP INDEX IF EXISTS {table_name}_id;
@@ -368,7 +353,7 @@ class JoinQueryset(models.QuerySet):
         '''.format(table_name=TABLE_NAME, fk_column=fk_column, query=str(query))
 
         with connection.cursor() as cursor:
-            cursor.execute(sql)
+            cursor.execute(sql, params)
 
         class TempModel(models.Model):
             temp_key = models.ForeignKey(
