@@ -3,6 +3,7 @@ Changelog
 
 To be released
 --------------
+
 - Remove MonitorField deprecation warning. `None` - instead of
   `django.utils.timezone.now` will be used when nullable and no default provided (GH-#599)
 - Add deprecation warning for MonitorField. The default value will be `None`
@@ -13,6 +14,36 @@ To be released
   forward additional arguments to Django
 - `SplitField` no longer accepts `no_excerpt_field` as a keyword argument
 - Make `soft` argument to `SoftDeletableModel.delete()` keyword-only
+
+4.5.1 (2024-05-02)
+------------------
+
+- Remove `JoinQueryset.get_quoted_query()` by @mthuurne (GH-#618)
+
+4.5.0 (2024-04-01)
+------------------
+
+- Don't use `post_init` signal for initialize tracker by @meanmail in -  (GH-#556)
+- clarify docs for managers of SoftDeletableModel by @tadamcz in -  (GH-#589)
+- [pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in -  (GH-#575)
+- `Language Support` - Add translations for Brazilian Portuguese by @gmcrocetti in -  (GH-#578)
+- Remove dead `init_deferred_fields` method by @joecox in -  (GH-#580)
+- Update where `ConnectionDoesNotExist` is imported from by @mthuurne in -  (GH-#566)
+- Remove arguments from `InheritanceQuerySetMixin._clone()` by @mthuurne in -  (GH-#567)
+- Allow running tests using sqlite by @jayvdb in -  (GH-#516)
+- `MonitorField` - Change default to None when the field is nullable  by @gmcrocetti in -  (GH-#577)
+- Explicitly re-export names from `__init__` module by @mthuurne in - (GH-#591)
+- Switch from freezegun to time-machine. by @adamchainz in -  (GH-#510)
+- USE_TZ = True by @foarsitter in -  (GH-#593)
+- Remove redundant definition of `JoinManager` from tests by @mthuurne in -  (GH-#594)
+- Pass reason to `@skip` decorator by @mthuurne in -  (GH-#595)
+- Resolve name clash among test models by @mthuurne in -  (GH-#596)
+- Remove obsolete `tests.signals` module by @mthuurne in -  (GH-#597)
+- Remove obsolete test models by @mthuurne in -  (GH-#598)
+- Postgresql docker container for local development by @foarsitter in -  (GH-#563)
+- [pre-commit.ci] pre-commit autoupdate by @pre-commit-ci in -  (GH-#602)
+- Add issue-manager by @foarsitter in -  (GH-#600)
+- Translation files by @foarsitter in -  (GH-#608)
 
 4.4.0 (2024-02-10)
 ------------------
