@@ -12,12 +12,16 @@ from django.utils.timezone import now
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from datetime import datetime
+    from datetime import date, datetime
+
+    DateTimeFieldBase = models.DateTimeField[Union[str, datetime, date], datetime]
+else:
+    DateTimeFieldBase = models.DateTimeField
 
 DEFAULT_CHOICES_NAME = 'STATUS'
 
 
-class AutoCreatedField(models.DateTimeField):
+class AutoCreatedField(DateTimeFieldBase):
     """
     A DateTimeField that automatically populates itself at
     object creation.
@@ -111,7 +115,7 @@ class StatusField(models.CharField):
         return name, path, args, kwargs
 
 
-class MonitorField(models.DateTimeField):
+class MonitorField(DateTimeFieldBase):
     """
     A DateTimeField that monitors another field on the same model and
     sets itself to the current date/time whenever the monitored field
