@@ -377,6 +377,11 @@ class JoinManagerMixin:
     _queryset_class = JoinQueryset
 
     def get_queryset(self):
+        warnings.warn(
+            "JoinManager and JoinManagerMixin are deprecated. "
+            "Please use 'JoinQueryset.as_manager()' instead.",
+            DeprecationWarning
+        )
         return self._queryset_class(model=self.model, using=self._db)
 
 

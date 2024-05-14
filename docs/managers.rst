@@ -86,11 +86,11 @@ it's safe to use as your default manager for the model.
 
 .. _contributed by Jeff Elmore: https://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
 
-JoinManager
------------
+JoinQueryset
+------------
 
-The ``JoinManager`` will create a temporary table of your current queryset
-and join that temporary table with the model of your current queryset. This can
+A ``JoinQueryset`` will create a temporary table containing its own query result
+and join that temporary table with the model it is querying. This can
 be advantageous if you have to page through your entire DB and using django's
 slice mechanism to do that. ``LIMIT .. OFFSET ..`` becomes slower the bigger
 offset you use.
@@ -102,8 +102,9 @@ offset you use.
     # qs contains 10 objects, and there will be a much smaller performance hit
     # for paging through all of first 2000 objects.
 
-Alternatively, you can give it a queryset and the manager will create a temporary
-table and join that to your current queryset. This can work as a more performant
+Alternatively, you can give it another queryset and ``JoinQueryset`` will create
+a temporary table containing the result of the given queryset and
+join that temporary table to itself. This can work as a more performant
 alternative to using django's ``__in`` as described in the following
 (`StackExchange answer`_).
 
@@ -113,6 +114,8 @@ alternative to using django's ``__in`` as described in the following
     qs = Country.objects.filter(country_code='SE').join(big_qs)
 
 .. _StackExchange answer: https://dba.stackexchange.com/questions/91247/optimizing-a-postgres-query-with-a-large-in
+
+You can create a manager that produces ``JoinQueryset`` instances using ``JoinQueryset.as_manager()``.
 
 .. _QueryManager:
 
