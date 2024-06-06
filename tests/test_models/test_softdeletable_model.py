@@ -53,3 +53,13 @@ class SoftDeletableModelTests(TestCase):
 
     def test_deprecation_warning(self) -> None:
         self.assertWarns(DeprecationWarning, SoftDeletable.objects.all)
+
+    def test_delete_queryset_return(self) -> None:
+        SoftDeletable.available_objects.create(name='a')
+        SoftDeletable.available_objects.create(name='b')
+
+        result = SoftDeletable.available_objects.filter(name="a").delete()
+
+        assert result == (
+            1, {SoftDeletable._meta.label: 1}
+        )
