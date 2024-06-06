@@ -363,17 +363,17 @@ class SoftDeletableQuerySetMixin(Generic[ModelT]):
     its ``is_removed`` field to True.
     """
 
-    def delete(self) -> None:
+    def delete(self) -> tuple[int, dict[str, int]]:
         """
         Soft delete objects from queryset (set their ``is_removed``
         field to True)
         """
-        cast(QuerySet[ModelT], self).update(is_removed=True)
+        model: type[ModelT] = self.model  # type: ignore[attr-defined]
+        number_of_deleted_objects = cast(QuerySet[ModelT], self).update(is_removed=True)
+        return number_of_deleted_objects, {model._meta.label: number_of_deleted_objects}
 
 
-# Note that our delete() method does not return anything, unlike Django's.
-# https://github.com/jazzband/django-model-utils/issues/541
-class SoftDeletableQuerySet(SoftDeletableQuerySetMixin[ModelT], QuerySet[ModelT]):  # type: ignore[misc]
+class SoftDeletableQuerySet(SoftDeletableQuerySetMixin[ModelT], QuerySet[ModelT]):
     pass
 
 

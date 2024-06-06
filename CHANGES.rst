@@ -16,6 +16,7 @@ To be released
 - Make `soft` argument to `SoftDeletableModel.delete()` keyword-only
 - `JoinManager` and `JoinManagerMixin` have been deprecated;
   please use ``JoinQueryset.as_manager()`` instead
+- Change `SoftDeletableQuerySetMixin.delete` to replicate Django's API.
 
 4.5.1 (2024-05-02)
 ------------------
