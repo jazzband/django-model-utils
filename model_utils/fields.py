@@ -34,7 +34,7 @@ class AutoLastModifiedField(AutoCreatedField):
     def get_default(self):
         """Return the default value for this field."""
         if not hasattr(self, "_default"):
-            self._default = self._get_default()
+            self._default = super().get_default()
         return self._default
 
     def pre_save(self, model_instance, add):
