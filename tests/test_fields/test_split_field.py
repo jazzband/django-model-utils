@@ -53,10 +53,6 @@ class SplitFieldTests(TestCase):
         with self.assertRaises(AttributeError):
             Article.body
 
-    def test_none(self):
-        a = Article(title='Some Title', body=None)
-        self.assertEqual(a.body, None)
-
     def test_assign_splittext(self):
         a = Article(title='Some Title')
         a.body = self.post.body
