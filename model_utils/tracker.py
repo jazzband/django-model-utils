@@ -50,10 +50,7 @@ class DescriptorWrapper:
         if instance is None:
             return self
         was_deferred = self.field_name in instance.get_deferred_fields()
-        try:
-            value = self.descriptor.__get__(instance, owner)
-        except AttributeError:
-            value = self.descriptor
+        value = self.descriptor.__get__(instance, owner)
         if was_deferred:
             tracker_instance = getattr(instance, self.tracker_attname)
             tracker_instance.saved_data[self.field_name] = lightweight_deepcopy(value)

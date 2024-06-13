@@ -249,7 +249,7 @@ class TrackedAbstract(AbstractTracked):
     number = models.IntegerField()
     mutable = MutableField(default=None)
 
-    tracker = FieldTracker()
+    tracker = ModelTracker()
 
 
 class TrackedNotDefault(models.Model):

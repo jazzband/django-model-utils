@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import skip
-
 from django.core.cache import cache
 from django.core.exceptions import FieldError
 from django.db import models
@@ -877,7 +875,6 @@ class InheritedModelTrackerTests(ModelTrackerTests):
         self.assertTrue(self.tracker.has_changed('name2'))
 
 
-@skip("has known failures")
 class AbstractModelTrackerTests(ModelTrackerTests):
 
     tracked_class = TrackedAbstract
