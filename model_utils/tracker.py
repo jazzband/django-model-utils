@@ -212,13 +212,17 @@ class FieldInstanceTracker:
 
         return {f: self.get_field_value(f) for f in fields}
 
-    def has_changed(self, field):
+    def has_changed(self, field, ignore_empty=True):
         """Returns ``True`` if field has changed from currently saved value"""
         if field in self.fields:
             # deferred fields haven't changed
             if field in self.deferred_fields and field not in self.instance.__dict__:
                 return False
-            return self.previous(field) != self.get_field_value(field)
+            current_value = self.get_field_value(field)
+            previous_value = self.previous(field)
+            if ignore_empty and (previous_value is None and current_value == '' or previous_value == '' and current_value is None):
+                return False
+            return previous_value != current_value
         else:
             raise FieldError('field "%s" not tracked' % field)
 
@@ -350,12 +354,16 @@ class FieldTracker:
 
 class ModelInstanceTracker(FieldInstanceTracker):
 
-    def has_changed(self, field):
+    def has_changed(self, field, ignore_empty=True):
         """Returns ``True`` if field has changed from currently saved value"""
         if not self.instance.pk:
             return True
         elif field in self.saved_data:
-            return self.previous(field) != self.get_field_value(field)
+            current_value = self.get_field_value(field)
+            previous_value = self.previous(field)
+            if ignore_empty and (previous_value is None and current_value == '' or previous_value == '' and current_value is None):
+                return False
+            return previous_value != current_value
         else:
             raise FieldError('field "%s" not tracked' % field)
 
