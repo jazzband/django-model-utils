@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from django.test import TestCase
 
 from tests.models import Post
 
 
 class QueryManagerTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         data = ((True, True, 0),
                 (True, False, 4),
                 (False, False, 2),
@@ -14,14 +16,14 @@ class QueryManagerTests(TestCase):
         for p, c, o in data:
             Post.objects.create(published=p, confirmed=c, order=o)
 
-    def test_passing_kwargs(self):
+    def test_passing_kwargs(self) -> None:
         qs = Post.public.all()
         self.assertEqual([p.order for p in qs], [0, 1, 4, 5])
 
-    def test_passing_Q(self):
+    def test_passing_Q(self) -> None:
         qs = Post.public_confirmed.all()
         self.assertEqual([p.order for p in qs], [0, 1])
 
-    def test_ordering(self):
+    def test_ordering(self) -> None:
         qs = Post.public_reversed.all()
         self.assertEqual([p.order for p in qs], [5, 4, 1, 0])

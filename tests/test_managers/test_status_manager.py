@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase
@@ -8,10 +10,10 @@ from tests.models import StatusManagerAdded
 
 
 class StatusManagerAddedTests(TestCase):
-    def test_manager_available(self):
+    def test_manager_available(self) -> None:
         self.assertTrue(isinstance(StatusManagerAdded.active, QueryManager))
 
-    def test_conflict_error(self):
+    def test_conflict_error(self) -> None:
         with self.assertRaises(ImproperlyConfigured):
             class ErrorModel(StatusModel):
                 STATUS = (
