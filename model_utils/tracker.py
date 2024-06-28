@@ -263,7 +263,7 @@ class FieldInstanceTracker:
             if deferred_fields:
                 fields = [
                     field for field in self.fields
-                    if field not in deferred_fields
+                    if self.field_map[field] not in deferred_fields
                 ]
             else:
                 fields = self.fields
