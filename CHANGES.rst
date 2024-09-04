@@ -1,8 +1,8 @@
 Changelog
 =========
 
-To be released
---------------
+5.0.0 (2024-09-01)
+------------------
 - Add formal support for `Django 5.1`
 - Remove MonitorField deprecation warning. `None` - instead of
   `django.utils.timezone.now` will be used when nullable and no default provided (GH-#599)
