@@ -20,7 +20,8 @@ jobs:
           '3.9',
           '3.10',
           '3.11',
-          '3.12-dev',
+          '3.12',
+          '3.13',
         ]
 
     services:
@@ -45,6 +46,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: 'true'
 
     - name: Get pip cache dir
       id: pip-cache
