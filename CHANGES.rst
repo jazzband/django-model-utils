@@ -1,6 +1,10 @@
 Changelog
 =========
 
+To be released
+------------------
+- Add support for `Python 3.12` (GH-#628)
+
 5.0.0 (2024-09-01)
 ------------------
 - Add formal support for `Django 5.1`
