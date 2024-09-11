@@ -26,7 +26,7 @@ class AutoCreatedField(DateTimeFieldBase):
     A DateTimeField that automatically populates itself at
     object creation.
 
-    By default, sets editable=False, default=datetime.now.
+    By default, sets editable=False, default=django.utils.timezone.now.
 
     """
 
@@ -40,7 +40,7 @@ class AutoLastModifiedField(AutoCreatedField):
     """
     A DateTimeField that updates itself on each save() of the model.
 
-    By default, sets editable=False and default=datetime.now.
+    By default, sets editable=False and default=django.utils.timezone.now.
 
     """
     def get_default(self) -> datetime:

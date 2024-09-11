@@ -4,6 +4,7 @@ Changelog
 To be released
 ------------------
 - Add support for `Python 3.12` (GH-#628)
+- Change docstring to reflect the correct place `now` is coming from
 
 5.0.0 (2024-09-01)
 ------------------
