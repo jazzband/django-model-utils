@@ -26,7 +26,7 @@ class AutoCreatedField(DateTimeFieldBase):
     A DateTimeField that automatically populates itself at
     object creation.
 
-    By default, sets editable=False, default=datetime.now.
+    By default, sets editable=False, default=timezone.now.
 
     """
 
