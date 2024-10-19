@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase
+from django.utils.timezone import now
 
 from model_utils.managers import QueryManager
 from model_utils.models import TimeFramedModel
@@ -13,7 +14,7 @@ from tests.models import TimeFrame, TimeFrameManagerAdded
 
 class TimeFramedModelTests(TestCase):
     def setUp(self) -> None:
-        self.now = datetime.now()
+        self.now = now()
 
     def test_not_yet_begun(self) -> None:
         TimeFrame.objects.create(start=self.now + timedelta(days=2))
