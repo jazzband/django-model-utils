@@ -398,9 +398,9 @@ class FieldTracker:
         original = getattr(model, '__init__')
 
         @wraps(original)
-        def inner(instance: models.Model, *args: Any, **kwargs: Any) -> None:
-            original(instance, *args, **kwargs)
-            self.initialize_tracker(model, instance)
+        def inner(*args: Any, **kwargs: Any) -> None:
+            original(*args, **kwargs)
+            self.initialize_tracker(model, args[0])
 
         setattr(model, '__init__', inner)
 
