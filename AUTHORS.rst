@@ -106,3 +106,4 @@
 | Őry Máté <ory.mate@cloud.bme.hu>
 | Nafees Anwar <h.nafees.anwar@gmail.com>
 | meanmail <github@meanmail.dev>
+| Boris Shemigon <i@boris.co>
