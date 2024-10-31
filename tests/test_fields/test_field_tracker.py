@@ -60,6 +60,11 @@ class FieldTrackerMixin(MixinBase):
             tracker = self.tracker
         self.assertEqual(tracker.changed(), kwargs)
 
+    def assertDiff(self, *, tracker: FieldInstanceTracker | None = None, **kwargs: Any) -> None:
+        if tracker is None:
+            tracker = self.tracker
+        self.assertEqual(tracker.diff(), kwargs)
+
     def assertCurrent(self, *, tracker: FieldInstanceTracker | None = None, **kwargs: Any) -> None:
         if tracker is None:
             tracker = self.tracker
@@ -110,6 +115,17 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
         self.instance.mutable = [1, 2, 3]
         self.assertChanged(name=None, number=None, mutable=None)
 
+    def test_pre_save_diff(self) -> None:
+        self.assertDiff(name=(None, ''))
+        self.instance.name = 'new age'
+        self.assertDiff(name=(None, 'new age'))
+        self.instance.number = 8
+        self.assertDiff(name=(None, 'new age'), number=(None, 8))
+        self.instance.name = ''
+        self.assertDiff(name=(None, ''), number=(None, 8))
+        self.instance.mutable = [1, 2, 3]
+        self.assertDiff(name=(None, ''), number=(None, 8), mutable=(None, [1, 2, 3]))
+
     def test_pre_save_has_changed(self) -> None:
         self.assertHasChanged(name=True, number=False, mutable=False)
         self.instance.name = 'new age'
@@ -123,12 +139,14 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
         self.instance.number = 1
         self.instance.save(False, False, None, None)
         self.assertChanged()
+        self.assertDiff()
 
     def test_first_save(self) -> None:
         self.assertHasChanged(name=True, number=False, mutable=False)
         self.assertPrevious(name=None, number=None, mutable=None)
         self.assertCurrent(name='', number=None, id=None, mutable=None)
         self.assertChanged(name=None)
+        self.assertDiff(name=(None, ''))
         self.instance.name = 'retro'
         self.instance.number = 4
         self.instance.mutable = [1, 2, 3]
@@ -136,12 +154,14 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
         self.assertPrevious(name=None, number=None, mutable=None)
         self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged(name=None, number=None, mutable=None)
+        self.assertDiff(name=(None, 'retro'), number=(None, 4), mutable=(None, [1, 2, 3]))
 
         self.instance.save(update_fields=[])
         self.assertHasChanged(name=True, number=True, mutable=True)
         self.assertPrevious(name=None, number=None, mutable=None)
         self.assertCurrent(name='retro', number=4, id=None, mutable=[1, 2, 3])
         self.assertChanged(name=None, number=None, mutable=None)
+        self.assertDiff(name=(None, 'retro'), number=(None, 4), mutable=(None, [1, 2, 3]))
         with self.assertRaises(ValueError):
             self.instance.save(update_fields=['number'])
 
@@ -178,6 +198,20 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
         self.instance.mutable = [1, 2, 3]
         self.assertChanged(number=4)
 
+    def test_post_save_diff(self) -> None:
+        self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
+        self.assertDiff()
+        self.instance.name = 'new age'
+        self.assertDiff(name=('retro', 'new age'))
+        self.instance.number = 8
+        self.assertDiff(name=('retro', 'new age'), number=(4, 8))
+        self.instance.name = 'retro'
+        self.assertDiff(number=(4, 8))
+        self.instance.mutable[1] = 4
+        self.assertDiff(number=(4, 8), mutable=([1, 2, 3], [1, 4, 3]))
+        self.instance.mutable = [1, 2, 3]
+        self.assertDiff(number=(4, 8))
+
     def test_current(self) -> None:
         self.assertCurrent(id=None, name='', number=None, mutable=None)
         self.instance.name = 'new age'
@@ -194,21 +228,27 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
     def test_update_fields(self) -> None:
         self.update_instance(name='retro', number=4, mutable=[1, 2, 3])
         self.assertChanged()
+        self.assertDiff()
         self.instance.name = 'new age'
         self.instance.number = 8
         self.instance.mutable = [4, 5, 6]
         self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
+        self.assertDiff(name=('retro', 'new age'), number=(4, 8), mutable=([1, 2, 3], [4, 5, 6]))
         self.instance.save(update_fields=[])
         self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
+        self.assertDiff(name=('retro', 'new age'), number=(4, 8), mutable=([1, 2, 3], [4, 5, 6]))
         self.instance.save(update_fields=['name'])
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertNotEqual(in_db.number, self.instance.number)
         self.assertChanged(number=4, mutable=[1, 2, 3])
+        self.assertDiff(number=(4, 8), mutable=([1, 2, 3], [4, 5, 6]))
         self.instance.save(update_fields=['number'])
         self.assertChanged(mutable=[1, 2, 3])
+        self.assertDiff(mutable=([1, 2, 3], [4, 5, 6]))
         self.instance.save(update_fields=['mutable'])
         self.assertChanged()
+        self.assertDiff()
         in_db = self.tracked_class.objects.get(id=self.instance.id)
         self.assertEqual(in_db.name, self.instance.name)
         self.assertEqual(in_db.number, self.instance.number)
@@ -219,16 +259,21 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
         self.tracked_class.objects.filter(pk=self.instance.pk).update(
             name='new age', number=8, mutable=[3, 2, 1])
         self.assertChanged()
+        self.assertDiff()
         self.instance.name = 'like in db'
         self.instance.number = 8
         self.instance.mutable = [3, 2, 1]
         self.assertChanged(name='retro', number=4, mutable=[1, 2, 3])
+        self.assertDiff(name=('retro', 'like in db'), number=(4, 8), mutable=([1, 2, 3], [3, 2, 1]))
         self.instance.refresh_from_db(fields=('name',))
         self.assertChanged(number=4, mutable=[1, 2, 3])
+        self.assertDiff(number=(4, 8), mutable=([1, 2, 3], [3, 2, 1]))
         self.instance.refresh_from_db(fields={'mutable'})
         self.assertChanged(number=4)
+        self.assertDiff(number=(4, 8))
         self.instance.refresh_from_db()
         self.assertChanged()
+        self.assertDiff()
 
     def test_with_deferred(self) -> None:
         self.instance.name = 'new age'
