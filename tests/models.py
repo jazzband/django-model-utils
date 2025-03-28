@@ -24,7 +24,7 @@ from model_utils.models import (
     TimeStampedModel,
     UUIDModel,
 )
-from model_utils.tracker import FieldTracker, ModelTracker
+from model_utils.tracker import FieldTracker, ModelTracker, FieldInstanceTracker
 from tests.fields import MutableField
 
 ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
@@ -278,6 +278,29 @@ class TrackedMultiple(models.Model):
 
     name_tracker = FieldTracker(fields=['name'])
     number_tracker = FieldTracker(fields=['number'])
+
+
+class LoopDetectionFieldInstanceTracker(FieldInstanceTracker):
+
+    def set_saved_fields(self, fields=None):
+        counter = getattr(self.__class__, '__loop_counter', 0)
+        if counter > 50:
+            raise AssertionError("Infinite Loop Detected!")
+        setattr(self.__class__, '__loop_counter', counter + 1)
+        super().set_saved_fields(fields)
+
+
+class LoopDetectionFieldTracker(FieldTracker):
+    tracker_class = LoopDetectionFieldInstanceTracker
+
+
+class TrackedProtectedSelfRefFK(models.Model):
+    fk = models.ForeignKey('Tracked', on_delete=models.PROTECT)
+    self_ref = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+
+    tracker = LoopDetectionFieldTracker()
+    custom_tracker = LoopDetectionFieldTracker(fields=['fk_id', 'self_ref_id'])
+    custom_tracker_without_id = LoopDetectionFieldTracker(fields=['fk', 'self_ref'])
 
 
 class TrackedFileField(models.Model):
