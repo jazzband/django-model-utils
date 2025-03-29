@@ -5,10 +5,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Optional,
     Sequence,
     TypeVar,
-    Union,
     cast,
     overload,
 )
