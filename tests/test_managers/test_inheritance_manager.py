@@ -597,7 +597,6 @@ class InheritanceManagerPrefetchForeignKeyTests(TestCase):
 
         self.c3 = InheritanceManagerTestChild2.objects.create()
 
-
     def test_prefetch_related_works_with_fk_in_parent(self) -> None:
         with self.assertNumQueries(2):
             result = list(
@@ -669,7 +668,6 @@ class InheritanceManagerPrefetchForeignKeyTests(TestCase):
             self.assertEqual(set(result[3].normal_many_relation.all()), {self.related3, self.related4})
             self.assertEqual(set(result[4].normal_many_relation.all()), {self.related1, self.related2})
             self.assertEqual(set(result[5].normal_many_relation.all()), {self.related5, self.related1})
-
 
     def test_prefetch_related_works_with_m2m_to_attr(self) -> None:
         with self.assertNumQueries(2):
