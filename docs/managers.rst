@@ -84,7 +84,7 @@ If you don't explicitly call ``select_subclasses()`` or ``get_subclass()``,
 an ``InheritanceManager`` behaves identically to a normal ``Manager``; so
 it's safe to use as your default manager for the model.
 
-``InheritanceManager`` supports `prefetch_related`, even in subclasses:
+``InheritanceManager`` supports ``prefetch_related``, even in subclasses:
 
 .. code-block:: python
 
