@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload, Optional, Union
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection, models
+from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related import OneToOneField, OneToOneRel
-from django.db.models.query import ModelIterable, QuerySet
+from django.db.models.query import ModelIterable, QuerySet, prefetch_related_objects, Prefetch
 from django.db.models.sql.datastructures import Join
 
 ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
@@ -65,6 +66,8 @@ else:
 
 class InheritanceQuerySetMixin(Generic[ModelT]):
 
+    _prefetch_related_lookups: Sequence[Union[str, Prefetch]]
+    _result_cache: list[ModelT]
     model: type[ModelT]
     subclasses: Sequence[str]
 
@@ -104,6 +107,69 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
             new_qs = new_qs.select_related(*selected_subclasses)
         new_qs.subclasses = selected_subclasses
         return new_qs
+
+    def _prefetch_related_objects(self):
+        # Step 1: Find the base objects
+        # self._result_cache contains the subclasses as returned by InheritanceIterable
+        # walk up the path_to_parent to get to the parent model for each
+        _base_objs = []
+        sub_obj: ModelT
+        for sub_obj in self._result_cache:
+            for p in sub_obj._meta.get_path_to_parent(self.model):
+                sub_obj = getattr(sub_obj, p.join_field.name)
+            _base_objs.append(sub_obj)
+
+        # Step 2: Prefetch using the base objects
+        # This satisfies the requirement of prefetch_related_objects that the list be homogeneous
+        # This allows the user to use prefetch_related(subclass__subclass_relation)
+        # Because InheritanceIterable transforms the result into "subclass", then subclass_relation will
+        # be prefetched on that subclass object, as expected
+        prefetch_related_objects(_base_objs, *self._prefetch_related_lookups)
+
+        # Step 3: Copy down the prefetched objects
+        # Assuming we have the inheritance C extends B extends A
+        # If a relation is prefetched at B, we must put those prefetched objects into the C's
+        # _prefetched_objects_cache as well, so that when a C object is returned (which is obtained
+        # by InheritanceIterable via base_obj.b.c) and the user does sub_obj.m2m_field.all()
+        # then Django's ManyRelatedManager will look into base_obj.b.c._prefetched_objects_cache
+        # but prefetch_related_objects above has put the prefetched objects into base_obj.b._prefetched_objects_cache
+        # Additionally, copy any to_attr prefetches down as well
+        for sub_obj, base_obj in zip(self._result_cache, _base_objs):
+            # get the base cache or create a new a blank one if there isn't any
+            prefetch_cache = getattr(base_obj, '_prefetched_objects_cache', None)
+            if prefetch_cache is not None:
+                prefetch_cache = dict(prefetch_cache)
+            else:
+                prefetch_cache = {}
+
+            current = base_obj
+            current_path = []
+            prefetch_attrs = {}
+            for p in sub_obj._meta.get_path_from_parent(self.model):
+                join_field_name = p.join_field.name
+                current_path.append(join_field_name)
+                current = getattr(current, join_field_name)
+                child_cache: Optional[dict] = getattr(current, '_prefetched_objects_cache', None)
+                if child_cache is not None:
+                    # The child already has its own cache, add it to the running list of prefetches
+                    prefetch_cache.update(child_cache)
+                if prefetch_cache:
+                    # If we have something prefetched at this level or above, put it in this sub_obj
+                    current._prefetched_objects_cache = prefetch_cache
+                    # prepare a fresh dict for the next level down
+                    prefetch_cache = dict(prefetch_cache)
+
+                for prefetch in self._prefetch_related_lookups:
+                    if isinstance(prefetch, Prefetch) and prefetch.to_attr:
+                        prefetch_path = prefetch.prefetch_to.split(LOOKUP_SEP)[:-1]
+                        if current_path == prefetch_path:
+                            # The prefetch was at this level exactly, get the prefetch from the object
+                            prefetch_attrs[prefetch] = getattr(current, prefetch.to_attr)
+                        elif current_path[:len(prefetch_path)] == prefetch_path:
+                            # the prefetch was for a parent of this one, get it from the running cache
+                            setattr(current, prefetch.to_attr, prefetch_attrs[prefetch])
+
+        self._prefetch_done = True
 
     def _chain(self, **kwargs: object) -> InheritanceQuerySet[ModelT]:
         update = {}
