@@ -270,18 +270,18 @@ class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):  
         # Due to https://code.djangoproject.com/ticket/16572, we
         # can't really do this for anything other than children (ie,
         # no grandchildren+).
-        where_queries = []
+        conditions = []
         for model in models:
-            where_queries.append('(' + ' AND '.join([
-                '"{}"."{}" IS NOT NULL'.format(
-                    model._meta.db_table,
-                    field.column,
-                ) for field in model._meta.parents.values()
-            ]) + ')')
+            path_from_parent = LOOKUP_SEP.join(
+                p.join_field.get_accessor_name() for p in model._meta.get_path_from_parent(self.model)
+            )
+            conditions.append(
+                (path_from_parent + LOOKUP_SEP + 'isnull', False)
+            )
 
         return cast(
             'InheritanceQuerySet[ModelT]',
-            self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
+            self.select_subclasses(*models).filter(Q(*conditions, _connector=Q.OR))
         )
 
 
