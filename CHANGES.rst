@@ -4,6 +4,7 @@ Changelog
 To be released
 ------------------
 - Add support for `Python 3.13` (GH-#628)
+- Add support for `prefetch_related` to `InheritanceManager`
 
 5.0.0 (2024-09-01)
 ------------------

@@ -84,6 +84,14 @@ If you don't explicitly call ``select_subclasses()`` or ``get_subclass()``,
 an ``InheritanceManager`` behaves identically to a normal ``Manager``; so
 it's safe to use as your default manager for the model.
 
+``InheritanceManager`` supports `prefetch_related`, even in subclasses:
+
+.. code-block:: python
+
+    places = Place.objects.select_subclasses().prefetch_related('bar__manager')
+    # every Bar instance in places will have it's manager relation prefetched
+
+
 .. _contributed by Jeff Elmore: https://jeffelmore.org/2010/11/11/automatic-downcasting-of-inherited-models-in-django/
 
 JoinQueryset
