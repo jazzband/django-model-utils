@@ -81,7 +81,7 @@ else:
 
 class InheritanceQuerySetMixin(Generic[ModelT]):
 
-    _prefetch_related_lookups: Sequence[Union[str, Prefetch]]
+    _prefetch_related_lookups: Sequence[str | Prefetch]
     _result_cache: list[ModelT]
     model: type[ModelT]
     subclasses: Sequence[str]
@@ -167,7 +167,7 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
                 join_field_name = p.join_field.name
                 current_path.append(join_field_name)
                 current = getattr(current, join_field_name)
-                child_cache: Optional[dict] = getattr(current, '_prefetched_objects_cache', None)
+                child_cache: dict | None = getattr(current, '_prefetched_objects_cache', None)
                 if child_cache is not None:
                     # The child already has its own cache, add it to the running list of prefetches
                     prefetch_cache.update(child_cache)
