@@ -8,6 +8,7 @@ from django.test import TestCase
 
 from model_utils.managers import InheritanceManager
 from tests.models import (
+    InheritanceManagerNonChild,
     InheritanceManagerTestChild1,
     InheritanceManagerTestChild2,
     InheritanceManagerTestChild3,
@@ -17,7 +18,7 @@ from tests.models import (
     InheritanceManagerTestGrandChild1_2,
     InheritanceManagerTestParent,
     InheritanceManagerTestRelated,
-    TimeFrame, InheritanceManagerNonChild,
+    TimeFrame,
 )
 
 if TYPE_CHECKING:

@@ -1,14 +1,29 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection, models
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related import OneToOneField, OneToOneRel
-from django.db.models.query import ModelIterable, QuerySet, prefetch_related_objects, Prefetch
+from django.db.models.query import (
+    ModelIterable,
+    Prefetch,
+    QuerySet,
+    prefetch_related_objects,
+)
 from django.db.models.sql.datastructures import Join
 
 ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
