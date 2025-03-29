@@ -1,15 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Sequence,
-    TypeVar,
-    cast,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection, models
