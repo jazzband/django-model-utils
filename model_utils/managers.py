@@ -231,18 +231,10 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
             raise ValueError(
                 f"{model!r} is not a subclass of {self.model!r}")
 
-        ancestry: list[str] = []
-        # should be a OneToOneField or None
-        parent_link = model._meta.get_ancestor_link(self.model)
-
-        while parent_link is not None:
-            related = parent_link.remote_field
-            ancestry.insert(0, related.get_accessor_name())
-
-            parent_model = related.model
-            parent_link = parent_model._meta.get_ancestor_link(self.model)
-
-        return LOOKUP_SEP.join(ancestry)
+        return LOOKUP_SEP.join(
+            p.join_field.get_accessor_name()
+            for p in model._meta.get_path_from_parent(self.model)
+        )
 
     def _get_sub_obj_recurse(self, obj: models.Model, s: str) -> ModelT | None:
         rel, _, s = s.partition(LOOKUP_SEP)
