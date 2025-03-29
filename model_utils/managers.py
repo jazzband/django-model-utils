@@ -133,14 +133,17 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
         # by InheritanceIterable via base_obj.b.c) and the user does sub_obj.m2m_field.all()
         # then Django's ManyRelatedManager will look into base_obj.b.c._prefetched_objects_cache
         # but prefetch_related_objects above has put the prefetched objects into base_obj.b._prefetched_objects_cache
+        # The same goes for _state.fields_cache, which is used by ForeignKeys
+        # ForeignKeys already make an attempt to look at the parent's fields_cache, but it only works for one level
         # Additionally, copy any to_attr prefetches down as well
         for sub_obj, base_obj in zip(self._result_cache, _base_objs):
-            # get the base cache or create a new a blank one if there isn't any
+            # get the base caches or create a new a blank one if there isn't any
             prefetch_cache = getattr(base_obj, '_prefetched_objects_cache', None)
             if prefetch_cache is not None:
                 prefetch_cache = dict(prefetch_cache)
             else:
                 prefetch_cache = {}
+            fields_cache = dict(base_obj._state.fields_cache)
 
             current = base_obj
             current_path = []
@@ -158,6 +161,13 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
                     current._prefetched_objects_cache = prefetch_cache
                     # prepare a fresh dict for the next level down
                     prefetch_cache = dict(prefetch_cache)
+
+                child_fields_cache = current._state.fields_cache
+                if child_fields_cache:
+                    fields_cache.update(child_fields_cache)
+                if fields_cache:
+                    current._state.fields_cache = fields_cache
+                    fields_cache = dict(fields_cache)
 
                 for prefetch in self._prefetch_related_lookups:
                     if isinstance(prefetch, Prefetch) and prefetch.to_attr:

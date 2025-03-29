@@ -44,6 +44,8 @@ class InheritanceManagerTestParent(models.Model):
     related_self = models.OneToOneField(
         "self", related_name="imtests_self", null=True,
         on_delete=models.CASCADE)
+    normal_relation_parent = models.ForeignKey('InheritanceManagerNonChild', null=True, on_delete=models.CASCADE)
+    normal_many_relation_parent = models.ManyToManyField('InheritanceManagerNonChild')
     objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
     def __str__(self) -> str:

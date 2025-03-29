@@ -552,26 +552,86 @@ class InheritanceManagerPrefetchForeignKeyTests(TestCase):
         self.related3 = InheritanceManagerNonChild.objects.create()
         self.related4 = InheritanceManagerNonChild.objects.create()
         self.related5 = InheritanceManagerNonChild.objects.create()
-        self.c1 = InheritanceManagerTestChild1.objects.create(normal_relation=self.related1)
+        self.c1 = InheritanceManagerTestChild1.objects.create(
+            normal_relation=self.related1,
+            normal_relation_parent=self.related1,
+        )
         self.c1.normal_many_relation.set([self.related1, self.related2])
+        self.c1.normal_many_relation_parent.set([self.related1, self.related2])
 
-        self.c2 = InheritanceManagerTestChild1.objects.create(normal_relation=self.related2)
+        self.c2 = InheritanceManagerTestChild1.objects.create(
+            normal_relation=self.related2,
+            normal_relation_parent=self.related2,
+        )
         self.c2.normal_many_relation.set([self.related3, self.related4])
+        self.c2.normal_many_relation_parent.set([self.related3, self.related4])
 
-        self.gc1 = InheritanceManagerTestGrandChild1.objects.create(normal_relation=self.related1)
+        self.gc1 = InheritanceManagerTestGrandChild1.objects.create(
+            normal_relation=self.related1,
+            normal_relation_parent=self.related1,
+        )
         self.gc1.normal_many_relation.set([self.related1, self.related2])
+        self.gc1.normal_many_relation_parent.set([self.related1, self.related2])
 
-        self.gc2 = InheritanceManagerTestGrandChild1.objects.create(normal_relation=self.related2)
+        self.gc2 = InheritanceManagerTestGrandChild1.objects.create(
+            normal_relation=self.related2,
+            normal_relation_parent=self.related2,
+        )
         self.gc2.normal_many_relation.set([self.related3, self.related4])
+        self.gc2.normal_many_relation_parent.set([self.related3, self.related4])
 
-        self.gc3 = InheritanceManagerTestGrandChild1_2.objects.create(normal_relation=self.related1)
+        self.gc3 = InheritanceManagerTestGrandChild1_2.objects.create(
+            normal_relation=self.related1,
+            normal_relation_parent=self.related1,
+        )
         self.gc3.normal_many_relation.set([self.related1, self.related2])
+        self.gc3.normal_many_relation_parent.set([self.related1, self.related2])
 
-        self.gc4 = InheritanceManagerTestGrandChild1.objects.create(normal_relation=self.related3)
+        self.gc4 = InheritanceManagerTestGrandChild1.objects.create(
+            normal_relation=self.related3,
+            normal_relation_parent=self.related3,
+        )
         self.gc4.normal_many_relation.set([self.related5, self.related1])
+        self.gc4.normal_many_relation_parent.set([self.related5, self.related1])
 
         self.c3 = InheritanceManagerTestChild2.objects.create()
 
+
+    def test_prefetch_related_works_with_fk_in_parent(self) -> None:
+        with self.assertNumQueries(2):
+            result = list(
+                InheritanceManagerTestParent.objects.select_subclasses().prefetch_related(
+                    'normal_relation_parent'
+                ).order_by('pk')
+            )
+            self.assertEqual(result[0], self.c1)
+            self.assertEqual(result[0].normal_relation_parent.pk, self.related1.pk)
+            self.assertEqual(result[1], self.c2)
+            self.assertEqual(result[1].normal_relation_parent.pk, self.related2.pk)
+            self.assertEqual(result[2], self.gc1)
+            self.assertEqual(result[2].normal_relation_parent.pk, self.related1.pk)
+            self.assertEqual(result[3], self.gc2)
+            self.assertEqual(result[3].normal_relation_parent.pk, self.related2.pk)
+            self.assertEqual(result[4], self.gc3)
+            self.assertEqual(result[4].normal_relation_parent.pk, self.related1.pk)
+            self.assertEqual(result[5], self.gc4)
+            self.assertEqual(result[5].normal_relation_parent.pk, self.related3.pk)
+            self.assertEqual(result[6], self.c3)
+
+    def test_prefetch_related_works_with_m2m_in_parent(self) -> None:
+        with self.assertNumQueries(2):
+            result = list(
+                InheritanceManagerTestParent.objects.select_subclasses().prefetch_related(
+                    'normal_many_relation_parent',
+                ).order_by('pk')
+            )
+
+            self.assertEqual(set(result[0].normal_many_relation_parent.all()), {self.related1, self.related2})
+            self.assertEqual(set(result[1].normal_many_relation_parent.all()), {self.related3, self.related4})
+            self.assertEqual(set(result[2].normal_many_relation_parent.all()), {self.related1, self.related2})
+            self.assertEqual(set(result[3].normal_many_relation_parent.all()), {self.related3, self.related4})
+            self.assertEqual(set(result[4].normal_many_relation_parent.all()), {self.related1, self.related2})
+            self.assertEqual(set(result[5].normal_many_relation_parent.all()), {self.related5, self.related1})
 
     def test_prefetch_related_works_with_fk_in_subclass(self) -> None:
         with self.assertNumQueries(2):
