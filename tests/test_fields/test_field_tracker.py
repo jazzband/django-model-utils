@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-import pytest
 
+import pytest
 from django.core.cache import cache
 from django.core.exceptions import FieldError
 from django.db import models
-from django.db.models.fields.files import FieldFile
 from django.db.models.deletion import ProtectedError
+from django.db.models.fields.files import FieldFile
 from django.test import TestCase
 
 from model_utils import FieldTracker
@@ -27,8 +27,8 @@ from tests.models import (
     TrackedMultiple,
     TrackedNonFieldAttr,
     TrackedNotDefault,
-    TrackerTimeStamped,
     TrackedProtectedSelfRefFK,
+    TrackerTimeStamped,
 )
 
 if TYPE_CHECKING:

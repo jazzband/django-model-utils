@@ -24,7 +24,7 @@ from model_utils.models import (
     TimeStampedModel,
     UUIDModel,
 )
-from model_utils.tracker import FieldTracker, ModelTracker, FieldInstanceTracker
+from model_utils.tracker import FieldInstanceTracker, FieldTracker, ModelTracker
 from tests.fields import MutableField
 
 ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
