@@ -579,7 +579,7 @@ class FieldTrackerProtectedForeignKeyTests(FieldTrackerMixin, TestCase):
     fk_class = Tracked
     tracked_class = TrackedProtectedSelfRefFK
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.old_fk = self.fk_class.objects.create(number=8)
         self.instance = self.tracked_class.objects.create(fk=self.old_fk)
         self.instance_2 = self.tracked_class.objects.create(
@@ -588,7 +588,7 @@ class FieldTrackerProtectedForeignKeyTests(FieldTrackerMixin, TestCase):
         self.instance.self_ref = self.instance_2
         self.instance.save()
 
-    def test_fk_delete(self):
+    def test_fk_delete(self) -> None:
         with pytest.raises(ProtectedError):
             self.old_fk.delete()
 

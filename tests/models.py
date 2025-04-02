@@ -282,7 +282,7 @@ class TrackedMultiple(models.Model):
 
 class LoopDetectionFieldInstanceTracker(FieldInstanceTracker):
 
-    def set_saved_fields(self, fields=None):
+    def set_saved_fields(self, fields=None) -> None:
         counter = getattr(self.__class__, '__loop_counter', 0)
         if counter > 50:
             raise AssertionError("Infinite Loop Detected!")
