@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, TypeVar, overload
+from typing import Any, ClassVar, Iterable, TypeVar, overload
 
 from django.db import models
 from django.db.models import Manager
@@ -282,7 +282,7 @@ class TrackedMultiple(models.Model):
 
 class LoopDetectionFieldInstanceTracker(FieldInstanceTracker):
 
-    def set_saved_fields(self, fields=None) -> None:
+    def set_saved_fields(self, fields: Iterable[str] | None = None) -> None:
         counter = getattr(self.__class__, '__loop_counter', 0)
         if counter > 50:
             raise AssertionError("Infinite Loop Detected!")
