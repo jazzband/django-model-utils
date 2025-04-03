@@ -52,6 +52,7 @@
 | João Amaro <joaoamaro70@gmail.com>
 | Karl WnW <karl.wnw@gmail.com>
 | Keryn Knight <keryn@kerynknight.com>
+| Lucas Rangel Cezimbra <lucas@cezimbra.tec.br>
 | Lucas Wiman <lucaswiman@counsyl.com>
 | Martey Dodoo <martey@mobolic.com>
 | Matthew Schinckel <matt@schinckel.net>

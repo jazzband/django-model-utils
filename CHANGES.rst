@@ -3,6 +3,7 @@ Changelog
 
 To be released
 ------------------
+- Add `FieldTracker.diff` by @lucasrcezimbra
 - Add support for `Python 3.13` (GH-#628)
 
 5.0.0 (2024-09-01)
