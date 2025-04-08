@@ -6,6 +6,7 @@ To be released
 - Add support for `Python 3.13` (GH-#628)
 - Add formal support for `Django 5.2` (GH-#641)
 - Drop support for older versions than `Django 4.2`
+- Drop support for `Python 3.8`
 
 5.0.0 (2024-09-01)
 ------------------
