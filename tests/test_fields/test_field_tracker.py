@@ -124,7 +124,12 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
 
     def test_save_with_args(self) -> None:
         self.instance.number = 1
-        self.instance.save(False, False, None, None)
+        self.instance.save(
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
+        )
         self.assertChanged()
 
     def test_first_save(self) -> None:
