@@ -148,10 +148,14 @@ class MonitorField(DateTimeFieldBase):
         value = now()
         previous = getattr(model_instance, self.monitor_attname, None)
         current = self.get_monitored_value(model_instance)
-        if previous != current:
-            if self.when is None or current in self.when:
-                setattr(model_instance, self.attname, value)
-                self._save_initial(model_instance.__class__, model_instance)
+
+        should_update = previous != current
+        if self.when is not None:
+            should_update = (should_update or add) and current in self.when
+
+        if should_update:
+            setattr(model_instance, self.attname, value)
+            self._save_initial(model_instance.__class__, model_instance)
         return super().pre_save(model_instance, add)
 
     def deconstruct(self) -> tuple[str, str, Sequence[Any], dict[str, Any]]:

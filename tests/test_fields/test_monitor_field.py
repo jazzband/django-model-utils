@@ -1,12 +1,18 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import time_machine
 from django.test import TestCase
 
 from model_utils.fields import MonitorField
-from tests.models import DoubleMonitored, Monitored, MonitorWhen, MonitorWhenEmpty
+from tests.models import (
+    DoubleMonitored,
+    Monitored,
+    MonitorWhen,
+    MonitorWhenEmpty,
+    MonitorWhenNullable,
+)
 
 
 class MonitorFieldTests(TestCase):
@@ -83,6 +89,63 @@ class MonitorWhenFieldTests(TestCase):
         changed = self.instance.name_changed
         self.instance.save()
         self.assertEqual(self.instance.name_changed, changed)
+
+
+class MonitorWhenNullableFieldTests(TestCase):
+    """
+    Will record changes only when name is 'Jose'
+    """
+    def setUp(self) -> None:
+        self.arbitrary_datetime = datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+
+    def test_created_with_matching_value(self) -> None:
+        with time_machine.travel(self.arbitrary_datetime):
+            instance = MonitorWhenNullable(name='Jose')
+            instance.save()
+        self.assertEqual(instance.name_changed, self.arbitrary_datetime)
+
+    def test_created_without_matching_value(self) -> None:
+        with time_machine.travel(self.arbitrary_datetime):
+            instance = MonitorWhenNullable(name='Charlie')
+            instance.save()
+        self.assertIsNone(instance.name_changed)
+
+    def test_updated_from_matching_value(self) -> None:
+        with time_machine.travel(self.arbitrary_datetime):
+            instance = MonitorWhenNullable(name='Jose')
+            instance.save()
+        with time_machine.travel(self.arbitrary_datetime + timedelta(hours=2)):
+            instance.name = 'Charlie'
+            instance.save()
+        self.assertEqual(instance.name_changed, self.arbitrary_datetime)
+
+    def test_updated_from_non_matching_value(self) -> None:
+        with time_machine.travel(self.arbitrary_datetime):
+            instance = MonitorWhenNullable(name='Charlie')
+            instance.save()
+        expected_datetime = self.arbitrary_datetime + timedelta(hours=2)
+        with time_machine.travel(expected_datetime):
+            instance.name = 'Jose'
+            instance.save()
+        self.assertEqual(instance.name_changed, expected_datetime)
+
+    def test_update_from_and_to_matching_value(self) -> None:
+        with time_machine.travel(self.arbitrary_datetime):
+            instance = MonitorWhenNullable(name='Jose')
+            instance.save()
+        self.assertEqual(instance.name_changed, self.arbitrary_datetime)
+        expected_datetime = self.arbitrary_datetime + timedelta(hours=2)
+        with time_machine.travel(expected_datetime):
+            instance.name = 'Maria'
+            instance.save()
+        self.assertEqual(instance.name_changed, expected_datetime)
+
+    def test_double_save(self) -> None:
+        instance = MonitorWhenNullable(name='Jose')
+        instance.save()
+        changed = instance.name_changed
+        instance.save()
+        self.assertEqual(instance.name_changed, changed)
 
 
 class MonitorWhenEmptyFieldTests(TestCase):

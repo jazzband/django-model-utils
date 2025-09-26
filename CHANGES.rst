@@ -9,6 +9,7 @@ To be released
 - Drop support for older versions than `Django 4.2`
 - Drop support for `Python 3.8` and `Python 3.9`
 - Fix `InheritanceQuerySet.iterator()` to stop fetching the entire table (GH-#655)
+- Fixes MonitorField not updating on creation with `when` and `null=True` (GH-#401, GH-#352)
 
 5.0.0 (2024-09-01)
 ------------------
