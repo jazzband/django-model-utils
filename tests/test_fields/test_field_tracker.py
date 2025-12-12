@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from django.core.cache import cache
 from django.core.exceptions import FieldError
 from django.db import models
+from django.db.models.deletion import ProtectedError
 from django.db.models.fields.files import FieldFile
 from django.test import TestCase
 
@@ -25,6 +27,7 @@ from tests.models import (
     TrackedMultiple,
     TrackedNonFieldAttr,
     TrackedNotDefault,
+    TrackedProtectedSelfRefFK,
     TrackerTimeStamped,
 )
 
@@ -121,7 +124,12 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
 
     def test_save_with_args(self) -> None:
         self.instance.number = 1
-        self.instance.save(False, False, None, None)
+        self.instance.save(
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
+        )
         self.assertChanged()
 
     def test_first_save(self) -> None:
@@ -568,6 +576,26 @@ class FieldTrackerForeignKeyTests(FieldTrackerForeignKeyMixin, TestCase):
 
     fk_class = Tracked
     tracked_class = TrackedFK
+
+
+class FieldTrackerProtectedForeignKeyTests(FieldTrackerMixin, TestCase):
+    """test case for issue #533 FieldTracker infinite recursion on a deleting object"""
+
+    fk_class = Tracked
+    tracked_class = TrackedProtectedSelfRefFK
+
+    def setUp(self) -> None:
+        self.old_fk = self.fk_class.objects.create(number=8)
+        self.instance = self.tracked_class.objects.create(fk=self.old_fk)
+        self.instance_2 = self.tracked_class.objects.create(
+            fk=self.old_fk, self_ref=self.instance
+        )
+        self.instance.self_ref = self.instance_2
+        self.instance.save()
+
+    def test_fk_delete(self) -> None:
+        with pytest.raises(ProtectedError):
+            self.old_fk.delete()
 
 
 class FieldTrackerForeignKeyPrefetchRelatedTests(FieldTrackerMixin, TestCase):
