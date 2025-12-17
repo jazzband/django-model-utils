@@ -44,6 +44,8 @@ class InheritanceManagerTestParent(models.Model):
     related_self = models.OneToOneField(
         "self", related_name="imtests_self", null=True,
         on_delete=models.CASCADE)
+    normal_relation_parent = models.ForeignKey('InheritanceManagerNonChild', null=True, on_delete=models.CASCADE)
+    normal_many_relation_parent = models.ManyToManyField('InheritanceManagerNonChild')
     objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
     def __str__(self) -> str:
@@ -56,6 +58,8 @@ class InheritanceManagerTestParent(models.Model):
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
+    normal_relation = models.ForeignKey('InheritanceManagerNonChild', null=True, on_delete=models.CASCADE)
+    normal_many_relation = models.ManyToManyField('InheritanceManagerNonChild')
     objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
 
@@ -93,6 +97,10 @@ class InheritanceManagerTestChild4(InheritanceManagerTestParent):
     parent_ptr = models.OneToOneField(
         InheritanceManagerTestParent, related_name='child4_onetoone',
         parent_link=True, on_delete=models.CASCADE)
+
+
+class InheritanceManagerNonChild(models.Model):
+    name = models.CharField(max_length=255)
 
 
 class TimeStamp(TimeStampedModel):

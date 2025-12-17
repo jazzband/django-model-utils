@@ -5,9 +5,15 @@ from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overloa
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection, models
+from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related import OneToOneField, OneToOneRel
-from django.db.models.query import ModelIterable, QuerySet
+from django.db.models.query import (
+    ModelIterable,
+    Prefetch,
+    QuerySet,
+    prefetch_related_objects,
+)
 from django.db.models.sql.datastructures import Join
 
 ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
@@ -65,6 +71,8 @@ else:
 
 class InheritanceQuerySetMixin(Generic[ModelT]):
 
+    _prefetch_related_lookups: Sequence[str | Prefetch]
+    _result_cache: list[ModelT]
     model: type[ModelT]
     subclasses: Sequence[str]
 
@@ -104,6 +112,79 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
             new_qs = new_qs.select_related(*selected_subclasses)
         new_qs.subclasses = selected_subclasses
         return new_qs
+
+    def _prefetch_related_objects(self):
+        # Step 1: Find the base objects
+        # self._result_cache contains the subclasses as returned by InheritanceIterable
+        # walk up the path_to_parent to get to the parent model for each
+        _base_objs = []
+        sub_obj: ModelT
+        for sub_obj in self._result_cache:
+            for p in sub_obj._meta.get_path_to_parent(self.model):
+                sub_obj = getattr(sub_obj, p.join_field.name)
+            _base_objs.append(sub_obj)
+
+        # Step 2: Prefetch using the base objects
+        # This satisfies the requirement of prefetch_related_objects that the list be homogeneous
+        # This allows the user to use prefetch_related(subclass__subclass_relation)
+        # Because InheritanceIterable transforms the result into "subclass", then subclass_relation will
+        # be prefetched on that subclass object, as expected
+        prefetch_related_objects(_base_objs, *self._prefetch_related_lookups)
+
+        # Step 3: Copy down the prefetched objects
+        # Assuming we have the inheritance C extends B extends A
+        # If a relation is prefetched at B, we must put those prefetched objects into the C's
+        # _prefetched_objects_cache as well, so that when a C object is returned (which is obtained
+        # by InheritanceIterable via base_obj.b.c) and the user does sub_obj.m2m_field.all()
+        # then Django's ManyRelatedManager will look into base_obj.b.c._prefetched_objects_cache
+        # but prefetch_related_objects above has put the prefetched objects into base_obj.b._prefetched_objects_cache
+        # The same goes for _state.fields_cache, which is used by ForeignKeys
+        # ForeignKeys already make an attempt to look at the parent's fields_cache, but it only works for one level
+        # Additionally, copy any to_attr prefetches down as well
+        for sub_obj, base_obj in zip(self._result_cache, _base_objs):
+            # get the base caches or create a new a blank one if there isn't any
+            prefetch_cache = getattr(base_obj, '_prefetched_objects_cache', None)
+            if prefetch_cache is not None:
+                prefetch_cache = dict(prefetch_cache)
+            else:
+                prefetch_cache = {}
+            fields_cache = dict(base_obj._state.fields_cache)
+
+            current = base_obj
+            current_path = []
+            prefetch_attrs = {}
+            for p in sub_obj._meta.get_path_from_parent(self.model):
+                join_field_name = p.join_field.name
+                current_path.append(join_field_name)
+                current = getattr(current, join_field_name)
+                child_cache: dict | None = getattr(current, '_prefetched_objects_cache', None)
+                if child_cache is not None:
+                    # The child already has its own cache, add it to the running list of prefetches
+                    prefetch_cache.update(child_cache)
+                if prefetch_cache:
+                    # If we have something prefetched at this level or above, put it in this sub_obj
+                    current._prefetched_objects_cache = prefetch_cache
+                    # prepare a fresh dict for the next level down
+                    prefetch_cache = dict(prefetch_cache)
+
+                child_fields_cache = current._state.fields_cache
+                if child_fields_cache:
+                    fields_cache.update(child_fields_cache)
+                if fields_cache:
+                    current._state.fields_cache = fields_cache
+                    fields_cache = dict(fields_cache)
+
+                for prefetch in self._prefetch_related_lookups:
+                    if isinstance(prefetch, Prefetch) and prefetch.to_attr:
+                        prefetch_path = prefetch.prefetch_to.split(LOOKUP_SEP)[:-1]
+                        if current_path == prefetch_path:
+                            # The prefetch was at this level exactly, get the prefetch from the object
+                            prefetch_attrs[prefetch] = getattr(current, prefetch.to_attr)
+                        elif current_path[:len(prefetch_path)] == prefetch_path:
+                            # the prefetch was for a parent of this one, get it from the running cache
+                            setattr(current, prefetch.to_attr, prefetch_attrs[prefetch])
+
+        self._prefetch_done = True
 
     def _chain(self, **kwargs: object) -> InheritanceQuerySet[ModelT]:
         update = {}
@@ -165,18 +246,10 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
             raise ValueError(
                 f"{model!r} is not a subclass of {self.model!r}")
 
-        ancestry: list[str] = []
-        # should be a OneToOneField or None
-        parent_link = model._meta.get_ancestor_link(self.model)
-
-        while parent_link is not None:
-            related = parent_link.remote_field
-            ancestry.insert(0, related.get_accessor_name())
-
-            parent_model = related.model
-            parent_link = parent_model._meta.get_ancestor_link(self.model)
-
-        return LOOKUP_SEP.join(ancestry)
+        return LOOKUP_SEP.join(
+            p.join_field.get_accessor_name()
+            for p in model._meta.get_path_from_parent(self.model)
+        )
 
     def _get_sub_obj_recurse(self, obj: models.Model, s: str) -> ModelT | None:
         rel, _, s = s.partition(LOOKUP_SEP)
@@ -212,18 +285,18 @@ class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):  
         # Due to https://code.djangoproject.com/ticket/16572, we
         # can't really do this for anything other than children (ie,
         # no grandchildren+).
-        where_queries = []
+        conditions = []
         for model in models:
-            where_queries.append('(' + ' AND '.join([
-                '"{}"."{}" IS NOT NULL'.format(
-                    model._meta.db_table,
-                    field.column,
-                ) for field in model._meta.parents.values()
-            ]) + ')')
+            path_from_parent = LOOKUP_SEP.join(
+                p.join_field.get_accessor_name() for p in model._meta.get_path_from_parent(self.model)
+            )
+            conditions.append(
+                (path_from_parent + LOOKUP_SEP + 'isnull', False)
+            )
 
         return cast(
             'InheritanceQuerySet[ModelT]',
-            self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
+            self.select_subclasses(*models).filter(Q(*conditions, _connector=Q.OR))
         )
 
 
