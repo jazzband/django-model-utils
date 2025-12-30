@@ -6,7 +6,13 @@ import time_machine
 from django.test import TestCase
 
 from model_utils.fields import MonitorField
-from tests.models import DoubleMonitored, Monitored, MonitorWhen, MonitorWhenEmpty
+from tests.models import (
+    DoubleMonitored,
+    Monitored,
+    MonitorWhen,
+    MonitorWhenEmpty,
+    MonitorWhenNullable,
+)
 
 
 class MonitorFieldTests(TestCase):
@@ -83,6 +89,23 @@ class MonitorWhenFieldTests(TestCase):
         changed = self.instance.name_changed
         self.instance.save()
         self.assertEqual(self.instance.name_changed, changed)
+
+
+class MonitorWhenNullableFieldTests(TestCase):
+    """
+    Will record changes only when name is 'Jose'
+    """
+    def test_created_Jose(self) -> None:
+        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc)):
+            instance = MonitorWhenNullable(name='Jose')
+            instance.save()
+        self.assertEqual(instance.name_changed, datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc))
+
+    def test_created_Charlie(self) -> None:
+        with time_machine.travel(datetime(2016, 1, 1, 12, 0, 0, tzinfo=timezone.utc)):
+            instance = MonitorWhenNullable(name='Charlie')
+            instance.save()
+        self.assertIsNone(instance.name_changed)
 
 
 class MonitorWhenEmptyFieldTests(TestCase):

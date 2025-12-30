@@ -123,6 +123,11 @@ class MonitorWhenEmpty(models.Model):
     name_changed = MonitorField(monitor="name", when=[])
 
 
+class MonitorWhenNullable(models.Model):
+    name = models.CharField(max_length=25)
+    name_changed = MonitorField(monitor="name", when=["Jose"], null=True)
+
+
 class DoubleMonitored(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name")
