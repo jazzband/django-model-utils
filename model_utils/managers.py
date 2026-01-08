@@ -196,8 +196,7 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
 
 
 # Defining the 'model' attribute using a generic type triggers a bug in mypy:
-# https://github.com/python/mypy/issues/9031
-class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):  # type: ignore[misc]
+class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):
     def instance_of(self, *models: type[ModelT]) -> InheritanceQuerySet[ModelT]:
         """
         Fetch only objects that are instances of the provided model(s).

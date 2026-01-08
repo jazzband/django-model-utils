@@ -544,7 +544,7 @@ class FieldTrackerForeignKeyMixin(FieldTrackerMixin):
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(id=self.instance.id, fk_id=self.old_fk.id)
-        self.instance.fk = self.fk_class.objects.create(number=8)  # type: ignore[assignment]
+        self.instance.fk = self.fk_class.objects.create(number=8)
         self.assertChanged(fk_id=self.old_fk.id)
         self.assertPrevious(fk_id=self.old_fk.id)
         self.assertCurrent(id=self.instance.id, fk_id=self.instance.fk_id)
@@ -554,7 +554,7 @@ class FieldTrackerForeignKeyMixin(FieldTrackerMixin):
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(fk_id=self.old_fk.id)
-        self.instance.fk = self.fk_class.objects.create(number=8)  # type: ignore[assignment]
+        self.instance.fk = self.fk_class.objects.create(number=8)
         self.assertChanged(fk_id=self.old_fk.id)
         self.assertPrevious(fk_id=self.old_fk.id)
         self.assertCurrent(fk_id=self.instance.fk_id)
@@ -566,7 +566,7 @@ class FieldTrackerForeignKeyMixin(FieldTrackerMixin):
         self.assertChanged()
         self.assertPrevious()
         self.assertCurrent(fk=self.old_fk.id)
-        self.instance.fk = self.fk_class.objects.create(number=8)  # type: ignore[assignment]
+        self.instance.fk = self.fk_class.objects.create(number=8)
         self.assertChanged(fk=self.old_fk.id)
         self.assertPrevious(fk=self.old_fk.id)
         self.assertCurrent(fk=self.instance.fk_id)
