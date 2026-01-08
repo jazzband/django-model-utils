@@ -511,7 +511,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
             self.child1)
 
     def test_get_method_with_select_subclasses_check_for_useless_join(self) -> None:
-        child4 = InheritanceManagerTestChild4.objects.create(related=self.related, other_onetoone=self.child1)
+        child4 = InheritanceManagerTestChild4.objects.create(related=self.related, other_onetoone=self.child1)  # type: ignore[misc]
         self.assertEqual(
             str(InheritanceManagerTestChild4.objects.select_subclasses().filter(
                 id=child4.id).query),
@@ -521,7 +521,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def test_annotate_with_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.select_subclasses().annotate(
             models.Count('id'))
-        self.assertEqual(qs.get(id=self.child1.id).id__count, 1)
+        self.assertEqual(qs.get(id=self.child1.id).id__count, 1)  # type: ignore[attr-defined]
 
     def test_annotate_with_named_arguments_with_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.select_subclasses().annotate(
@@ -531,7 +531,7 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
     def test_annotate_before_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.annotate(
             models.Count('id')).select_subclasses()
-        self.assertEqual(qs.get(id=self.child1.id).id__count, 1)
+        self.assertEqual(qs.get(id=self.child1.id).id__count, 1)  # type: ignore[attr-defined]
 
     def test_annotate_with_named_arguments_before_select_subclasses(self) -> None:
         qs = InheritanceManagerTestParent.objects.annotate(

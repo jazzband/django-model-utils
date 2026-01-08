@@ -16,17 +16,16 @@ jobs:
       max-parallel: 5
       matrix:
         python-version: [
-          '3.8',
-          '3.9',
           '3.10',
           '3.11',
           '3.12',
           '3.13',
+          '3.14',
         ]
 
     services:
       postgres:
-        image: postgres:14-alpine
+        image: postgres:15-alpine
         env:
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}

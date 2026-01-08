@@ -1,3 +1,4 @@
-mypy==1.10.0
-django-stubs==5.0.2
+mypy>=1.13.0
+django-stubs==5.1.3
 pytest
+time-machine>=2.8.2
