@@ -17,6 +17,19 @@ if TYPE_CHECKING:
 
     from django.db.models.query import BaseIterable
 
+    # Generic base for mixin classes - enables type checking support
+    # while avoiding runtime issues with __class__ assignment
+    # (e.g., when used with django-modeltranslation).
+    _GenericMixin = Generic[ModelT]
+else:
+    # At runtime, use a subscriptable but non-Generic class to avoid
+    # __class__ assignment issues that occur when Generic[T] is in
+    # the class hierarchy (e.g., django-modeltranslation compatibility).
+    class _GenericMixin:
+        """Runtime placeholder for Generic[ModelT] that supports subscripting."""
+        def __class_getitem__(cls, item: Any) -> type[_GenericMixin]:
+            return cls
+
 
 def _iter_inheritance_queryset(queryset: QuerySet[ModelT]) -> Iterator[ModelT]:
     iter: ModelIterable[ModelT] = ModelIterable(queryset)
@@ -63,7 +76,7 @@ else:
             return _iter_inheritance_queryset(self.queryset)
 
 
-class InheritanceQuerySetMixin(Generic[ModelT]):
+class InheritanceQuerySetMixin(_GenericMixin):
 
     model: type[ModelT]
     subclasses: Sequence[str]
@@ -226,7 +239,7 @@ class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):
         )
 
 
-class InheritanceManagerMixin(Generic[ModelT]):
+class InheritanceManagerMixin(_GenericMixin):
     _queryset_class = InheritanceQuerySet
 
     if TYPE_CHECKING:
@@ -322,7 +335,7 @@ class InheritanceManager(InheritanceManagerMixin[ModelT], models.Manager[ModelT]
     pass
 
 
-class QueryManagerMixin(Generic[ModelT]):
+class QueryManagerMixin(_GenericMixin):
 
     @overload
     def __init__(self, *args: models.Q):
@@ -356,7 +369,7 @@ class QueryManager(QueryManagerMixin[ModelT], models.Manager[ModelT]):  # type: 
     pass
 
 
-class SoftDeletableQuerySetMixin(Generic[ModelT]):
+class SoftDeletableQuerySetMixin(_GenericMixin):
     """
     QuerySet for SoftDeletableModel. Instead of removing instance sets
     its ``is_removed`` field to True.
@@ -376,7 +389,7 @@ class SoftDeletableQuerySet(SoftDeletableQuerySetMixin[ModelT], QuerySet[ModelT]
     pass
 
 
-class SoftDeletableManagerMixin(Generic[ModelT]):
+class SoftDeletableManagerMixin(_GenericMixin):
     """
     Manager that limits the queryset by default to show only not removed
     instances of model.

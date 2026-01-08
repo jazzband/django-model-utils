@@ -7,6 +7,9 @@ To be released
 - Add support for `Python 3.14`
 - Add formal support for `Django 5.2` (GH-#641)
 - Drop support for older versions than `Django 4.2`
+- Fix compatibility with django-modeltranslation: manager mixins no longer
+  inherit from `Generic[T]` at runtime, preventing `TypeError` on `__class__`
+  assignment (GH-#636)
 - Drop support for `Python 3.8` and `Python 3.9`
 
 5.0.0 (2024-09-01)
