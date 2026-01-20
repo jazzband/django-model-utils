@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import sys
 import warnings
-from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Any, Generic, Sequence, cast, overload
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection, models
@@ -10,7 +11,23 @@ from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import ModelIterable, QuerySet
 from django.db.models.sql.datastructures import Join
 
+if sys.version_info >= (3, 13):
+    from typing import Self, TypeVar
+elif sys.version_info >= (3, 11):
+    from typing import Self
+    from typing_extensions import TypeVar
+else:
+    from typing_extensions import Self, TypeVar
+
 ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
+
+# TypeVar for QuerySet with default (enables backwards compatibility)
+# When only ModelT is specified, QuerySetT defaults to InheritanceQuerySet[ModelT]
+QuerySetT = TypeVar(
+    'QuerySetT',
+    bound='InheritanceQuerySet[Any]',
+    default='InheritanceQuerySet[ModelT]',
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -72,7 +89,7 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
         super().__init__(*args, **kwargs)
         self._iterable_class: type[BaseIterable[ModelT]] = InheritanceIterable
 
-    def select_subclasses(self, *subclasses: str | type[models.Model]) -> InheritanceQuerySet[ModelT]:
+    def select_subclasses(self, *subclasses: str | type[models.Model]) -> Self:
         model: type[ModelT] = self.model
         calculated_subclasses = self._get_subclasses_recurse(model)
         # if none were passed in, we can just short circuit and select all
@@ -99,33 +116,33 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
                     )
             selected_subclasses = verified_subclasses
 
-        new_qs = cast('InheritanceQuerySet[ModelT]', self)
+        new_qs = cast(Self, self)
         if selected_subclasses:
             new_qs = new_qs.select_related(*selected_subclasses)
         new_qs.subclasses = selected_subclasses
         return new_qs
 
-    def _chain(self, **kwargs: object) -> InheritanceQuerySet[ModelT]:
+    def _chain(self, **kwargs: object) -> Self:
         update = {}
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 update[name] = getattr(self, name)
 
         # django-stubs doesn't include this private API.
-        chained = super()._chain(**kwargs)  # type: ignore[misc]
+        chained: Self = super()._chain(**kwargs)  # type: ignore[misc]
         chained.__dict__.update(update)
         return chained
 
-    def _clone(self) -> InheritanceQuerySet[ModelT]:
+    def _clone(self) -> Self:
         # django-stubs doesn't include this private API.
-        qs = super()._clone()  # type: ignore[misc]
+        qs: Self = super()._clone()  # type: ignore[misc]
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 setattr(qs, name, getattr(self, name))
         return qs
 
-    def annotate(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
-        qset = cast(QuerySet[ModelT], super()).annotate(*args, **kwargs)
+    def annotate(self, *args: Any, **kwargs: Any) -> Self:
+        qset: Self = super().annotate(*args, **kwargs)  # type: ignore[assignment]
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
         return qset
 
@@ -197,7 +214,7 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
 
 # Defining the 'model' attribute using a generic type triggers a bug in mypy:
 class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):
-    def instance_of(self, *models: type[ModelT]) -> InheritanceQuerySet[ModelT]:
+    def instance_of(self, *models: type[ModelT]) -> Self:
         """
         Fetch only objects that are instances of the provided model(s).
         """
@@ -220,63 +237,85 @@ class InheritanceQuerySet(InheritanceQuerySetMixin[ModelT], QuerySet[ModelT]):
                 ) for field in model._meta.parents.values()
             ]) + ')')
 
-        return cast(
-            'InheritanceQuerySet[ModelT]',
-            self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
-        )
+        return self.select_subclasses(*models).extra(where=[' OR '.join(where_queries)])
 
 
-class InheritanceManagerMixin(Generic[ModelT]):
-    _queryset_class = InheritanceQuerySet
+class InheritanceManagerMixin(Generic[ModelT, QuerySetT]):
+    """
+    Mixin for Manager classes that provides inheritance-aware queryset methods.
+
+    This mixin supports an optional second type parameter ``QuerySetT`` which
+    defaults to ``InheritanceQuerySet[ModelT]``. This allows subclasses to
+    specify a custom QuerySet type while maintaining backwards compatibility
+    with existing code that only specifies the model type.
+
+    Example usage with default QuerySet::
+
+        class MyManager(InheritanceManager[MyModel]):
+            pass  # get_queryset() returns InheritanceQuerySet[MyModel]
+
+    Example usage with custom QuerySet::
+
+        class MyQuerySet(InheritanceQuerySetMixin[MyModel], QuerySet[MyModel]):
+            def custom_filter(self) -> Self:
+                return self.filter(active=True)
+
+        class MyManager(InheritanceManager[MyModel, MyQuerySet]):
+            _queryset_class = MyQuerySet
+
+            def get_queryset(self) -> MyQuerySet:
+                return MyQuerySet(self.model, using=self._db)
+    """
+    _queryset_class: type[QuerySetT] = InheritanceQuerySet  # type: ignore[assignment]
 
     if TYPE_CHECKING:
         from collections.abc import Sequence
 
-        def none(self) -> InheritanceQuerySet[ModelT]:
+        def none(self) -> QuerySetT:
             ...
 
-        def all(self) -> InheritanceQuerySet[ModelT]:
+        def all(self) -> QuerySetT:
             ...
 
-        def filter(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+        def filter(self, *args: Any, **kwargs: Any) -> QuerySetT:
             ...
 
-        def exclude(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+        def exclude(self, *args: Any, **kwargs: Any) -> QuerySetT:
             ...
 
-        def complex_filter(self, filter_obj: Any) -> InheritanceQuerySet[ModelT]:
+        def complex_filter(self, filter_obj: Any) -> QuerySetT:
             ...
 
-        def union(self, *other_qs: Any, all: bool = ...) -> InheritanceQuerySet[ModelT]:
+        def union(self, *other_qs: Any, all: bool = ...) -> QuerySetT:
             ...
 
-        def intersection(self, *other_qs: Any) -> InheritanceQuerySet[ModelT]:
+        def intersection(self, *other_qs: Any) -> QuerySetT:
             ...
 
-        def difference(self, *other_qs: Any) -> InheritanceQuerySet[ModelT]:
+        def difference(self, *other_qs: Any) -> QuerySetT:
             ...
 
         def select_for_update(
             self, nowait: bool = ..., skip_locked: bool = ..., of: Sequence[str] = ..., no_key: bool = ...
-        ) -> InheritanceQuerySet[ModelT]:
+        ) -> QuerySetT:
             ...
 
-        def select_related(self, *fields: Any) -> InheritanceQuerySet[ModelT]:
+        def select_related(self, *fields: Any) -> QuerySetT:
             ...
 
-        def prefetch_related(self, *lookups: Any) -> InheritanceQuerySet[ModelT]:
+        def prefetch_related(self, *lookups: Any) -> QuerySetT:
             ...
 
-        def annotate(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+        def annotate(self, *args: Any, **kwargs: Any) -> QuerySetT:
             ...
 
-        def alias(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
+        def alias(self, *args: Any, **kwargs: Any) -> QuerySetT:
             ...
 
-        def order_by(self, *field_names: Any) -> InheritanceQuerySet[ModelT]:
+        def order_by(self, *field_names: Any) -> QuerySetT:
             ...
 
-        def distinct(self, *field_names: Any) -> InheritanceQuerySet[ModelT]:
+        def distinct(self, *field_names: Any) -> QuerySetT:
             ...
 
         def extra(
@@ -287,38 +326,38 @@ class InheritanceManagerMixin(Generic[ModelT]):
             tables: list[str] | None = ...,
             order_by: Sequence[str] | None = ...,
             select_params: Sequence[Any] | None = ...,
-        ) -> InheritanceQuerySet[Any]:
+        ) -> QuerySetT:
             ...
 
-        def reverse(self) -> InheritanceQuerySet[ModelT]:
+        def reverse(self) -> QuerySetT:
             ...
 
-        def defer(self, *fields: Any) -> InheritanceQuerySet[ModelT]:
+        def defer(self, *fields: Any) -> QuerySetT:
             ...
 
-        def only(self, *fields: Any) -> InheritanceQuerySet[ModelT]:
+        def only(self, *fields: Any) -> QuerySetT:
             ...
 
-        def using(self, alias: str | None) -> InheritanceQuerySet[ModelT]:
+        def using(self, alias: str | None) -> QuerySetT:
             ...
 
-    def get_queryset(self) -> InheritanceQuerySet[ModelT]:
+    def get_queryset(self) -> QuerySetT:
         model: type[ModelT] = self.model  # type: ignore[attr-defined]
         return self._queryset_class(model)
 
     def select_subclasses(
         self, *subclasses: str | type[models.Model]
-    ) -> InheritanceQuerySet[ModelT]:
+    ) -> QuerySetT:
         return self.get_queryset().select_subclasses(*subclasses)
 
     def get_subclass(self, *args: object, **kwargs: object) -> ModelT:
         return self.get_queryset().get_subclass(*args, **kwargs)
 
-    def instance_of(self, *models: type[ModelT]) -> InheritanceQuerySet[ModelT]:
+    def instance_of(self, *models: type[ModelT]) -> QuerySetT:
         return self.get_queryset().instance_of(*models)
 
 
-class InheritanceManager(InheritanceManagerMixin[ModelT], models.Manager[ModelT]):
+class InheritanceManager(InheritanceManagerMixin[ModelT, QuerySetT], models.Manager[ModelT]):
     pass
 
 
