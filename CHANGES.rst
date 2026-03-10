@@ -8,6 +8,7 @@ To be released
 - Add formal support for `Django 5.2` (GH-#641)
 - Drop support for older versions than `Django 4.2`
 - Drop support for `Python 3.8` and `Python 3.9`
+- Fix `InheritanceQuerySet.iterator()` to stop fetching the entire table (GH-#655)
 
 5.0.0 (2024-09-01)
 ------------------
