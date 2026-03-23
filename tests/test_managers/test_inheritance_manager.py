@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest import mock
 
-from django.db import models
+from django.db import connection, models
 from django.test import TestCase
 
 from model_utils.managers import InheritanceManager
@@ -222,6 +223,41 @@ class InheritanceManagerTests(TestCase):
         ))
 
         assert objs_1 == objs_2 == objs_3
+
+    def test_plain_iterator_is_chunked(self) -> None:
+        """
+        Ensure that the iterator method of the queryset uses chunked cursor.
+        """
+        manager = self.get_manager()
+
+        with mock.patch.object(
+            connection, "cursor", side_effect=connection.cursor
+        ) as cursor:
+            with mock.patch.object(
+                connection, "chunked_cursor", side_effect=connection.chunked_cursor
+            ) as chunked_cursor:
+                tuple(manager.iterator(chunk_size=1))
+
+        cursor.assert_not_called()
+        chunked_cursor.assert_called()
+
+    def test_with_subclasses_iterator_is_chunked(self) -> None:
+        """
+        Ensure that the iterator method of the queryset uses chunked cursor
+        even with select_subclasses().
+        """
+        manager = self.get_manager()
+
+        with mock.patch.object(
+            connection, "cursor", side_effect=connection.cursor
+        ) as cursor:
+            with mock.patch.object(
+                connection, "chunked_cursor", side_effect=connection.chunked_cursor
+            ) as chunked_cursor:
+                tuple(manager.select_subclasses().iterator(chunk_size=1))
+
+        cursor.assert_not_called()
+        chunked_cursor.assert_called()
 
 
 class InheritanceManagerUsingModelsTests(TestCase):

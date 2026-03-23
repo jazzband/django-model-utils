@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -18,8 +19,9 @@ if TYPE_CHECKING:
     from django.db.models.query import BaseIterable
 
 
-def _iter_inheritance_queryset(queryset: QuerySet[ModelT]) -> Iterator[ModelT]:
-    iter: ModelIterable[ModelT] = ModelIterable(queryset)
+def _iter_inheritance_queryset(
+    iter: Iterable[ModelT], queryset: QuerySet[ModelT]
+) -> Iterator[ModelT]:
     if hasattr(queryset, 'subclasses'):
         assert hasattr(queryset, '_get_sub_obj_recurse')
         extras = tuple(queryset.query.extra.keys())
@@ -60,7 +62,7 @@ if TYPE_CHECKING:
 else:
     class InheritanceIterable(ModelIterable):
         def __iter__(self):
-            return _iter_inheritance_queryset(self.queryset)
+            return _iter_inheritance_queryset(super().__iter__(), self.queryset)
 
 
 class InheritanceQuerySetMixin(Generic[ModelT]):
