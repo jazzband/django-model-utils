@@ -310,6 +310,14 @@ class FieldInstanceTracker:
             if self.has_changed(field)
         }
 
+    def diff(self):
+        """Returns dict with the diff of the fields that changed since save"""
+        return {
+            field: (self.previous(field), self.get_field_value(field))
+            for field in self.fields
+            if self.has_changed(field)
+        }
+
 
 class FieldTracker:
 

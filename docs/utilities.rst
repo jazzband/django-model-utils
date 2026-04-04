@@ -216,6 +216,22 @@ and the values of the fields during the last save:
 The ``changed`` method relies on ``has_changed`` to determine which fields
 have changed.
 
+diff
+~~~~~~~
+Returns a dictionary of all fields that have been changed since the last save
+with the previous and current values:
+
+.. code-block:: pycon
+
+    >>> a = Post.objects.create(title='First Post')
+    >>> a.title = 'Welcome'
+    >>> a.body = 'First post!'
+    >>> a.tracker.diff()
+    {'title': ('First Post', 'Welcome'), 'body': ('', 'First post!')}
+
+The ``diff`` method relies on ``has_changed`` to determine which fields
+have changed.
+
 
 Tracking specific fields
 ------------------------
