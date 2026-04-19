@@ -29,6 +29,7 @@
 | Eran Rundstein <eranrund@gmail.com>
 | Eugene Kuznetsov <atorich@gmail.com>
 | Felipe Prenholato <felipe.rafael@pdg.com.br>
+| Francisco de Maussion <github.com/FranciscodeMaussion>
 | Filipe Ximenes <filipeximenes@gmail.com>
 | Florian Alu <fla@grapps.fr>
 | Germano Massullo <github.com/Germano0>
