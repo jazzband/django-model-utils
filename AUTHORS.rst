@@ -16,6 +16,7 @@
 | Bojan Mihelac <bmihelac@mihelac.org>
 | Bruno Alla <bruno.alla@founders4schools.org.uk>
 | Bugra Aydin <bugraaydin.cs@gmail.com>
+| Changjun Yeo <lunaradio24@gmail.com>
 | Craig Anderson <craiga@craiga.id.au>
 | Daniel Andrlik <daniel@andrlik.org>
 | Daniel Stanton <stringsonfire@me.com>
