@@ -574,6 +574,36 @@ class InheritanceManagerRelatedTests(InheritanceManagerTests):
             test_count=models.Count('id')).select_subclasses()
         self.assertEqual(qs.get(id=self.child1.id).test_count, 1)
 
+    def test_chained_annotate_with_select_subclasses_preserves_all_annotations(self) -> None:
+        """All annotations from chained .annotate() calls must be propagated
+        to subclass instances when select_subclasses() is used.
+
+        Regression test for #312.
+        """
+        qs = InheritanceManagerTestParent.objects.annotate(
+            first_count=models.Count('id'),
+        ).annotate(
+            second_count=models.Count('id'),
+        ).select_subclasses()
+        obj = qs.get(id=self.child1.id)
+        self.assertEqual(obj.first_count, 1)
+        self.assertEqual(obj.second_count, 1)
+
+    def test_chained_annotate_after_select_subclasses_preserves_all_annotations(self) -> None:
+        """Order should not matter — chained .annotate() after
+        select_subclasses() must also preserve all annotations.
+
+        Regression test for #312.
+        """
+        qs = InheritanceManagerTestParent.objects.select_subclasses().annotate(
+            first_count=models.Count('id'),
+        ).annotate(
+            second_count=models.Count('id'),
+        )
+        obj = qs.get(id=self.child1.id)
+        self.assertEqual(obj.first_count, 1)
+        self.assertEqual(obj.second_count, 1)
+
     def test_clone_when_inheritance_queryset_selects_subclasses_should_clone_them_too(self) -> None:
         qs = InheritanceManagerTestParent.objects.select_subclasses()
         self.assertEqual(qs.subclasses, qs._clone().subclasses)

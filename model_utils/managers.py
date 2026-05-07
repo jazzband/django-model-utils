@@ -128,7 +128,11 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
 
     def annotate(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
         qset = cast(QuerySet[ModelT], super()).annotate(*args, **kwargs)
-        qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
+        new_keys = [a.default_alias for a in args] + list(kwargs.keys())
+        existing = list(getattr(qset, '_annotated', []) or [])
+        # See #312. Assign a new list (not in-place extend) to avoid aliasing
+        # via _clone's shallow copy of _annotated.
+        qset._annotated = existing + [k for k in new_keys if k not in existing]
         return qset
 
     def _get_subclasses_recurse(self, model: type[models.Model]) -> list[str]:
