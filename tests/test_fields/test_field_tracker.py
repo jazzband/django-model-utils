@@ -1011,3 +1011,38 @@ class TrackerContextDecoratorTests(TestCase):
             self.assertChanged('name')
 
         self.assertNotChanged('name')
+
+    def test_tracker_with_instance_only_descriptor(self) -> None:
+        class InstanceOnlyDescriptor:
+            def __init__(self, name: str) -> None:
+                self.name = name
+
+            def __get__(self, instance: object, owner: type[object]) -> Any:
+                if instance is None:
+                    raise AttributeError(f"{self.name} must be accessed via instance.")
+                return instance.__dict__.get(self.name, 0)
+
+            def __set__(self, instance: object, value: Any) -> None:
+                instance.__dict__[self.name] = value
+
+        class CustomDescriptorField(models.IntegerField):
+            def contribute_to_class(self, cls: type[models.Model], name: str, **kwargs: Any) -> None:
+                super().contribute_to_class(cls, name, **kwargs)
+                setattr(cls, name, InstanceOnlyDescriptor(name))
+
+        class ModelWithInstanceOnlyDescriptor(models.Model):
+            pos = CustomDescriptorField(default=0)
+            tracker = FieldTracker()
+
+            class Meta:
+                app_label = 'tests'
+
+        instance = ModelWithInstanceOnlyDescriptor(pos=5)
+        self.assertEqual(instance.pos, 5)
+        self.assertEqual(instance.tracker.previous('pos'), None)
+        instance.pk = 1
+        instance.tracker.set_saved_fields()
+        self.assertEqual(instance.tracker.previous('pos'), 5)
+        instance.pos = 10
+        self.assertEqual(instance.tracker.previous('pos'), 5)
+        self.assertTrue(instance.tracker.has_changed('pos'))
