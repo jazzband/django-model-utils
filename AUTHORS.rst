@@ -84,6 +84,7 @@
 | Simon Charette <github.com/charettes>
 | Simon Meers <simon@simonmeers.com>
 | Skia <skia@libskia.so>
+| Sparsh Garg <github.com/SparshGarg999>
 | Tavistock <tavistock91@gmail.com>
 | Thomas Schreiber <tom@rizu.fake>
 | Tony Aldridge <zaragopha@hotmail.com>
