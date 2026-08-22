@@ -371,10 +371,16 @@ class FieldTracker:
             self.fields = (field.attname for field in sender._meta.fields)
         self.fields = set(self.fields)
         for field_name in self.fields:
-            descriptor: models.Field[Any, Any] = getattr(sender, field_name)
-            wrapper_cls = DescriptorWrapper.cls_for_descriptor(descriptor)
-            wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
-            setattr(sender, field_name, wrapped_descriptor)
+            try:
+                descriptor: models.Field[Any, Any] | None = getattr(sender, field_name, None)
+            except AttributeError:
+                descriptor = None
+            if descriptor is None:
+                descriptor = sender.__dict__.get(field_name)
+            if descriptor is not None:
+                wrapper_cls = DescriptorWrapper.cls_for_descriptor(descriptor)
+                wrapped_descriptor = wrapper_cls(field_name, descriptor, self.attname)
+                setattr(sender, field_name, wrapped_descriptor)
         self.field_map = self.get_field_map(sender)
         self.patch_init(sender)
         self.model_class = sender
