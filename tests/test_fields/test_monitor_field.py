@@ -46,6 +46,26 @@ class MonitorFieldTests(TestCase):
 
         self.assertEqual(self.instance.name_changed_nullable, expected_datetime)
 
+    def test_monitor_field_unsaved_relation_handling(self) -> None:
+        # Initializing or pre_saving when monitored field access raises ValueError does not crash
+        field = MonitorField(monitor="nonexistent_m2m")
+        field.name = "m2m_changed"
+        field.attname = "m2m_changed"
+        field.monitor_attname = "_monitor_m2m_changed"
+
+        class DummyUnsavedModel:
+            _meta = None
+            def get_deferred_fields(self):
+                return set()
+            @property
+            def nonexistent_m2m(self):
+                raise ValueError("Model object needs to have a value for field id before this relation can be used.")
+
+        dummy = DummyUnsavedModel()
+        # Should not raise ValueError
+        field._save_initial(DummyUnsavedModel, dummy)
+        self.assertIsNone(getattr(dummy, "_monitor_m2m_changed"))
+
 
 class MonitorWhenFieldTests(TestCase):
     """
