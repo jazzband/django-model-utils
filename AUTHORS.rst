@@ -16,6 +16,7 @@
 | Bojan Mihelac <bmihelac@mihelac.org>
 | Bruno Alla <bruno.alla@founders4schools.org.uk>
 | Bugra Aydin <bugraaydin.cs@gmail.com>
+| Chris <github.com/ChrisJr404>
 | Craig Anderson <craiga@craiga.id.au>
 | Daniel Andrlik <daniel@andrlik.org>
 | Daniel Stanton <stringsonfire@me.com>

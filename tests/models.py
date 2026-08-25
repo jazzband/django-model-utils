@@ -18,6 +18,7 @@ from model_utils.managers import (
     SoftDeletableQuerySet,
 )
 from model_utils.models import (
+    CreatedModel,
     SoftDeletableModel,
     StatusModel,
     TimeFramedModel,
@@ -96,6 +97,10 @@ class InheritanceManagerTestChild4(InheritanceManagerTestParent):
 
 
 class TimeStamp(TimeStampedModel):
+    test_field = models.PositiveSmallIntegerField(default=0)
+
+
+class Created(CreatedModel):
     test_field = models.PositiveSmallIntegerField(default=0)
 
 
