@@ -46,6 +46,18 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+class CreatedModel(models.Model):
+    """
+    An abstract base class model that provides a self-updating
+    ``created`` field.
+
+    """
+    created = AutoCreatedField(_('created'))
+
+    class Meta:
+        abstract = True
+
+
 class TimeFramedModel(models.Model):
     """
     An abstract base class model that provides ``start``

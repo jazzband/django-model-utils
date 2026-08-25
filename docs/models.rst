@@ -48,6 +48,15 @@ This abstract base class just provides self-updating ``created`` and
 ``modified`` fields on any model that inherits from it.
 
 
+CreatedModel
+------------
+
+This abstract base class just provides a self-updating ``created`` field on
+any model that inherits from it. Use it when you only care about when a row
+was first created and don't need the ``modified`` field that
+``TimeStampedModel`` adds.
+
+
 StatusModel
 -----------
 
