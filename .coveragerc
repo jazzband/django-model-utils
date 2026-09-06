@@ -1,2 +1,8 @@
 [run]
 include = model_utils/*.py
+
+[report]
+exclude_also =
+    # Exclusive to mypy:
+    if TYPE_CHECKING:$
+    \.\.\.$

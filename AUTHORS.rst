@@ -34,6 +34,7 @@
 | Germano Massullo <github.com/Germano0>
 | Gregor Müllegger <gregor@muellegger.de>
 | Guilherme Devincenzi <github.com/gdevincenzi>
+| Guilherme Crocetti <github.com/gmcrocetti>
 | Hanley <hanley@wayup.com>
 | Hanley Hansen <hanleyhansen@gmail.com>
 | Harry Moreno <morenoh149@gmail.com>
@@ -45,6 +46,7 @@
 | Jannis Leidel <jannis@leidel.info>
 | Javier Garcia Sogo <jgsogo@gmail.com>
 | Jeff Elmore <jelmore@lexile.com>
+| Joe Riddle <joeriddles10@gmail.com>
 | John Vandenberg <jayvdb@gmail.com>
 | Jonathan Sundqvist <sundqvist.jonathan@gmail.com>
 | João Amaro <joaoamaro70@gmail.com>
@@ -103,3 +105,5 @@
 | Éric Araujo <merwok@netwok.org>
 | Őry Máté <ory.mate@cloud.bme.hu>
 | Nafees Anwar <h.nafees.anwar@gmail.com>
+| meanmail <github@meanmail.dev>
+| Nicholas Prat <nprat96@gmail.com>

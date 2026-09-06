@@ -1,7 +1,10 @@
+from __future__ import annotations
+
+from typing import Any, Literal, TypeVar, overload
+
 from django.core.exceptions import ImproperlyConfigured
-from django.db import models, router, transaction
+from django.db import models
 from django.db.models.functions import Now
-from django.db.models.signals import post_save, pre_save
 from django.utils.translation import gettext_lazy as _
 
 from model_utils.fields import (
@@ -12,6 +15,8 @@ from model_utils.fields import (
     UUIDField,
 )
 from model_utils.managers import QueryManager, SoftDeletableManager
+
+ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
 
 now = Now()
 
@@ -25,7 +30,7 @@ class TimeStampedModel(models.Model):
     created = AutoCreatedField(_('created'))
     modified = AutoLastModifiedField(_('modified'))
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Overriding the save method in order to make sure that
         modified field is updated even if it is not given as
@@ -66,7 +71,7 @@ class StatusModel(models.Model):
     status = StatusField(_('status'))
     status_changed = MonitorField(_('status changed'), monitor='status')
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Overriding the save method in order to make sure that
         status_changed field is updated even if it is not given as
@@ -82,7 +87,7 @@ class StatusModel(models.Model):
         abstract = True
 
 
-def add_status_query_managers(sender, **kwargs):
+def add_status_query_managers(sender: type[models.Model], **kwargs: Any) -> None:
     """
     Add a Querymanager for each status item dynamically.
 
@@ -91,6 +96,7 @@ def add_status_query_managers(sender, **kwargs):
         return
 
     default_manager = sender._meta.default_manager
+    assert default_manager is not None
 
     for value, display in getattr(sender, 'STATUS', ()):
         if _field_exists(sender, value):
@@ -104,7 +110,7 @@ def add_status_query_managers(sender, **kwargs):
     sender._meta.default_manager_name = default_manager.name
 
 
-def add_timeframed_query_manager(sender, **kwargs):
+def add_timeframed_query_manager(sender: type[models.Model], **kwargs: Any) -> None:
     """
     Add a QueryManager for a specific timeframe.
 
@@ -127,7 +133,7 @@ models.signals.class_prepared.connect(add_status_query_managers)
 models.signals.class_prepared.connect(add_timeframed_query_manager)
 
 
-def _field_exists(model_class, field_name):
+def _field_exists(model_class: type[models.Model], field_name: str) -> bool:
     return field_name in [f.attname for f in model_class._meta.local_fields]
 
 
@@ -143,11 +149,28 @@ class SoftDeletableModel(models.Model):
     class Meta:
         abstract = True
 
-    objects = SoftDeletableManager(_emit_deprecation_warnings=True)
-    available_objects = SoftDeletableManager()
+    objects: models.Manager[SoftDeletableModel] = SoftDeletableManager(_emit_deprecation_warnings=True)
+    available_objects: models.Manager[SoftDeletableModel] = SoftDeletableManager()
     all_objects = models.Manager()
 
-    def delete(self, using=None, soft=True, *args, **kwargs):
+    # Note that soft delete does not return anything,
+    # which doesn't conform to Django's interface.
+    # https://github.com/jazzband/django-model-utils/issues/541
+    @overload  # type: ignore[override]
+    def delete(
+        self, using: Any = None, *args: Any, soft: Literal[True] = True, **kwargs: Any
+    ) -> None:
+        ...
+
+    @overload
+    def delete(
+        self, using: Any = None, *args: Any, soft: Literal[False], **kwargs: Any
+    ) -> tuple[int, dict[str, int]]:
+        ...
+
+    def delete(
+        self, using: Any = None, *args: Any, soft: bool = True, **kwargs: Any
+    ) -> tuple[int, dict[str, int]] | None:
         """
         Soft delete object (set its ``is_removed`` field to True).
         Actually delete object if setting ``soft`` to False.
@@ -155,8 +178,9 @@ class SoftDeletableModel(models.Model):
         if soft:
             self.is_removed = True
             self.save(using=using)
+            return None
         else:
-            return super().delete(using=using, *args, **kwargs)
+            return super().delete(using, *args, **kwargs)
 
 
 class UUIDModel(models.Model):
@@ -172,60 +196,3 @@ class UUIDModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class SaveSignalHandlingModel(models.Model):
-    """
-    An abstract base class model to pass a parameter ``signals_to_disable``
-    to ``save`` method in order to disable signals
-    """
-    class Meta:
-        abstract = True
-
-    def save(self, signals_to_disable=None, *args, **kwargs):
-        """
-        Add an extra parameters to hold which signals to disable
-        If empty, nothing will change
-        """
-
-        self.signals_to_disable = signals_to_disable or []
-
-        super().save(*args, **kwargs)
-
-    def save_base(self, raw=False, force_insert=False,
-                  force_update=False, using=None, update_fields=None):
-        """
-        Copied from base class for a minor change.
-        This is an ugly overwriting but since Django's ``save_base`` method
-        does not differ between versions 1.8 and 1.10,
-        that way of implementing wouldn't harm the flow
-        """
-        using = using or router.db_for_write(self.__class__, instance=self)
-        assert not (force_insert and (force_update or update_fields))
-        assert update_fields is None or len(update_fields) > 0
-        cls = origin = self.__class__
-
-        if cls._meta.proxy:
-            cls = cls._meta.concrete_model
-        meta = cls._meta
-        if not meta.auto_created and 'pre_save' not in self.signals_to_disable:
-            pre_save.send(
-                sender=origin, instance=self, raw=raw, using=using,
-                update_fields=update_fields,
-            )
-        with transaction.atomic(using=using, savepoint=False):
-            if not raw:
-                self._save_parents(cls, using, update_fields)
-            updated = self._save_table(raw, cls, force_insert, force_update, using, update_fields)
-
-        self._state.db = using
-        self._state.adding = False
-
-        if not meta.auto_created and 'post_save' not in self.signals_to_disable:
-            post_save.send(
-                sender=origin, instance=self, created=(not updated),
-                update_fields=update_fields, raw=raw, using=using,
-            )
-
-        # Empty the signals in case it might be used somewhere else in future
-        self.signals_to_disable = []

@@ -1,23 +1,33 @@
-import django
+from __future__ import annotations
+
+from typing import Any, ClassVar, Iterable, TypeVar, overload
+
 from django.db import models
 from django.db.models import Manager
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import DeferredAttribute
 from django.utils.translation import gettext_lazy as _
 
 from model_utils import Choices
 from model_utils.fields import MonitorField, SplitField, StatusField, UUIDField
-from model_utils.managers import InheritanceManager, JoinManagerMixin, QueryManager
+from model_utils.managers import (
+    InheritanceManager,
+    JoinQueryset,
+    QueryManager,
+    SoftDeletableManager,
+    SoftDeletableQuerySet,
+)
 from model_utils.models import (
-    SaveSignalHandlingModel,
     SoftDeletableModel,
     StatusModel,
     TimeFramedModel,
     TimeStampedModel,
     UUIDModel,
 )
-from model_utils.tracker import FieldTracker, ModelTracker
+from model_utils.tracker import FieldInstanceTracker, FieldTracker, ModelTracker
 from tests.fields import MutableField
-from tests.managers import CustomSoftDeleteManager
+
+ModelT = TypeVar('ModelT', bound=models.Model, covariant=True)
 
 
 class InheritanceManagerTestRelated(models.Model):
@@ -34,9 +44,9 @@ class InheritanceManagerTestParent(models.Model):
     related_self = models.OneToOneField(
         "self", related_name="imtests_self", null=True,
         on_delete=models.CASCADE)
-    objects = InheritanceManager()
+    objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}({})".format(
             self.__class__.__name__[len('InheritanceManagerTest'):],
             self.pk,
@@ -46,7 +56,7 @@ class InheritanceManagerTestParent(models.Model):
 class InheritanceManagerTestChild1(InheritanceManagerTestParent):
     non_related_field_using_descriptor_2 = models.FileField(upload_to="test")
     normal_field_2 = models.TextField()
-    objects = InheritanceManager()
+    objects: ClassVar[InheritanceManager[InheritanceManagerTestParent]] = InheritanceManager()
 
 
 class InheritanceManagerTestGrandChild1(InheritanceManagerTestChild1):
@@ -65,6 +75,12 @@ class InheritanceManagerTestChild2(InheritanceManagerTestParent):
 class InheritanceManagerTestChild3(InheritanceManagerTestParent):
     parent_ptr = models.OneToOneField(
         InheritanceManagerTestParent, related_name='manual_onetoone',
+        parent_link=True, on_delete=models.CASCADE)
+
+
+class InheritanceManagerTestChild3_1(InheritanceManagerTestParent):
+    parent_ptr = models.OneToOneField(
+        InheritanceManagerTestParent, db_column="custom_parent_ptr",
         parent_link=True, on_delete=models.CASCADE)
 
 
@@ -94,6 +110,7 @@ class TimeFrameManagerAdded(TimeFramedModel):
 class Monitored(models.Model):
     name = models.CharField(max_length=25)
     name_changed = MonitorField(monitor="name")
+    name_changed_nullable = MonitorField(monitor="name", null=True)  # type: ignore[misc]
 
 
 class MonitorWhen(models.Model):
@@ -114,7 +131,7 @@ class DoubleMonitored(models.Model):
 
 
 class Status(StatusModel):
-    STATUS = Choices(
+    STATUS: Choices[str] = Choices(
         ("active", _("active")),
         ("deleted", _("deleted")),
         ("on_hold", _("on hold")),
@@ -141,7 +158,9 @@ class StatusCustomManager(Manager):
     pass
 
 
-class AbstractStatusCustomManager(StatusModel):
+class AbstractCustomManagerStatusModel(StatusModel):
+    """An abstract status model with a custom manager."""
+
     STATUS = Choices(
         ("first_choice", _("First choice")),
         ("second_choice", _("Second choice")),
@@ -153,7 +172,9 @@ class AbstractStatusCustomManager(StatusModel):
         abstract = True
 
 
-class StatusCustomManager(AbstractStatusCustomManager):
+class CustomManagerStatusModel(AbstractCustomManagerStatusModel):
+    """A concrete status model with a custom manager."""
+
     title = models.CharField(max_length=50)
 
 
@@ -163,10 +184,11 @@ class Post(models.Model):
     order = models.IntegerField()
 
     objects = models.Manager()
-    public = QueryManager(published=True)
-    public_confirmed = QueryManager(
+    public: ClassVar[QueryManager[Post]] = QueryManager(published=True)
+    public_confirmed: ClassVar[QueryManager[Post]] = QueryManager(
         models.Q(published=True) & models.Q(confirmed=True))
-    public_reversed = QueryManager(published=True).order_by("-order")
+    public_reversed: ClassVar[QueryManager[Post]] = QueryManager(
+        published=True).order_by("-order")
 
     class Meta:
         ordering = ("order",)
@@ -184,43 +206,7 @@ class SplitFieldAbstractParent(models.Model):
         abstract = True
 
 
-class NoRendered(models.Model):
-    """
-    Test that the no_excerpt_field keyword arg works. This arg should
-    never be used except by the South model-freezing.
-
-    """
-    body = SplitField(no_excerpt_field=True)
-
-
-class AuthorMixin:
-    def by_author(self, name):
-        return self.filter(author=name)
-
-
-class PublishedMixin:
-    def published(self):
-        return self.filter(published=True)
-
-
-def unpublished(self):
-    return self.filter(published=False)
-
-
-class ByAuthorQuerySet(models.query.QuerySet, AuthorMixin):
-    pass
-
-
-class FeaturedManager(models.Manager):
-    def get_queryset(self):
-        kwargs = {}
-        if hasattr(self, "_db"):
-            kwargs["using"] = self._db
-        return ByAuthorQuerySet(self.model, **kwargs).filter(feature=True)
-
-
 class AbstractTracked(models.Model):
-    number = 1
 
     class Meta:
         abstract = True
@@ -233,7 +219,7 @@ class Tracked(models.Model):
 
     tracker = FieldTracker()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """ No-op save() to ensure that FieldTracker.patch_save() works. """
         super().save(*args, **kwargs)
 
@@ -245,7 +231,7 @@ class TrackerTimeStamped(TimeStampedModel):
 
     tracker = FieldTracker()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """ Automatically add "modified" to update_fields."""
         update_fields = kwargs.get('update_fields')
         if update_fields is not None:
@@ -266,7 +252,7 @@ class TrackedAbstract(AbstractTracked):
     number = models.IntegerField()
     mutable = MutableField(default=None)
 
-    tracker = FieldTracker()
+    tracker = ModelTracker()
 
 
 class TrackedNotDefault(models.Model):
@@ -280,7 +266,7 @@ class TrackedNonFieldAttr(models.Model):
     number = models.FloatField()
 
     @property
-    def rounded(self):
+    def rounded(self) -> int | None:
         return round(self.number) if self.number is not None else None
 
     tracker = FieldTracker(fields=['rounded'])
@@ -292,6 +278,29 @@ class TrackedMultiple(models.Model):
 
     name_tracker = FieldTracker(fields=['name'])
     number_tracker = FieldTracker(fields=['number'])
+
+
+class LoopDetectionFieldInstanceTracker(FieldInstanceTracker):
+
+    def set_saved_fields(self, fields: Iterable[str] | None = None) -> None:
+        counter = getattr(self.__class__, '__loop_counter', 0)
+        if counter > 50:
+            raise AssertionError("Infinite Loop Detected!")
+        setattr(self.__class__, '__loop_counter', counter + 1)
+        super().set_saved_fields(fields)
+
+
+class LoopDetectionFieldTracker(FieldTracker):
+    tracker_class = LoopDetectionFieldInstanceTracker
+
+
+class TrackedProtectedSelfRefFK(models.Model):
+    fk = models.ForeignKey('Tracked', on_delete=models.PROTECT)
+    self_ref = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+
+    tracker = LoopDetectionFieldTracker()
+    custom_tracker = LoopDetectionFieldTracker(fields=['fk_id', 'self_ref_id'])
+    custom_tracker_without_id = LoopDetectionFieldTracker(fields=['fk', 'self_ref'])
 
 
 class TrackedFileField(models.Model):
@@ -366,46 +375,56 @@ class SoftDeletable(SoftDeletableModel):
     """
     name = models.CharField(max_length=20)
 
-    all_objects = models.Manager()
+    all_objects: ClassVar[Manager[SoftDeletable]] = models.Manager()
+
+
+class CustomSoftDeleteQuerySet(SoftDeletableQuerySet[ModelT]):
+    def only_read(self) -> QuerySet[ModelT]:
+        return self.filter(is_read=True)
 
 
 class CustomSoftDelete(SoftDeletableModel):
     is_read = models.BooleanField(default=False)
 
-    objects = CustomSoftDeleteManager()
+    available_objects = SoftDeletableManager.from_queryset(CustomSoftDeleteQuerySet)()
 
 
 class StringyDescriptor:
     """
     Descriptor that returns a string version of the underlying integer value.
     """
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
-    def __get__(self, obj, cls=None):
+    @overload
+    def __get__(self, obj: None, cls: type[models.Model] | None = None) -> StringyDescriptor:
+        ...
+
+    @overload
+    def __get__(self, obj: models.Model, cls: type[models.Model]) -> str:
+        ...
+
+    def __get__(self, obj: models.Model | None, cls: type[models.Model] | None = None) -> StringyDescriptor | str:
         if obj is None:
             return self
         if self.name in obj.get_deferred_fields():
             # This queries the database, and sets the value on the instance.
-            if django.VERSION < (3, 0):
-                DeferredAttribute(field_name=self.name).__get__(obj, cls)
-            else:
-                # Since Django 3.0, DeferredAttribute wants a field argument.
-                fields_map = {f.name: f for f in cls._meta.fields}
-                field = fields_map[self.name]
-                DeferredAttribute(field=field).__get__(obj, cls)
+            assert cls is not None
+            fields_map = {f.name: f for f in cls._meta.fields}
+            field = fields_map[self.name]
+            DeferredAttribute(field=field).__get__(obj, cls)
         return str(obj.__dict__[self.name])
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: object, value: str) -> None:
         obj.__dict__[self.name] = int(value)
 
-    def __delete__(self, obj):
+    def __delete__(self, obj: object) -> None:
         del obj.__dict__[self.name]
 
 
 class CustomDescriptorField(models.IntegerField):
-    def contribute_to_class(self, cls, name, **kwargs):
-        super().contribute_to_class(cls, name, **kwargs)
+    def contribute_to_class(self, cls: type[models.Model], name: str, *args: Any, **kwargs: Any) -> None:
+        super().contribute_to_class(cls, name, *args, **kwargs)
         setattr(cls, name, StringyDescriptor(name))
 
 
@@ -418,13 +437,9 @@ class ModelWithCustomDescriptor(models.Model):
     tracker = FieldTracker(fields=['tracked_custom_field', 'tracked_regular_field'])
 
 
-class JoinManager(JoinManagerMixin, models.Manager):
-    pass
-
-
 class BoxJoinModel(models.Model):
     name = models.CharField(max_length=32)
-    objects = JoinManager()
+    objects = JoinQueryset.as_manager()
 
 
 class JoinItemForeignKey(models.Model):
@@ -434,7 +449,7 @@ class JoinItemForeignKey(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
-    objects = JoinManager()
+    objects = JoinQueryset.as_manager()
 
 
 class CustomUUIDModel(UUIDModel):
@@ -443,10 +458,6 @@ class CustomUUIDModel(UUIDModel):
 
 class CustomNotPrimaryUUIDModel(models.Model):
     uuid = UUIDField(primary_key=False)
-
-
-class SaveSignalHandlingTestModel(SaveSignalHandlingModel):
-    name = models.CharField(max_length=20)
 
 
 class TimeStampWithStatusModel(TimeStampedModel, StatusModel):

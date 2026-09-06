@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-model-utils\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-20 10:17-0600\n"
+"POT-Creation-Date: 2024-04-01 15:01+0200\n"
 "PO-Revision-Date: 2015-07-01 10:12+0200\n"
 "Last-Translator: Philipp Steinhardt <steinhardt@myvision.de>\n"
 "Language-Team: \n"
@@ -16,38 +16,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: models.py:20
+#: models.py:24
 msgid "created"
 msgstr "erstellt"
 
-#: models.py:21
+#: models.py:25
 msgid "modified"
 msgstr "bearbeitet"
 
-#: models.py:33
+#: models.py:49
 msgid "start"
 msgstr "Beginn"
 
-#: models.py:34
+#: models.py:50
 msgid "end"
 msgstr "Ende"
 
-#: models.py:49
+#: models.py:65
 msgid "status"
 msgstr "Status"
 
-#: models.py:50
+#: models.py:66
 msgid "status changed"
 msgstr "Status geändert"
 
-#: tests/models.py:106 tests/models.py:115 tests/models.py:124
-msgid "active"
-msgstr "aktiv"
+#~ msgid "active"
+#~ msgstr "aktiv"
 
-#: tests/models.py:107 tests/models.py:116 tests/models.py:125
-msgid "deleted"
-msgstr "gelöscht"
+#~ msgid "deleted"
+#~ msgstr "gelöscht"
 
-#: tests/models.py:108 tests/models.py:117 tests/models.py:126
-msgid "on hold"
-msgstr "wartend"
+#~ msgid "on hold"
+#~ msgstr "wartend"

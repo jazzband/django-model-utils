@@ -11,7 +11,7 @@
 # serve to show the default.
 
 import os
-from pkg_resources import get_distribution
+import importlib.metadata
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -49,7 +49,8 @@ parent_dir = os.path.dirname(os.path.dirname(__file__))
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-release = get_distribution('django-model-utils').version
+release = importlib.metadata.version('django-model-utils')
+
 # for example take major/minor
 version = '.'.join(release.split('.')[:2])
 

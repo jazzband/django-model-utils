@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-23 15:12+0800\n"
+"POT-Creation-Date: 2024-04-01 15:01+0200\n"
 "PO-Revision-Date: 2018-10-23 15:26+0800\n"
 "Last-Translator: Zach Cheung <kuroro.zhang@gmail.com>\n"
 "Language-Team: \n"
@@ -24,18 +24,18 @@ msgstr "创建时间"
 msgid "modified"
 msgstr "修改时间"
 
-#: models.py:37
+#: models.py:49
 msgid "start"
 msgstr "开始时间"
 
-#: models.py:38
+#: models.py:50
 msgid "end"
 msgstr "结束时间"
 
-#: models.py:53
+#: models.py:65
 msgid "status"
 msgstr "状态"
 
-#: models.py:54
+#: models.py:66
 msgid "status changed"
 msgstr "状态修改时间"

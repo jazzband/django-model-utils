@@ -1,25 +1,25 @@
 # This file is distributed under the same license as the django-model-utils package.
 #
 # Translators:
-# Enrique Matías Sánchez <cronopios@gmail.com>, 2020.
+# Guilherme Martins Crocetti <24530683+gmcrocetti@users.noreply.github.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: django-model-utils\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-01 15:01+0200\n"
-"PO-Revision-Date: 2020-03-29 11:14+0100\n"
-"Last-Translator: Enrique Matías Sánchez <cronopios@gmail.com>\n"
+"POT-Creation-Date: 2024-04-01 15:00+0200\n"
+"PO-Revision-Date: 2023-07-20 22:05-0300\n"
+"Last-Translator: Guilherme Croceetti <24530683+gmcrocetti@users.noreply."
+"github.com>\n"
 "Language-Team: \n"
-"Language: es\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 2.0\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: models.py:24
 msgid "created"
-msgstr "creado"
+msgstr "criado"
 
 #: models.py:25
 msgid "modified"
@@ -27,11 +27,11 @@ msgstr "modificado"
 
 #: models.py:49
 msgid "start"
-msgstr "inicio"
+msgstr "início"
 
 #: models.py:50
 msgid "end"
-msgstr "fin"
+msgstr "fim"
 
 #: models.py:65
 msgid "status"
