@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Union
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.timezone import now
 
 if TYPE_CHECKING:
@@ -45,9 +46,13 @@ class AutoLastModifiedField(AutoCreatedField):
     """
     def get_default(self) -> datetime:
         """Return the default value for this field."""
-        if not hasattr(self, "_default"):
-            self._default = super().get_default()
-        return self._default
+        return self._get_default()
+
+    @cached_property
+    def _get_default(self):
+        if callable(self.default):
+            return self.default
+        return lambda: self.default
 
     def pre_save(self, model_instance: models.Model, add: bool) -> datetime:
         value = now()

@@ -3,6 +3,7 @@ Changelog
 
 To be released
 ------------------
+- Fix AutoLastModifiedField cache (GH-#520)
 - Add support for `Python 3.13` (GH-#628)
 - Add support for `Python 3.14`
 - Add formal support for `Django 5.2` (GH-#641)
