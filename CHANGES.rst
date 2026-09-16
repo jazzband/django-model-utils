@@ -9,6 +9,8 @@ To be released
 - Drop support for older versions than `Django 4.2`
 - Drop support for `Python 3.8` and `Python 3.9`
 - Fix `InheritanceQuerySet.iterator()` to stop fetching the entire table (GH-#655)
+- Preserve ``UUIDField(primary_key=False)`` when cloning fields and generating
+  migrations (GH-518)
 
 5.0.0 (2024-09-01)
 ------------------

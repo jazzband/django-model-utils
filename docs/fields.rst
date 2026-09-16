@@ -164,6 +164,8 @@ add this field to any model definition.
 
 With the param ``primary_key`` you can set if this field is the
 primary key for the model, default is True.
+Set ``primary_key=False`` to use a UUID alongside another primary key.
+This option is preserved when generating migrations.
 
 Param ``version`` is an integer that set default UUID version.
 Versions 1,3,4 and 5 are supported, default is 4.

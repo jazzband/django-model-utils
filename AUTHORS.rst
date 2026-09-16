@@ -52,6 +52,7 @@
 | João Amaro <joaoamaro70@gmail.com>
 | Karl WnW <karl.wnw@gmail.com>
 | Keryn Knight <keryn@kerynknight.com>
+| Leul Tewodros Agonafer <107800362+LeulTew@users.noreply.github.com>
 | Lucas Wiman <lucaswiman@counsyl.com>
 | Martey Dodoo <martey@mobolic.com>
 | Matthew Schinckel <matt@schinckel.net>

@@ -319,6 +319,11 @@ class UUIDField(models.UUIDField):
         kwargs.setdefault('default', default)
         super().__init__(*args, **kwargs)
 
+    def deconstruct(self) -> tuple[str, str, Sequence[Any], dict[str, Any]]:
+        name, path, args, kwargs = super().deconstruct()
+        kwargs['primary_key'] = self.primary_key
+        return name, path, args, kwargs
+
 
 class UrlsafeTokenField(models.CharField):
     """
