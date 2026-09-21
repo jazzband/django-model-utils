@@ -100,16 +100,20 @@ class DescriptorWrapper(Generic[T]):
         return value
 
     def __set__(self, instance: models.Model, value: T) -> None:
-        initialized = hasattr(instance, '_instance_initialized')
-        was_deferred = self.field_name in instance.get_deferred_fields()
-
         # Sentinel attribute to detect whether we are already trying to
         # set the attribute higher up the stack. This prevents infinite
         # recursion when retrieving deferred values from the database.
         recursion_sentinel_attname = '_setting_' + self.field_name
-        already_setting = hasattr(instance, recursion_sentinel_attname)
 
-        if initialized and was_deferred and not already_setting:
+        # `get_deferred_fields()` walks every concrete field and builds a set,
+        # so it is only called once the cheap `_instance_initialized` check has
+        # passed. Until `initialize_tracker()` runs, every assignment made by
+        # `Model.__init__` would otherwise build a set and discard it.
+        if (
+            hasattr(instance, '_instance_initialized')
+            and self.field_name in instance.get_deferred_fields()
+            and not hasattr(instance, recursion_sentinel_attname)
+        ):
             setattr(instance, recursion_sentinel_attname, True)
             try:
                 # Retrieve the value to set the saved_data value.
