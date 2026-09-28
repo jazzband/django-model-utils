@@ -1,13 +1,13 @@
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: 8.0.1
+    rev: 9.0.1
     hooks:
       - id: isort
         args: ['--profile', 'black', '--check-only', '--diff']
         files: ^((model_utils|tests)/)|setup.py
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
+    rev: 7.4.1
     hooks:
       - id: flake8
         args: ['--ignore=E402,E501,E731,W503']
