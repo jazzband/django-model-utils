@@ -3,6 +3,12 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast, overload
 
+try:
+    from django.utils.choices import BaseChoiceIterator
+except ImportError:  # Django < 5.0 stores the choices object as given.
+    class BaseChoiceIterator:
+        pass
+
 T = TypeVar("T")
 
 if TYPE_CHECKING:
@@ -33,7 +39,7 @@ if TYPE_CHECKING:
     _TripleCollector = List[Union[_Triple[T], Tuple[StrOrPromise, "_TripleCollector[T]"]]]
 
 
-class Choices(Generic[T]):
+class Choices(BaseChoiceIterator, list, Generic[T]):
     """
     A class to encapsulate handy functionality for lists of choices
     for a Django model field.
@@ -82,6 +88,10 @@ class Choices(Generic[T]):
         ...
 
     def __init__(self, *choices: _ChoiceStr | _Choice[T]):
+        # The list storage stays empty. Iteration uses _doubles so Django's
+        # migration comparator, which special-cases list, sees the same pairs
+        # it stored before normalize_choices learned to copy them.
+        list.__init__(self)
         # list of choices expanded to triples - can include optgroups
         self._triples: _TripleCollector[T] = []
         # list of choices as (db, human-readable) - can include optgroups
@@ -203,6 +213,12 @@ class Choices(Generic[T]):
         if isinstance(other, self.__class__):
             return self._triples == other._triples
         return False
+
+    def __ne__(self, other: object) -> bool:
+        # list implements inequality itself. Two Choices objects both keep an
+        # empty list backing store, so the inherited check would treat them
+        # as equal even when their triples differ.
+        return not self.__eq__(other)
 
     def __repr__(self) -> str:
         return '{}({})'.format(
