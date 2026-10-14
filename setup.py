@@ -45,10 +45,9 @@ setup(
         'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: 3.14',
         'Framework :: Django',
-        'Framework :: Django :: 4.2',
-        'Framework :: Django :: 5.0',
-        'Framework :: Django :: 5.1',
         'Framework :: Django :: 5.2',
+        'Framework :: Django :: 6.0',
+        'Framework :: Django :: 6.1',
     ],
     zip_safe=False,
     package_data={
