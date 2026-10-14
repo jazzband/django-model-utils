@@ -3,6 +3,8 @@ Changelog
 
 To be released
 ------------------
+- Add formal support for `Django 6.1`
+- Add formal support for `Django 6.0`
 - Add support for `Python 3.13` (GH-#628)
 - Add support for `Python 3.14`
 - Add formal support for `Django 5.2` (GH-#641)
@@ -10,7 +12,7 @@ To be released
 - Drop support for `Python 3.8` and `Python 3.9`
 - Fix `InheritanceQuerySet.iterator()` to stop fetching the entire table (GH-#655)
 - Stop `FieldTracker` scanning every concrete field on each assignment made by
-  `Model.__init__`; the result was discarded until the tracker was initialised
+  `Model.__init__`; the result was discarded until the tracker was initialised (GH-#655)
 
 5.0.0 (2024-09-01)
 ------------------
