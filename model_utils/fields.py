@@ -3,6 +3,7 @@ from __future__ import annotations
 import secrets
 import uuid
 from collections.abc import Sequence
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any, Union
 
 from django.conf import settings
@@ -44,20 +45,30 @@ class AutoLastModifiedField(AutoCreatedField):
 
     """
     def get_default(self) -> datetime:
-        """Return the default value for this field."""
-        if not hasattr(self, "_default"):
-            self._default = super().get_default()
-        return self._default
+        """Return a fresh default.
+
+        Caching the first ``now()`` on the field made every later instance share
+        that timestamp (#520).
+        """
+        return super().get_default()
+
+    def _is_auto_stamp(self, current: datetime, fresh: datetime) -> bool:
+        if current == fresh:
+            return True
+        try:
+            return abs(current - fresh) <= timedelta(seconds=2)
+        except (TypeError, AttributeError):
+            return False
 
     def pre_save(self, model_instance: models.Model, add: bool) -> datetime:
         value = now()
         if add:
-            current_value = getattr(model_instance, self.attname, self.get_default())
-            if current_value != self.get_default():
+            current_value = getattr(model_instance, self.attname, value)
+            if not self._is_auto_stamp(current_value, value):
                 # when creating an instance and the modified date is set
                 # don't change the value, assume the developer wants that
                 # control.
-                value = getattr(model_instance, self.attname)
+                value = current_value
             else:
                 for field in model_instance._meta.get_fields():
                     if isinstance(field, AutoCreatedField):
