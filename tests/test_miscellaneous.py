@@ -27,3 +27,12 @@ class GetExcerptTests(TestCase):
     def test_middle_of_line(self) -> None:
         e = get_excerpt("some text <!-- split --> more text")
         self.assertEqual(e, "some text <!-- split --> more text")
+
+
+class TranslationsScriptTests(TestCase):
+    def test_translations_run_compile(self) -> None:
+        from unittest import mock
+        from translations import run
+        with mock.patch("django.core.management.call_command") as mock_call:
+            run("compile")
+            mock_call.assert_called_once_with("compilemessages")
