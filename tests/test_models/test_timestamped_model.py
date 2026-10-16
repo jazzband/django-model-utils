@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import time_machine
 from django.test import TestCase
+from django.utils.timezone import now
 
 from tests.models import TimeStamp, TimeStampWithStatusModel
 
@@ -36,7 +37,7 @@ class TimeStampedModelTests(TestCase):
         Setting the created date when first creating an object
         should be permissible.
         """
-        different_date = datetime.today() - timedelta(weeks=52)
+        different_date = now() - timedelta(weeks=52)
         t1 = TimeStamp.objects.create(created=different_date)
         self.assertEqual(t1.created, different_date)
         self.assertEqual(t1.modified, different_date)
@@ -46,7 +47,7 @@ class TimeStampedModelTests(TestCase):
         Setting the modified date explicitly should be possible when
         first creating an object, but not thereafter.
         """
-        different_date = datetime.today() - timedelta(weeks=52)
+        different_date = now() - timedelta(weeks=52)
         t1 = TimeStamp.objects.create(modified=different_date)
         self.assertEqual(t1.modified, different_date)
         self.assertNotEqual(t1.created, different_date)
@@ -56,7 +57,7 @@ class TimeStampedModelTests(TestCase):
         The created date may be changed post-create
         """
         t1 = TimeStamp.objects.create()
-        different_date = datetime.today() - timedelta(weeks=52)
+        different_date = now() - timedelta(weeks=52)
         t1.created = different_date
         t1.save()
         self.assertEqual(t1.created, different_date)
@@ -67,7 +68,7 @@ class TimeStampedModelTests(TestCase):
         is saved, regardless of attempts to change it.
         """
         t1 = TimeStamp.objects.create()
-        different_date = datetime.today() - timedelta(weeks=52)
+        different_date = now() - timedelta(weeks=52)
         t1.modified = different_date
         t1.save()
         self.assertNotEqual(t1.modified, different_date)
@@ -79,13 +80,13 @@ class TimeStampedModelTests(TestCase):
         After that, only created may be modified manually.
         """
         t1 = TimeStamp()
-        different_date = datetime.today() - timedelta(weeks=52)
+        different_date = now() - timedelta(weeks=52)
         t1.created = different_date
         t1.modified = different_date
         t1.save()
         self.assertEqual(t1.created, different_date)
         self.assertEqual(t1.modified, different_date)
-        different_date2 = datetime.today() - timedelta(weeks=26)
+        different_date2 = now() - timedelta(weeks=26)
         t1.created = different_date2
         t1.modified = different_date2
         t1.save()
