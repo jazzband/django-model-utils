@@ -3,6 +3,8 @@ Changelog
 
 To be released
 ------------------
+- Keep a ``Choices`` instance on a model field so ``choices['M']`` still
+  returns the label on Django 5+ (GH-#616)
 - Add formal support for `Django 6.1`
 - Add formal support for `Django 6.0`
 - Add support for `Python 3.13` (GH-#628)

@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 import pytest
+from django.db import models
 from django.test import TestCase
+from django.test.utils import isolate_apps
 
 from model_utils import Choices
 
@@ -329,3 +331,19 @@ class SubsetChoicesTest(TestCase):
         subset = self.choices.subset('a')
 
         self.assertEqual(subset, Choices((0, 'a', 'A')))
+
+
+class ChoicesOnModelFieldTests(TestCase):
+    @isolate_apps("tests")
+    def test_charfield_keeps_choices_string_lookup(self) -> None:
+        gender = Choices(("M", "Male", "MALE"), ("F", "Female", "FEMALE"))
+
+        class Person(models.Model):
+            sex = models.CharField(max_length=1, choices=gender)
+
+            class Meta:
+                app_label = "tests"
+
+        field_choices = Person._meta.get_field("sex").choices
+        self.assertEqual(field_choices["M"], "MALE")
+        self.assertIsInstance(field_choices, Choices)
