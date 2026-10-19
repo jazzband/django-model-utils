@@ -143,6 +143,15 @@ class TimeStampedModelTests(TestCase):
 
         self.assertEqual(t1.modified, datetime(2020, 1, 2, tzinfo=timezone.utc))
 
+    def test_modified_default_is_fresh_for_each_instance(self) -> None:
+        with time_machine.travel(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            first = TimeStamp()
+        with time_machine.travel(datetime(2024, 6, 1, tzinfo=timezone.utc)):
+            second = TimeStamp()
+        self.assertEqual(first.modified.date(), datetime(2024, 1, 1).date())
+        self.assertEqual(second.modified.date(), datetime(2024, 6, 1).date())
+        self.assertNotEqual(first.modified, second.modified)
+
     def test_model_inherit_timestampmodel_and_statusmodel(self) -> None:
         with time_machine.travel(datetime(2020, 1, 1, tzinfo=timezone.utc)):
             t1 = TimeStampWithStatusModel.objects.create()
