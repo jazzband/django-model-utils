@@ -22,6 +22,15 @@ else:
 DEFAULT_CHOICES_NAME = 'STATUS'
 
 
+def _are_stamps_within_2seconds(first: datetime, second: datetime) -> bool:
+    if first == second:
+        return True
+    try:
+        return abs(first - second) <= timedelta(seconds=2)
+    except (TypeError, AttributeError):
+        return False
+
+
 class AutoCreatedField(DateTimeFieldBase):
     """
     A DateTimeField that automatically populates itself at
@@ -44,27 +53,12 @@ class AutoLastModifiedField(AutoCreatedField):
     By default, sets editable=False and default=datetime.now.
 
     """
-    def get_default(self) -> datetime:
-        """Return a fresh default.
-
-        Caching the first ``now()`` on the field made every later instance share
-        that timestamp (#520).
-        """
-        return super().get_default()
-
-    def _is_auto_stamp(self, current: datetime, fresh: datetime) -> bool:
-        if current == fresh:
-            return True
-        try:
-            return abs(current - fresh) <= timedelta(seconds=2)
-        except (TypeError, AttributeError):
-            return False
-
     def pre_save(self, model_instance: models.Model, add: bool) -> datetime:
         value = now()
         if add:
             current_value = getattr(model_instance, self.attname, value)
-            if not self._is_auto_stamp(current_value, value):
+            is_auto_stamp = _are_stamps_within_2seconds(current_value, value)
+            if not is_auto_stamp:
                 # when creating an instance and the modified date is set
                 # don't change the value, assume the developer wants that
                 # control.
