@@ -242,8 +242,14 @@ else:
 
 class SplitField(_SplitFieldBase):
 
+    def __init__(self, *args: Any, no_excerpt_field: bool = False, **kwargs: Any):
+        # Migrations list the excerpt field separately, so the SplitField they
+        # create must not add it again (see deconstruct()).
+        self.add_excerpt_field = not no_excerpt_field
+        super().__init__(*args, **kwargs)
+
     def contribute_to_class(self, cls: type[models.Model], name: str, *args: Any, **kwargs: Any) -> None:
-        if not cls._meta.abstract:
+        if self.add_excerpt_field and not cls._meta.abstract:
             excerpt_field: models.TextField = models.TextField(editable=False)
             cls.add_to_class(_excerpt_field_name(name), excerpt_field)
         super().contribute_to_class(cls, name, *args, **kwargs)
@@ -264,6 +270,11 @@ class SplitField(_SplitFieldBase):
             return value.content
         except AttributeError:
             return value
+
+    def deconstruct(self) -> tuple[str, str, Sequence[Any], dict[str, Any]]:
+        name, path, args, kwargs = super().deconstruct()
+        kwargs['no_excerpt_field'] = True
+        return name, path, args, kwargs
 
 
 class UUIDField(models.UUIDField):

@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from django.apps.registry import Apps
+from django.db import models
+from django.db.migrations.state import ModelState
 from django.test import TestCase
 
+from model_utils.fields import SplitField
 from tests.models import Article, SplitFieldAbstractParent
 
 
@@ -71,3 +75,19 @@ class SplitFieldTests(TestCase):
         self.assertEqual(
             [f.name for f in Child._meta.fields],
             ["id", "content", "_content_excerpt"])
+
+    def test_migration_state(self) -> None:
+        # Migrations list the excerpt field separately, so the model that
+        # Django renders from the migration state must not add it again.
+        model = ModelState.from_model(Article).render(Apps())
+        self.assertEqual(
+            [f.name for f in model._meta.fields],
+            ["id", "title", "body", "_body_excerpt"])
+
+    def test_no_excerpt_field(self) -> None:
+        # Migrations written by makemigrations pass no_excerpt_field=True.
+        class NoExcerpt(models.Model):
+            body = SplitField(no_excerpt_field=True)
+
+        self.assertEqual(
+            [f.name for f in NoExcerpt._meta.fields], ["id", "body"])
