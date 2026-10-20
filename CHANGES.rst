@@ -13,6 +13,8 @@ To be released
 - Fix `InheritanceQuerySet.iterator()` to stop fetching the entire table (GH-#655)
 - Stop `FieldTracker` scanning every concrete field on each assignment made by
   `Model.__init__`; the result was discarded until the tracker was initialised (GH-#655)
+- Fix migrations of models with a `SplitField` adding the excerpt column twice,
+  and accept `no_excerpt_field` again so migrations made by 4.x load (GH-#637)
 
 5.0.0 (2024-09-01)
 ------------------
