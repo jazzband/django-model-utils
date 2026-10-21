@@ -11,6 +11,7 @@ To be released
 - Drop support for older versions than `Django 4.2`
 - Drop support for `Python 3.8` and `Python 3.9`
 - Fix `InheritanceQuerySet.iterator()` to stop fetching the entire table (GH-#655)
+- Return `Self` from `InheritanceQuerySetMixin` methods (GH-#651)
 - Stop `FieldTracker` scanning every concrete field on each assignment made by
   `Model.__init__`; the result was discarded until the tracker was initialised (GH-#655)
 

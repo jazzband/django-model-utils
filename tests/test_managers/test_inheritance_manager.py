@@ -21,7 +21,32 @@ from tests.models import (
 )
 
 if TYPE_CHECKING:
+    import sys
+    from typing import Generic, TypeVar
+    if sys.version_info >= (3, 11):
+        from typing import Self
+    else:
+        from typing_extensions import Self
+    from django.db.models import Value
     from django.db.models.fields.related_descriptors import RelatedManager
+    from django.db.models.query import QuerySet
+
+    from model_utils.managers import InheritanceQuerySetMixin
+
+    ModelTypeVar = TypeVar("ModelTypeVar", bound=models.Model, covariant=True)
+
+    class CustomInheritanceQuerySet(InheritanceQuerySetMixin[ModelTypeVar], QuerySet[ModelTypeVar], Generic[ModelTypeVar]):
+        def custom_annotate(self) -> Self:
+            return self.annotate(custom_field=Value(1))
+
+        def custom_chain(self) -> Self:
+            return self._chain()
+
+        def custom_clone(self) -> Self:
+            return self._clone()
+
+        def custom_select_subclasses(self) -> Self:
+            return self.select_subclasses()
 
 
 class InheritanceManagerTests(TestCase):
