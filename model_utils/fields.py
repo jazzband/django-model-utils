@@ -3,6 +3,7 @@ from __future__ import annotations
 import secrets
 import uuid
 from collections.abc import Sequence
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any, Union
 
 from django.conf import settings
@@ -19,6 +20,15 @@ else:
     DateTimeFieldBase = models.DateTimeField
 
 DEFAULT_CHOICES_NAME = 'STATUS'
+
+
+def _are_stamps_within_2seconds(first: datetime, second: datetime) -> bool:
+    if first == second:
+        return True
+    try:
+        return abs(first - second) <= timedelta(seconds=2)
+    except (TypeError, AttributeError):
+        return False
 
 
 class AutoCreatedField(DateTimeFieldBase):
@@ -43,21 +53,16 @@ class AutoLastModifiedField(AutoCreatedField):
     By default, sets editable=False and default=datetime.now.
 
     """
-    def get_default(self) -> datetime:
-        """Return the default value for this field."""
-        if not hasattr(self, "_default"):
-            self._default = super().get_default()
-        return self._default
-
     def pre_save(self, model_instance: models.Model, add: bool) -> datetime:
         value = now()
         if add:
-            current_value = getattr(model_instance, self.attname, self.get_default())
-            if current_value != self.get_default():
+            current_value = getattr(model_instance, self.attname, value)
+            is_auto_stamp = _are_stamps_within_2seconds(current_value, value)
+            if not is_auto_stamp:
                 # when creating an instance and the modified date is set
                 # don't change the value, assume the developer wants that
                 # control.
-                value = getattr(model_instance, self.attname)
+                value = current_value
             else:
                 for field in model_instance._meta.get_fields():
                     if isinstance(field, AutoCreatedField):
