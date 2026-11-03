@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+import sys
 import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast, overload
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    try:
+        from typing_extensions import Self
+    except ImportError:
+        Self = Any  # type: ignore[assignment,misc]
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection, models
@@ -74,7 +83,7 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
         super().__init__(*args, **kwargs)
         self._iterable_class: type[BaseIterable[ModelT]] = InheritanceIterable
 
-    def select_subclasses(self, *subclasses: str | type[models.Model]) -> InheritanceQuerySet[ModelT]:
+    def select_subclasses(self, *subclasses: str | type[models.Model]) -> Self:
         model: type[ModelT] = self.model
         calculated_subclasses = self._get_subclasses_recurse(model)
         # if none were passed in, we can just short circuit and select all
@@ -101,35 +110,35 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
                     )
             selected_subclasses = verified_subclasses
 
-        new_qs = cast('InheritanceQuerySet[ModelT]', self)
+        new_qs = cast(Any, self)
         if selected_subclasses:
             new_qs = new_qs.select_related(*selected_subclasses)
         new_qs.subclasses = selected_subclasses
-        return new_qs
+        return cast(Self, new_qs)
 
-    def _chain(self, **kwargs: object) -> InheritanceQuerySet[ModelT]:
+    def _chain(self, **kwargs: object) -> Self:
         update = {}
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 update[name] = getattr(self, name)
 
         # django-stubs doesn't include this private API.
-        chained = super()._chain(**kwargs)  # type: ignore[misc]
+        chained = cast(Any, super())._chain(**kwargs)
         chained.__dict__.update(update)
-        return chained
+        return cast(Self, chained)
 
-    def _clone(self) -> InheritanceQuerySet[ModelT]:
+    def _clone(self) -> Self:
         # django-stubs doesn't include this private API.
-        qs = super()._clone()  # type: ignore[misc]
+        qs = cast(Any, super())._clone()
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 setattr(qs, name, getattr(self, name))
-        return qs
+        return cast(Self, qs)
 
-    def annotate(self, *args: Any, **kwargs: Any) -> InheritanceQuerySet[ModelT]:
-        qset = cast(QuerySet[ModelT], super()).annotate(*args, **kwargs)
+    def annotate(self, *args: Any, **kwargs: Any) -> Self:
+        qset = cast(Any, super()).annotate(*args, **kwargs)
         qset._annotated = [a.default_alias for a in args] + list(kwargs.keys())
-        return qset
+        return cast(Self, qset)
 
     def _get_subclasses_recurse(self, model: type[models.Model]) -> list[str]:
         """
@@ -194,7 +203,7 @@ class InheritanceQuerySetMixin(Generic[ModelT]):
             return node
 
     def get_subclass(self, *args: object, **kwargs: object) -> ModelT:
-        return self.select_subclasses().get(*args, **kwargs)
+        return cast(Any, self.select_subclasses()).get(*args, **kwargs)
 
 
 # Defining the 'model' attribute using a generic type triggers a bug in mypy:
