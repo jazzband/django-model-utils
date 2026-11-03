@@ -349,6 +349,13 @@ class ModelTrackedMultiple(models.Model):
     number_tracker = ModelTracker(fields=['number'])
 
 
+class TrackedModelWithSpecialNamedField(models.Model):
+    instance = models.CharField(max_length=20)
+    name = models.CharField(max_length=20)
+
+    tracker = FieldTracker()
+
+
 class InheritedModelTracked(ModelTracked):
     name2 = models.CharField(max_length=20)
 
