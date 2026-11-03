@@ -22,6 +22,7 @@ DEFAULT_SETTINGS = dict(
 def run(command):
     if not settings.configured:
         settings.configure(**DEFAULT_SETTINGS)
+    django.setup()
 
     parent = os.path.dirname(os.path.abspath(__file__))
     appdir = os.path.join(parent, 'model_utils')
