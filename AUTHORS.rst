@@ -12,6 +12,7 @@
 | Arseny Sysolyatin <phelansav@gmail.com>
 | Artis Avotins <artis.avotins@gmail.com>
 | Asif Saif Uddin <auvipy@gmail.com>
+| Benedikt Willi <ben.willi@gmail.com>
 | Bo Marchman <bo.marchman@gmail.com>
 | Bojan Mihelac <bmihelac@mihelac.org>
 | Bruno Alla <bruno.alla@founders4schools.org.uk>
