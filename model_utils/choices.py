@@ -226,8 +226,16 @@ class Choices(Generic[T]):
                 identifiers.symmetric_difference(new_identifiers),
             )
 
-        args: list[Any] = [
-            choice for choice in self._triples
-            if choice[1] in new_identifiers
-        ]
-        return self.__class__(*args)
+        def select(choices: _TripleCollector[T]) -> _TripleCollector[T]:
+            selected: _TripleCollector[T] = []
+            for choice in choices:
+                if len(choice) == 2:
+                    group_name, group_choices = choice
+                    selected_group = select(group_choices)
+                    if selected_group:
+                        selected.append((group_name, selected_group))
+                elif choice[1] in new_identifiers:
+                    selected.append(choice)
+            return selected
+
+        return self.__class__(*select(self._triples))

@@ -3,6 +3,7 @@ Changelog
 
 To be released
 ------------------
+- Keep selected choices inside option groups in ``Choices.subset()``
 - Add formal support for `Django 6.1`
 - Add formal support for `Django 6.0`
 - Add support for `Python 3.13` (GH-#628)
