@@ -108,7 +108,8 @@ select, you can use the ``subset`` method:
 The ``choices`` attribute on the model field can then be set to
 ``FAILED_OUTCOMES``, thus allowing the subset to be defined in close
 proximity to the definition of all the choices, and reused elsewhere as
-required.
+required. Subsets keep option group labels and omit groups with no selected
+choices.
 
 
 Field Tracker

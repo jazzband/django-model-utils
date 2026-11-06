@@ -39,6 +39,7 @@
 | Hanley Hansen <hanleyhansen@gmail.com>
 | Harry Moreno <morenoh149@gmail.com>
 | Hasan Ramezani <hasan.r67@gmail.com>
+| Ilya Khalafi <github.com/IlyaKhalafi>
 | Ivan Virabyan <i.virabyan@gmail.com>
 | JMP <josemarfyl@gmail.com>
 | Jack Cushman <jcushman@law.harvard.edu>
