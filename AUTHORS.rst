@@ -91,6 +91,7 @@
 | Travis Swicegood <development@domain51.com>
 | Trey Hunner <trey@treyhunner.com>
 | Václav Dohnal <vaclav.dohnal@gmail.com>
+| Wei-Lun Li <b84330808@gmail.com>
 | Zach Cheung <kuroro.zhang@gmail.com>
 | ad-m <ad_m@dobrytata.pl>
 | asday <sara.and.zuka@gmail.com>
