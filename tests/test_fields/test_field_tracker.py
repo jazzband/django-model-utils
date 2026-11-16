@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from unittest.mock import patch
 
 import pytest
 from django.core.cache import cache
@@ -291,6 +292,17 @@ class FieldTrackerTests(FieldTrackerCommonMixin, TestCase):
             self.assertTrue(item.tracker.has_changed('number'))
             item.number = 1
             self.assertFalse(item.tracker.has_changed('number'))
+
+    def test_loaded_field_read_skips_deferred_scan(self) -> None:
+        self.instance.name = 'new age'
+        self.instance.number = 1
+        self.instance.save()
+        item = self.tracked_class.objects.get(pk=self.instance.pk)
+        with patch.object(
+            self.tracked_class, 'get_deferred_fields', autospec=True
+        ) as scan:
+            self.assertEqual(item.name, 'new age')
+        self.assertEqual(scan.call_count, 0)
 
 
 class FieldTrackerMultipleInstancesTests(TestCase):

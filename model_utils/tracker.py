@@ -92,7 +92,12 @@ class DescriptorWrapper(Generic[T]):
     def __get__(self, instance: models.Model | None, owner: type[models.Model]) -> DescriptorWrapper[T] | T:
         if instance is None:
             return self
-        was_deferred = self.field_name in instance.get_deferred_fields()
+        # `get_deferred_fields()` walks every concrete field. A deferred field
+        # is never in `__dict__`, so a loaded field skips the walk.
+        was_deferred = (
+            self.field_name not in instance.__dict__
+            and self.field_name in instance.get_deferred_fields()
+        )
         value = self.descriptor.__get__(instance, owner)
         if was_deferred:
             tracker_instance = getattr(instance, self.tracker_attname)
