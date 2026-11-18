@@ -1,0 +1,41 @@
+# This file is distributed under the same license as the django-model-utils package.
+#
+# Translators:
+# Konstantinos Giannopoulos <giannopoulosk.data@gmail.com>, 2026.
+msgid ""
+msgstr ""
+"Project-Id-Version: django-model-utils\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-18 12:00+0200\n"
+"PO-Revision-Date: 2026-11-18 12:00+0200\n"
+"Last-Translator: Konstantinos Giannopoulos\n"
+"Language-Team: Greek\n"
+"Language: el\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models.py:30
+msgid "created"
+msgstr "δημιουργήθηκε"
+
+#: models.py:31
+msgid "modified"
+msgstr "τροποποιήθηκε"
+
+#: models.py:55
+msgid "start"
+msgstr "έναρξη"
+
+#: models.py:56
+msgid "end"
+msgstr "λήξη"
+
+#: models.py:71
+msgid "status"
+msgstr "κατάσταση"
+
+#: models.py:72
+msgid "status changed"
+msgstr "αλλαγή κατάστασης"
