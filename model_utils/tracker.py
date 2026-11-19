@@ -249,7 +249,14 @@ class FieldInstanceTracker:
         return getattr(self.instance, self.field_map[field])
 
     def set_saved_fields(self, fields: Iterable[str] | None = None) -> None:
-        if not self.instance.pk:
+        try:
+            pk = self.instance.pk
+        except AttributeError:
+            # The instance has not been initialized yet (for example, the
+            # tracker was accessed from __init__ before super().__init__()),
+            # so it cannot have saved data.
+            pk = None
+        if not pk:
             self.saved_data = {}
         elif fields is None:
             self.saved_data = self.current()
@@ -393,8 +400,13 @@ class FieldTracker:
     ) -> None:
         if not isinstance(instance, self.model_class):
             return  # Only init instances of given model (including children)
-        tracker = self.tracker_class(instance, self.fields, self.field_map)
-        setattr(instance, self.attname, tracker)
+        tracker = instance.__dict__.get(self.attname)
+        if tracker is None:
+            tracker = self.tracker_class(instance, self.fields, self.field_map)
+            setattr(instance, self.attname, tracker)
+        # Refresh the saved fields so that a tracker which was initialized
+        # lazily during __init__ (see __get__) reflects the final field
+        # values once __init__ has completed.
         tracker.set_saved_fields()
         cast('_AugmentedModel', instance)._instance_initialized = True
 
@@ -442,8 +454,14 @@ class FieldTracker:
     def __get__(self, instance: models.Model | None, owner: type[models.Model]) -> FieldTracker | FieldInstanceTracker:
         if instance is None:
             return self
-        else:
-            return getattr(instance, self.attname)
+        if self.attname not in instance.__dict__:
+            # The tracker is normally initialized at the end of __init__,
+            # so accessing it while __init__ is still running (or on an
+            # instance created without __init__) would fail. Initialize
+            # it lazily instead; initialize_tracker() refreshes the saved
+            # fields once __init__ completes.
+            self.initialize_tracker(owner, instance)
+        return getattr(instance, self.attname)
 
 
 class ModelInstanceTracker(FieldInstanceTracker):

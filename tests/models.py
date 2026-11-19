@@ -224,6 +224,19 @@ class Tracked(models.Model):
         super().save(*args, **kwargs)
 
 
+class TrackedInitAccess(models.Model):
+    name = models.CharField(max_length=20)
+    number = models.IntegerField()
+
+    tracker = FieldTracker()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        # Accessing the tracker while __init__ is still running must not
+        # raise AttributeError (GH-#640).
+        self.tracker_during_init = self.tracker
+
+
 class TrackerTimeStamped(TimeStampedModel):
     name = models.CharField(max_length=20)
     number = models.IntegerField()
