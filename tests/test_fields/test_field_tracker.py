@@ -24,6 +24,7 @@ from tests.models import (
     TrackedAbstract,
     TrackedFileField,
     TrackedFK,
+    TrackedInitAccess,
     TrackedMultiple,
     TrackedNonFieldAttr,
     TrackedNotDefault,
@@ -303,6 +304,19 @@ class FieldTrackerMultipleInstancesTests(TestCase):
 
         for instance in queryset:
             instance.name
+
+
+class FieldTrackerInitAccessTests(TestCase):
+
+    def test_tracker_accessible_during_init(self) -> None:
+        instance = TrackedInitAccess(name='foo', number=1)
+        self.assertIsInstance(
+            instance.tracker_during_init, FieldInstanceTracker
+        )
+        # The tracker seen during __init__ is the instance's tracker,
+        # refreshed with the final field values once __init__ completes.
+        self.assertIs(instance.tracker_during_init, instance.tracker)
+        self.assertTrue(instance.tracker.has_changed('name'))
 
 
 class FieldTrackedModelCustomTests(FieldTrackerCommonMixin, TestCase):
