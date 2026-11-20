@@ -3,6 +3,7 @@ Changelog
 
 To be released
 ------------------
+- Fix the setup guide's Django and Python minimum versions (GH-#678)
 - Add formal support for `Django 6.1`
 - Add formal support for `Django 6.0`
 - Add support for `Python 3.13` (GH-#628)
