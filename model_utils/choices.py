@@ -226,8 +226,18 @@ class Choices(Generic[T]):
                 identifiers.symmetric_difference(new_identifiers),
             )
 
-        args: list[Any] = [
-            choice for choice in self._triples
-            if choice[1] in new_identifiers
-        ]
-        return self.__class__(*args)
+        def _subset(
+            choices: _TripleCollector[T],
+        ) -> list[Any]:
+            args: list[Any] = []
+            for choice in choices:
+                if isinstance(choice[1], (list, tuple)):
+                    # option group: keep it with only its selected members
+                    subchoices = _subset(choice[1])
+                    if subchoices:
+                        args.append((choice[0], subchoices))
+                elif choice[1] in new_identifiers:
+                    args.append(choice)
+            return args
+
+        return self.__class__(*_subset(self._triples))

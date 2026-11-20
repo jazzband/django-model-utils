@@ -329,3 +329,38 @@ class SubsetChoicesTest(TestCase):
         subset = self.choices.subset('a')
 
         self.assertEqual(subset, Choices((0, 'a', 'A')))
+
+    def test_subset_returns_grouped_choices(self) -> None:
+        choices = Choices(
+            ('State', [(0, 'draft', 'Draft'), (1, 'archived', 'Archived')]),
+        )
+        subset = choices.subset('archived')
+
+        self.assertEqual(
+            subset,
+            Choices(('State', [(1, 'archived', 'Archived')])),
+        )
+        self.assertEqual(list(subset), [('State', [(1, 'Archived')])])
+
+    def test_subset_drops_empty_groups(self) -> None:
+        choices = Choices(
+            ('State', [(0, 'draft', 'Draft'), (1, 'archived', 'Archived')]),
+            ('Other', [(2, 'other', 'Other')]),
+        )
+        subset = choices.subset('archived')
+
+        self.assertEqual(
+            subset,
+            Choices(('State', [(1, 'archived', 'Archived')])),
+        )
+
+    def test_subset_returns_nested_grouped_choices(self) -> None:
+        choices = Choices(
+            ('Outer', [('Inner', [(0, 'a', 'A'), (1, 'b', 'B')])]),
+        )
+        subset = choices.subset('b')
+
+        self.assertEqual(
+            subset,
+            Choices(('Outer', [('Inner', [(1, 'b', 'B')])])),
+        )
